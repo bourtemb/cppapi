@@ -8,7 +8,7 @@
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -31,74 +31,6 @@
 // $Revision$
 //
 // $Log$
-// Revision 3.58  2011/01/24 12:19:01  taurel
-// - Adapted to release 7.2.5
-//
-// Revision 3.57  2011/01/18 14:55:48  taurel
-// - Release 7.2.4
-//
-// Revision 3.56  2011/01/10 13:53:17  taurel
-// - Tango release 7.2.3
-//
-// Revision 3.55  2010/12/08 10:21:53  taurel
-// - Tango release 7.2.2
-//
-// Revision 3.54  2010/11/02 14:06:54  taurel
-// - Replace dynamic_cast with static_cast in attribute.cpp.
-// - Release number is now 7.2.1
-//
-// Revision 3.53  2010/09/09 13:46:45  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.52  2010/09/07 15:32:21  taurel
-// - Fix some re-connection problems with Windows
-// - Publish all endPoints in case of multiple network interface
-//
-// Revision 3.51  2010/08/19 12:10:20  taurel
-// - Change timeout during the first _narrow() call in connect() method
-//
-// Revision 3.50  2010/05/26 09:15:36  taurel
-// - Another commit after merge with the bug fixes branch
-//
-// Revision 3.49.2.1  2010/05/21 09:43:39  taurel
-// - Re-use the same event channel in case of server restart when a file
-// is use as database
-//
-// Revision 3.49  2009/10/23 14:36:27  taurel
-// - Tango 7.1.1
-// - Fix bugs 2880372 and 2881841
-// - Now support event in case of Tango system with multi db server
-// - The polling threads start with polling inactive
-//
-// Revision 3.48  2009/09/30 06:43:18  taurel
-// - Improve error detection in case of TANGO_HOST not set and not fully
-// qualified device name
-//
-// Revision 3.47  2009/09/22 11:06:01  taurel
-// - Environment variables in file also supported for Windows
-//
-// Revision 3.46  2009/09/18 09:18:06  taurel
-// - End of attribute serialization implementation?
-//
-// Revision 3.45  2009/09/08 14:21:22  taurel
-// - The tango rc file location can be defined by a configure option
-//
-// Revision 3.44  2009/09/01 07:41:31  taurel
-// - Commit after test suite for Tango 7.1
-//
-// Revision 3.43  2009/08/27 07:23:45  taurel
-// - Commit after another merge with Release_7_0_2-bugfixes branch
-//
-// Revision 3.42  2009/06/17 08:52:08  taurel
-// - Commit after a merge with branch Release_7_0_2-bugfixes
-//
-// Revision 3.41.2.1  2009/06/12 08:28:51  taurel
-// - Fix bug when using events in multi Tango host environment.
-// The TANGO_HOST is now transferred within the even tin the fixed
-// header event_type field.
-// The DS admin device EventSubscriptionChange command now returns with which Tango lib it is runnig.
-// This allows the client to know if the tango host info will be transmitted within the event
-//
 // Revision 3.41  2009/04/30 12:49:24  taurel
 // - Adapted to Tango 7.0.2
 //
@@ -187,7 +119,7 @@ namespace Tango
 // Some general interest define
 //
 
-#define		TgLibVers				"7.2.5"		// Please, always code this following format "X.Y.Z"
+#define		TgLibVers				"7.1.0"		// Please, always code this following format "X.Y.Z"
 
 #define		DevVersion				4			// IDL version number
 #define		DefaultMaxSeq			20
@@ -198,13 +130,11 @@ namespace Tango
 #define		DSDeviceDomain  		"dserver"
 #define		DefaultDocUrl			"http://www.tango-controls.org"
 #define		EnvVariable				"TANGO_HOST"
-#define		WindowsEnvVariable		"TANGO_ROOT"
 #define		DbObjName				"database"
 #define		DescNotSet				"Uninitialised"
 #define		ResNotDefined			"0"
 #define		MessBoxTitle			"Tango Device Server"
 #define		StatusNotSet			"Not initialised"
-#define		TangoHostNotSet			"Undef"
 
 #define		DefaultWritAttrProp		false
 #define		AllAttr 				"All attributes"
@@ -243,19 +173,12 @@ namespace Tango
 #define		HEARTBEAT					"Event heartbeat"
 
 //
-// Event when using a file as database stuff
-//
-
-#define		NOTIFD_CHANNEL				"notifd_channel"
-
-//
 // Locking feature related defines
 //
 
 #define		DEFAULT_LOCK_VALIDITY	10
 #define		DEVICE_UNLOCKED_REASON	"API_DeviceUnlocked"
 #define		MIN_LOCK_VALIDITY		2
-#define		LOCAL_HOST				"localhost"
 
 //
 // Client timeout as defined by omniORB4.0.0
@@ -263,7 +186,6 @@ namespace Tango
 
 #define		CLNT_TIMEOUT_STR		"3000"
 #define		CLNT_TIMEOUT			3000
-#define		NARROW_CLNT_TIMEOUT		100
 
 //
 // Connection and call timeout for database device
@@ -314,11 +236,7 @@ namespace Tango
 //
 
 #define		USER_ENV_VAR_FILE		".tangorc"
-
-#ifndef HAVE_CONFIG_H
-#define		TANGO_RC_FILE			"/etc/tangorc"
-#endif
-#define		WINDOWS_ENV_VAR_FILE	"tangorc"
+#define		HOST_ENV_VAR_FILE		"/etc/tangorc"
 
 //
 // A short inline function to hide the CORBA::string_dup function
@@ -966,13 +884,6 @@ enum EventType {
 	USER_EVENT,
 	ATTR_CONF_EVENT,
 	DATA_READY_EVENT
-};
-
-enum AttrSerialModel
-{
-	ATTR_NO_SYNC=0,
-	ATTR_BY_KERNEL,
-	ATTR_BY_USER
 };
 
 enum KeepAliveCmdCode {

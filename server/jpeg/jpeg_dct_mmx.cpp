@@ -9,7 +9,7 @@
 //
 // author(s) :		JL Pons
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //                      European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -32,18 +32,6 @@
 // $Revision$
 //
 // $Log$
-// Revision 1.9  2009/09/02 08:01:43  taurel
-// - Fix linker problem when used with gcc release < 4
-//
-// Revision 1.8  2009/09/01 14:02:07  taurel
-// - Fix a problem for old gcc release in the asm code.
-//
-// Revision 1.7  2009/08/27 07:24:30  taurel
-// - Commit after another merge with Release_7_0_2-bugfixes branch
-//
-// Revision 1.6.2.1  2009/08/25 14:03:10  taurel
-// - First attempt to clarify the gcc PIC problem
-//
 // Revision 1.6  2009/04/20 14:55:58  jlpons
 // Added GPL header, changed memory allocation to C++ fashion.
 //
@@ -253,17 +241,10 @@ ALIGN8 short __jpmm_row_tab_frw[] = {  // forward_dct coeff table
 	"pmulhw	"#REG1", QWORD PTR [esp]	\n" \
 	"add	esp,8	\n"
 
-#if __GNUC__ > 3
 #define lea_addr_in_reg(REG1) \
 	"call	__i686.get_pc_thunk.bx	\n" \
 	"add    ebx,_GLOBAL_OFFSET_TABLE_	\n" \
-	"lea	"#REG1",__jpmm_row_tab_frw@GOTOFF	\n"
-#else
-#define lea_addr_in_reg(REG1) \
-	"call	__tg_get_pc	\n" \
-	"add    ebx,_GLOBAL_OFFSET_TABLE_	\n" \
-	"lea	"#REG1",__jpmm_row_tab_frw@GOTOFF	\n"
-#endif
+	"lea	"#REG1",__jpmm_row_tab_frw@GOTOFF	\n" \
 			
 #else /* __PIC__ */
 
@@ -1062,22 +1043,13 @@ void jpeg_fdct_mmx( short *block )
   );
 
 #ifdef __PIC__
-#if __GNUC__ > 3
  __asm__(
  	"push 	%ebx		\n"
 	"call	__i686.get_pc_thunk.bx	\n"
 	"add    $_GLOBAL_OFFSET_TABLE_, %ebx	\n"
 	"lea	__jpmm_row_tab_frw@GOTOFF(%ebx),%ebx	\n"
    );
-#else
- __asm__(
- 	"push 	%ebx		\n"
-	"call	__tg_get_pc	\n"
-	"add    $_GLOBAL_OFFSET_TABLE_, %ebx	\n"
-	"lea	__jpmm_row_tab_frw@GOTOFF(%ebx),%ebx	\n"
-   );
-#endif 
-#endif /* __PIC__ */
+#endif  
 
   // Rows
   __asm__ (
@@ -1278,23 +1250,13 @@ ALIGN8 short __jpmm_offset128[]  = { 128,128,128,128 };
 	"paddw	"#REG1", QWORD PTR [esp]	\n" \
 	"add	esp,8	\n"
 
-#if __GNUC__ > 3
 #define lea_addr_in_regs(REG1,REG2) \
     "push 	ebx		\n" \
 	"call	__i686.get_pc_thunk.bx	\n" \
 	"add    ebx,_GLOBAL_OFFSET_TABLE_	\n" \
 	"lea	"#REG1",__jpmm_row_tabs@GOTOFF	\n" \
 	"lea	"#REG2",__jpmm_rounder@GOTOFF	\n" \
-	"pop	ebx   \n"
-#else
-#define lea_addr_in_regs(REG1,REG2) \
-    "push 	ebx		\n" \
-	"call	__tg_get_pc	\n" \
-	"add    ebx,_GLOBAL_OFFSET_TABLE_	\n" \
-	"lea	"#REG1",__jpmm_row_tabs@GOTOFF	\n" \
-	"lea	"#REG2",__jpmm_rounder@GOTOFF	\n" \
-	"pop	ebx   \n"
-#endif
+	"pop	ebx   \n" 
 
 
 #else /* __PIC__ */
@@ -1754,7 +1716,6 @@ __mmx_idct_cols:
 #else
 
 #ifdef __PIC__
-#if __GNUC__ > 3
  __asm__(
  	"push 	%ebx		\n"
     "push 	%ecx		\n"
@@ -1765,19 +1726,7 @@ __mmx_idct_cols:
 	"mov	%ecx,%ebx	\n"
 	"pop	%ecx   \n"
    );
-#else
- __asm__(
- 	"push 	%ebx		\n"
-    "push 	%ecx		\n"
-	"call	__tg_get_pc	\n"
-	"add    $_GLOBAL_OFFSET_TABLE_, %ebx	\n"
-	"lea	__jpmm_row_tabs@GOTOFF(%ebx),%eax	\n"
-	"lea	__jpmm_rounder@GOTOFF(%ebx),%ecx	\n"
-	"mov	%ecx,%ebx	\n"
-	"pop	%ecx   \n"
-   );
-#endif
-#endif /* __PIC__ */  
+#endif   
   // gcc inline assembly code (32bits)
   // Rows
   __asm__ (
@@ -1969,15 +1918,5 @@ __mmx_idct_cols:
 #endif /* _WINDOWS */
 
 }
-
-#ifndef _WINDOWS
-#ifdef __PIC__
-__asm__(
-"__tg_get_pc:				\n"
-	"movl	(%esp),%ebx	\n"
-	"ret	\n"
-   );
-#endif /* __PIC__ */
-#endif /* WINDOWS */
 
 #endif /* JPG_USE_ASM */
