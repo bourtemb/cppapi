@@ -1,0 +1,218 @@
+#!/bin/ksh
+
+#
+# remove different echo command behaviour on different OS
+#
+if test "`echo -e xxx`" = "xxx"
+then
+    echo="echo -e"
+else
+    echo=echo
+fi
+
+if [ $# = 0 ]
+then
+	$echo "\nusage:  runtest ds_system\n"
+	$echo "ds_system can be solaris7, solaris7_CC, solaris9, solaris9_CC, suse72,,suse72_gcc32, suse82 or debian30"
+	exit 1
+fi
+
+#
+# test host
+#
+SOL_HOST=corvus
+SOL9_HOST=kidiboo
+SUSE_HOST=splash
+SUSE_GCC32_HOST=splash
+SUSE82_HOST=wow
+DEBIAN30_HOST=fumanchu
+NT_HOST=libra
+
+HOST=`hostname`
+SERV_NAME=devTest
+
+
+case $1 in
+solaris7_CC )
+	if [ $HOST != $SOL_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris7_CC
+	DIR=solaris7_CC
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris7_CC
+	;;
+#
+solaris7 )
+	if [ $HOST != $SOL_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris7
+	DIR=solaris7
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris7
+	;;
+#
+solaris9 )
+	if [ $HOST != $SOL9_HOST ]
+	then
+		$echo "For solaris9, test should run on "$SOL9_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris9
+	DIR=solaris9
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris9
+	;;
+#
+solaris9_CC )
+	if [ $HOST != $SOL9_HOST ]
+	then
+		$echo "For solaris9, test should run on "$SOL9_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris9_CC
+	DIR=solaris9_CC
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris9_CC
+	;;
+#
+suse72 )
+	if [ $HOST != $SUSE_HOST ]
+	then
+		$echo "For suse72, test should run on "$SUSE_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse72
+	DIR=suse72
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux
+	;;
+#
+suse72_gcc32 )
+	if [ $HOST != $SUSE_GCC32_HOST ]
+	then
+		$echo "For suse72_gcc32, test should run on "$SUSE_GCC32_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse72_gcc32
+	DIR=suse72_gcc32
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-gcc32
+	;;
+#
+suse82 )
+	if [ $HOST != $SUSE82_HOST ]
+	then
+		$echo "For suse82, test should run on "$SUSE82_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse82
+	DIR=suse82
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-suse82
+	;;
+#
+suse90_64 )
+	if [ $HOST != $SUSE90_64_HOST ]
+	then
+		$echo "For suse90_64, test should run on "$SUSE90_64_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse90_64
+	DIR=suse90_64
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-suse90_64
+	;;
+#
+debian30 )
+	if [ $HOST != $DEBIAN30_HOST ]
+	then
+		$echo "For debian30, test should run on "$DEBIAN30_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/debian30
+	DIR=debian30
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-debian30
+	;;
+#
+nt )
+	if [ $HOST != $NT_HOST ]
+	then
+		$echo "For nt, test should run on "$NT_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/hpux10.2
+	DIR=nt
+	;;
+#
+* )
+	$echo "\nunknown system"
+	exit 1
+	;;
+esac
+
+check_return_value () {
+if [ $1 != "0" ]
+then
+	echo "Test Suite FAILED !!!!!!!!!!!!!!!!!!"
+	echo "Leaving test suite, try to fix it"
+	exit
+fi
+}
+
+#
+# First, test device server startup sequence
+#
+
+$echo "\nTesting executing command asynchronously (polling way)"
+$DIR/asyn_cmd dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting reading attribute asynchronously (polling way)"
+$DIR/asyn_attr dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting reading several attributes asynchronously (polling way)"
+$DIR/asyn_attr_multi dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting writing attribute asynchronously (polling way)"
+$DIR/asyn_write_attr dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting writing several attributes asynchronously (polling way)"
+$DIR/asyn_write_attr_multi dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting mixed asynchronous and callback modes (1)"
+$DIR/asyn_cb
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting mixed asynchronous and callback modes (2)"
+$DIR/asyn_cb2
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting executing command asynchronously (callback way)"
+$DIR/asyn_cb_cmd dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting reading attribute asynchronously (callback way)"
+$DIR/asyn_attr_cb dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting writing attribute asynchronously (callback way)"
+$DIR/asyn_write_cb dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting automatic callback mode"
+$DIR/auto_asyn_cmd dev/test/10
+ret=$?
+check_return_value $ret
+#

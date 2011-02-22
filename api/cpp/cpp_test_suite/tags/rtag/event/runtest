@@ -1,0 +1,215 @@
+#!/bin/ksh
+
+#
+# remove different echo command behaviour on different OS
+#
+if test "`echo -e xxx`" = "xxx"
+then
+    echo="echo -e"
+else
+    echo=echo
+fi
+
+if [ $# = 0 ]
+then
+	$echo "\nusage:  runtest ds_system\n"
+	$echo "ds_system can be solaris7, solaris7_CC, solaris9, solaris9_CC, suse72, suse72_gcc32, suse82, suse90_64 or debian30"
+	exit 1
+fi
+
+#
+# test host
+#
+SOL_HOST=corvus
+SOL9_HOST=kidiboo
+SUSE82_HOST=wow
+SUSE90_64_HOST=schnapps
+SUSE_HOST=splash
+SUSE_GCC32_HOST=splash
+DEBIAN30_HOST=fumanchu
+#HP_HOST=carina
+HP_HOST=libra
+NT_HOST=libra
+
+HOST=`hostname`
+SERV_NAME=devTest
+
+
+case $1 in
+solaris7_CC )
+	if [ $HOST != $SOL_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris7_CC
+	DIR=solaris7_CC
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris7_CC
+	;;
+#
+solaris7 )
+	if [ $HOST != $SOL_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris7
+	DIR=solaris7
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris7
+	;;
+#
+solaris9 )
+	if [ $HOST != $SOL9_HOST ]
+	then
+		$echo "For solaris9, test should run on "$SOL9_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris9
+	DIR=solaris9
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris9
+	;;
+#
+solaris9_CC )
+	if [ $HOST != $SOL9_HOST ]
+	then
+		$echo "For solaris9_CC, test should run on "$SOL9_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris9_CC
+	DIR=solaris9_CC
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris9_CC
+	;;
+#
+suse82 )
+	if [ $HOST != $SUSE82_HOST ]
+	then
+		$echo "For suse82, test should run on "$SUSE82_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse82
+	DIR=suse82
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-suse82
+	;;
+#
+suse90_64 )
+	if [ $HOST != $SUSE90_64_HOST ]
+	then
+		$echo "For suse90_64, test should run on "$SUSE90_64_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse90_64
+	DIR=suse90_64
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-suse90_64
+	;;
+#
+suse72 )
+	if [ $HOST != $SUSE_HOST ]
+	then
+		$echo "For suse72, test should run on "$SUSE_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse72
+	DIR=suse72
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux
+	;;
+#
+suse72_gcc32 )
+	if [ $HOST != $SUSE_GCC32_HOST ]
+	then
+		$echo "For suse72_gcc32, test should run on "$SUSE_GCC32_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse72_gcc32
+	DIR=suse72_gcc32
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-gcc32
+	;;
+#
+debian30 )
+	if [ $HOST != $DEBIAN30_HOST ]
+	then
+		$echo "For debian30, test should run on "$DEBIAN30_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/debian30
+	DIR=debian30
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-debian30
+	;;
+#
+nt )
+	if [ $HOST != $NT_HOST ]
+	then
+		$echo "For nt, test should run on "$NT_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/hpux10.2
+	DIR=nt
+	;;
+#
+* )
+	$echo "\nunknown system"
+	exit 1
+	;;
+esac
+
+check_return_value () {
+if [ $1 != "0" ]
+then
+	echo "Test Suite FAILED !!!!!!!!!!!!!!!!!!"
+	echo "Leaving test suite, try to fix it"
+	exit
+fi
+}
+
+#
+# First, test device server startup sequence
+#
+
+$echo "Testing periodic event"
+$DIR/per_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting change event and ApiUtil::cleanup() stuff"
+$DIR/change_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting quality event"
+$DIR/quality_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting archive_event"
+$DIR/archive_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting user_event"
+$DIR/user_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting state and status event"
+$DIR/state_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting scan ready device"
+$DIR/scan dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting server_event"
+$DIR/server_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting client reconnection to notifd (help needed)"
+$DIR/reco_event dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting server and client reconnection to notifd (help needed)"
+$DIR/reco_svc dev/test/10
+ret=$?
+check_return_value $ret

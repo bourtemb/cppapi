@@ -1,0 +1,422 @@
+#
+#		Makefile to generate the Tango library
+#
+
+include Make.rules
+
+
+ifdef _solaris
+ifdef gcc
+CC = c++
+AR = ar rv
+AR_SL = $(CC) -fPIC -shared -ldl
+VERS_OPT = -Wl,-h,
+SL_EXT = so
+else
+CC = CC
+AR = CC -xar -o 
+AR_SL = $(CC) -mt -G -lCstd -ldl
+VERS_OPT = -h
+SL_EXT = so
+endif
+endif
+
+
+ifdef linux
+CC = c++
+AR = ar rv
+AR_SL = $(CC) -fPIC -shared -ldl 
+VERS_OPT = -Wl,-soname,
+SL_EXT = so
+#
+DOC_CONFIG = ../doxygen/Doxyfile
+GEN_DOC = $(DOXYGEN) $(DOC_CONFIG)
+endif
+
+
+ifdef hpux
+CC = aCC
+AR = ar rv
+AR_SL = $(CC) -b
+VERS_OPT = -Wl,+h,
+SL_EXT = so
+endif
+
+ifdef 64bits
+IDL_SRC = idl_64
+else
+IDL_SRC = idl
+endif
+
+
+CLIENT_SRC = client
+SERVER_SRC = server
+IDL_SRC    = server/idl
+
+OBJS_DIR = 	objs/$(BIN_DIR)
+OBJS_DIR_SL = 	objs_sl/$(BIN_DIR)
+
+
+INCLUDE_DIRS = -I$(OMNI_BASE)/include \
+	       -I$(LOG4TANGO_BASE)/include \
+	       -I$(CLIENT_SRC) \
+	       -I$(SERVER_SRC)
+	       
+# -----------------------------------------------------------------
+#
+#		The compiler flags
+#
+#------------------------------------------------------------------
+
+ifdef _solaris
+ifdef gcc
+CXXFLAGS = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS 
+CXXFLAGS_SL = $(CXXFLAGS) -fPIC
+else
+CXXFLAGS = -mt -D_POSIX_PTHREAD_SEMANTICS -D_TANGO_LIB \
+	   -DOMNI_UNLOADABLE_STUBS \
+	   -xregs=no%appl $(INCLUDE_DIRS)
+CXXFLAGS_SL = $(CXXFLAGS) -KPIC
+endif
+endif
+
+
+ifdef linux
+CXXFLAGS = -g -D_REENTRANT -DOMNI_UNLOADABLE_STUBS $(INCLUDE_DIRS)
+#CXXFLAGS =  -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
+CXXFLAGS_SL = $(CXXFLAGS) -fPIC
+endif
+
+ifdef hpux
+CXXFLAGS = -AA -mt +Z -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS 
+CXXFLAGS_SL = $(CXXFLAGS)
+endif
+
+#-------------------------------------------------------------------
+
+LIBNAME = libtango
+AR_EXT = a
+
+IDL_OBJS =	$(OBJS_DIR)/tangoSK.o \
+		$(OBJS_DIR)/tangoDynSK.o
+			
+SERVER_OBJS = 		$(OBJS_DIR)/device.o \
+		$(OBJS_DIR)/device_2.o \
+		$(OBJS_DIR)/device_3.o \
+		$(OBJS_DIR)/dev_event.o \
+		$(OBJS_DIR)/deviceclass.o \
+		$(OBJS_DIR)/command.o \
+		$(OBJS_DIR)/dserversignal.o \
+		$(OBJS_DIR)/thsig.o \
+		$(OBJS_DIR)/basiccommand.o \
+		$(OBJS_DIR)/utils.o \
+		$(OBJS_DIR)/dserverclass.o \
+		$(OBJS_DIR)/dserver.o \
+		$(OBJS_DIR)/class_factory.o \
+		$(OBJS_DIR)/blackbox.o \
+		$(OBJS_DIR)/classattribute.o \
+		$(OBJS_DIR)/multiattribute.o \
+		$(OBJS_DIR)/attribute.o \
+		$(OBJS_DIR)/w_attribute.o \
+		$(OBJS_DIR)/attrdesc.o \
+		$(OBJS_DIR)/except.o \
+		$(OBJS_DIR)/attrmanip.o \
+		$(OBJS_DIR)/seqvec.o \
+		$(OBJS_DIR)/pollring.o \
+		$(OBJS_DIR)/pollobj.o \
+		$(OBJS_DIR)/pollcmds.o \
+		$(OBJS_DIR)/dserverpoll.o \
+		$(OBJS_DIR)/pollthread.o \
+		$(OBJS_DIR)/logging.o \
+		$(OBJS_DIR)/logcmds.o \
+		$(OBJS_DIR)/logstream.o \
+		$(OBJS_DIR)/devicelog.o \
+		$(OBJS_DIR)/dserverlog.o \
+		$(OBJS_DIR)/coutappender.o \
+		$(OBJS_DIR)/tangoappender.o \
+		$(OBJS_DIR)/tangorollingfileappender.o \
+		$(OBJS_DIR)/event.o \
+		$(OBJS_DIR)/eventsupplier.o \
+		$(OBJS_DIR)/eventcmds.o 
+		
+CLIENT_OBJS = 	$(OBJS_DIR)/dbapi_base.o \
+		$(OBJS_DIR)/dbapi_class.o \
+		$(OBJS_DIR)/dbapi_datum.o \
+		$(OBJS_DIR)/dbapi_device.o \
+		$(OBJS_DIR)/dbapi_server.o \
+		$(OBJS_DIR)/devapi_attr.o \
+		$(OBJS_DIR)/devapi_base.o \
+		$(OBJS_DIR)/devapi_data.o \
+		$(OBJS_DIR)/devapi_datahist.o \
+		$(OBJS_DIR)/api_util.o \
+		$(OBJS_DIR)/asynreq.o \
+		$(OBJS_DIR)/proxy_asyn.o \
+		$(OBJS_DIR)/proxy_asyn_cb.o \
+		$(OBJS_DIR)/cbthread.o \
+		$(OBJS_DIR)/group.o \
+		$(OBJS_DIR)/dbapi_attribute.o \
+		$(OBJS_DIR)/attr_proxy.o \
+		$(OBJS_DIR)/apiexcept.o \
+		$(OBJS_DIR)/filedatabase.o 
+
+
+IDL_OBJS_SL =	$(OBJS_DIR_SL)/tangoSK.so.o \
+		$(OBJS_DIR_SL)/tangoDynSK.so.o
+						
+SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
+		$(OBJS_DIR_SL)/device_2.so.o \
+		$(OBJS_DIR_SL)/device_3.so.o \
+		$(OBJS_DIR_SL)/dev_event.so.o \
+		$(OBJS_DIR_SL)/deviceclass.so.o \
+		$(OBJS_DIR_SL)/command.so.o \
+		$(OBJS_DIR_SL)/dserversignal.so.o \
+		$(OBJS_DIR_SL)/thsig.so.o \
+		$(OBJS_DIR_SL)/basiccommand.so.o \
+		$(OBJS_DIR_SL)/utils.so.o \
+		$(OBJS_DIR_SL)/dserverclass.so.o \
+		$(OBJS_DIR_SL)/dserver.so.o \
+		$(OBJS_DIR_SL)/class_factory.so.o \
+		$(OBJS_DIR_SL)/blackbox.so.o \
+		$(OBJS_DIR_SL)/classattribute.so.o \
+		$(OBJS_DIR_SL)/attribute.so.o \
+		$(OBJS_DIR_SL)/w_attribute.so.o \
+		$(OBJS_DIR_SL)/multiattribute.so.o \
+		$(OBJS_DIR_SL)/attrdesc.so.o \
+		$(OBJS_DIR_SL)/except.so.o \
+		$(OBJS_DIR_SL)/attrmanip.so.o \
+		$(OBJS_DIR_SL)/seqvec.so.o \
+		$(OBJS_DIR_SL)/pollring.so.o \
+		$(OBJS_DIR_SL)/pollobj.so.o \
+		$(OBJS_DIR_SL)/pollcmds.so.o \
+		$(OBJS_DIR_SL)/dserverpoll.so.o \
+		$(OBJS_DIR_SL)/pollthread.so.o \
+	  	$(OBJS_DIR_SL)/logcmds.so.o \
+		$(OBJS_DIR_SL)/logstream.so.o \
+	  	$(OBJS_DIR_SL)/devicelog.so.o \
+	  	$(OBJS_DIR_SL)/logging.so.o \
+	  	$(OBJS_DIR_SL)/dserverlog.so.o \
+	  	$(OBJS_DIR_SL)/coutappender.so.o \
+	  	$(OBJS_DIR_SL)/tangoappender.so.o \
+	  	$(OBJS_DIR_SL)/tangorollingfileappender.so.o \
+		$(OBJS_DIR_SL)/event.so.o \
+		$(OBJS_DIR_SL)/eventsupplier.so.o \
+		$(OBJS_DIR_SL)/eventcmds.so.o 
+	  
+CLIENT_OBJS_SL = $(OBJS_DIR_SL)/dbapi_base.so.o \
+		$(OBJS_DIR_SL)/dbapi_class.so.o \
+		$(OBJS_DIR_SL)/dbapi_datum.so.o \
+		$(OBJS_DIR_SL)/dbapi_device.so.o \
+		$(OBJS_DIR_SL)/dbapi_server.so.o \
+		$(OBJS_DIR_SL)/devapi_attr.so.o \
+		$(OBJS_DIR_SL)/devapi_base.so.o \
+		$(OBJS_DIR_SL)/devapi_data.so.o \
+		$(OBJS_DIR_SL)/devapi_datahist.so.o \
+		$(OBJS_DIR_SL)/api_util.so.o \
+		$(OBJS_DIR_SL)/asynreq.so.o \
+		$(OBJS_DIR_SL)/proxy_asyn.so.o \
+		$(OBJS_DIR_SL)/proxy_asyn_cb.so.o \
+		$(OBJS_DIR_SL)/cbthread.so.o \
+		$(OBJS_DIR_SL)/group.so.o \
+		$(OBJS_DIR_SL)/dbapi_attribute.so.o \
+		$(OBJS_DIR_SL)/attr_proxy.so.o \
+		$(OBJS_DIR_SL)/apiexcept.so.o \
+		$(OBJS_DIR_SL)/filedatabase.so.o
+
+IDL_INCLUDE    = 	tango.h
+CLIENT_INCLUDE =	apiexcept.h \
+						cbthread.h \
+						dbapi.h \
+						devapi.h \
+						devasyn.h \
+						filedatabase.h \
+						group.h
+SERVER_INCLUDE =	attrdesc.h \
+						attribute.h \
+						attrmanip.h \
+						auto_tango_monitor.h \
+						basiccommand.h \
+						blackbox.h \
+						classattribute.h \
+						command.h \
+						coutappender.h \
+						coutbuf.h \
+						device.h \
+						device_2.h \
+						device_3.h \
+						deviceclass.h \
+						dserver.h \
+						dserverclass.h \
+						dserversignal.h \
+						event.h \
+						eventcmds.h \
+						eventsupplier.h \
+						except.h \
+						log4tango.h \
+						logcmds.h \
+						logging.h \
+						logstream.h \
+						multiattribute.h \
+						ntservice.h \
+						pollcmds.h \
+						pollext.h \
+						pollobj.h \
+						pollring.h \
+						pollthread.h \
+						seqvec.h \
+						tango.h \
+						tango_config.h \
+						tango_const.h \
+						tango_monitor.h \
+						tangoappender.h \
+						tangorollingfileappender.h \
+						utils.h \
+						w32win.h \
+						w_attribute.h
+				
+#
+# Rule for archive libary
+#
+	
+.SUFFIXES:	.o .cpp
+.cpp.o:
+	$(CC) $(CXXFLAGS) -c $<
+
+#
+# Rule for shared library
+#
+
+.SUFFIXES:	.so.o .cpp
+.cpp.so.o:
+	$(CC) $(CXXFLAGS_SL) -c $< -o $*.so.o
+
+#
+# Rule for API files
+#
+$(OBJS_DIR)/%.o: $(SERVER_SRC)/%.cpp
+	@./cr_dir $(OBJS_DIR)
+	$(CC) $(CXXFLAGS) -c $< -o $(OBJS_DIR)/$*.o
+
+$(OBJS_DIR)/%.o: $(IDL_SRC)/%.cpp
+	@./cr_dir $(OBJS_DIR)
+	$(CC) $(CXXFLAGS) -c $< -o $(OBJS_DIR)/$*.o
+		
+$(OBJS_DIR)/%.o: $(CLIENT_SRC)/%.cpp
+	@./cr_dir $(OBJS_DIR)
+	$(CC) $(CXXFLAGS) -c $< -o $(OBJS_DIR)/$*.o
+
+
+$(OBJS_DIR_SL)/%.so.o: $(SERVER_SRC)/%.cpp
+	@./cr_dir $(OBJS_DIR_SL)
+	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
+	
+$(OBJS_DIR_SL)/%.so.o: $(IDL_SRC)/%.cpp
+	@./cr_dir $(OBJS_DIR_SL)
+	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
+	
+$(OBJS_DIR_SL)/%.so.o: $(CLIENT_SRC)/%.cpp
+	@./cr_dir $(OBJS_DIR_SL)
+	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
+					
+#-----------------------------------------------------------------
+
+
+all:	$(LIBNAME).$(AR_EXT) $(LIBNAME).$(SL_EXT) install_include install_link
+
+#
+#	The archive libs
+#
+
+$(LIBNAME).$(AR_EXT): 	$(IDL_OBJS) $(SERVER_OBJS) $(CLIENT_OBJS)
+	@./cr_dir $(INSTALL_BASE)/lib
+	$(AR) $(INSTALL_BASE)/lib/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(AR_EXT) \
+	$(IDL_OBJS) $(SERVER_OBJS) $(CLIENT_OBJS)
+
+#
+#	The shared libs
+#
+
+$(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
+	@./cr_dir $(INSTALL_BASE)/lib
+	$(AR_SL) -o $(INSTALL_BASE)/lib/$(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS) \
+	$(VERS_OPT)$(LIBNAME).$(SL_EXT).$(MAJOR_VERS) \
+	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
+
+install_link:
+	d=`pwd`
+	cd $(INSTALL_BASE)/lib; \
+	rm $(LIBNAME).$(AR_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(AR_EXT) $(LIBNAME).$(AR_EXT); \
+	rm $(LIBNAME).$(SL_EXT); ln -s $(LIBNAME).$(SL_EXT).$(MAJOR_VERS) $(LIBNAME).$(SL_EXT); \
+	rm $(LIBNAME).$(SL_EXT).$(MAJOR_VERS); ln -s $(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS) $(LIBNAME).$(SL_EXT).$(MAJOR_VERS); \
+	cd $d
+	
+install_include:
+	@./cr_dir $(INSTALL_BASE)/include
+	@./cr_dir $(INSTALL_BASE)/include/idl
+	cd server/idl; cp $(IDL_INCLUDE) $(INSTALL_BASE)/include/idl; cd ../..
+	cd server; cp $(SERVER_INCLUDE) $(INSTALL_BASE)/include; cd ..
+	cd client; cp $(CLIENT_INCLUDE) $(INSTALL_BASE)/include; cd ..
+
+install_win32:
+	@./cr_dir $(INSTALL_BASE_WIN32)/include
+	@./cr_dir $(INSTALL_BASE_WIN32)/include/idl
+	cd server/idl; cp $(IDL_INCLUDE) $(INSTALL_BASE_WIN32)/include/idl; cd ../..
+	cd server; cp $(SERVER_INCLUDE) $(INSTALL_BASE_WIN32)/include; cd ..
+	cd client; cp $(CLIENT_INCLUDE) $(INSTALL_BASE_WIN32)/include; cd ..	
+	@./cr_dir $(INSTALL_BASE_WIN32)_dll/include
+	@./cr_dir $(INSTALL_BASE_WIN32)_dll/include/idl
+	cd server/idl; cp $(IDL_INCLUDE) $(INSTALL_BASE_WIN32)_dll/include/idl; cd ../..
+	cd server; cp $(SERVER_INCLUDE) $(INSTALL_BASE_WIN32)_dll/include; cd ..
+	cd client; cp $(CLIENT_INCLUDE) $(INSTALL_BASE_WIN32)_dll/include; cd ..
+	
+	@./cr_dir $(INSTALL_BASE_WIN32)/lib
+	cp win32/winnt_lib/tango_static/lib/tangod.$(MAJOR_VERS).$(MINOR_VERS).lib $(INSTALL_BASE_WIN32)/lib
+	cp win32/winnt_lib/tango_static/lib/tango.$(MAJOR_VERS).$(MINOR_VERS).lib $(INSTALL_BASE_WIN32)/lib
+
+	@./cr_dir $(INSTALL_BASE_WIN32)_dll/lib
+	cp win32/winnt_lib/tango_dll/lib/tangod.$(MAJOR_VERS).$(MINOR_VERS).lib $(INSTALL_BASE_WIN32)_dll/lib
+	cp win32/winnt_lib/tango_dll/lib/tango$(MAJOR_VERS)$(MINOR_VERS)0d.dll $(INSTALL_BASE_WIN32)_dll/lib
+	cp win32/winnt_lib/tango_dll/lib/tango.$(MAJOR_VERS).$(MINOR_VERS).lib $(INSTALL_BASE_WIN32)_dll/lib
+	cp win32/winnt_lib/tango_dll/lib/tango$(MAJOR_VERS)$(MINOR_VERS)0.dll $(INSTALL_BASE_WIN32)_dll/lib
+
+	d=`pwd`
+	cd $(INSTALL_BASE_WIN32)/lib; \
+	rm tangod.lib; ln -s tangod.$(MAJOR_VERS).$(MINOR_VERS).lib tangod.lib; \
+	rm tango.lib; ln -s tango.$(MAJOR_VERS).$(MINOR_VERS).lib tango.lib; \
+
+	cd $(INSTALL_BASE_WIN32)_dll/lib; \
+	rm tangod.lib; ln -s tangod.$(MAJOR_VERS).$(MINOR_VERS).lib tangod.lib; \
+	rm tango.lib; ln -s tango.$(MAJOR_VERS).$(MINOR_VERS).lib tango.lib;	\
+	cd $d
+
+	
+doc:
+	cd server; $(GEN_DOC); cd ..
+
+clean:
+	rm -f *.o core
+	rm -f $(OBJS_DIR_SL)/*.o
+	rm -f $(OBJS_DIR)/*.o
+		
+clean_all:
+	rm -f *.o
+	rm -f test/*.html
+	rm -f test/solaris/*.html
+	rm -f test/suse72/*.html
+	rm -f test/*.log
+	rm -f test/solaris/*.log
+	rm -f test/suse72/*log
+	rm -f winnt_lib/tango_static/Debug/*.obj
+	rm -f winnt_lib/tango_static/Debug/*.lib
+	rm -f winnt_lib/tango_static/Release/*.obj
+	rm -f winnt_lib/tango_static/Release/*.lib
+	rm -f winnt_lib/tango_dll/Debug/*.obj
+	rm -f winnt_lib/tango_dll/Debug/*.lib
+	rm -f winnt_lib/tango_dll/Debug/*.dll
+	rm -f winnt_lib/tango_dll/Debug/*.exp
+	rm -f winnt_lib/tango_dll/Debug/*.map
+	rm -f winnt_lib/tango_dll/Release/*.obj
+	rm -f winnt_lib/tango_dll/Release/*.lib
+	rm -f winnt_lib/tango_dll/Release/*.dll
+	rm -f winnt_lib/tango_dll/Release/*.exp
+	rm -f winnt_lib/tango_dll/Release/*.map
+	

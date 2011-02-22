@@ -1,0 +1,24 @@
+#
+#
+#	This script file translte idl file to cpp files
+#
+#
+
+TANGO_HOME=/segfs/tango;                 export TANGO_HOME
+SRC_DIR=$TANGO_HOME/idl;                 export SRC_DIR
+
+#
+# First compile for 32 bits
+#
+
+echo "Generating for 32 bits"
+/segfs/tango/ORB/omniORB4.0.5/suse82/bin/omniidl -I$SRC_DIR \
+	-bcxx -Wbh=.h -Wbs=SK.cpp -Wbd=DynSK.cpp -Wba $SRC_DIR/tango.idl
+	
+#
+# Now compile for 64 bits
+#
+
+echo "Generating for 64 bits"
+/segfs/tango/ORB/omniORB4.0.5/suse82/bin/omniidl -I$SRC_DIR \
+	-bcxx -Wbh=.h -Wbs=SK.cpp -Wbd=DynSK.cpp -Wba -C../idl_64 -D_64 $SRC_DIR/tango.idl

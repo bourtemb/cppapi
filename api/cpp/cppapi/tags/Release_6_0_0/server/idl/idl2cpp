@@ -1,0 +1,16 @@
+#
+#
+#	This script file translte idl file to cpp files
+#
+#
+
+TANGO_HOME=/home/etaurel/tango;          export TANGO_HOME
+SRC_DIR=$TANGO_HOME/cppapi/server/idl;   export SRC_DIR
+OMNIIDL_HOME=/home/etaurel/bin/omniORB-4.1.0/bin	export OMNIIDL_HOME
+#OMNIIDL_HOME=/local/tango/omniorb/bin	export OMNIIDL_HOME
+
+#
+
+echo "Generating files"
+$OMNIIDL_HOME/omniidl -I$SRC_DIR \
+	-bcxx -Wbh=.h -Wbs=SK.cpp -Wbd=DynSK.cpp -Wba $SRC_DIR/tango.idl

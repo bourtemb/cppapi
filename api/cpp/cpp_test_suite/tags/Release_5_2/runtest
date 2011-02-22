@@ -1,0 +1,262 @@
+#!/bin/ksh
+
+#
+# remove different echo command behaviour on different OS
+#
+if test "`echo -e xxx`" = "xxx"
+then
+    echo="echo -e"
+else
+    echo=echo
+fi
+
+if [ $# = 0 ]
+then
+	$echo "\nusage:  runtest ds_system\n"
+	$echo "ds_system can be solaris7, solaris7_CC, solaris9, solaris9_CC, suse72, suse72_gcc32, debian30, suse90_64 or suse82"
+	exit 1
+fi
+
+#
+# test host
+#
+SOL_HOST=corvus
+SOL9_HOST=kidiboo
+SUSE_HOST=splash
+SUSE_GCC32_HOST=splash
+SUSE82_HOST=wow
+DEBIAN30_HOST=fumanchu
+#HP_HOST=carina
+HP_HOST=libra
+NT_HOST=libra
+SUSE90_64_HOST=schnapps
+
+HOST=`hostname`
+SERV_NAME=devTest
+
+
+case $1 in
+solaris7_CC )
+	if [ $HOST != $SOL_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris7_CC
+	DIR=solaris7_CC
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris7_CC
+	;;
+#
+solaris7 )
+	if [ $HOST != $SOL_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris7
+	DIR=solaris7
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris7
+	;;
+#
+solaris9 )
+	if [ $HOST != $SOL9_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL9_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris9
+	DIR=solaris9
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris9
+	;;
+#
+solaris9_CC )
+	if [ $HOST != $SOL9_HOST ]
+	then
+		$echo "For solaris, test should run on "$SOL9_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/solaris9_CC
+	DIR=solaris9_CC
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-solaris9_CC
+	;;
+#
+suse72 )
+	if [ $HOST != $SUSE_HOST ]
+	then
+		$echo "For suse72, test should run on "$SUSE_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse72
+	DIR=suse72
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux
+	;;
+#
+suse72_gcc32 )
+	if [ $HOST != $SUSE_GCC32_HOST ]
+	then
+		$echo "For suse72_gcc32, test should run on "$SUSE_GCC32_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse72_gcc32
+	DIR=suse72_gcc32
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-gcc32
+	;;
+#
+suse82 )
+	if [ $HOST != $SUSE82_HOST ]
+	then
+		$echo "For suse82, test should run on "$SUSE82_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse82
+	DIR=suse82
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-suse82
+	;;
+#
+suse90_64 )
+	if [ $HOST != $SUSE90_64_HOST ]
+	then
+		$echo "For suse90_64, test should run on "$SUSE90_64_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/suse90_64
+	DIR=suse90_64
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-suse90_64
+	;;
+#
+debian30 )
+	if [ $HOST != $DEBIAN30_HOST ]
+	then
+		$echo "For debian30, test should run on "$DEBIAN30_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/debian30
+	DIR=debian30
+	TEST_BASE=/segfs/tango/tools/test_system/ref/test-linux-debian30
+	;;
+#
+nt )
+	if [ $HOST != $NT_HOST ]
+	then
+		$echo "For nt, test should run on "$NT_HOST
+		exit 1
+	fi
+	BASE_DIR=/segfs/tango/tools/test_system/ref/device/bin/hpux10.2
+	DIR=nt
+	;;
+#
+* )
+	$echo "\nunknown system"
+	exit 1
+	;;
+esac
+
+check_return_value () {
+if [ $1 != "0" ]
+then
+	echo "Test Suite FAILED !!!!!!!!!!!!!!!!!!"
+	echo "Leaving test suite, try to fix it"
+	exit
+fi
+}
+
+#
+# First, test device server startup sequence
+#
+
+$echo "Testing miscellaneous DeviceProxy features"
+$DIR/misc_devproxy dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting insertion and extraction into DeviceData objects for all types"
+$DIR/cmd_types dev/test/10 10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting extraction from DeviceAttribute objects for all types"
+$DIR/attr_types dev/test/10 10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting miscellaneous DeviceData object features"
+$DIR/misc_devdata
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting miscellaneous DeviceAttribute object features"
+$DIR/misc_devattr
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting writing attribute (with the four data types) using DeviceAttribute"
+$DIR/write_attr dev/test/10 10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting copy constructor and assignement operator of the DeviceProxy class"
+$DIR/copy_devproxy
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting object property methods of the Database class"
+$DIR/obj_prop
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting command_history and attribute_history DeviceProxy methods"
+$TEST_BASE Poll.tst 1>/dev/null 2>&1
+sleep 7
+$DIR/read_hist dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting all DeviceProxy polling methods"
+$DIR/poll_met
+$TEST_BASE StopPoll.tst 1>/dev/null 2>&1
+#
+$echo "\nTesting all AttributeProxy methods"
+$DIR/attr_proxy dev/test/10/Short_attr_rw
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting writing spectrum and image attributes"
+$DIR/write_attr_3 dev/test/10 10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting polled command with external triggering"
+$DIR/read_hist_ext dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting individual polling buffer depth"
+$DIR/ring_depth dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting memorized attributes"
+$DIR/mem_att dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting state and status read as attributes"
+$DIR/state_attr dev/test/10
+ret=$?
+check_return_value $ret
+#
+$echo "\nTesting RDS alarm"
+$DIR/rds dev/test/10
+ret=$?
+check_return_value $ret
+#
+#
+#
+#	Now, test asynchronous features
+#
+cd /segfs/tango/tools/cppapi_tst/client/asyn;/segfs/tango/tools/cppapi_tst/client/asyn/runtest $1
+#
+#
+#	Now, test events
+#
+cd /segfs/tango/tools/cppapi_tst/client/event;/segfs/tango/tools/cppapi_tst/client/event/runtest $1
