@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -37,41 +37,6 @@ static const char *RcsId = "$Id$\n$Name$";
 // $Revision$
 //
 // $Log$
-// Revision 3.88  2011/01/10 14:39:27  taurel
-// - Some compilation errors while compiling Tango 7.2.3
-//
-// Revision 3.87  2010/12/08 10:13:08  taurel
-// - Commit after a merge with the bugfixes branch
-//
-// Revision 3.86.2.1  2010/11/21 08:41:27  taurel
-// - Fix SourceForge bug nb 3110842
-// (wrong delete in state for spectrm att with alarm defined when
-// quality factor set to ATTR_INVALID)
-//
-// Revision 3.86  2010/11/02 14:06:54  taurel
-// - Replace dynamic_cast with static_cast in attribute.cpp.
-// - Release number is now 7.2.1
-//
-// Revision 3.85  2010/10/22 13:20:14  taurel
-// - First bug in Tango 7.2 ! Crash when reading R/W scalar string attribute
-// without requiring Tango to free memory
-//
-// Revision 3.84  2010/09/17 08:22:05  taurel
-// - Fix memory leak in cse of scalar attribute R/W for string
-//
-// Revision 3.83  2010/09/09 13:44:46  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.82  2010/07/16 10:51:53  taurel
-// - Now it's possible to fill the polling buffer externally for R/W attribute
-// specifying the attribute written part
-//
-// Revision 3.81  2010/06/21 14:01:13  taurel
-// - Yet another merge with the Release_7_1_1-bugfixes branch
-//
-// Revision 3.78.2.1  2010/02/23 15:56:51  taurel
-// - Fix bug 2954995 (attribute quality INVALID)
-//
 // Revision 3.78  2009/10/27 08:22:27  taurel
 // - Attribute default value for periodic event period is back to 1 sec
 //
@@ -254,7 +219,6 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 	ext->check_change_event_criteria = true;
 	ext->archive_event_implmented = false;
 	ext->check_archive_event_criteria = true;
-	ext->dr_event_implmented = false;
 	
 	ext->event_periodic_client_3 = false;
 	ext->event_change_client_3 = false;
@@ -263,8 +227,6 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 	
 	ext->attr_serial_model = ATTR_BY_KERNEL;
 	ext->user_attr_mutex = NULL;
-
-	ext->scalar_str_attr_release = false;
 		
 //
 // Init the attribute name
@@ -301,19 +263,18 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 	ext->check_change_event_criteria 	= tmp_attr.is_check_change_criteria();
 	ext->archive_event_implmented 		= tmp_attr.is_archive_event();
 	ext->check_archive_event_criteria 	= tmp_attr.is_check_archive_criteria();	
-	ext->dr_event_implmented			= tmp_attr.is_data_ready_event();
 
 	switch(data_format)
 	{
 	case Tango::SPECTRUM:
-		max_x = static_cast<SpectrumAttr &>(tmp_attr).get_max_x();
+		max_x = dynamic_cast<SpectrumAttr &>(tmp_attr).get_max_x();
 		max_y = 0;
 		dim_y = 0;
 		break;
 				
 	case Tango::IMAGE:
-		max_x = static_cast<ImageAttr &>(tmp_attr).get_max_x();
-		max_y = static_cast<ImageAttr &>(tmp_attr).get_max_y();
+		max_x = dynamic_cast<ImageAttr &>(tmp_attr).get_max_x();
+		max_y = dynamic_cast<ImageAttr &>(tmp_attr).get_max_y();
 		break;
 				
 	default :
@@ -3663,7 +3624,6 @@ void Attribute::set_value(Tango::DevString *p_data,long x, long y,bool release)
 				tmp_str[0] = *p_data;
 				if (release == true)
 					delete p_data;
-				ext->scalar_str_attr_release = release;
 			}
 			else
 			{
@@ -4552,7 +4512,7 @@ void Attribute::set_value_date_quality(Tango::DevLong *p_data,time_t t,
 	set_value(p_data,x,y,release);
 	set_quality(qual,false);
 	set_date(t);
-
+	
 	if (qual == Tango::ATTR_INVALID)
 	{
 		if (!((is_writ_associated() == true) && (data_format == Tango::SCALAR)))
@@ -5305,14 +5265,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_SHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				short tmp_val;
-				if (date == false)
-					tmp_val = (*value.sh_seq)[0];
-				else
-					tmp_val = tmp_sh[0];
-
-				if (tmp_val <= min_alarm.sh)
+				if (tmp_sh[0] <= min_alarm.sh)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5330,14 +5286,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_LONG:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevLong tmp_val;
-				if (date == false)
-					tmp_val = (*value.lg_seq)[0];
-				else
-					tmp_val = tmp_lo[0];
-
-				if (tmp_val <= min_alarm.lg)
+				if (tmp_lo[0] <= min_alarm.lg)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5355,14 +5307,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_LONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevLong64 tmp_val;
-				if (date == false)
-					tmp_val = (*value.lg64_seq)[0];
-				else
-					tmp_val = ext->tmp_lo64[0];
-
-				if (tmp_val <= min_alarm.lg64)
+				if (ext->tmp_lo64[0] <= min_alarm.lg64)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5380,14 +5328,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_DOUBLE:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevDouble tmp_val;
-				if (date == false)
-					tmp_val = (*value.db_seq)[0];
-				else
-					tmp_val = tmp_db[0];
-
-				if (tmp_val <= min_alarm.db)
+				if (tmp_db[0] <= min_alarm.db)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5405,14 +5349,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_FLOAT:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevFloat tmp_val;
-				if (date == false)
-					tmp_val = (*value.fl_seq)[0];
-				else
-					tmp_val = tmp_fl[0];
-
-				if (tmp_val <= min_alarm.fl)
+				if (tmp_fl[0] <= min_alarm.fl)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5430,14 +5370,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_USHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevUShort tmp_val;
-				if (date == false)
-					tmp_val = (*value.ush_seq)[0];
-				else
-					tmp_val = tmp_ush[0];
-
-				if (tmp_val <= min_alarm.ush)
+				if (tmp_ush[0] <= min_alarm.ush)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5455,14 +5391,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_UCHAR:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevUChar tmp_val;
-				if (date == false)
-					tmp_val = (*value.cha_seq)[0];
-				else
-					tmp_val = tmp_cha[0];
-
-				if (tmp_val <= min_alarm.uch)
+				if (tmp_cha[0] <= min_alarm.uch)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5480,14 +5412,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_ULONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevULong64 tmp_val;
-				if (date == false)
-					tmp_val = (*value.ulg64_seq)[0];
-				else
-					tmp_val = ext->tmp_ulo64[0];
-
-				if (tmp_val <= min_alarm.ulg64)
+				if (ext->tmp_ulo64[0] <= min_alarm.ulg64)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5505,14 +5433,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_ULONG:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevULong tmp_val;
-				if (date == false)
-					tmp_val = (*value.ulg_seq)[0];
-				else
-					tmp_val = ext->tmp_ulo[0];
-
-				if (tmp_val <= min_alarm.ulg)
+				if (ext->tmp_ulo[0] <= min_alarm.ulg)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5572,14 +5496,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_SHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevShort tmp_val;
-				if (date == false)
-					tmp_val = (*value.sh_seq)[0];
-				else
-					tmp_val = tmp_sh[0];
-
-				if (tmp_val >= max_alarm.sh)
+				if (tmp_sh[0] >= max_alarm.sh)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5597,14 +5517,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_LONG:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevLong tmp_val;
-				if (date == false)
-					tmp_val = (*value.lg_seq)[0];
-				else
-					tmp_val = tmp_lo[0];
-
-				if (tmp_val >= max_alarm.lg)
+				if (tmp_lo[0] >= max_alarm.lg)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5622,14 +5538,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_LONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevLong64 tmp_val;
-				if (date == false)
-					tmp_val = (*value.lg64_seq)[0];
-				else
-					tmp_val = ext->tmp_lo64[0];
-
-				if (tmp_val >= max_alarm.lg64)
+				if (ext->tmp_lo64[0] >= max_alarm.lg64)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5647,14 +5559,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_DOUBLE:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevDouble tmp_val;
-				if (date == false)
-					tmp_val = (*value.db_seq)[0];
-				else
-					tmp_val = tmp_db[0];
-
-				if (tmp_val >= max_alarm.db)
+				if (tmp_db[0] >= max_alarm.db)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5672,14 +5580,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_FLOAT:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevFloat tmp_val;
-				if (date == false)
-					tmp_val = (*value.fl_seq)[0];
-				else
-					tmp_val = tmp_fl[0];
-
-				if (tmp_val >= max_alarm.fl)
+				if (tmp_fl[0] >= max_alarm.fl)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5697,14 +5601,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_USHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevUShort tmp_val;
-				if (date == false)
-					tmp_val = (*value.ush_seq)[0];
-				else
-					tmp_val = tmp_ush[0];
-
-				if (tmp_val >= max_alarm.ush)
+				if (tmp_ush[0] >= max_alarm.ush)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5722,14 +5622,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_UCHAR:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevUChar tmp_val;
-				if (date == false)
-					tmp_val = (*value.cha_seq)[0];
-				else
-					tmp_val = tmp_cha[0];
-
-				if (tmp_val >= max_alarm.uch)
+				if (tmp_cha[0] >= max_alarm.uch)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5747,14 +5643,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_ULONG:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevULong tmp_val;
-				if (date == false)
-					tmp_val = (*value.ulg_seq)[0];
-				else
-					tmp_val = ext->tmp_ulo[0];
-
-				if (tmp_val >= max_alarm.ulg)
+				if (ext->tmp_ulo[0] >= max_alarm.ulg)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -5772,14 +5664,10 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_ULONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevULong64 tmp_val;
-				if (date == false)
-					tmp_val = (*value.ulg64_seq)[0];
-				else
-					tmp_val = ext->tmp_ulo64[0];
-
-				if (tmp_val >= max_alarm.ulg64)
+				if (ext->tmp_ulo64[0] >= max_alarm.ulg64)
+				{
 					returned = true;
+				}
 			}
 			else
 			{
@@ -6413,10 +6301,10 @@ void Attribute::delete_seq()
 // method : 		Attribute::add_write_value
 // 
 // description : 	These methods add the associated writable attribute
-//					value to the read attribute buffer and create a
-//					sequence from the attribute internal buffer
+//			value to the read attribute buffer and create a
+//			sequence from the attribute internal buffer
 //
-// in :	val : The associated write attribute value
+// in :			val : The associated write attribute value
 //
 //--------------------------------------------------------------------------
 
@@ -6488,18 +6376,8 @@ void Attribute::add_write_value(Tango::DevVarStringArray *val_ptr)
 {
 	if (data_format == Tango::SCALAR)
 	{
-		if (ext->scalar_str_attr_release == true)
-		{
-			char **strvec = Tango::DevVarStringArray::allocbuf(2);
-			strvec[0] = tmp_str[0];
-			strvec[1] = CORBA::string_dup((*val_ptr)[0]);
-			value.str_seq = new Tango::DevVarStringArray(2,2,strvec,true);
-		}
-		else
-		{
-			tmp_str[1] = (*val_ptr)[0];
-			value.str_seq = new Tango::DevVarStringArray(data_size + 1,data_size + 1,tmp_str,false);
-		}
+		tmp_str[1] = (*val_ptr)[0];	
+		value.str_seq = new Tango::DevVarStringArray(data_size + 1,data_size + 1,tmp_str,false);	 
 	}
 	else
 	{
@@ -7547,26 +7425,12 @@ void Attribute::fire_archive_event(DevFailed *except)
 
 		if ( is_check_archive_criteria() == true )
 		{
-#ifdef _TG_WINDOWS_
-        	struct _timeb           now_win;
-#endif
-        	struct timeval          now_timeval;
-
-#ifdef _TG_WINDOWS_
-			_ftime(&now_win);
-			now_timeval.tv_sec = (unsigned long)now_win.time;
-			now_timeval.tv_usec = (long)now_win.millitm * 1000;
-#else
-			gettimeofday(&now_timeval,NULL);
-#endif
-
 			event_supplier->detect_and_push_archive_event_3(ext->dev,
 						 			send_attr,
 						 			send_attr_4,
 									*this,
 									name,
-									except,
-									&now_timeval);
+									except);
 		}
 		else
 		{

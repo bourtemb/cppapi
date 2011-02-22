@@ -10,7 +10,7 @@ static const char *RcsId = "$Id$";
 //
 // $Author$
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -33,19 +33,6 @@ static const char *RcsId = "$Id$";
 // $Revision$
 //
 // $Log$
-// Revision 1.30  2010/09/09 13:46:00  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 1.29  2010/05/26 09:15:36  taurel
-// - Another commit after merge with the bug fixes branch
-//
-// Revision 1.28  2009/12/09 15:48:56  taurel
-// - Add Attr and Attribute methods set_data_ready_event() and is_data_ready_event().
-// - Admin device command EventSubcriptionChange fails is one of these methods has not been called
-// Revision 1.27.2.1  2010/05/18 08:27:23  taurel
-// - Events from device in a DS started with a file as database are now
-// back into operation
-//
 // Revision 1.27  2009/10/27 08:25:03  taurel
 // - No real changes. Only some code beautifulling
 //
@@ -413,17 +400,6 @@ CORBA::Any *EventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,const 
 		}
 		else if (event == "data_ready")
 		{
-			if (attribute.is_data_ready_event() == false)
-			{
-				TangoSys_OMemStream o;
-				o << "The attribute ";
-				o << attr_name;
-				o << " is not data ready event enabled" << ends;
-				
-				Except::throw_exception((const char*)"API_AttributeNotDataReadyEnabled",
-										o.str(),
-										(const char *)"EventSubscriptionChangeCmd::execute");
-			}
 			cout4 << "EventSubscriptionChangeCmd::execute(): update data_ready subscription\n";
 			attribute.ext->event_data_ready_subscription = time(NULL);
 		}

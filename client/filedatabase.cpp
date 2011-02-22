@@ -1,4 +1,4 @@
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -543,7 +543,7 @@ vector<string> FileDatabase:: parse_resource_value(ifstream& f)
   // ****************************************************
 
 
-std::string FileDatabase::parse_res_file(const std::string &file_name)
+string FileDatabase::parse_res_file(const string& file_name)
 {
 	ifstream f;
 	bool eof=false;
@@ -984,7 +984,7 @@ void  FileDatabase :: write_file()
 			string margin_s(margin,' ');
 			vector<string>::iterator iterator_s = (*itp)->value.begin();
 			if ((*iterator_s).length() == 0)
-				(*iterator_s)[0] = ' ';
+				(*iterator_s)[0] == ' ';
 			if (iterator_s != (*itp)->value.end())
 			{
 				//f << "\"" << (*iterator_s) << "\"";
@@ -1982,18 +1982,6 @@ CORBA::Any*  FileDatabase :: DbGetDeviceList(CORBA::Any& send)
 				               			(const char *)"FileDatabase::DbGetDeviceList");
 			}
 		}
-		else
-		{
-			delete any_ptr;
-			delete data_out;
-
-			TangoSys_MemStream desc;
-			desc << "File database: Can't find device server " << (*data_in)[0];
-			desc << " in file " << filename << "." << ends;
-			ApiConnExcept::throw_exception((const char *)"API_DatabaseFileError",
-				               			desc.str(),
-				               			(const char *)"FileDatabase::DbGetDeviceList");
-		}
 	}
 
 	(*any_ptr) <<= data_out;
@@ -2233,7 +2221,7 @@ CORBA::Any*  FileDatabase :: DbGetProperty(CORBA::Any& send)
 	send >>= data_in;
 	
 	data_out->length(2);
-	sprintf(num_attr_str,"%lud",data_in->length()-1);
+	sprintf(num_attr_str,"%lu",data_in->length()-1);
 	(*data_out)[0] = CORBA::string_dup((*data_in)[0]);
 	(*data_out)[1] = CORBA::string_dup(zero_str);
 	

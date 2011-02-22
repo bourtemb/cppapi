@@ -8,7 +8,7 @@
 //
 // author(s) :          N.Leclercq
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -31,17 +31,6 @@
 // $Revision$
 //
 // $Log$
-// Revision 3.22  2010/09/09 13:44:06  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.21  2010/09/09 13:28:04  taurel
-// - Commit after the last merge with the bugfixes branch
-// - Fix some warning when compiled -W -Wall
-//
-// Revision 3.20.4.1  2010/06/23 14:10:23  taurel
-// - Full Tango as described in doc Appendix C is now also supported
-// for group
-//
 // Revision 3.20  2009/01/21 12:45:15  taurel
 // - Change CopyRights for 2009
 //
@@ -600,22 +589,22 @@ GroupElement::~GroupElement()
   //- noop dtor
 }
 //-----------------------------------------------------------------------------
-void GroupElement::add (const std::string&, int)
+void GroupElement::add (const std::string& s, int timeout_ms)
 {
   //- noop default impl
 }
 //-----------------------------------------------------------------------------
-void GroupElement::add (const std::vector<std::string>& , int)
+void GroupElement::add (const std::vector<std::string>& sl, int timeout_ms)
 {
   //- noop default impl
 }
 //-----------------------------------------------------------------------------
-void GroupElement::remove (const std::string&, bool)
+void GroupElement::remove (const std::string& s, bool fwd)
 {
   //- noop default impl
 }
 //-----------------------------------------------------------------------------
-void GroupElement::remove (const std::vector<std::string>&, bool)
+void GroupElement::remove (const std::vector<std::string>& sl, bool fwd)
 {
   //- noop default impl
 }
@@ -631,27 +620,27 @@ GroupElement* GroupElement::find (const std::string& n, bool fwd)
   return name_equals(n) ? this : 0;
 } 
 //-----------------------------------------------------------------------------
-DeviceProxy* GroupElement::get_device (const std::string&) 
+DeviceProxy* GroupElement::get_device (const std::string& n) 
 {
   return 0;
 } 
 //-----------------------------------------------------------------------------
-DeviceProxy* GroupElement::get_device (long) 
+DeviceProxy* GroupElement::get_device (long idx) 
 {
   return 0;
 } 
 //-----------------------------------------------------------------------------
-DeviceProxy* GroupElement::operator[] (long) 
+DeviceProxy* GroupElement::operator[] (long idx) 
 {
   return 0;
 } 
 //-----------------------------------------------------------------------------
-Group* GroupElement::get_group (const std::string&) 
+Group* GroupElement::get_group (const std::string& n) 
 {
   return 0;
 } 
 //-----------------------------------------------------------------------------
-bool GroupElement::ping (bool)
+bool GroupElement::ping (bool fwd)
 {
   return false;
 }
