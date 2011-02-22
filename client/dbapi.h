@@ -2,7 +2,7 @@
 // dbapi.h -	include file for TANGO database api
 //
 // 
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -84,7 +84,7 @@ private :
 	virtual string get_corba_name(bool);
 	virtual string build_corba_name() {return string("nada");}
 	virtual int get_lock_ctr() {return 0;}
-	virtual void set_lock_ctr(int) {}
+	virtual void set_lock_ctr(int lo) {}
 		
 	bool				db_multi_svc;
 	vector<string>		multi_db_port;
@@ -118,7 +118,6 @@ public :
 	
 	void write_filedatabase();
 	void reread_filedatabase();
-	void write_event_channel_ior_filedatabase(string &,string &);
 	void build_connection ();
 	void post_reconnection();
 	~Database();
@@ -137,8 +136,6 @@ public :
 	bool is_multi_tango_host() {return db_multi_svc;}
 	vector<string> &get_multi_host() {return multi_db_host;}
 	vector<string> &get_multi_port() {return multi_db_port;}
-
-	const string &get_file_name();
 
 #ifdef _TG_WINDOWS_
 	Database(CORBA::ORB *orb,string &,string &);
@@ -389,7 +386,6 @@ public :
 	~DbDevice();
 	void set_name(string &new_name) {name = new_name;}
 	Database *get_dbase();
-	void set_dbase(Database *db) {dbase = db;}
 //
 // methods
 //
@@ -735,7 +731,7 @@ public:
 	const PropEltIdx &get_Default_prop() {return Default_prop;}
 	const PropEltIdx &get_adm_dev_prop() {return adm_dev_prop;}
 	const PropEltIdx &get_ctrl_serv_prop() {return ctrl_serv_prop;}
-	int get_class_nb() {return class_nb;}
+	const int get_class_nb() {return class_nb;}
 	const ClassEltIdx *get_classes_elt() {return classes_idx;}
 	int get_data_nb() {return n_data;}
 	

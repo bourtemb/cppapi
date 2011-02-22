@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -37,16 +37,6 @@ static const char *RcsId = "$Id$\n$Name$";
 // $Revision$
 //
 // $Log$
-// Revision 3.27  2010/12/08 10:04:04  taurel
-// - No change. Don't know why tkcvs report changes on this file. tkdiff
-// agree with me!!
-//
-// Revision 3.26  2010/09/09 13:46:01  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.25  2009/12/08 07:55:15  taurel
-// - Get some bug fixes from a merge with the Release_7_1_1-bugfixes branch
-//
 // Revision 3.24.2.1  2009/12/07 14:17:29  taurel
 // - Correctly nitialized the write part  y dimension of spectrum or image
 // attribute when retrieving the attribute history from the polling buffer
@@ -441,7 +431,7 @@ void PollRing::insert_data(Tango::AttributeValueList_3 *attr_val,struct timeval 
 
 void PollRing::insert_data(Tango::AttributeValueList_4 *attr_val,struct timeval &t,bool unlock)
 {
-
+	
 //
 // Insert data in the ring
 //

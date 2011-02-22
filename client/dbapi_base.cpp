@@ -7,7 +7,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- September 2000
 //
-// Copyright (C) :      2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2000,2001,2002,2003,2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -29,37 +29,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 //
 // $Log$
-// Revision 3.57  2010/12/09 12:58:43  taurel
-// - Fix another controlled access related bug (in DbDeleteDeviceProperty)
-//
-// Revision 3.56  2010/12/09 12:03:06  taurel
-// - Fix bug in control access. The db device access right were not got from
-// db if it was not he first device on which the access was checked
-//
-// Revision 3.55  2010/10/04 12:16:04  taurel
-// - Fix some double free in case of communication problems with db server
-//
-// Revision 3.54  2010/09/09 13:43:38  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.53  2010/09/09 08:36:19  taurel
-// - Better TANGO_HOST=localhost:xxx management
-//
-// Revision 3.52  2010/08/25 14:25:41  taurel
-// - Support localhost in TANGO_HOST env. variable. Bug 2894469
-//
-// Revision 3.51  2010/08/17 08:55:07  taurel
-// - Added a Database::get_file_name() method
-//
-// Revision 3.50  2010/05/26 09:16:21  taurel
-// - Another commit after merge with the bug fixes branch
-//
-// Revision 3.49  2010/04/12 12:56:24  taurel
-// - Fix a memory leak in the new method get_server_release()
-//
-// Revision 3.48  2010/01/08 08:04:49  taurel
-// - More changes for thread safety
-//
 // Revision 3.47  2010/01/07 08:35:06  taurel
 // - Several change sto improve thread safety of the DeviceProxy, AttributeProxy, ApiUtul and EventConsumer classes
 //
@@ -67,16 +36,6 @@ static const char *RcsId = "$Id$\n$Name$";
 // - Safety commit before christmas holydays
 // - Many changes to make the DeviceProxy, Database and AttributeProxy
 // classes thread safe (good help from the helgrind tool from valgrind)
-// Revision 3.45.2.3  2010/05/21 09:42:49  taurel
-// - Re-use the same event channel in case of server restart when a file
-// is use as database
-//
-// Revision 3.45.2.2  2010/05/20 12:39:26  taurel
-// - Fixed some memory leaks when using a file as database (-file option)
-//
-// Revision 3.45.2.1  2010/05/18 08:20:09  taurel
-// - Events from device in a DS started with a file as database are now
-// back into operation
 //
 // Revision 3.45  2009/09/22 11:04:45  taurel
 // - Environment variables in file also supported for Windows
@@ -392,28 +351,6 @@ void Database::check_tango_host(const char *tango_host_env_c_str)
 					       		(const char *)"Database::Database");
 		}
 		db_host = tango_host_env.substr(0,separator);
-
-//
-// If localhost is used as host name, try to replace it by the real host name
-//
-
-		string db_host_lower(db_host);
-		transform(db_host_lower.begin(),db_host_lower.end(),db_host_lower.begin(),::tolower);
-		if (db_host_lower == "localhost")
-		{
-			char h_name[80];
-			int res = gethostname(h_name,80);
-			if (res == 0)
-			{
-				db_host = h_name;
-				Connection::ext->tango_host_localhost = true;
-			}
-		}
-
-//
-// Get FQDN
-//
-
 		if (db_host.find('.') == string::npos)
 			get_fqdn(db_host);
 	}
@@ -477,11 +414,9 @@ Database::Database(string &name) : Connection(true),access_proxy(NULL),access_ch
 	file_name = name;
 	filedb = new FileDatabase(file_name);
 	serv_version = 230;
-
-	check_acc = false;
 	
 	ext = new DatabaseExt();
-//	dev_name();
+	dev_name();
 }
 
 //-----------------------------------------------------------------------------
@@ -518,32 +453,13 @@ void Database::get_server_release()
 {
 	try
 	{
-		DevCmdInfo *cmd_ptr = device->command_query("DbGetDeviceAttributeProperty2");
+		device->command_query("DbGetDeviceAttributeProperty2");
 		serv_version = 230;
-		delete cmd_ptr;
 	}
 	catch (Tango::DevFailed &e)
 	{
 		serv_version = 210;
 	}
-}
-
-//-----------------------------------------------------------------------------
-//
-// Database::get_file_name() - Get file name when the database is a file
-//
-//-----------------------------------------------------------------------------
-
-const string &Database::get_file_name()
-{
-	if (filedb == 0)
-	{			
-		Tango::Except::throw_exception ((const char *)"API_NotSupportedFeature",
-										(const char *)"The database is not a file-based database",
-										(const char *)"Database::get_file_name");
-	}
-
-	return file_name;
 }
 
 //-----------------------------------------------------------------------------
@@ -694,11 +610,8 @@ string Database::get_corba_name(bool ch_acc)
 	else
 	{
 		db_corbaloc = "corbaloc:iiop:";
-		if (Connection::ext->tango_host_localhost == true)
-			db_corbaloc = db_corbaloc+"localhost:";
-		else
-			db_corbaloc = db_corbaloc+db_host+":";
-		db_corbaloc = db_corbaloc+port+"/"+DbObjName;
+		db_corbaloc = db_corbaloc+host+":"+port;
+		db_corbaloc = db_corbaloc+"/"+DbObjName;
 	}
 		
 	return db_corbaloc;
@@ -1138,11 +1051,19 @@ void Database::get_device_property(string dev, DbData &db_data,DbServerCache *db
 		Any send;
 		
 		send <<= property_names;
-	
-		if (filedb != 0)
-			received = filedb->DbGetDeviceProperty(send);
-		else
-			CALL_DB_SERVER("DbGetDeviceProperty",send,received);
+
+		try
+		{	
+			if (filedb != 0)
+				received = filedb->DbGetDeviceProperty(send);
+			else
+				CALL_DB_SERVER("DbGetDeviceProperty",send,received);
+		}
+		catch (Tango::DevFailed &)
+		{
+			delete property_names;
+			throw;
+		}
 
 		received.inout() >>= property_values;
 	}
@@ -1278,10 +1199,7 @@ void Database::put_device_property(string dev, DbData &db_data)
 	send <<= property_values;
 
 	if (filedb != 0)
-	{
-		CORBA::Any_var the_any;
-		the_any = filedb->DbPutDeviceProperty(send);
-	}
+		filedb->DbPutDeviceProperty(send);
 	else
 		CALL_DB_SERVER_NO_RET("DbPutDeviceProperty",send);
 		
@@ -1299,8 +1217,6 @@ void Database::delete_device_property(string dev, DbData &db_data)
 {
 	Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
-
-	check_access_and_get();
 	
 	DevVarStringArray *property_names = new DevVarStringArray;
 	property_names->length(db_data.size()+1);
@@ -1864,10 +1780,7 @@ void Database::put_class_property(string device_class, DbData &db_data)
 	send <<= property_values;
 
 	if (filedb != 0)
-	{
-		CORBA::Any_var the_any;
-		the_any = filedb->DbPutClassProperty(send);
-	}
+		filedb->DbPutClassProperty(send);
 	else
 		CALL_DB_SERVER_NO_RET("DbPutClassProperty",send);
 		
@@ -1950,9 +1863,7 @@ void Database::get_class_attribute_property(string device_class, DbData &db_data
 					CALL_DB_SERVER("DbGetClassAttributeProperty2",send,received);
 				}
 				else
-				{
 					CALL_DB_SERVER("DbGetClassAttributeProperty",send,received);
-				}
 			}
 			catch (Tango::DevFailed &)
 			{
@@ -2219,15 +2130,20 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 		}
 		else
 		{
-			if (serv_version >= 230)
+			try
 			{
-				CALL_DB_SERVER_NO_RET("DbPutClassAttributeProperty2",send);
+				if (serv_version >= 230)
+				{
+					CALL_DB_SERVER_NO_RET("DbPutClassAttributeProperty2",send);
+				}
+				else
+					CALL_DB_SERVER_NO_RET("DbPutClassAttributeProperty",send);
+				retry = false;
 			}
-			else
+			catch (Tango::DevFailed &)
 			{
-				CALL_DB_SERVER_NO_RET("DbPutClassAttributeProperty",send);
+				throw;
 			}
-			retry = false;
 		}
 	}
 		
@@ -2523,8 +2439,17 @@ void Database::get_property(string obj, DbData &db_data,DbServerCache *db_cache)
 		if (filedb != 0)
 			received = filedb->DbGetProperty(send);
 		else
-			CALL_DB_SERVER("DbGetProperty",send,received);
-
+		{
+			try
+			{
+				CALL_DB_SERVER("DbGetProperty",send,received);
+			}
+			catch(Tango::DevFailed &)
+			{
+				delete property_names;
+				throw;
+			}
+		}
 		received.inout() >>= property_values;
 	}
 	else
@@ -4161,6 +4086,7 @@ void Database::check_access()
 
 AccessControlType Database::check_access_control(string &devname)
 {
+
 //
 // For DB device
 //
@@ -4213,14 +4139,14 @@ AccessControlType Database::check_access_control(string &devname)
 //
 // Build the local AccessProxy instance
 //
-
+			
 			access_proxy = new AccessProxy(access_devname_str);
 		}
 
 //
 // Get access rights
 //
-
+		
 		if (access_proxy != NULL)
 			local_access = access_proxy->check_access_control(devname);
 		else
@@ -4244,7 +4170,7 @@ AccessControlType Database::check_access_control(string &devname)
 		access_except_errors = e.errors;
 		local_access = ACCESS_READ;
 	}
-
+	
 	return local_access;
 }
 
@@ -4263,6 +4189,7 @@ bool Database::is_command_allowed(string &devname,string &cmd)
 	if (access_proxy == NULL)
 	{
 		AccessControlType acc = check_access_control(devname);
+		access_checked = true;
 		
 		if (access_proxy == NULL)
 		{
@@ -4280,47 +4207,33 @@ bool Database::is_command_allowed(string &devname,string &cmd)
 		}
 	}
 
-	if (devname == db_device_name)
+	if ( access == ACCESS_WRITE )
 	{
-		string db_class("Database");
-		ret = access_proxy->is_command_allowed(db_class,cmd);
+		ret = true;
 	}
 	else
 	{
+		if (devname == db_device_name)
+		{
+			string db_class("Database");
+			ret = access_proxy->is_command_allowed(db_class,cmd);
+		}
+		else
+		{
 
-//
-// Get device class
-//
+		//
+		// Get device class
+		//
 
-		string dev_class = get_class_for_device(devname);
-		ret = access_proxy->is_command_allowed(dev_class,cmd);
+			string dev_class = get_class_for_device(devname);
+			ret = access_proxy->is_command_allowed(dev_class,cmd);
+		}
 	}
 	
 	return ret;
 }
 
-//-----------------------------------------------------------------------------
-//
-// method :			Database::write_event_channel_ior_filedatabase() -
-// 
-// description : 	Method to connect write the event channel ior to the file
-//					used as database
-//
-// argument : in :	dserver : The DS process name (exec/instance)
-//					ec_ior : The event channel IOR
-//
-//-----------------------------------------------------------------------------
 
-void Database::write_event_channel_ior_filedatabase(string &dserver,string &ec_ior)
-{
-	if (filedb == NULL)
-	{
-		Tango::Except::throw_exception((const char *)"API_NotSupportedFeature",
-				       		(const char *)"This call is supported only when the database is a file",
-				       		(const char *)"Database::write_event_channel_ior_filedatabase");
-	}
 
-	filedb->write_event_channel_ior(dserver,ec_ior);
-}
 
 } // End of Tango namespace

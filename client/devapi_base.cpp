@@ -7,7 +7,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 		- March 2001
 //
-// Copyright (C) :      2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2001,2002,2003,2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -28,80 +28,13 @@ static const char *RcsId = "$Id$\n$Name$";
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
 // log			- $Log$
-// log			- Revision 3.96  2011/01/10 13:11:33  taurel
-// log			- - getnameinfo() on sun does not return FQDN......
+// log			- Revision 3.76  2010/01/07 08:35:06  taurel
+// log			- - Several change sto improve thread safety of the DeviceProxy, AttributeProxy, ApiUtul and EventConsumer classes
 // log			-
-// log			- Revision 3.95  2010/12/09 07:55:35  taurel
-// log			- - Default gcc on debian 30 also doesn't like getaddrinfo() AI_ADDRCONFIG
-// log			- flag
-// log			-
-// log			- Revision 3.94  2010/12/08 16:32:16  taurel
-// log			- - Another fix for Windows
-// log			-
-// log			- Revision 3.92  2010/12/08 09:57:46  taurel
-// log			- - Replace gethostbyname() and gethostbyaddr() by getaddrinfo() and
-// log			- getnameinfo()
-// log			-
-// log			- Revision 3.91  2010/09/12 12:18:23  taurel
-// log			- - Now, the test suite seems OK
-// log			-
-// log			- Revision 3.90  2010/09/09 13:44:06  taurel
-// log			- - Add year 2010 in Copyright notice
-// log			-
-// log			- Revision 3.89  2010/09/09 13:28:04  taurel
-// log			- - Commit after the last merge with the bugfixes branch
-// log			- - Fix some warning when compiled -W -Wall
-// log			-
-// log			- Revision 3.88  2010/09/08 12:32:10  taurel
-// log			- - Miscellaneous changes to implement a better timeout management
-// log			- (now manage a user connect timeout with the env. variable TANGOconnectTimeout)
-// log			-
-// log			- Revision 3.87  2010/09/07 15:30:45  taurel
-// log			- - Fix some re-connection problems with Windows
-// log			-
-// log			- Revision 3.86  2010/09/07 15:28:35  taurel
-// log			- - Some changes for multi-compilers support before Tango 7.2
-// log			-
-// log			- Revision 3.85  2010/08/19 12:07:24  taurel
-// log			- - Change timeout during the first _narrow() call in connect() method
-// log			-
-// log			- Revision 3.84  2010/08/17 14:40:56  taurel
-// log			- - The DeviceProxy ctor now does not call the DB if it is called in a
-// log			- device server and the device is in this device server.
-// log			-
-// log			- Revision 3.83  2010/06/25 07:16:34  taurel
-// log			- - Also protect the asynchronous DeviceProxy::read_attributes() methods
-// log			- against multiple times the same attribute in att name list
-// log			-
-// log			- Revision 3.82  2010/06/21 12:31:32  taurel
-// log			- - Implement a much faster server shutdown sequence
-// log			-
-// log			- Revision 3.81  2010/06/18 07:43:23  taurel
-// log			- - In case of locked device, polling and logging related commands are
-// log			- allowed only for the locker process
-// log			-
-// log			- Revision 3.80  2010/05/26 09:16:21  taurel
-// log			- - Another commit after merge with the bug fixes branch
-// log			-
-// log			- Revision 3.79  2010/04/27 07:38:03  taurel
-// log			- - Merge with the bugfixes branch
-// log			- Revision 3.74.2.5  2010/05/18 08:20:09  taurel
-// log			- - Events from device in a DS started with a file as database are now
-// log			- back into operation
-// log			-
-// log			- Revision 3.74.2.4  2010/05/03 14:00:35  taurel
-// log			- - Fix bug 2995885 reported by Georg (bug in detection of multiple times
-// log			- the same attribute in the read_attributes)
-// log			-
-// log			- Revision 3.74.2.3  2010/04/16 13:33:47  taurel
-// log			- - Added a check in DeviceProxy::read_attributes() method to check that the
-// log			- same attribute is not requested twice in the same call
-// log			-
-// log			- Revision 3.74.2.2  2010/03/31 07:35:24  taurel
-// log			- - Fix memory leak in case of non-running device (Bug SourceForge 2977091)
-// log			-
-// log			- Revision 3.74.2.1  2009/12/17 14:39:27  taurel
-// log			- - Fix controlled access bug for device not using the database
+// log			- Revision 3.75  2009/12/18 14:51:01  taurel
+// log			- - Safety commit before christmas holydays
+// log			- - Many changes to make the DeviceProxy, Database and AttributeProxy
+// log			- classes thread safe (good help from the helgrind tool from valgrind)
 // log			-
 // log			- Revision 3.74  2009/11/02 08:35:03  taurel
 // log			- - Fix warnings reported when compiling using the option -Wall
@@ -328,7 +261,6 @@ static const char *RcsId = "$Id$\n$Name$";
 #ifdef _TG_WINDOWS_
 #include <sys/timeb.h>
 #include <process.h>
-#include <ws2tcpip.h>
 #else
 #include <sys/time.h>
 #include <netdb.h>
@@ -407,21 +339,13 @@ Connection::Connection(ORB *orb_in):pasyn_ctr(0),pasyn_cb_ctr(0),
 		if (orb_in != NULL)
 			au->set_orb(orb_in);
 	}
-
-//
-// Get user connect timeout if one is defined
-//
-
-	int ucto = au->get_user_connect_timeout();
-	if (ucto != -1)
-		ext->user_connect_timeout = ucto;
 }
 
 Connection::Connection(bool dummy)
 {
 	if (dummy)
 	{
-		ext = new ConnectionExt();
+		ext = NULL;
 	}
 }
 
@@ -582,44 +506,24 @@ void Connection::set_source(Tango::DevSource sou)
 
 void Connection::connect(string &corba_name)
 {
+
 	bool retry = true;
 	long db_retries = DB_START_PHASE_RETRIES;
-	bool connect_to_db = false;
 					
 	while (retry == true)
 	{	
 		try
 		{
 
-			Object_var obj;
-			obj = ApiUtil::instance()->get_orb()->string_to_object(corba_name.c_str());
-
 //
 // Narrow CORBA string name to CORBA object
 // First, try as a Device_3, then as a Device_2 and finally as a Device
-// In case of device server running on a crate which is suddently turned off,
-// the _narrow call takes several seconds before returning. Change the global
-// timeout before doing the _narrow() in order to limit this timeout
-// If the device is already connected, we can change the device timeout.
-// If the device is not already connected, we have to change the omniORB
-// global timeout
 //
 
-			if (corba_name.find(DbObjName) != string::npos)
-				connect_to_db = true;
-
-			if (connect_to_db == false)
-			{
-				if (ext->user_connect_timeout != -1)
-					omniORB::setClientConnectTimeout(ext->user_connect_timeout);
-				else
-					omniORB::setClientConnectTimeout(NARROW_CLNT_TIMEOUT);
-			}
+			Object_var obj;
+			obj = ApiUtil::instance()->get_orb()->string_to_object(corba_name.c_str());
 
 			ext->device_4 = Device_4::_narrow(obj);
-
-			if (connect_to_db == false)
-				omniORB::setClientConnectTimeout(0);
 		
 			if (CORBA::is_nil(ext->device_4))
 			{
@@ -681,9 +585,6 @@ void Connection::connect(string &corba_name)
 		}
 		catch (CORBA::SystemException &ce)
 		{
-			if (connect_to_db == false)
-				omniORB::setClientConnectTimeout(0);
-
 			TangoSys_OMemStream desc;
 			TangoSys_MemStream reason;
 			bool db_connect = false;
@@ -822,12 +723,7 @@ void Connection::reconnect(bool db_used)
 		{
 			try
 			{
-				if (ext->user_connect_timeout != -1)
-					omniORB::setClientConnectTimeout(ext->user_connect_timeout);
-				else
-					omniORB::setClientConnectTimeout(NARROW_CLNT_TIMEOUT);
 				device->ping();
-				omniORB::setClientConnectTimeout(0);
 			
 				ext->prev_failed_t0 = t;
 				ext->prev_failed    = false;
@@ -835,7 +731,7 @@ void Connection::reconnect(bool db_used)
 //
 // If the device is the database, call its post-reconnection method
 //
-// TODO: Implement this with a virtual method in Connection and Database
+// TODO: Implement this with a virtaul method in Connection and Database
 // class. Doing it now, will break compatibility (one more virtual method)
 //
 
@@ -846,7 +742,6 @@ void Connection::reconnect(bool db_used)
 			}			
 			catch (CORBA::SystemException &ce)
 			{
-				omniORB::setClientConnectTimeout(0);
 				connection_state = CONNECTION_NOTOK;
 		
 				TangoSys_OMemStream desc;
@@ -1051,61 +946,6 @@ int Connection::get_env_var_from_file(string &f_name,const char *env_var,string 
 
 void Connection::get_fqdn(string &the_host)
 {
-  	struct addrinfo hints;
-
-	memset(&hints,0,sizeof(struct addrinfo));
-#ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
-	hints.ai_falgs	   = AI_ADDRCONFIG;
-#endif
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
-  	hints.ai_flags     = AI_ADDRCONFIG;
-#endif
-#endif
-  	hints.ai_family    = AF_INET;
-  	hints.ai_socktype  = SOCK_STREAM;
-
-  	struct addrinfo	*info;
-	struct addrinfo *ptr;
-	char tmp_host[512];
-
-  	int result = getaddrinfo(the_host.c_str(),NULL,&hints,&info);
-
-  	if (result == 0)
-	{
-		ptr = info;
-		while (ptr != NULL)
-		{
-    		if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,512,0,0,0) == 0)
-			{
-				string myhost(tmp_host);
-				string::size_type pos = myhost.find('.');
-				if (pos != string::npos)
-				{
-					string canon = myhost.substr(0,pos);
-					if (canon == the_host)
-					{
-						the_host = myhost;
-						break;
-					}
-				}
-    		}
-			ptr = ptr->ai_next;
-		}
-		freeaddrinfo(info);
-	}
-	
-#ifdef __sun
-
-//
-// Unfortunately, on solaris (at least solaris9), getnameinfo does
-// not return the fqdn....
-// Use the old way of doing
-//
-
-	string::size_type pos = the_host.find('.');
-
 	struct hostent *he;
 	he = gethostbyname(the_host.c_str());
 
@@ -1130,7 +970,6 @@ void Connection::get_fqdn(string &the_host)
 		else
 			the_host = na;
 	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1262,9 +1101,8 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 // The ping rule is simply to send to the client correct
 // error message in case of re-connection
 //
-				
+						
 				string d_name = dev_name();
-
 				if (db->is_command_allowed(d_name,command) == false)
 				{
 					try
@@ -1305,7 +1143,7 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 				ClntIdent ci;
 				ApiUtil *au = ApiUtil::instance();
 				ci.cpp_clnt(au->get_client_pid());
-
+				
 				received = ext->device_4->command_inout_4(command.c_str(),data_in.any,local_source,ci);
 			}
 			else if (version >= 2)
@@ -1688,7 +1526,7 @@ void DeviceProxy::real_constructor (string &name,bool need_check_acc)
 	else
 	{
 		corba_name = build_corba_name();
-		
+
 //
 // If we are not using the database, give write access
 //
@@ -1932,21 +1770,6 @@ void DeviceProxy::parse_name(string &full_name)
 	string name_wo_prot;
 	string name_wo_db_mod;
 	string dev_name,object_name;
-
-//
-// Error of the string is empty
-//
-
-	if (full_name.empty() == true)
-	{
-		TangoSys_OMemStream desc;
-		desc << "The given name is an empty string!!! " << full_name << endl;
-		desc << "Device name syntax is domain/family/member" << ends;
-			
-		ApiWrongNameExcept::throw_exception((const char *)"API_WrongDeviceNameSyntax",
-						desc.str(),
-						(const char *)"DeviceProxy::parse_name()");
-	}
 	
 //
 // Device name in lower case letters
@@ -2117,7 +1940,7 @@ void DeviceProxy::parse_name(string &full_name)
 				
 		db_host = db_port = NOT_USED;
 		db_port_num = 0;
-		from_env_var = false;				 
+				 
 	}
 	else
 	{
@@ -2326,36 +2149,19 @@ void DeviceProxy::parse_name(string &full_name)
 
 string DeviceProxy::get_corba_name(bool need_check_acc)
 {
-//
-// If we are in a server, try a local import
-// (in case the device is embedded in the same process)
-//
-
-	string local_ior;
-	if (ApiUtil::instance()->in_server() == true)
-		local_import(local_ior);
-
-//
-// If we are not in a server or if the device is not in the same process,
-// ask the database
-//
-
 	DbDevImportInfo import_info;
 
-	if (local_ior.size() == 0)
-	{
-		import_info = db_dev->import_device();
+	import_info = db_dev->import_device();
 
-		if (import_info.exported != 1)
-		{
-			connection_state = CONNECTION_NOTOK;
-			
-			TangoSys_OMemStream desc;		
-			desc << "Device " << device_name << " is not exported (hint: try starting the device server)" << ends;
-			ApiConnExcept::throw_exception((const char*)"API_DeviceNotExported",
-						       desc.str(),
-						       (const char*)"DeviceProxy::get_corba_name()");
-		}
+	if (import_info.exported != 1)
+	{
+		connection_state = CONNECTION_NOTOK;
+		
+		TangoSys_OMemStream desc;		
+		desc << "Device " << device_name << " is not exported (hint: try starting the device server)" << ends;
+		ApiConnExcept::throw_exception((const char*)"API_DeviceNotExported",
+					       desc.str(),
+					       (const char*)"DeviceProxy::get_corba_name()");
 	}
 
 //
@@ -2366,11 +2172,8 @@ string DeviceProxy::get_corba_name(bool need_check_acc)
 		access = db_dev->check_access_control();
 	else
 		check_acc = false;
-
-	if (local_ior.size() != 0)
-		return local_ior;
-	else				
-		return import_info.ior;
+				
+	return(import_info.ior);
 }
 
 //-----------------------------------------------------------------------------
@@ -3281,7 +3084,7 @@ CommandInfo DeviceProxy::command_query(string cmd)
  
 CommandInfoList *DeviceProxy::command_list_query() 
 {
-	CommandInfoList *command_info_list = NULL;
+	CommandInfoList *command_info_list = new CommandInfoList();
 	DevCmdInfoList_var cmd_info_list;
 	DevCmdInfoList_2_var cmd_info_list_2;
 	int ctr = 0;
@@ -3296,8 +3099,7 @@ CommandInfoList *DeviceProxy::command_list_query()
 			{	
 				cmd_info_list = device->command_list_query();
 
-				command_info_list = new CommandInfoList(cmd_info_list->length());
-//				command_info_list->resize(cmd_info_list->length());
+				command_info_list->resize(cmd_info_list->length());
 
 				for (unsigned int i=0; i < cmd_info_list->length(); i++)
 				{
@@ -3314,8 +3116,7 @@ CommandInfoList *DeviceProxy::command_list_query()
 			{
 				cmd_info_list_2 = device_2->command_list_query_2();
 
-				command_info_list = new CommandInfoList(cmd_info_list_2->length());
-//				command_info_list->resize(cmd_info_list_2->length());
+				command_info_list->resize(cmd_info_list_2->length());
 
 				for (unsigned int i=0; i < cmd_info_list_2->length(); i++)
 				{
@@ -4603,20 +4404,12 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 	AttributeValueList_var attr_value_list;
 	AttributeValueList_3_var attr_value_list_3;
 	AttributeValueList_4_var attr_value_list_4;
+	vector<DeviceAttribute> *dev_attr = new(vector<DeviceAttribute>);
 	DevVarStringArray attr_list;
 
-//
-// Check that the caller did not give two times the same attribute
-//
-
-	same_att_name(attr_string_list,"Deviceproxy::read_attributes()");
-
-
-	unsigned long i;
-	vector<DeviceAttribute> *dev_attr = new(vector<DeviceAttribute>);
-
+	unsigned int i;	
 	attr_list.length(attr_string_list.size());
-	for (i = 0;i < attr_string_list.size();i++)
+	for (i=0; i<attr_string_list.size(); i++)
 	{
 		attr_list[i] = string_dup(attr_string_list[i].c_str());
 	}
@@ -5751,15 +5544,16 @@ vector<string> *DeviceProxy::get_attribute_list()
 {
 	vector<string> all_attr;
 	AttributeInfoList * all_attr_config;
+	vector<string> *attr_list = new vector<string>;
 
 	all_attr.push_back(AllAttr_3);
 	all_attr_config = get_attribute_config(all_attr);
 
-	vector<string> *attr_list = new vector<string>;
 	attr_list->resize(all_attr_config->size());
 	for (unsigned int i=0; i<all_attr_config->size(); i++)
 	{
 		(*attr_list)[i] = (*all_attr_config)[i].name;
+
 	}
 	delete all_attr_config;
 
@@ -7179,7 +6973,7 @@ void DeviceProxy::unlock(bool force)
 //
 // Send request to the DS admin device
 //
-  
+  	
 	dout = adm_device->command_inout(cmd, din);
 
 //
@@ -7397,58 +7191,35 @@ bool DeviceProxy::is_locked_by_me()
 				if (res == 0)
 				{
 					netcalls_mutex.lock();
-
-  					struct addrinfo hints;
-
-					memset(&hints,0,sizeof(struct addrinfo));
-#ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
-					hints.ai_falgs	   = AI_ADDRCONFIG;
-#endif
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
-  					hints.ai_flags     = AI_ADDRCONFIG;
-#endif
-#endif
-  					hints.ai_family    = AF_INET;
-  					hints.ai_socktype  = SOCK_STREAM;
-
-  					struct addrinfo	*info;
-					struct addrinfo *ptr;
-					char tmp_host[128];
-
-  					int result = getaddrinfo(h_name,NULL,&hints,&info);
-
-  					if (result == 0)
+					struct hostent *my_addr = gethostbyname(h_name);
+					if (my_addr != NULL)
 					{
-						ptr = info;
-						while (ptr != NULL)
+						struct in_addr **addr_list;
+
+						addr_list = (struct in_addr **)my_addr->h_addr_list;
+						for (int i = 0;addr_list[i] != NULL;i++)
 						{
-    						if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,128,0,0,NI_NUMERICHOST) == 0)
+							char *my_ip_addr = inet_ntoa(*addr_list[i]);
+							if (::strcmp(my_ip_addr,full_ip_str.c_str()) == 0)
 							{
-								if (::strcmp(tmp_host,full_ip_str.c_str()) == 0)
-								{
-									ret = true;
-									break;
-								}
+								ret = true;
+								break;
 							}
-							ptr = ptr->ai_next;
 						}
-						freeaddrinfo(info);
 						netcalls_mutex.unlock();
 					}
 					else
 					{
 						netcalls_mutex.unlock();
 						Tango::Except::throw_exception((const char*)"API_WrongLockingStatus",
-														   (const char *)"Can't retrieve my IP address (getaddrinfo)!",
+														   (const char *)"Can't retrieve my IP address (gethostbyname)!",
 														   (const char *)"DeviceProxy::is_locked_by_me()");
 					}
 				}
 				else
 				{
 					Tango::Except::throw_exception((const char*)"API_WrongLockingStatus",
-													   (const char *)"Can't retrieve my name (getaddrinfo)!",
+													   (const char *)"Can't retrieve my name (gethostbyname)!",
 													   (const char *)"DeviceProxy::is_locked_by_me()");
 				}
 			}
@@ -7514,23 +7285,28 @@ bool DeviceProxy::get_locker(LockerInfo &lock_info)
 //
 
 		if (full_ip != LOCAL_HOST)
-		{
-			struct sockaddr_in si;
-			si.sin_family = AF_INET;
-			si.sin_port = 0;
-#ifdef _TG_WINDOWS_
-			int slen = sizeof(si);
-			WSAStringToAddress((char *)full_ip.c_str(),AF_INET,NULL,(SOCKADDR *)&si,&slen);
+		{		
+			struct hostent *ho;
+#ifdef sun
+			ulong_t ad;
+		
+			ad = inet_addr(full_ip.c_str());
+			ho = gethostbyaddr((const char *)&ad,sizeof(ad),AF_INET);
 #else
-			inet_pton(AF_INET,full_ip.c_str(),&si.sin_addr);
+#ifdef _TG_WINDOWS_
+			unsigned int addr;
+			addr = inet_addr(full_ip.c_str());
+			ho = gethostbyaddr((char *)&addr,sizeof(addr),AF_INET);
+#else
+			struct in_addr ad;
+
+			inet_aton(full_ip.c_str(),&ad);
+			ho = gethostbyaddr(&ad,sizeof(ad),AF_INET);
 #endif
-
-			char host_os[512];
-
-			int res = getnameinfo((const sockaddr *)&si,sizeof(si),host_os,512,0,0,0);
+#endif
 			
-			if (res == 0)
-				lock_info.locker_host = host_os;
+			if (ho != NULL)
+				lock_info.locker_host = ho->h_name;
 			else
 				lock_info.locker_host = full_ip;
 		}
@@ -7894,112 +7670,5 @@ DeviceAttribute DeviceProxy::write_read_attribute(DeviceAttribute &dev_attr)
 	return(ret_dev_attr);
 }
 
-//-----------------------------------------------------------------------------
-//
-// method : 		DeviceProxy::same_att_name()
-// 
-// description : 	Check if in the attribute name list there is not several
-//					times the same attribute. Throw exception in case of
-//
-// argin(s) :		attr_list : The attribute name(s) list
-//					met_name : The calling method name (for exception)
-//
-//-----------------------------------------------------------------------------
-
-
-void DeviceProxy::same_att_name(vector<string> &attr_list,const char *met_name)
-{
-	unsigned int i;
-	if (attr_list.size() > 1)
-	{
-		vector<string> same_att = attr_list;
-
-		for (i = 0;i < same_att.size();++i)
-			transform(same_att[i].begin(),same_att[i].end(),same_att[i].begin(),::tolower);
-		sort(same_att.begin(),same_att.end());
-		vector<string> same_att_lower = same_att;
-
-		vector<string>::iterator pos = unique(same_att.begin(),same_att.end());
-		int duplicate_att;
-#ifdef __SUNPRO_CC
-		int d1,d2;
-		distance(attr_list.begin(),attr_list.end(),d1);
-		distance(same_att.begin(),pos,d2);
-		duplicate_att = d1 - d2;
-#else
-		duplicate_att = distance(attr_list.begin(),attr_list.end()) - distance(same_att.begin(),pos);
-#endif
-		if (duplicate_att != 0)
-		{
-			TangoSys_OMemStream desc;
-			desc << "Several times the same attribute in required attributes list: ";
-			int ctr = 0;
-			for (i = 0;i < same_att_lower.size() - 1;i++)
-			{
-				if (same_att_lower[i] == same_att_lower[i + 1])
-				{
-					ctr++;
-					desc << same_att_lower[i];
-					if (ctr < duplicate_att)
-						desc << ", ";
-				}
-			}
-			desc << ends;
-			ApiConnExcept::throw_exception((const char*)"API_AttributeFailed",desc.str(), met_name);
-		}
-	}		
-}
-
-//-----------------------------------------------------------------------------
-//
-// DeviceProxy::local_import() - If the device is embedded within the same
-// process, re-create its IOR and returns it. This save one DB call.
-//
-//-----------------------------------------------------------------------------
-
-void DeviceProxy::local_import(string &local_ior)
-{
-	Tango::Util *tg;
-
-//
-// In case of controlled access used, this method is called while the
-// Util bject is still in its construction case.
-// Catch this exception and return from this method in this case
-//
-
-	try
-	{
-		tg = Tango::Util::instance(false);
-	}
-	catch (Tango::DevFailed &e)
-	{
-		string reas(e.errors[0].reason);
-		if (reas ==  "API_UtilSingletonNotCreated")
-			return;
-	}
-	
-	const vector<Tango::DeviceClass *> *cl_list_ptr = tg->get_class_list();
-	for (unsigned int loop = 0;loop < cl_list_ptr->size();loop++)
-	{
-		Tango::DeviceClass *cl_ptr = (*cl_list_ptr)[loop];
-		vector<Tango::DeviceImpl *> dev_list = cl_ptr->get_device_list();
-		for (unsigned int lo = 0;lo < dev_list.size();lo++)
-		{
-			if (dev_list[lo]->get_name_lower() == device_name)
-			{
-				Tango::Device_var d_var = dev_list[lo]->get_d_var();
-				CORBA::ORB_ptr orb_ptr = tg->get_orb(); 
-		
-				char *s = orb_ptr->object_to_string(d_var);
-				local_ior = s;
-		
-				CORBA::release(orb_ptr);
-				CORBA::string_free(s);
-
-				return;
-			}
-		}
-	}
-}
 
 } // End of Tango namespace

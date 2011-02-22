@@ -2,7 +2,7 @@
 // devapi.h - include file for TANGO device api
 //
 // 
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -71,8 +71,6 @@ class DeviceAttributeExt
 public:
 	DeviceAttributeExt():w_dim_x(0),w_dim_y(0) {};
 	DeviceAttributeExt & operator=(const DeviceAttributeExt &);
-
-	void deep_copy(const DeviceAttributeExt &);
 	
 	DevErrorList_var		err_list;
 	long 					w_dim_x;
@@ -88,7 +86,7 @@ public:
 class ConnectionExt
 {
 public:
-	ConnectionExt():tr_reco(true),prev_failed(false),prev_failed_t0(0.0),user_connect_timeout(-1),tango_host_localhost(false) {}
+	ConnectionExt():tr_reco(true),prev_failed(false),prev_failed_t0(0.0) {}
 	~ConnectionExt() {}
 	ConnectionExt & operator=(const ConnectionExt &);
 	
@@ -102,9 +100,6 @@ public:
 	omni_mutex			adm_dev_mutex;
 	omni_mutex			asyn_mutex;
 	ReadersWritersLock	con_to_mon;
-
-	int					user_connect_timeout;
-	bool				tango_host_localhost;
 };
 
 class DeviceProxyExt
@@ -118,11 +113,10 @@ public:
 class ApiUtilExt
 {
 public:
-	ApiUtilExt():event_consumer(NULL),cl_pid(0),user_connect_timeout(-1) {};
+	ApiUtilExt():event_consumer(NULL),cl_pid(0) {};
 	
 	EventConsumer 		*event_consumer;
-	TangoSys_Pid		cl_pid;
-	int					user_connect_timeout;	
+	TangoSys_Pid		cl_pid;	
 };
 
 
@@ -320,7 +314,6 @@ enum cb_sub_model
 #define		MODIFIER			'#'
 #define		DBASE_YES			"dbase=yes"
 #define		DBASE_NO			"dbase=no"
-#define		MODIFIER_DBASE_NO	"#dbase=no"
 
 #define		HOST_SEP			':'
 #define		PORT_SEP			'/'
@@ -377,12 +370,6 @@ public:
 	
 	TANGO_IMP_EXP static inline bool _is_instance_null()
 	{return _instance == NULL;}
-
-	TANGO_IMP_EXP static int get_env_var(const char *,string &);
-
-	bool is_event_consumer_created() {return ext->event_consumer != NULL;}
-
-	int get_user_connect_timeout() {return ext->user_connect_timeout;}
 	
 //
 // Asynchronous methods
@@ -600,8 +587,6 @@ public :
 	DeviceAttribute();
 	DeviceAttribute(const DeviceAttribute&);
 	DeviceAttribute & operator=(const DeviceAttribute &);
-
-	void deep_copy(const DeviceAttribute &);
 	
 	DeviceAttribute(AttributeValue);
 	
@@ -758,8 +743,6 @@ public :
 	void operator << (DevULong64);
 	void operator << (DevState);
 	void operator << (DevEncoded &);
-	void operator << (DevString);
-	void operator << (const char *);
 		
 	void operator << (vector<short> &);
 	void operator << (vector<DevLong> &);
@@ -1097,11 +1080,7 @@ public :
 	string &get_db_port() {return db_port;}
 	int get_db_port_num() {return db_port_num;}
 	bool get_from_env_var() {return from_env_var;}
-	static void get_fqdn(string &);
-
-	bool is_dbase_used() {return dbase_used;}
-	string &get_dev_host() {return host;}
-	string &get_dev_port() {return port;}
+	void get_fqdn(string &);
 	
 	void connect(string &name);
 	virtual void reconnect(bool);
@@ -1129,7 +1108,8 @@ public :
 	void Cb_Cmd_Request(CORBA::Request_ptr,Tango::CallBack *);
 	void Cb_ReadAttr_Request(CORBA::Request_ptr,Tango::CallBack *);
 	void Cb_WriteAttr_Request(CORBA::Request_ptr req,Tango::CallBack *cb_ptr);
-	void dec_asynch_counter(asyn_req_type ty);
+	void dec_asynch_counter(asyn_req_type ty)
+	{if (ty==POLLING)pasyn_ctr--;else if (ty==CALL_BACK)pasyn_cb_ctr--;}
 		
 	virtual long command_inout_asynch(const char *,DeviceData &argin,bool forget=false);	
 	virtual long command_inout_asynch(string &,DeviceData &argin,bool forget=false);	
@@ -1156,7 +1136,7 @@ public :
 	
 	AccessControlType get_access_control() {return access;}
 	void set_access_control(AccessControlType acc) {access=acc;}
-	AccessControlType get_access_right() {return get_access_control();}
+//	bool is_allowed_command(string cmd) {return ...;}
 	
 };
 
@@ -1192,7 +1172,6 @@ private :
 	void write_attribute(const AttributeValueList &);
 	void write_attribute(const AttributeValueList_4 &);
 	void create_locking_thread(ApiUtil *,DevLong);
-	void local_import(string &);
 
 	enum read_attr_type
 	{
@@ -1226,8 +1205,6 @@ protected :
 	void from_hist4_2_DataHistory(DevCmdHistory_4_var &,vector<DeviceDataHistory> *);
 	void ask_locking_status(vector<string> &,vector<DevLong> &);
 	void get_locker_host(string &,string &);
-
-	void same_att_name(vector<string> &,const char *);
 	
 private:
 	DeviceProxyExt		*ext_proxy;		// Class extension
@@ -1400,9 +1377,9 @@ public :
 	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size, 
 	                   const vector<string> &filters, bool stateless = false); 
 	virtual void unsubscribe_event(int event_id);
-//
-// Methods to access data in event queues
-//	
+
+	// methods to access data in event queues
+	
 	virtual void get_events (int event_id, EventDataList &event_list);
 	virtual void get_events (int event_id, AttrConfEventDataList &event_list);
 	virtual void get_events (int event_id, DataReadyEventDataList &event_list);
@@ -1556,30 +1533,6 @@ public :
 		
 };
 
-/****************************************************************************************
- * 																						*
- * 					The DummyDeviceProxy class											*
- * 					--------------------												*
- * 																						*
- ***************************************************************************************/
-
-class DummyDeviceProxy: public Tango::Connection
-{
-public:
-	DummyDeviceProxy():Tango::Connection(true) {};
-
-	virtual string get_corba_name(bool) {string str;return str;}
-	virtual string build_corba_name() {string str;return str;}
-	virtual int get_lock_ctr() {return 0;}
-	virtual void set_lock_ctr(int) {};
-
-	virtual string dev_name() {string str;return str;}
-
-	int get_env_var(const char *cc,string &str_ref) {return Tango::Connection::get_env_var(cc,str_ref);}
-};
-
-
-
 //
 // 					Some inline methods
 //					-------------------
@@ -1614,14 +1567,14 @@ inline void Connection::add_asyn_cb_request(CORBA::Request_ptr req,CallBack *cb,
 {
 	omni_mutex_lock guard(ext->asyn_mutex);
 	ApiUtil::instance()->get_pasyn_table()->store_request(req,cb,con,req_type);
-	pasyn_cb_ctr++;
+	pasyn_ctr++;
 }
 
 inline void Connection::remove_asyn_cb_request(Connection *con,CORBA::Request_ptr req)
 {
 	omni_mutex_lock guard(ext->asyn_mutex);
 	ApiUtil::instance()->get_pasyn_table()->remove_request(con,req);
-	pasyn_cb_ctr--;
+	pasyn_ctr--;
 }	
 
 inline long Connection::get_pasyn_cb_ctr()
@@ -1631,15 +1584,6 @@ inline long Connection::get_pasyn_cb_ctr()
 	ret = pasyn_cb_ctr;
 	ext->asyn_mutex.unlock();
 	return ret;
-}
-
-inline void Connection::dec_asynch_counter(asyn_req_type ty)
-{
-	omni_mutex_lock guard(ext->asyn_mutex);
-	if (ty==POLLING)
-		pasyn_ctr--;
-	else if (ty==CALL_BACK)
-		pasyn_cb_ctr--;
 }
 	
 inline void DeviceProxy::check_connect_adm_device()

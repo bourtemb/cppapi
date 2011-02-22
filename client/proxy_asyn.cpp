@@ -8,7 +8,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- August 2002
 //
-// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -30,21 +30,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 //
 // $Log$
-// Revision 3.30  2010/09/09 13:44:06  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.29  2010/06/25 07:16:34  taurel
-// - Also protect the asynchronous DeviceProxy::read_attributes() methods
-// against multiple times the same attribute in att name list
-//
-// Revision 3.28  2010/04/27 07:38:03  taurel
-// - Merge with the bugfixes branch
-//
-// Revision 3.27  2009/12/18 14:51:01  taurel
-// - Safety commit before christmas holydays
-// - Many changes to make the DeviceProxy, Database and AttributeProxy
-// classes thread safe (good help from the helgrind tool from valgrind)
-//
 // Revision 3.26  2009/09/01 14:02:50  taurel
 // - Still some HP-UX code !!
 //
@@ -852,6 +837,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 
 long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
 {
+
 //
 // Reconnect to device in case it is needed
 //
@@ -867,13 +853,7 @@ long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
                 ApiConnExcept::re_throw_exception(e,(const char*)"API_CommandFailed",
                         desc.str(), (const char*)"DeviceProxy::read_attributes_asynch()");
 	}
-
-//
-// Check that the caller did not give two times the same attribute
-//
-
-	same_att_name(attr_names,"DeviceProxy::read_attributes_asynch");
-	
+			
 //
 // Create the request object
 //
@@ -889,7 +869,8 @@ long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
 	{
 		ClntIdent ci;
 		ApiUtil *au = ApiUtil::instance();
-		ci.cpp_clnt(au->get_client_pid());		
+		ci.cpp_clnt(au->get_client_pid());
+		
 		request = Connection::ext->device_4->_request("read_attributes_4");
 		request->add_in_arg() <<= names;
 		request->add_in_arg() <<= source;
@@ -927,7 +908,7 @@ long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
 	
 	id = add_asyn_request(request,TgRequest::READ_ATTR);
 	request->send_deferred();
-	
+		
 	return id;
 }
 
@@ -1510,7 +1491,7 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 				break;
 			}
 		}
-	
+		
 		if (i == nb)
 		{
 			TangoSys_OMemStream desc;
@@ -1562,7 +1543,6 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 	const Tango::AttributeValueList_4 *received_4;
 	
 	CORBA::Any &dii_any = req.request->return_value();
-
 	if (version < 3)
 		dii_any >>= received;
 	else if (version == 3)
@@ -1612,8 +1592,10 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 //
 
 	remove_asyn_request(id);
-	
+		
 	return dev_attr;
+
+
 }
 
 //-----------------------------------------------------------------------------

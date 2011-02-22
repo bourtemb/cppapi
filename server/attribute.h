@@ -11,7 +11,7 @@
 //
 // author(s) :		A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -34,25 +34,6 @@
 // $Revision$
 //
 // $Log$
-// Revision 3.61  2010/09/21 07:15:40  taurel
-// - Add doc for the Attribute::set_properties() methods
-//
-// Revision 3.60  2010/09/17 08:22:05  taurel
-// - Fix memory leak in cse of scalar attribute R/W for string
-//
-// Revision 3.59  2010/09/14 07:07:19  taurel
-// - Fix a Windows warning
-//
-// Revision 3.58  2010/09/12 12:19:21  taurel
-// - Now, the test suite seems OK
-//
-// Revision 3.57  2010/09/09 13:44:46  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.56  2009/12/09 15:48:56  taurel
-// - Add Attr and Attribute methods set_data_ready_event() and is_data_ready_event().
-// - Admin device command EventSubcriptionChange fails is one of these methods has not been called
-//
 // Revision 3.55  2009/11/09 12:04:31  taurel
 // - The attribute mutex management is in the AttributeValue_4 struct
 //
@@ -437,7 +418,6 @@ public:
 	omni_mutex			*user_attr_mutex;				// Ptr for user mutex in case he manages exclusion
 	AttrSerialModel		attr_serial_model;				// Flag for attribute serialization model
 	bool				dr_event_implmented;			// Flag true if fire data ready event is implemented
-	bool				scalar_str_attr_release;		// Need memory freeing (scalar string attr, R/W att) 
 };
 
 /**
@@ -484,7 +464,7 @@ public:
 /**
  * The attribute desctructor.
  */
-	virtual ~Attribute() {try{delete ext;}catch(omni_thread_fatal &){}}
+	virtual ~Attribute() {delete ext;}
 //@}
 
 /**@name Check attribute methods
@@ -728,26 +708,6 @@ public:
  * @param conf A AttributeConfig_3 object.
  */	
 	void get_properties_3(Tango::AttributeConfig_3 &conf);
-/**
- * Set attribute properties.
- *
- * This method set the attribute properties value with the content
- * of the fileds in the AttributeConfig object
- *
- * @param conf A AttributeConfig object.
- * @param dev The device pointer.
- */	
-	void set_properties(const Tango::AttributeConfig &conf,Tango::DeviceImpl *dev);
-/**
- * Set attribute properties version 3.
- *
- * This method set the attribute properties value with the content
- * of the fileds in the AttributeConfig_3 object
- *
- * @param conf A AttributeConfig_3 object.
- * @param dev The device pointer.
- */	
-	void set_properties(const Tango::AttributeConfig_3 &conf,Tango::DeviceImpl *dev);
 /**
  * Set attribute serialization model
  *
@@ -2109,6 +2069,9 @@ public:
 	
 	omni_mutex *get_attr_mutex() {return &(ext->attr_mutex);}
 	omni_mutex *get_user_attr_mutex() {return ext->user_attr_mutex;}
+	
+	void set_properties(const Tango::AttributeConfig &,Tango::DeviceImpl *);
+	void set_properties(const Tango::AttributeConfig_3 &,Tango::DeviceImpl *);
 	
 	void set_properties(const Tango::AttributeConfig &,string &);
 	void set_properties(const Tango::AttributeConfig_3 &,string &);
