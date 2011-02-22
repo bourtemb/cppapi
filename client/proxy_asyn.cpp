@@ -8,96 +8,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- August 2002
 //
-// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
-//
 // $Log$
-// Revision 3.30  2010/09/09 13:44:06  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.29  2010/06/25 07:16:34  taurel
-// - Also protect the asynchronous DeviceProxy::read_attributes() methods
-// against multiple times the same attribute in att name list
-//
-// Revision 3.28  2010/04/27 07:38:03  taurel
-// - Merge with the bugfixes branch
-//
-// Revision 3.27  2009/12/18 14:51:01  taurel
-// - Safety commit before christmas holydays
-// - Many changes to make the DeviceProxy, Database and AttributeProxy
-// classes thread safe (good help from the helgrind tool from valgrind)
-//
-// Revision 3.26  2009/09/01 14:02:50  taurel
-// - Still some HP-UX code !!
-//
-// Revision 3.25  2009/03/27 13:05:10  taurel
-// - Fix bug due to new Attribute format data member in AttributeValue4
-// structure
-//
-// Revision 3.24  2009/03/27 12:19:33  taurel
-// - Fix bug in read_attribute for IDL 4
-//
-// Revision 3.23  2009/03/13 09:32:27  taurel
-// - Small changes to fix Windows VC8 warnings in Warning level 3
-//
-// Revision 3.22  2009/02/19 08:48:52  taurel
-// - Add cancel asynchronous request calls to the DeviceProxy class
-//
-// Revision 3.21  2009/01/21 12:45:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.20  2008/12/17 09:54:44  taurel
-// - First implementation of attributes sent on the wire using IDL Union
-// instead of IDL Any
-//
-// Revision 3.19  2008/10/13 15:04:37  taurel
-// - Fix bug in command_inout_reply(). SourceForge bug nb 2157328
-//
-// Revision 3.18  2008/10/06 15:02:17  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.17  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.16  2008/09/23 14:38:29  taurel
-// - Commit after the end of DevEncoded data type implementation
-// - The new test suite is also now running fine
-//
-// Revision 3.15  2008/09/01 14:25:47  taurel
-// - Fix some bugs in locking implementation
-// - The Tango::Callback class dtor is now defined as virtual as it should be
-//
-// Revision 3.14  2008/06/14 11:28:07  taurel
-// - DevEncoded attribute data type implementation work going on
-//
-// Revision 3.13  2008/05/20 12:42:30  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.12  2008/03/25 15:47:25  taurel
-// - Fix some warnings for gcc 4.2 (Thank's to F Picca from Soleil)
-// Revision 3.10.2.2  2008/05/20 06:14:19  taurel
-// - Last commit before merge with trunk
-//
-// Revision 3.11  2008/03/11 14:36:45  taurel
-// - Apply patches from Frederic Picca about compilation with gcc 4.2
 // Revision 3.10.2.1  2008/02/07 15:56:58  taurel
 // - First implementation of the Controlled Access done
 //
@@ -292,7 +203,8 @@ long Connection::command_inout_asynch(const char *command, DeviceData &data_in, 
 
 	try
 	{
-		check_and_reconnect();
+		if (connection_state != CONNECTION_OK)
+			reconnect(dbase_used);
 	}
 	catch (Tango::ConnectionFailed &e)
 	{
@@ -343,8 +255,9 @@ long Connection::command_inout_asynch(const char *command, DeviceData &data_in, 
 
 	if (faf == false)
 	{
-		id = add_asyn_request(request,TgRequest::CMD_INOUT);
+		id = ApiUtil::instance()->get_pasyn_table()->store_request(request,TgRequest::CMD_INOUT);
 		request->send_deferred();
+		pasyn_ctr++;
 	}
 	else
 	{
@@ -407,7 +320,6 @@ long Connection::command_inout_asynch(string &command,bool faf)
 DeviceData Connection::command_inout_reply(long id)
 {
 
-	DeviceData data_out;
 //
 // Retrieve request object
 //
@@ -439,178 +351,186 @@ DeviceData Connection::command_inout_reply(long id)
 						       desc.str(),
 						       (const char *)"Connection::command_inout_reply");
 	}
-
+	else
+	{
+			
+		DeviceData data_out;
 //
 // Check if the reply is an exception
 //
 
-	CORBA::Environment_ptr env = req.request->env();
-	if (!CORBA::is_nil(env) && (env->exception() == NULL))
-	{
-	
+		CORBA::Environment_ptr env = req.request->env();
+		if (!CORBA::is_nil(env) && (env->exception() == NULL))
+		{
+		
 //
 // Get received value
 //
 
-		const CORBA::Any *received;
-		CORBA::Any &dii_any = req.request->return_value();
-		dii_any >>= received;
-		CORBA::Any *server_any = new CORBA::Any(*received);
+			const CORBA::Any *received;
+			CORBA::Any &dii_any = req.request->return_value();
+			dii_any >>= received;
+			CORBA::Any *server_any = new CORBA::Any(*received);
+			
+			data_out.any = server_any;			
+		}
+		else
+		{
 		
-		data_out.any = server_any;			
-	}
-	else
-	{
-	
 //
 // Retrieve exception and re-throw it.
 //
-	
-		CORBA::Exception *ex_ptr = env->exception();
+		
+			CORBA::Exception *ex_ptr = env->exception();
 
 //
 // Special treatement for timeout exception (TRANSIENT with specific minor code)
 //
-		
-		CORBA::TRANSIENT *tra;
-		if ((tra = CORBA::TRANSIENT::_downcast(ex_ptr)) != NULL)
-		{
-			if (tra->minor() == omni::TRANSIENT_CallTimedout)
-			{		
+			
+			CORBA::TRANSIENT *tra;
+			if ((tra = CORBA::TRANSIENT::_downcast(ex_ptr)) != NULL)
+			{
+				if (tra->minor() == omni::TRANSIENT_CallTimedout)
+				{		
+					CORBA::NVList_ptr req_arg = req.request->arguments();
+					const char *cmd;
+					CORBA::NamedValue_ptr nv = req_arg->item(0);
+					*(nv->value()) >>= cmd;
+					char *tmp = CORBA::string_dup(cmd);
+
+					char *cb_excep_mess = Tango::Except::print_CORBA_SystemException(tra);
+	
+					TangoSys_OMemStream desc;
+					desc << "Timeout (" << timeout << " mS) exceeded on device " << dev_name();
+					desc << ", command " << tmp << ends;
+					CORBA::string_free(tmp);
+			
+					ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+					pasyn_ctr--;	
+					
+					ApiCommExcept::re_throw_exception(cb_excep_mess,
+						  (const char *)"API_DeviceTimedOut",
+						  desc.str(),
+						  (const char *)"Connection::command_inout_reply()");
+				}
+			}
+			
+			
+			CORBA::UnknownUserException *unk_ex;
+			if ((unk_ex = CORBA::UnknownUserException::_downcast(ex_ptr)) != NULL)
+			{
+			
+//
+// It is a UserUnknownException exception. This means that the
+// server has sent a DevFailed exception
+//
+
+				const Tango::DevFailed *serv_ex;
+				unk_ex->exception() >>= serv_ex;
+				Tango::DevFailed ex(*serv_ex);
+
 				CORBA::NVList_ptr req_arg = req.request->arguments();
 				const char *cmd;
 				CORBA::NamedValue_ptr nv = req_arg->item(0);
 				*(nv->value()) >>= cmd;
 				char *tmp = CORBA::string_dup(cmd);
 
-				char *cb_excep_mess = Tango::Except::print_CORBA_SystemException(tra);
-
 				TangoSys_OMemStream desc;
-				desc << "Timeout (" << timeout << " mS) exceeded on device " << dev_name();
-				desc << ", command " << tmp << ends;
+				desc << "Failed to execute command_inout_asynch on device " << dev_name();
+				desc << ", command " << cmd << ends;
 				CORBA::string_free(tmp);
-		
-				remove_asyn_request(id);	
-
-				ApiCommExcept::re_throw_exception(cb_excep_mess,
-					  (const char *)"API_DeviceTimedOut",
-					  desc.str(),
-					  (const char *)"Connection::command_inout_reply()");
+			
+				ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+				pasyn_ctr--;
+			
+	               		Except::re_throw_exception(ex,
+						   (const char*)"API_CommandFailed",
+                        			   desc.str(),
+						   (const char*)"Connection::command_inout_reply()");
+					
+	
 			}
-		}
-		
-		
-		CORBA::UnknownUserException *unk_ex;
-		if ((unk_ex = CORBA::UnknownUserException::_downcast(ex_ptr)) != NULL)
-		{
-		
-//
-// It is a UserUnknownException exception. This means that the
-// server has sent a DevFailed exception
-//
 
-			const Tango::DevFailed *serv_ex;
-			unk_ex->exception() >>= serv_ex;
-			Tango::DevFailed ex(*serv_ex);
+			CORBA::SystemException *sys_ex;
+			if ((sys_ex = CORBA::SystemException::_downcast(ex_ptr)) != NULL)
+			{
 
-			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
-			CORBA::NamedValue_ptr nv = req_arg->item(0);
-			*(nv->value()) >>= cmd;
-			char *tmp = CORBA::string_dup(cmd);
-
-			TangoSys_OMemStream desc;
-			desc << "Failed to execute command_inout_asynch on device " << dev_name();
-			desc << ", command " << tmp << ends;
-			CORBA::string_free(tmp);
-		
-			remove_asyn_request(id);
-		
-			Except::re_throw_exception(ex,
-					   (const char*)"API_CommandFailed",
-					   desc.str(),
-					   (const char*)"Connection::command_inout_reply()");
-				
-
-		}
-
-		CORBA::SystemException *sys_ex;
-		if ((sys_ex = CORBA::SystemException::_downcast(ex_ptr)) != NULL)
-		{
-
-			set_connection_state(CONNECTION_NOTOK);
-		
+				connection_state = CONNECTION_NOTOK;
+			
 //
 // Re-throw nearly all CORBA system exceptions
 //
 
-			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
-			CORBA::NamedValue_ptr nv = req_arg->item(0);
-			*(nv->value()) >>= cmd;
-			char *tmp = CORBA::string_dup(cmd);
+				CORBA::NVList_ptr req_arg = req.request->arguments();
+				const char *cmd;
+				CORBA::NamedValue_ptr nv = req_arg->item(0);
+				*(nv->value()) >>= cmd;
+				char *tmp = CORBA::string_dup(cmd);
 
-			char *cb_excep_mess = Tango::Except::print_CORBA_SystemException(sys_ex);
-			
+				char *cb_excep_mess = Tango::Except::print_CORBA_SystemException(sys_ex);
+				
 //
 // Check if the exception was a connection exception
 // In this case, try to ping the device.
 // If successfull, just returns otherwise, throw the first exception
 //
 
-			string ex(cb_excep_mess);
-			string::size_type pos = ex.find("TRANSIENT_ConnectFailed");
-			if (pos != string::npos)
-			{
-				try
+				string ex(cb_excep_mess);
+				string::size_type pos = ex.find("TRANSIENT_ConnectFailed");
+				if (pos != string::npos)
 				{
-					DeviceProxy *dev_ptr = static_cast<DeviceProxy *>(this);
-					dev_ptr->ping();
+					try
+					{
+						DeviceProxy *dev_ptr = static_cast<DeviceProxy *>(this);
+						dev_ptr->ping();
+						CORBA::string_free(tmp);
 
 //
 // If we arrive here, this means we have to do a re-try with a synchronous
 // request
 //
 
-					DeviceData dd_out = redo_synch_cmd(req);
+						DeviceData dd_out = redo_synch_cmd(req);
 
 //
 // Remove request from request global table.
 //
 
-					CORBA::string_free(tmp);
-
-					remove_asyn_request(id);
-				
-					return dd_out;
+						ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+						pasyn_ctr--;
 					
+						return dd_out;
+						
+					}
+					catch (Tango::DevFailed &e) {}
 				}
-				catch (Tango::DevFailed &) {}
-			}
 
-			TangoSys_OMemStream desc;
-			desc << "Failed to execute command_inout_asynch on device " << dev_name();
-			desc << ", command " << tmp << ends;
-			CORBA::string_free(tmp);
-		
-			remove_asyn_request(id);
-		
-			ApiCommExcept::re_throw_exception(cb_excep_mess,
-						  (const char*)"API_CommunicationFailed",
-						  desc.str(),
-						  (const char*)"Connection::command_inout_reply()");
-				
-
-		}		
-	}
+				TangoSys_OMemStream desc;
+				desc << "Failed to execute command_inout_asynch on device " << dev_name();
+				desc << ", command " << cmd << ends;
+				CORBA::string_free(tmp);
 			
+				ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+				pasyn_ctr--;
+			
+	               		ApiCommExcept::re_throw_exception(cb_excep_mess,
+						          (const char*)"API_CommunicationFailed",
+                        			          desc.str(),
+						          (const char*)"Connection::command_inout_reply()");
+					
+	
+			}		
+		}
+				
 //
 // Remove request from request global table.
 //
 
-	remove_asyn_request(id);
-				
-	return data_out;
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;
+					
+		return data_out;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -750,7 +670,8 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 				desc << ", command " << tmp << ends;
 				CORBA::string_free(tmp);
 				
-				remove_asyn_request(id);
+				ApiUtil::instance()->get_pasyn_table()->remove_request(id);			
+				pasyn_ctr--;	
 					
 				ApiCommExcept::re_throw_exception(cb_excep_mess,
 						  (const char *)"API_DeviceTimedOut",
@@ -780,12 +701,13 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 
 			TangoSys_OMemStream desc;
 			desc << "Failed to execute command_inout_asynch on device " << dev_name();
-			desc << ", command " << tmp << ends;
+			desc << ", command " << cmd << ends;
 			CORBA::string_free(tmp);
 			
-			remove_asyn_request(id);;
+			ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+			pasyn_ctr--;
 			
-			Except::re_throw_exception(ex,
+	               	Except::re_throw_exception(ex,
 						   (const char*)"API_CommandFailed",
                         			   desc.str(),
 						   (const char*)"Connection::command_inout_reply()");
@@ -797,7 +719,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 		if ((sys_ex = CORBA::SystemException::_downcast(ex_ptr)) != NULL)
 		{
 
-			set_connection_state(CONNECTION_NOTOK);
+			connection_state = CONNECTION_NOTOK;
 			
 //
 // Re-throw all CORBA system exceptions
@@ -813,12 +735,13 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 
 			TangoSys_OMemStream desc;
 			desc << "Failed to execute command_inout_asynch on device " << dev_name();
-			desc << ", command " << tmp << ends;
+			desc << ", command " << cmd << ends;
 			CORBA::string_free(tmp);
 			
-			remove_asyn_request(id);
+			ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+			pasyn_ctr--;
 			
-			ApiCommExcept::re_throw_exception(cb_excep_mess,
+	               	ApiCommExcept::re_throw_exception(cb_excep_mess,
 						          (const char*)"API_CommunicationFailed",
                         			          desc.str(),
 						          (const char*)"Connection::command_inout_reply()");
@@ -831,8 +754,8 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 // Remove request from request global table.
 //
 
-	remove_asyn_request(id);
-				
+	ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+	pasyn_ctr--;
 	return data_out;
 }
 
@@ -852,13 +775,15 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 
 long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
 {
+
 //
 // Reconnect to device in case it is needed
 //
 
 	try
 	{
-		check_and_reconnect();
+		if (connection_state != CONNECTION_OK)
+			reconnect(dbase_used);
 	}
 	catch (Tango::ConnectionFailed &e)
 	{
@@ -867,13 +792,7 @@ long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
                 ApiConnExcept::re_throw_exception(e,(const char*)"API_CommandFailed",
                         desc.str(), (const char*)"DeviceProxy::read_attributes_asynch()");
 	}
-
-//
-// Check that the caller did not give two times the same attribute
-//
-
-	same_att_name(attr_names,"DeviceProxy::read_attributes_asynch");
-	
+			
 //
 // Create the request object
 //
@@ -887,13 +806,9 @@ long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
 	CORBA::Request_ptr request;
 	if (version == 4)
 	{
-		ClntIdent ci;
-		ApiUtil *au = ApiUtil::instance();
-		ci.cpp_clnt(au->get_client_pid());		
 		request = Connection::ext->device_4->_request("read_attributes_4");
 		request->add_in_arg() <<= names;
 		request->add_in_arg() <<= source;
-		request->add_in_arg() <<= ci;
 		request->set_return_type(Tango::_tc_AttributeValueList_4);		
 	}
 	else if (version == 3)
@@ -925,8 +840,9 @@ long DeviceProxy::read_attributes_asynch(vector<string> &attr_names)
 	
 	long id = 0;
 	
-	id = add_asyn_request(request,TgRequest::READ_ATTR);
+	id = ApiUtil::instance()->get_pasyn_table()->store_request(request,TgRequest::READ_ATTR);
 	request->send_deferred();
+	pasyn_ctr++;
 	
 	return id;
 }
@@ -1009,7 +925,8 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 // Remove request from request global table.
 //
 
-			remove_asyn_request(id);
+			ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+			pasyn_ctr--;	
 		
 			return a_ptr;
 		}
@@ -1048,9 +965,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 			if (version >= 3)
 			{	
 				if (version == 3)
-					ApiUtil::attr_to_device(NULL,&((*received_3)[i]),version,&((*dev_attr)[i]));
+					ApiUtil::attr_to_device(NULL,&((*received_3)[i]),NULL,version,&((*dev_attr)[i]));
 				else
-					ApiUtil::attr_to_device(&((*received_4)[i]),version,&((*dev_attr)[i]));
+					ApiUtil::attr_to_device(NULL,NULL,&((*received_4)[i]),version,&((*dev_attr)[i]));
 				
 //
 // Add an error in the error stack in case there is one
@@ -1066,7 +983,7 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 					(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
 					(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 					(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD) || (defined __HP_aCC))
 					string st = desc.str();
 					(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
 #else
@@ -1080,7 +997,8 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 			else
 			{
 				ApiUtil::attr_to_device(&((*received)[i]),
-							NULL,version,&((*dev_attr)[i]));
+							NULL,NULL,
+							version,&((*dev_attr)[i]));
 			}	
 		}
 				
@@ -1088,12 +1006,11 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 // Remove request from request global table.
 //
 
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;	
 		
 		return dev_attr;
 	}
-	
-	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1169,7 +1086,8 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 // Remove request from request global table.
 //
 
-			remove_asyn_request(id);
+			ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+			pasyn_ctr--;	
 		
 			return a_ptr;
 		}
@@ -1196,9 +1114,9 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 		if (version >= 3)
 		{
 			if (version == 3)
-				ApiUtil::attr_to_device(NULL,&((*received_3)[0]),version,dev_attr);
+				ApiUtil::attr_to_device(NULL,&((*received_3)[0]),NULL,version,dev_attr);
 			else
-				ApiUtil::attr_to_device(&((*received_4)[0]),version,dev_attr);
+				ApiUtil::attr_to_device(NULL,NULL,&((*received_4)[0]),version,dev_attr);
 				
 //
 // Add an error in the error stack in case there is one
@@ -1214,7 +1132,7 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 				dev_attr->ext->err_list.inout().length(nb_except + 1);
 				dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 				dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD) || (defined __HP_aCC))
 				string st = desc.str();
 				dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
 #else
@@ -1228,18 +1146,20 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 		else
 		{
 			ApiUtil::attr_to_device(&((*received)[0]),
-						NULL,version,dev_attr);
+						NULL,NULL,
+						version,dev_attr);
 		}
 				
 //
 // Remove request from request global table.
 //
 
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;	
 		
 		return dev_attr;
 	}
-	return NULL;
+
 }
 
 
@@ -1350,7 +1270,8 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 // Remove request from request global table.
 //
 
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;	
 		
 		return a_ptr;
 	}
@@ -1391,9 +1312,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 		if (version >= 3)
 		{	
 			if (version == 3)
-				ApiUtil::attr_to_device(NULL,&((*received_3)[i]),version,&((*dev_attr)[i]));
+				ApiUtil::attr_to_device(NULL,&((*received_3)[i]),NULL,version,&((*dev_attr)[i]));
 			else
-				ApiUtil::attr_to_device(&((*received_4)[i]),version,&((*dev_attr)[i]));
+				ApiUtil::attr_to_device(NULL,NULL,&((*received_4)[i]),version,&((*dev_attr)[i]));
 
 			
 //
@@ -1410,7 +1331,7 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 				(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
 				(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 				(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD) || (defined __HP_aCC))
 				string st = desc.str();
 				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
 #else
@@ -1423,7 +1344,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 		}
 		else
 		{
-			ApiUtil::attr_to_device(&((*received)[i]),NULL,version,&((*dev_attr)[i]));
+			ApiUtil::attr_to_device(&((*received)[i]),
+						NULL,NULL,
+						version,&((*dev_attr)[i]));
 		}
 	}
 				
@@ -1431,8 +1354,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 // Remove request from request global table.
 //
 
-	remove_asyn_request(id);	
-						
+	ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+	pasyn_ctr--;	
+		
 	return dev_attr;
 }
 
@@ -1510,7 +1434,7 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 				break;
 			}
 		}
-	
+		
 		if (i == nb)
 		{
 			TangoSys_OMemStream desc;
@@ -1545,7 +1469,8 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 // Remove request from request global table.
 //
 
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;	
 		
 		return a_ptr;
 	}
@@ -1562,7 +1487,6 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 	const Tango::AttributeValueList_4 *received_4;
 	
 	CORBA::Any &dii_any = req.request->return_value();
-
 	if (version < 3)
 		dii_any >>= received;
 	else if (version == 3)
@@ -1573,9 +1497,9 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 	if (version >= 3)
 	{	
 		if (version == 3)
-			ApiUtil::attr_to_device(NULL,&((*received_3)[0]),version,dev_attr);
+			ApiUtil::attr_to_device(NULL,&((*received_3)[0]),NULL,version,dev_attr);
 		else
-			ApiUtil::attr_to_device(&((*received_4)[0]),version,dev_attr);
+			ApiUtil::attr_to_device(NULL,NULL,&((*received_4)[0]),version,dev_attr);
 				
 //
 // Add an error in the error stack in case there is one
@@ -1591,7 +1515,7 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 			dev_attr->ext->err_list.inout().length(nb_except + 1);
 			dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 			dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD) || (defined __HP_aCC))
 			string st = desc.str();
 			dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
 #else
@@ -1604,16 +1528,21 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 	}
 	else
 	{
-		ApiUtil::attr_to_device(&((*received)[0]),NULL,version,dev_attr);
+		ApiUtil::attr_to_device(&((*received)[0]),
+					NULL,NULL,
+					version,dev_attr);
 	}
 				
 //
 // Remove request from request global table.
 //
 
-	remove_asyn_request(id);
-	
+	ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+	pasyn_ctr--;	
+		
 	return dev_attr;
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1662,7 +1591,8 @@ void DeviceProxy::read_attr_except(CORBA::Request_ptr req,long id,read_attr_type
 			}
 			desc << ends;
 			
-			remove_asyn_request(id);
+			ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+			pasyn_ctr--;	
 
 			if (type == SIMPLE)
 				ApiCommExcept::re_throw_exception(cb_excep_mess,
@@ -1707,7 +1637,8 @@ void DeviceProxy::read_attr_except(CORBA::Request_ptr req,long id,read_attr_type
 		}
 		desc << ends;
 			
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;
 
 		if (type == SIMPLE)			
 	        	Except::re_throw_exception(ex,
@@ -1727,7 +1658,7 @@ void DeviceProxy::read_attr_except(CORBA::Request_ptr req,long id,read_attr_type
 	if ((sys_ex = CORBA::SystemException::_downcast(ex_ptr)) != NULL)
 	{
 
-		set_connection_state(CONNECTION_NOTOK);
+		connection_state = CONNECTION_NOTOK;
 			
 //
 // Re-throw nearly (but not all) all CORBA system exceptions
@@ -1755,7 +1686,7 @@ void DeviceProxy::read_attr_except(CORBA::Request_ptr req,long id,read_attr_type
 				ping();
 				return;
 			}
-			catch (Tango::DevFailed &) {}
+			catch (Tango::DevFailed &e) {}
 		}
 
 		TangoSys_OMemStream desc;
@@ -1769,7 +1700,8 @@ void DeviceProxy::read_attr_except(CORBA::Request_ptr req,long id,read_attr_type
 		}
 		desc << ends;
 					
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;
 
 		if (type == SIMPLE)
 			ApiCommExcept::re_throw_exception(cb_excep_mess,
@@ -1821,7 +1753,8 @@ long DeviceProxy::write_attributes_asynch(vector<DeviceAttribute> &attr_list)
 
 	try
 	{
-		check_and_reconnect();
+		if (connection_state != CONNECTION_OK)
+			reconnect(dbase_used);
 	}
 	catch (Tango::ConnectionFailed &e)
 	{
@@ -1836,20 +1769,76 @@ long DeviceProxy::write_attributes_asynch(vector<DeviceAttribute> &attr_list)
 //
 
 	Tango::AttributeValueList att;
-	Tango::AttributeValueList_4 att_4;
-
 	long nb_attr = attr_list.size();
-	if (version >= 4)
-		att_4.length(nb_attr);
-	else
-		att.length(nb_attr);
-
+	att.length(nb_attr);
 	for (int i = 0;i < nb_attr;i++)
 	{
-		if (version >= 4)
-			ApiUtil::device_to_attr(attr_list[i],att_4[i]);
-		else
-			ApiUtil::device_to_attr(attr_list[i],att[i],device_name);
+		att[i].name = attr_list[i].name.c_str();
+		att[i].quality = attr_list[i].quality;
+		att[i].time = attr_list[i].time;
+		att[i].dim_x = attr_list[i].dim_x;
+		att[i].dim_y = attr_list[i].dim_y;
+		
+		if (attr_list[i].LongSeq.operator->() != NULL)
+		{
+			att[i].value <<= attr_list[i].LongSeq.in();	
+			continue;
+		}
+		if (attr_list[i].ShortSeq.operator->() != NULL)
+		{	
+			att[i].value <<= attr_list[i].ShortSeq.in();
+			continue;
+		}	
+		if (attr_list[i].DoubleSeq.operator->() != NULL)
+		{	
+			att[i].value <<= attr_list[i].DoubleSeq.in();
+			continue;
+		}
+		if (attr_list[i].StringSeq.operator->() != NULL)
+		{	
+			att[i].value  <<= attr_list[i].StringSeq.in();
+			continue;
+		}
+		if (attr_list[i].FloatSeq.operator->() != NULL)
+		{
+			att[i].value <<= attr_list[i].FloatSeq.in();	
+			continue;
+		}
+		if (attr_list[i].BooleanSeq.operator->() != NULL)
+		{	
+			att[i].value <<= attr_list[i].BooleanSeq.in();
+			continue;
+		}	
+		if (attr_list[i].UShortSeq.operator->() != NULL)
+		{	
+			att[i].value <<= attr_list[i].UShortSeq.in();
+			continue;
+		}
+		if (attr_list[i].UCharSeq.operator->() != NULL)
+		{	
+			att[i].value  <<= attr_list[i].UCharSeq.in();
+			continue;
+		}
+		if (attr_list[i].ext->Long64Seq.operator->() != NULL)
+		{	
+			att[i].value  <<= attr_list[i].ext->Long64Seq.in();
+			continue;
+		}
+		if (attr_list[i].ext->ULongSeq.operator->() != NULL)
+		{	
+			att[i].value  <<= attr_list[i].ext->ULongSeq.in();
+			continue;
+		}
+		if (attr_list[i].ext->ULong64Seq.operator->() != NULL)
+		{	
+			att[i].value  <<= attr_list[i].ext->ULong64Seq.in();
+			continue;
+		}
+		if (attr_list[i].ext->StateSeq.operator->() != NULL)
+		{	
+			att[i].value  <<= attr_list[i].ext->StateSeq.in();
+			continue;
+		}
 	}
 		
 	CORBA::Request_ptr request;
@@ -1860,7 +1849,7 @@ long DeviceProxy::write_attributes_asynch(vector<DeviceAttribute> &attr_list)
 		ci.cpp_clnt(au->get_client_pid());
 		
 		request = ext->device_4->_request("write_attributes_4");
-		request->add_in_arg() <<= att_4;
+		request->add_in_arg() <<= att;
 		request->add_in_arg() <<= ci;
 		request->exceptions()->add(Tango::_tc_MultiDevFailed);
 	}
@@ -1882,9 +1871,10 @@ long DeviceProxy::write_attributes_asynch(vector<DeviceAttribute> &attr_list)
 //
 
 	long id = 0;		
-	id = add_asyn_request(request,TgRequest::WRITE_ATTR);
+	id = ApiUtil::instance()->get_pasyn_table()->store_request(request,TgRequest::WRITE_ATTR);
 
 	request->send_deferred();
+	pasyn_ctr++;
 		
 	return id;
 }
@@ -1910,7 +1900,8 @@ long DeviceProxy::write_attribute_asynch(DeviceAttribute &attr)
 
 	try
 	{
-		check_and_reconnect();
+		if (connection_state != CONNECTION_OK)
+			reconnect(dbase_used);
 	}
 	catch (Tango::ConnectionFailed &e)
 	{
@@ -1925,19 +1916,63 @@ long DeviceProxy::write_attribute_asynch(DeviceAttribute &attr)
 //
 
 	Tango::AttributeValueList att;
-	Tango::AttributeValueList_4 att_4;
-
-	if (version < 4)
-	{
-		att.length(1);
-		ApiUtil::device_to_attr(attr,att[0],device_name);
-	}
-	else
-	{
-		att_4.length(1);
-		ApiUtil::device_to_attr(attr,att_4[0]);
-	}
+	att.length(1);
 	
+	att[0].name = attr.name.c_str();
+	att[0].quality = attr.quality;
+	att[0].time = attr.time;
+	att[0].dim_x = attr.dim_x;
+	att[0].dim_y = attr.dim_y;
+	
+	if (attr.LongSeq.operator->() != NULL)
+	{
+		att[0].value <<= attr.LongSeq.in();	
+	}
+	else if (attr.ShortSeq.operator->() != NULL)
+	{	
+		att[0].value <<= attr.ShortSeq.in();
+	}	
+	else if (attr.DoubleSeq.operator->() != NULL)
+	{	
+		att[0].value <<= attr.DoubleSeq.in();
+	}
+	else if (attr.StringSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.StringSeq.in();
+	}
+	else if (attr.FloatSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.FloatSeq.in();
+	}
+	else if (attr.BooleanSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.BooleanSeq.in();
+	}
+	else if (attr.UShortSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.UShortSeq.in();
+	}
+	else if (attr.UCharSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.UCharSeq.in();
+	}
+	else if (attr.ext->Long64Seq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.ext->Long64Seq.in();
+	}
+	else if (attr.ext->ULongSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.ext->ULongSeq.in();
+	}
+	else if (attr.ext->ULong64Seq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.ext->ULong64Seq.in();
+	}
+	else if (attr.ext->StateSeq.operator->() != NULL)
+	{	
+		att[0].value  <<= attr.ext->StateSeq.in();
+	}
+
 	CORBA::Request_ptr request;
 	
 	if (version >= 4)
@@ -1947,7 +1982,7 @@ long DeviceProxy::write_attribute_asynch(DeviceAttribute &attr)
 		ci.cpp_clnt(au->get_client_pid());
 		
 		request = ext->device_4->_request("write_attributes_4");
-		request->add_in_arg() <<= att_4;
+		request->add_in_arg() <<= att;
 		request->add_in_arg() <<= ci;
 		request->exceptions()->add(Tango::_tc_MultiDevFailed);
 	}
@@ -1969,9 +2004,10 @@ long DeviceProxy::write_attribute_asynch(DeviceAttribute &attr)
 //
 
 	long id = 0;		
-	id = add_asyn_request(request,TgRequest::WRITE_ATTR_SINGLE);
+	id = ApiUtil::instance()->get_pasyn_table()->store_request(request,TgRequest::WRITE_ATTR_SINGLE);
 
 	request->send_deferred();
+	pasyn_ctr++;
 		
 	return id;
 }
@@ -2084,7 +2120,8 @@ void DeviceProxy::write_attributes_reply(long id,long call_timeout)
 // Remove request from request global table.
 //
 
-	remove_asyn_request(id);	
+	ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+	pasyn_ctr--;	
 }
 
 
@@ -2136,6 +2173,7 @@ void DeviceProxy::write_attributes_reply(long id)
 	}
 	else
 	{
+	
 //
 // Check if the reply is an exception
 //
@@ -2159,7 +2197,8 @@ void DeviceProxy::write_attributes_reply(long id)
 // Remove request from request global table.
 //
 
-	remove_asyn_request(id);
+	ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+	pasyn_ctr--;
 
 }
 
@@ -2193,39 +2232,24 @@ void DeviceProxy::write_attr_except(CORBA::Request_ptr req,long id,TgRequest::Re
 		{		
 			CORBA::NVList_ptr req_arg = req->arguments();
 			const Tango::AttributeValueList *att;
-			const Tango::AttributeValueList_4 *att_4;
-			unsigned int nb_att = 0;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
-			
-			if (version < 4)
-			{
-				if ((*(nv->value()) >>= att) == true)
-					nb_att = att->length();
-			}
-			else
-			{
-				if ((*(nv->value()) >>= att_4) == true)
-					nb_att = att_4->length();
-			}
+			*(nv->value()) >>= att;
 						
 			char *cb_excep_mess = Tango::Except::print_CORBA_SystemException(tra);
 	
 			TangoSys_OMemStream desc;
 			desc << "Timeout (" << timeout << " mS) exceeded on device " << device_name;
-			if (nb_att != 0)
+			desc << "\nAttribute(s): ";
+			for (unsigned int i = 0;i < att->length();i++)
 			{
-				desc << "\nAttribute(s): ";
-				for (unsigned int i = 0;i < nb_att;i++)
-				{
-					(version < 4) ? desc << (*att)[i].name : desc << (*att_4)[i].name;
-				
-					if (i != (nb_att - 1))
-						desc << ", ";
-				}
-				desc << ends;
+				desc << (*att)[i].name;
+				if (i != (att->length() - 1))
+					desc << ", ";
 			}
+			desc << ends;
 			
-			remove_asyn_request(id);	
+			ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+			pasyn_ctr--;	
 
 			ApiCommExcept::re_throw_exception(cb_excep_mess,
 							  (const char *)"API_DeviceTimedOut",
@@ -2266,40 +2290,22 @@ void DeviceProxy::write_attr_except(CORBA::Request_ptr req,long id,TgRequest::Re
 		
 		CORBA::NVList_ptr req_arg = req->arguments();
 		const Tango::AttributeValueList *att;
-		const Tango::AttributeValueList_4 *att_4;
-		unsigned int nb_att = 0;
 		CORBA::NamedValue_ptr nv = req_arg->item(0);
-		
-		if (version < 4)
-		{
-			if ((*(nv->value()) >>= att) == true)
-				nb_att = att->length();
-		}
-		else
-		{
-			if ((*(nv->value()) >>= att_4) == true)
-				nb_att = att_4->length();
-		}
+		*(nv->value()) >>= att;	
 		
 		TangoSys_OMemStream desc;
 		desc << "Failed to execute write_attributes_asynch on device " << device_name;
-		if (nb_att != 0)
+		desc << "\nAttribute(s): ";
+		for (unsigned int i = 0;i < att->length();i++)
 		{
-			desc << "\nAttribute(s): ";
-			for (unsigned int i = 0;i < nb_att;i++)
-			{
-				if (version < 4)
-					desc << (*att)[i].name;
-				else
-					desc << (*att_4)[i].name;
-			
-				if (i != (nb_att - 1))
-					desc << ", ";
-			}
+			desc << (*att)[i].name;
+			if (i != (att->length() - 1))
+				desc << ", ";
 		}
 		desc << ends;
 		
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;
 						
 		if (version < 3)
 		{
@@ -2329,18 +2335,19 @@ void DeviceProxy::write_attr_except(CORBA::Request_ptr req,long id,TgRequest::Re
 //
 
 				Tango::DevFailed ex(m_ex.errors[0].err_list);
-				Except::re_throw_exception(ex,(const char*)"API_AttributeFailed",
+                		Except::re_throw_exception(ex,(const char*)"API_AttributeFailed",
                         				   desc.str(), (const char*)"DeviceProxy::write_attributes_reply()");
 			
 			}
 		}				
+	
 	}
 
 	CORBA::SystemException *sys_ex;
 	if ((sys_ex = CORBA::SystemException::_downcast(ex_ptr)) != NULL)
 	{
 
-		set_connection_state(CONNECTION_NOTOK);
+		connection_state = CONNECTION_NOTOK;
 			
 //
 // Re-throw nearly all CORBA system exceptions
@@ -2348,19 +2355,8 @@ void DeviceProxy::write_attr_except(CORBA::Request_ptr req,long id,TgRequest::Re
 
 		CORBA::NVList_ptr req_arg = req->arguments();
 		const Tango::AttributeValueList *att;
-		const Tango::AttributeValueList *att_4;
-		unsigned int nb_att = 0;
 		CORBA::NamedValue_ptr nv = req_arg->item(0);
-		if (version < 4)
-		{
-			if ((*(nv->value()) >>= att) == true)
-				nb_att = att->length();
-		}
-		else
-		{
-			if ((*(nv->value()) >>= att_4) == true)
-				nb_att = att_4->length();
-		}
+		*(nv->value()) >>= att;
 
 		char *cb_excep_mess = Tango::Except::print_CORBA_SystemException(sys_ex);
 		
@@ -2379,28 +2375,22 @@ void DeviceProxy::write_attr_except(CORBA::Request_ptr req,long id,TgRequest::Re
 				ping();
 				return;
 			}
-			catch (Tango::DevFailed &) {}
+			catch (Tango::DevFailed &e) {}
 		}
 
 		TangoSys_OMemStream desc;
 		desc << "Failed to execute write_attributes_asynch on device " << device_name;
-		if (nb_att != 0)
+		desc << "\nAttribute(s): ";
+		for (unsigned int i = 0;i < att->length();i++)
 		{
-			desc << "\nAttribute(s): ";
-			for (unsigned int i = 0;i < nb_att;i++)
-			{
-				if (version < 4)
-					desc << (*att)[i].name;
-				else
-					desc << (*att_4)[i].name;
-			
-				if (i != (nb_att - 1))
-					desc << ", ";
-			}
+			desc << (*att)[i].name;
+			if (i != (att->length() - 1))
+				desc << ", ";
 		}
 		desc << ends;
 					
-		remove_asyn_request(id);
+		ApiUtil::instance()->get_pasyn_table()->remove_request(id);
+		pasyn_ctr--;
 
 		ApiCommExcept::re_throw_exception(cb_excep_mess,
 						  (const char*)"API_CommunicationFailed",
@@ -2575,7 +2565,7 @@ void DeviceProxy::redo_synch_write_call(TgRequest &req)
 
 //-----------------------------------------------------------------------------
 //
-// method : 		Connection::redo_synch_cmd()
+// method : 		DeviceProxy::redo_synch_cmd()
 // 
 // description : 	Redo a command_inout() call but synchronously
 //					This is needed for re-connection with asynchronous call
@@ -2623,42 +2613,5 @@ DeviceData Connection::redo_synch_cmd(TgRequest &req)
 	return command_inout(cmd_name,dd);
 }
 
-//-----------------------------------------------------------------------------
-//
-// method : 		Connection::cancel_asynch_request()
-// 
-// description : 	Cancel a running asynchronous request
-//					This is a client side call. Obviously, the call cannot be aborted
-//					while it is running in the device.
-//
-// argin(s) :		id : The asynchronous call identifier
-//
-//-----------------------------------------------------------------------------
-
-void Connection::cancel_asynch_request(long id)
-{
-	omni_mutex_lock guard(ext->asyn_mutex);
-	ApiUtil::instance()->get_pasyn_table()->mark_as_cancelled(id);
-	pasyn_ctr--;
-}
-
-//-----------------------------------------------------------------------------
-//
-// method : 		Connection::cancel_all_polling_asynch_request()
-// 
-// description : 	Cancel all running asynchronous request
-//					This is a client side call. Obviously, the calls cannot be aborted
-//					while it is running in the device.
-//
-// argin(s) :		id : The asynchronous call identifier
-//
-//-----------------------------------------------------------------------------
-
-void Connection::cancel_all_polling_asynch_request()
-{
-	omni_mutex_lock guard(ext->asyn_mutex);
-	ApiUtil::instance()->get_pasyn_table()->mark_all_polling_as_cancelled();
-	pasyn_ctr = 0;
-}
-
+		
 } // End of tango namespace

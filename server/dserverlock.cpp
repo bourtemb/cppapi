@@ -14,56 +14,9 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // $Revision$
 //
 // $Log$
-// Revision 3.8  2010/09/09 13:45:22  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.7  2009/03/30 15:03:44  taurel
-// - Fix last bugs before Tango 7 ??
-//
-// Revision 3.6  2009/03/18 12:18:43  taurel
-// - Fix warnings reported when compiled with the option -Wall
-//
-// Revision 3.5  2009/01/21 12:49:04  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.4  2008/10/06 15:01:09  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.3  2008/10/03 06:52:31  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.2  2008/09/01 14:48:05  taurel
-// - Some more bugs in locking feature
-//
-// Revision 3.1  2008/05/20 12:44:11  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 1.1.2.4  2008/01/03 16:05:52  taurel
-// - Some changes in locking feature implementation
-//
 // Revision 1.1.2.3  2007/12/20 14:29:01  taurel
 // - Some more work on locking
 //
@@ -72,6 +25,11 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // Revision 1.1.2.1  2007/11/22 12:33:11  taurel
 // - First part of the device locking implementation
+//
+//
+// copyleft :           European Synchrotron Radiation Facility
+//                      BP 220, Grenoble 38043
+//                      FRANCE
 //
 //-=============================================================================
 
@@ -118,7 +76,7 @@ void DServer::lock_device(const Tango::DevVarLongStringArray *in_data)
 					        (const char*)"DServer::lock_device");
 	}
 	
-	cout4 << "Client identification = " << *cl << endl;
+	cout << "Client identification = " << *cl << endl;
 	
 	if (cl->client_ident == false)
 	{
@@ -206,9 +164,9 @@ Tango::DevLong DServer::un_lock_device(const Tango::DevVarLongStringArray *in_da
 					        (const char*)"DServer::un_lock_device");
 	}
 	
-	cout4 << "Client identification = " << *cl << endl;
+	cout << "Client identification = " << *cl << endl;
 	
-	if ((cl->client_ident == false) && (in_data->lvalue[0] == 0))
+	if (cl->client_ident == false)
 	{
 		Except::throw_exception((const char*)"API_ClientTooOld",
 					       	(const char*)"Your client cannot un-lock devices. You are using a too old Tango release. Please, update to tango V7 or more",
@@ -259,8 +217,8 @@ void DServer::re_lock_devices(const Tango::DevVarStringArray *dev_name_list)
 	CORBA::ULong loop;
 	CORBA::ULong nb_dev = dev_name_list->length();
 
-	for (loop = 0;loop < nb_dev;loop++)
-		cout4 << "Device to re-lock: " << (*dev_name_list)[loop] << endl;
+for (loop = 0;loop < nb_dev;loop++)
+	cout << "Device to re-lock: " << (*dev_name_list)[loop] << endl;
 
 //
 // Get client identification
@@ -274,7 +232,7 @@ void DServer::re_lock_devices(const Tango::DevVarStringArray *dev_name_list)
 					        (const char*)"DServer::re_lock_devices");
 	}
 	
-	cout4 << "Client identification = " << *cl << endl;
+	cout << "Client identification = " << *cl << endl;
 	
 	if (cl->client_ident == false)
 	{
@@ -289,6 +247,7 @@ void DServer::re_lock_devices(const Tango::DevVarStringArray *dev_name_list)
 // end of the loop
 //
 
+	Tango::DevLong th_period = 10;		
 	Tango::Util *tg = Tango::Util::instance();
 
 	DevErrorList errors;

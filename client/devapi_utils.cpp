@@ -7,60 +7,7 @@ static const char *RcsId = "$Id$";
 //
 // original 		- November 2007
 //
-// Copyright (C) :      2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Lesser Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // log			- $Log$
-// log			- Revision 3.9  2010/09/09 13:44:06  taurel
-// log			- - Add year 2010 in Copyright notice
-// log			-
-// log			- Revision 3.8  2009/04/07 15:22:50  taurel
-// log			- - Add some equality operators
-// log			- - Fix some warnings when compiled using gcc 4.3 on 64 bits computer
-// log			-
-// log			- Revision 3.7  2009/03/18 12:16:56  taurel
-// log			- - Fix warnings reported when compiled with the option -Wall
-// log			-
-// log			- Revision 3.6  2009/03/13 09:32:27  taurel
-// log			- - Small changes to fix Windows VC8 warnings in Warning level 3
-// log			-
-// log			- Revision 3.5  2009/01/21 12:45:15  taurel
-// log			- - Change CopyRights for 2009
-// log			-
-// log			- Revision 3.4  2008/10/06 15:02:16  taurel
-// log			- - Changed the licensing info from GPL to LGPL
-// log			-
-// log			- Revision 3.3  2008/10/02 16:09:25  taurel
-// log			- - Add some licensing information in each files...
-// log			-
-// log			- Revision 3.2  2008/09/23 14:38:28  taurel
-// log			- - Commit after the end of DevEncoded data type implementation
-// log			- - The new test suite is also now running fine
-// log			-
-// log			- Revision 3.1  2008/05/20 12:42:30  taurel
-// log			- - Commit after merge with release 7 branch
-// log			-
-// log			- Revision 1.1.2.2  2007/11/20 14:39:12  taurel
-// log			- - Add the new way to retrieve command history from polling buffer
-// log			- implemented in Tango V7
-// log			-
 // log			- Revision 1.1.2.1  2007/11/16 14:10:59  taurel
 // log			- - Added a new IDL interface (Device_4)
 // log			- - Added a new way to get attribute history from polling buffer (must faster)
@@ -126,7 +73,7 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 // Copy the attribute quality factor
 //
 
-	int k;
+	unsigned int k;
 
 	for (loop = 0;loop < hist_4->quals.length();loop++)
 	{
@@ -205,7 +152,6 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 	const Tango::DevVarULongArray *tmp_ulg;
 	const Tango::DevVarULong64Array *tmp_ulg64;
 	const Tango::DevVarStateArray *tmp_state;
-	const Tango::DevVarEncodedArray *tmp_enc;
 
 	long data_type = -1;
 	unsigned int seq_size;
@@ -289,15 +235,6 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 			hist_4->value >>= tmp_state;
 			seq_size = tmp_state->length();
 			break;
-			
-			case tk_struct:
-			data_type = DEV_ENCODED;
-			hist_4->value >>= tmp_enc;
-			seq_size = tmp_enc->length();
-			break;
-			
-			default:
-			break;
 		}
 	}
 		
@@ -317,6 +254,8 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 // Get the data length for this record
 //
 		
+		int ind = h_depth - (loop + 1);
+
 		int r_dim_x = (*ddh)[loop].dim_x;
 		int r_dim_y = (*ddh)[loop].dim_y;
 		int w_dim_x = (*ddh)[loop].ext->w_dim_x;
@@ -428,14 +367,6 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 			for (ll = 0;ll < data_length;ll++)
 				(*ddh)[loop].ext->StateSeq[ll] = (*tmp_state)[(base - data_length) + ll];
 			break;
-			
-			case DEV_ENCODED:
-			(*ddh)[loop].ext->EncodedSeq = new DevVarEncodedArray();
-			(*ddh)[loop].ext->EncodedSeq->length(data_length);
-		
-			for (ll = 0;ll < data_length;ll++)
-				(*ddh)[loop].ext->EncodedSeq[ll] = (*tmp_enc)[(base - data_length) + ll];
-			break;
 		}
 
 		base = base - ll;
@@ -478,9 +409,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 // Copy date in each history list element
 //
 
-	unsigned int loop;
-	int k;
-
+	unsigned int loop,k;
 	for (loop = 0;loop < h_depth;loop++)
 	{
 		(*ddh)[loop].set_date(hist_4->dates[loop]);
@@ -648,6 +577,8 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 // Get the data length for this record
 //
 		
+		int ind = h_depth - (loop + 1);
+
 		int data_length = ad[loop].dim_x;
 		int data_num_length = ad[loop].dim_y;
 
@@ -655,6 +586,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 // Real copy now
 //
 
+		int ll;
 		switch (hist_4->cmd_type)
 		{
 			case Tango::DEV_SHORT:
@@ -785,7 +717,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 			
 			case Tango::DEV_BOOLEAN:
 			{
-				Tango::DevBoolean tmp_data = (*tmp_boo)[base - 1];
+				Tango::DevBoolean tmp_data = (*tmp_str)[base - 1];
 				CORBA::Any *any_ptr = new CORBA::Any();
 				(*any_ptr) <<= CORBA::Any::from_boolean(tmp_data);
 				(*ddh)[loop].any = any_ptr;
@@ -796,7 +728,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 			{
 				Tango::DevUShort tmp_data = (*tmp_ush)[base - 1];
 				CORBA::Any *any_ptr = new CORBA::Any();
-				(*any_ptr) <<= tmp_data;
+				(*any_ptr) <<= CORBA::Any::from_boolean(tmp_data);
 				(*ddh)[loop].any = any_ptr;
 			}
 			break;
@@ -817,7 +749,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 			{
 				Tango::DevULong tmp_data = (*tmp_ulg)[base - 1];
 				CORBA::Any *any_ptr = new CORBA::Any();
-				(*any_ptr) <<= tmp_data;
+				(*any_ptr) <<= CORBA::Any::from_boolean(tmp_data);
 				(*ddh)[loop].any = any_ptr;
 			}
 			break;
@@ -838,7 +770,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 			{
 				Tango::DevULong64 tmp_data = (*tmp_ulg64)[base - 1];
 				CORBA::Any *any_ptr = new CORBA::Any();
-				(*any_ptr) <<= tmp_data;
+				(*any_ptr) <<= CORBA::Any::from_boolean(tmp_data);
 				(*ddh)[loop].any = any_ptr;
 			}
 			break;
@@ -882,7 +814,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 				dvlsa->svalue.length(data_length);
 				dvlsa->lvalue.length(data_num_length);
 
-				int ll;
+				unsigned int ll;
 				for (ll = 0;ll < data_length;ll++)
 					dvlsa->svalue[ll] = tmp_lg_str->svalue[(base_str - data_length) + ll];
 				for (ll = 0;ll < data_num_length;ll++)
@@ -900,7 +832,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 				dvdsa->svalue.length(data_length);
 				dvdsa->dvalue.length(data_num_length);
 
-				int ll;
+				unsigned int ll;
 				for (ll = 0;ll < data_length;ll++)
 					dvdsa->svalue[ll] = tmp_db_str->svalue[(base_str - data_length) + ll];
 				for (ll = 0;ll < data_num_length;ll++)
@@ -924,54 +856,5 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 	}
 }
 
-//-----------------------------------------------------------------------------
-//
-// Some operator method definition to make Python binding development easier
-//
-//
-//-----------------------------------------------------------------------------
 
-bool _DevCommandInfo::operator==(const _DevCommandInfo &dci)
-{
-	return cmd_tag == dci.cmd_tag && cmd_name == dci.cmd_name && in_type == dci.in_type && out_type == dci.out_type;
-}
-
-bool _CommandInfo::operator==(const _CommandInfo &ci)
-{
-	return _DevCommandInfo::operator==(ci) && disp_level == ci.disp_level;
-}
-
-bool _DeviceAttributeConfig::operator==(const _DeviceAttributeConfig &dac)
-{ 
-	  return name == dac.name &&
-	         writable == dac.writable &&
-	         data_format == dac.data_format &&
-	         data_type == dac.data_type &&
-	         max_dim_x == dac.max_dim_x &&
-	         max_dim_y == dac.max_dim_y &&
-	         description == dac.description &&
-	         label == dac.label &&
-	         unit == dac.unit &&
-	         standard_unit == dac.standard_unit &&
-	         display_unit == dac.display_unit &&
-	         format == dac.format &&
-	         min_value == dac.min_value &&
-	         max_value == dac.max_value &&
-	         min_alarm == dac.min_alarm &&
-	         max_alarm == dac.max_alarm &&
-	         writable_attr_name == dac.writable_attr_name &&
-	         extensions == dac.extensions;
-}
-
-bool _AttributeInfo::operator==(const _AttributeInfo &ai)
-{ 
-	return DeviceAttributeConfig::operator==(ai) && disp_level == ai.disp_level;
-}
-
-bool _AttributeInfoEx::operator==(const _AttributeInfoEx &aie)
-{ 
-	return AttributeInfo::operator==(aie) && sys_extensions == aie.sys_extensions;
-}
-
-	
 } // End of namespace

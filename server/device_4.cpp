@@ -15,72 +15,9 @@ static const char *RcsId = "$Id$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // $Revision$
 //
 // $Log$
-// Revision 3.12  2010/09/09 13:45:22  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.11  2009/11/09 12:04:31  taurel
-// - The attribute mutex management is in the AttributeValue_4 struct
-//
-// Revision 3.10  2009/09/17 08:28:06  taurel
-// - Add a mutual exclusion to protect attribute buffer
-//
-// Revision 3.9  2009/01/21 12:49:04  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.8  2009/01/08 14:58:03  taurel
-// - The read_attribute_4 also transfer the client authentification
-//
-// Revision 3.7  2008/12/17 09:50:59  taurel
-// - First implementation of attributes sent on the wire using IDL Union
-// instead of IDL Any
-//
-// Revision 3.6  2008/11/18 09:28:56  taurel
-// - Ported to gcc 4.3
-// - Removed some cout messages
-//
-// Revision 3.5  2008/10/06 15:00:36  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.4  2008/10/03 06:51:36  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.3  2008/09/23 14:59:33  taurel
-// - Commit after the end of DevEncoded data type implementation
-// - The new test suite is also now running fine
-//
-// Revision 3.2  2008/06/10 07:52:14  taurel
-// - Add code for the DevEncoded attribute data type
-//
-// Revision 3.1  2008/05/20 12:44:10  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 1.1.2.7  2008/05/20 06:17:44  taurel
-// - Last commit before merge with trunk
-// (start the implementation of the new DevEncoded data type)
-//
 // Revision 1.1.2.6  2008/02/07 15:58:13  taurel
 // - First implementation of the Controlled Access done
 //
@@ -101,6 +38,11 @@ static const char *RcsId = "$Id$";
 // - Added a new IDL interface (Device_4)
 // - Added a new way to get attribute history from polling buffer (must faster)
 //
+//
+// copyleft :           European Synchrotron Radiation Facility
+//                      BP 220, Grenoble 38043
+//                      FRANCE
+//
 //-============================================================================
 
 #if HAVE_CONFIG_H
@@ -109,6 +51,7 @@ static const char *RcsId = "$Id$";
 
 #include <tango.h>
 #include <device_4.h>
+
 
 namespace Tango
 {
@@ -181,13 +124,14 @@ Device_3Impl(device_class,dev_name,desc,dev_state,dev_status)
 //
 //--------------------------------------------------------------------------
 
-Tango::DevAttrHistory_4 *Device_4Impl::read_attribute_history_4(const char* name,CORBA::Long n)
+Tango::DevAttrHistory_4 *Device_4Impl::read_attribute_history_4(const char* name,
+								    CORBA::Long n)
 throw(Tango::DevFailed, CORBA::SystemException)
 {
 	TangoMonitor &mon = get_poll_monitor();
 	AutoTangoMonitor sync(&mon);
 	
-	cout4 << "Device_4Impl::read_attribute_history_4 arrived, requested history depth = " << n << endl;
+	cout4 << "Device_4Impl::read_attribute_history_4 arrived" << endl;
 	
 //
 // Record operation request in black box
@@ -287,7 +231,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 	else
 		polled_attr->get_attr_history(n,back,att.get_data_type());
 
-	cout4 << "Leaving Device_4Impl::read_attribute_history_4 method" << endl;
+	cout4 << "Leaving Device_4Impl::command_inout_history_4 method" << endl;
 	return back;
 
 }
@@ -554,7 +498,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 //+-------------------------------------------------------------------------
 //
-// method : 		Device_4Impl::read_attributes_4 
+// method : 		Device_3Impl::read_attributes_4 
 // 
 // description : 	Method called for each read_attributes operation executed
 //			from any client on a Tango device version 4.
@@ -562,7 +506,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 //--------------------------------------------------------------------------
 
 Tango::AttributeValueList_4* Device_4Impl::read_attributes_4(const Tango::DevVarStringArray& names,
-					     Tango::DevSource source,const Tango::ClntIdent &cl_id)
+					     Tango::DevSource source)
 throw (Tango::DevFailed, CORBA::SystemException)
 {
 	cout4 << "Device_4Impl::read_attributes_4 arrived for dev " << get_name() << ", att[0] = " << names[0] << endl;
@@ -572,7 +516,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 //
 
 	if (ext->store_in_bb == true)
-		blackbox_ptr->insert_attr(names,cl_id,4,source);
+		blackbox_ptr->insert_attr(names,4,source);
 	ext->store_in_bb = true;
 	
 //
@@ -614,14 +558,10 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 	Tango::AttributeValueList_4 *back;
 	Tango::AttributeValueList_3 *back3 = NULL;
-	
 	try
 	{	
-		Tango::AttributeValue_4 *l_back = new Tango::AttributeValue_4 [nb_names];
-		back = new Tango::AttributeValueList_4(nb_names,nb_names,l_back,true);
-		
-		for (unsigned long loop = 0;loop < nb_names;loop++)
-			(*back)[loop].value.union_no_data(true);
+		back = new Tango::AttributeValueList_4(nb_names);
+		back->length(nb_names);
 	}
 	catch (bad_alloc)
 	{
@@ -639,6 +579,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 	
 	if (source == Tango::DEV)
 	{
+
 		try
 		{	
 			AutoTangoMonitor sync(this);
@@ -730,10 +671,13 @@ throw (Tango::DevFailed, CORBA::SystemException)
 				delete back;
 				throw;
 			}
+
 		}
+
 	}	
 
 	return back;
+
 }
 
 
@@ -747,7 +691,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 //
 //--------------------------------------------------------------------------
 
-void Device_4Impl::write_attributes_4(const Tango::AttributeValueList_4 & values,
+void Device_4Impl::write_attributes_4(const Tango::AttributeValueList& values,
 									  const Tango::ClntIdent &cl_id)
 throw (Tango::MultiDevFailed, Tango::DevFailed, CORBA::SystemException)
 {
@@ -773,7 +717,7 @@ throw (Tango::MultiDevFailed, Tango::DevFailed, CORBA::SystemException)
 //
 
 	ext->store_in_bb = false;
-	return write_attributes_34(NULL,&values);
+	return write_attributes_3(values);
 }
 
 
@@ -839,7 +783,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 //
 //--------------------------------------------------------------------------
 
-Tango::AttributeValueList_4* Device_4Impl::write_read_attributes_4(const Tango::AttributeValueList_4& values,
+Tango::AttributeValueList_4* Device_4Impl::write_read_attributes_4(const Tango::AttributeValueList& values,
 									  const Tango::ClntIdent &cl_id)
 throw (Tango::MultiDevFailed,Tango::DevFailed, CORBA::SystemException)
 {
@@ -887,12 +831,9 @@ throw (Tango::MultiDevFailed,Tango::DevFailed, CORBA::SystemException)
 	Tango::DevVarStringArray att_name(1);
 	att_name.length(1);
 	att_name[0] = CORBA::string_dup(values[0].name);
-	Tango::ClntIdent dummy_cl_id;
-	Tango::CppClntIdent cci = 0;
-	dummy_cl_id.cpp_clnt(cci);
 	
 	ext->store_in_bb = false;
-	Tango::AttributeValueList_4 *read_val_ptr = read_attributes_4(att_name,Tango::DEV,dummy_cl_id);
+	Tango::AttributeValueList_4 *read_val_ptr = read_attributes_4(att_name,Tango::DEV);
 	
 	return read_val_ptr;
 }

@@ -2,26 +2,6 @@
 // devsyn.h - include file for TANGO api device asynchronous calls 
 //
 // 
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-
 
 #ifndef _DEVASYN_H
 #define _DEVASYN_H
@@ -44,12 +24,9 @@ class DeviceAttribute;
 class NamedDevFailedList;
 class EventData;
 class AttrConfEventData;
-class DataReadyEventData;
-class EventDataList;
-class AttrConfEventDataList;
-class DataReadyEventDataList;
 class EventConsumer;
 class EventConsumerKeepAliveThread;
+
 class CmdDoneEventExt;
 class AttrReadEventExt;
 class AttrWrittenEventExt;
@@ -146,14 +123,13 @@ friend class EventConsumer;
 friend class EventConsumerKeepAliveThread;
 
 public:
-	virtual ~CallBack() {};
+//	virtual ~CallBack() {};
 
 	virtual void cmd_ended(CmdDoneEvent *) {};
 	virtual void attr_read(AttrReadEvent *) {};
 	virtual void attr_written(AttrWrittenEvent *) {};
 	virtual void push_event(EventData *) {};
 	virtual void push_event(AttrConfEventData *) {};
-	virtual void push_event(DataReadyEventData *) {};
 	
 	CallBackExt		*ext;
 };
@@ -222,8 +198,6 @@ public:
 	void mark_as_arrived(CORBA::Request_ptr req);
 	multimap<Connection *,TgRequest> &get_cb_dev_table() {return cb_dev_table;}
 
-	void mark_as_cancelled(long);
-	void mark_all_polling_as_cancelled();
 	void wait() {cond.wait();}
 	void signal() {omni_mutex_lock(*this);cond.signal();}
 			
@@ -233,12 +207,9 @@ protected:
 	
 	multimap<Connection *,TgRequest>	cb_dev_table;
 	map<CORBA::Request_ptr,TgRequest>	cb_req_table;
-
-	vector<long>				cancelled_request;
 	
 private:
 	omni_condition				cond;
-	bool remove_cancelled_request(long);
 };
 
 //-------------------------------------------------------------------------

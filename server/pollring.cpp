@@ -14,96 +14,9 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // $Revision$
 //
 // $Log$
-// Revision 3.27  2010/12/08 10:04:04  taurel
-// - No change. Don't know why tkcvs report changes on this file. tkdiff
-// agree with me!!
-//
-// Revision 3.26  2010/09/09 13:46:01  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.25  2009/12/08 07:55:15  taurel
-// - Get some bug fixes from a merge with the Release_7_1_1-bugfixes branch
-//
-// Revision 3.24.2.1  2009/12/07 14:17:29  taurel
-// - Correctly nitialized the write part  y dimension of spectrum or image
-// attribute when retrieving the attribute history from the polling buffer
-//
-// Revision 3.24  2009/11/09 12:04:31  taurel
-// - The attribute mutex management is in the AttributeValue_4 struct
-//
-// Revision 3.23  2009/11/02 08:35:47  taurel
-// - Fix warnings reported when compiling using the option -Wall
-//
-// Revision 3.22  2009/09/18 09:18:06  taurel
-// - End of attribute serialization implementation?
-//
-// Revision 3.21  2009/09/17 08:28:06  taurel
-// - Add a mutual exclusion to protect attribute buffer
-//
-// Revision 3.20  2009/03/18 12:18:45  taurel
-// - Fix warnings reported when compiled with the option -Wall
-//
-// Revision 3.19  2009/03/13 09:33:29  taurel
-// - Small changes to fix Windows VC8 warnings in Warning level 3
-//
-// Revision 3.18  2009/02/27 13:26:46  taurel
-// - Small changes for Solaris
-//
-// Revision 3.17  2009/01/21 12:47:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.16  2008/12/19 14:27:08  taurel
-// - First changes for compatibility between IDL 3 and IDL 4
-//
-// Revision 3.15  2008/12/17 09:50:59  taurel
-// - First implementation of attributes sent on the wire using IDL Union
-// instead of IDL Any
-//
-// Revision 3.14  2008/10/06 15:01:36  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.13  2008/10/03 06:52:31  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.12  2008/09/23 14:59:35  taurel
-// - Commit after the end of DevEncoded data type implementation
-// - The new test suite is also now running fine
-//
-// Revision 3.11  2008/06/10 07:52:15  taurel
-// - Add code for the DevEncoded attribute data type
-//
-// Revision 3.10  2008/05/20 12:44:12  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.9  2008/03/26 16:50:08  taurel
-// - Fix bug when getting history for State pseudo-attribute
-// Revision 3.8.2.4  2008/05/20 06:17:46  taurel
-// - Last commit before merge with trunk
-// (start the implementation of the new DevEncoded data type)
-//
 // Revision 3.8.2.3  2007/11/22 12:33:11  taurel
 // - First part of the device locking implementation
 //
@@ -269,6 +182,11 @@ static const char *RcsId = "$Id$\n$Name$";
 // Revision 2.0  2002/04/09 14:45:11  taurel
 // See Tango WEB pages for list of changes
 //
+//
+//
+// copyleft :           European Synchrotron Radiation Facility
+//                      BP 220, Grenoble 38043
+//                      FRANCE
 //
 //-============================================================================
 
@@ -439,9 +357,9 @@ void PollRing::insert_data(Tango::AttributeValueList_3 *attr_val,struct timeval 
 	inc_indexes();
 }
 
-void PollRing::insert_data(Tango::AttributeValueList_4 *attr_val,struct timeval &t,bool unlock)
+void PollRing::insert_data(Tango::AttributeValueList_4 *attr_val,struct timeval &t)
 {
-
+	
 //
 // Insert data in the ring
 //
@@ -452,203 +370,13 @@ void PollRing::insert_data(Tango::AttributeValueList_4 *attr_val,struct timeval 
 		
 	ring[insert_elt].attr_value_4 = attr_val;	
 	ring[insert_elt].when = t;
-
-	force_copy_data(ring[insert_elt].attr_value_4);
-	
-//
-// Release attribute mutexes because the data are now copied
-//
-
-	if (unlock == true)
-	{
-		for (unsigned int loop = 0;loop < attr_val->length();loop++)
-		{
-			Tango::AttributeValue_4 *tmp_ptr = &((*attr_val)[loop]);
-			(tmp_ptr)->rel_attr_mutex();
-		}
-	}
-				
+			
 //
 // Manage insert and read indexes
 //
 
 	inc_indexes();
 }
-
-//-------------------------------------------------------------------------
-//
-// method : 		PollRing::force_copy_data
-// 
-// description : 	Since IDL 4, attributes are transferred on the net using
-//					a IDL union. In some cases, the sequence within the union simply
-//					points to the user data (no copy), therefore, this method
-//					force the user data to be copied
-//
-//					To do this copy we:
-//					1 - Really copy the data within a temporary sequence
-//					2 - Force memory freeing (if required by user) using the
-//						union sequence replace call
-//					3 - Transfer the data from the temporary sequence within the
-//						union sequence using again the sequence replace call
-//						in order not to trigger a real data copy
-//
-// argument : in : 	- attr_value_4 : The exception to be stored
-//
-//--------------------------------------------------------------------------
-
-void PollRing::force_copy_data(Tango::AttributeValueList_4 *attr_value_4)
-{
-	for (unsigned long loop = 0;loop < attr_value_4->length();loop++)
-	{
-		switch ((*attr_value_4)[loop].value._d())
-		{	
-			case ATT_BOOL:
-			{
-				DevVarBooleanArray &union_seq = (*attr_value_4)[loop].value.bool_att_value();
-				DevVarBooleanArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-								
-			case ATT_SHORT:
-			{
-				DevVarShortArray &union_seq = (*attr_value_4)[loop].value.short_att_value();
-				DevVarShortArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case ATT_LONG:
-			{
-				DevVarLongArray &union_seq = (*attr_value_4)[loop].value.long_att_value();
-				DevVarLongArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-						
-			case ATT_LONG64:
-			{
-				DevVarLong64Array &union_seq = (*attr_value_4)[loop].value.long64_att_value();
-				DevVarLong64Array tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-						
-			case ATT_FLOAT:
-			{
-				DevVarFloatArray &union_seq = (*attr_value_4)[loop].value.float_att_value();
-				DevVarFloatArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case ATT_DOUBLE:
-			{
-				DevVarDoubleArray &union_seq = (*attr_value_4)[loop].value.double_att_value();
-				DevVarDoubleArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case ATT_UCHAR:
-			{
-				DevVarCharArray &union_seq = (*attr_value_4)[loop].value.uchar_att_value();
-				DevVarCharArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case ATT_USHORT:
-			{
-				DevVarUShortArray &union_seq = (*attr_value_4)[loop].value.ushort_att_value();
-				DevVarUShortArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case ATT_ULONG:
-			{
-				DevVarULongArray &union_seq = (*attr_value_4)[loop].value.ulong_att_value();
-				DevVarULongArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case ATT_ULONG64:
-			{
-				DevVarULong64Array &union_seq = (*attr_value_4)[loop].value.ulong64_att_value();
-				DevVarULong64Array tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;			
-			
-			case ATT_STRING:
-			{
-				const DevVarStringArray &union_seq = (*attr_value_4)[loop].value.string_att_value();
-				DevVarStringArray tmp_seq = union_seq;
-				(const_cast<DevVarStringArray &>(union_seq)).replace(0,0,NULL,true);					
-				(*attr_value_4)[loop].value.string_att_value(tmp_seq);
-			}
-			break;
-			
-			case ATT_STATE:
-			{
-				DevVarStateArray &union_seq = (*attr_value_4)[loop].value.state_att_value();
-				DevVarStateArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-				unsigned long len = tmp_seq.length();
-				union_seq.replace(len,len,tmp_seq.get_buffer(true),true);
-			}
-			break;
-			
-			case DEVICE_STATE:
-			case NO_DATA:
-			break;
-
-			case ATT_ENCODED:
-			{
-				DevVarEncodedArray &union_seq = (*attr_value_4)[loop].value.encoded_att_value();
-				DevVarEncodedArray tmp_seq(union_seq);
-				union_seq.replace(0,0,NULL,true);
-
-				union_seq.length(tmp_seq.length());
-				
-				union_seq[0].encoded_format = CORBA::string_dup(tmp_seq[0].encoded_format);
-				unsigned long nb_data = tmp_seq[0].encoded_data.length();				
-				union_seq[0].encoded_data.replace(nb_data,nb_data,tmp_seq[0].encoded_data.get_buffer(true),true);
-				
-				if (tmp_seq.length() == 2)
-				{
-					union_seq[1].encoded_format = CORBA::string_dup(tmp_seq[1].encoded_format);
-					unsigned long nb_data = tmp_seq[1].encoded_data.length();				
-					union_seq[1].encoded_data.replace(nb_data,nb_data,tmp_seq[1].encoded_data.get_buffer(true),true);
-				}				
-			}
-			break;
-		}
-	}
-}
-
 
 //-------------------------------------------------------------------------
 //
@@ -1163,21 +891,21 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 	long seq_size = 0;
 	long seq_str_size = 0;
 	long seq_number_size = 0;
-	long error_nb = 0;
 	
 	if ((cmd_type <= DEV_STRING) || (cmd_type == DEV_STATE) || (cmd_type == CONST_DEV_STRING) ||
 		(cmd_type == DEV_UCHAR) || (cmd_type == DEV_LONG64) || (cmd_type == DEV_ULONG64))
 	{
+		long nb_error = 0;
 		for (i = 0;i < n;i++)
 		{
 			if (ring[index].except != NULL)
-				error_nb++;
+				nb_error++;
 			
 			if (index == 0)
 				index = max_elt;
 			index--;
 		}
-		seq_size = n - error_nb;
+		seq_size = n - nb_error;
 	}
 	else
 	{	
@@ -1257,14 +985,9 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 					seq_number_size = seq_number_size + tmp_db_str->dvalue.length();
 					data_length = 0;
 					break;
-					
-					default:
-					break;
 				}			
 				seq_size = seq_size + data_length;
 			}
-			else
-				error_nb++;
 		
 			if (index == 0)
 				index = max_elt;
@@ -1382,12 +1105,10 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 								
 			if (new_err == true)
 			{
-				if (ptr->errors.length() == 0)
-					ptr->errors.length(error_nb);
-				if (ptr->errors_array.length() == 0)
-					ptr->errors_array.length(error_nb);
 				last_err_list = ring[index].except->errors;
+				ptr->errors.length(errors_length);
 				ptr->errors[errors_length - 1] = last_err_list;
+				ptr->errors_array.length(errors_length);
 				ptr->errors_array[errors_length - 1].start = n - (i + 1);
 				ptr->errors_array[errors_length - 1].nb_elt = 1;
 				errors_length++;
@@ -1424,6 +1145,8 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 	
 		if (ring[index].except == NULL)
 		{
+			AttributeDim tmp_dim;
+
 			switch(cmd_type)
 			{
 			case DEVVAR_CHARARRAY:
@@ -1434,7 +1157,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_uch;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_uch,tmp_uch,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_uch->length());
+				MANAGE_DIM_ARRAY(tmp_uch->length());
 				break;
 
 			case DEV_SHORT:
@@ -1456,7 +1179,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_sh;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_sh,tmp_sh,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_sh->length());
+				MANAGE_DIM_ARRAY(tmp_sh->length());
 				break;
 
 			case DEV_LONG:
@@ -1478,7 +1201,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_lg;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_lg,tmp_lg,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_lg->length());
+				MANAGE_DIM_ARRAY(tmp_lg->length());
 				break;
 
 			case DEV_FLOAT:
@@ -1500,7 +1223,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_fl;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_fl,tmp_fl,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_fl->length());
+				MANAGE_DIM_ARRAY(tmp_fl->length());
 				break;
 
 			case DEV_DOUBLE:
@@ -1522,7 +1245,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_db;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_db,tmp_db,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_db->length());
+				MANAGE_DIM_ARRAY(tmp_db->length());
 				break;
 
 			case DEV_USHORT:
@@ -1544,7 +1267,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_ush;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_ush,tmp_ush,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_ush->length());
+				MANAGE_DIM_ARRAY(tmp_ush->length());
 				break;
 
 			case DEV_ULONG:
@@ -1566,7 +1289,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_ulg;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_ulg,tmp_ulg,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_ulg->length());
+				MANAGE_DIM_ARRAY(tmp_ulg->length());
 				break;
 
 			case DEV_STRING:
@@ -1588,7 +1311,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_str;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_str,tmp_str,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_str->length());
+				MANAGE_DIM_ARRAY(tmp_str->length());
 				break;
 
 			case DEV_BOOLEAN:
@@ -1610,7 +1333,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_boo;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_boo,tmp_boo,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_boo->length());
+				MANAGE_DIM_ARRAY(tmp_boo->length());
 				break;
 
 			case DEV_LONG64:
@@ -1632,7 +1355,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_lg64;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_lg64,tmp_lg64,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_lg64->length());
+				MANAGE_DIM_ARRAY(tmp_lg64->length());
 				break;
 
 			case DEV_ULONG64:
@@ -1654,7 +1377,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				}
 				(*ring[index].cmd_result) >>= tmp_ulg64;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_ulg64,tmp_ulg64,ind_in_seq);
-				MANAGE_DIM_ARRAY((long)tmp_ulg64->length());
+				MANAGE_DIM_ARRAY(tmp_ulg64->length());
 				break;
 				
 			case DEVVAR_LONGSTRINGARRAY:
@@ -1667,7 +1390,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				(*ring[index].cmd_result) >>= tmp_lg_str;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_REF(new_tmp_lg_str->svalue,tmp_lg_str->svalue,ind_str_in_seq);
 				ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_REF(new_tmp_lg_str->lvalue,tmp_lg_str->lvalue,ind_num_in_seq);
-				MANAGE_DIM_ARRAY_SEQ((long)tmp_lg_str->svalue.length(),(long)tmp_lg_str->lvalue.length());
+				MANAGE_DIM_ARRAY_SEQ(tmp_lg_str->svalue.length(),tmp_lg_str->lvalue.length());
 				break;
 				
 			case DEVVAR_DOUBLESTRINGARRAY:
@@ -1680,10 +1403,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 				(*ring[index].cmd_result) >>= tmp_db_str;
 				ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_REF(new_tmp_db_str->svalue,tmp_db_str->svalue,ind_str_in_seq);
 				ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_REF(new_tmp_db_str->dvalue,tmp_db_str->dvalue,ind_num_in_seq);
-				MANAGE_DIM_ARRAY_SEQ((long)tmp_db_str->svalue.length(),(long)tmp_db_str->dvalue.length());
-				break;
-				
-			default:
+				MANAGE_DIM_ARRAY_SEQ(tmp_db_str->svalue.length(),tmp_db_str->dvalue.length());
 				break;
 			}
 		}
@@ -1694,12 +1414,6 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 
 		if (i == (n  - 1))
 		{
-			if (errors_length != (error_nb + 1))
-			{
-				ptr->errors.length(errors_length - 1);
-				ptr->errors_array.length(errors_length - 1);
-			}
-			
 			switch(cmd_type)
 			{
 			case Tango::DEVVAR_CHARARRAY:
@@ -1775,9 +1489,6 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 			case Tango::DEVVAR_DOUBLESTRINGARRAY:
 				if (new_tmp_db_str != NULL)
 					ptr->value <<= new_tmp_db_str;
-				break;
-				
-			default:
 				break;
 			}
 		}
@@ -2161,25 +1872,11 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistoryList_3 *ptr,long typ
 					break;
 										
 				case Tango::DEV_STATE :
-				{
-					CORBA::TypeCode_var ty;
-					ty = (*ring[index].attr_value_3)[0].value.type();
-			
-					if (ty->kind() == CORBA::tk_enum)
-					{
-						Tango::DevState tmp_ds;
-						(*ring[index].attr_value_3)[0].value >>= tmp_ds;
-						(*ptr)[seq_index].value.value <<= tmp_ds;
-					}
-					else
-					{
-						(*ring[index].attr_value_3)[0].value >>= tmp_state;
-						new_tmp_state = new DevVarStateArray(tmp_state->length(),tmp_state->length(),
-									const_cast<DevState *>(tmp_state->get_buffer()),false);
-						(*ptr)[seq_index].value.value <<= new_tmp_state;
-					}
+					(*ring[index].attr_value_3)[0].value >>= tmp_state;
+					new_tmp_state = new DevVarStateArray(tmp_state->length(),tmp_state->length(),
+							const_cast<DevState *>(tmp_state->get_buffer()),false);
+					(*ptr)[seq_index].value.value <<= new_tmp_state;
 					break;
-				}
 				}
 			}
 		}
@@ -2217,20 +1914,18 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 	long seq_index = n - 1;
 	
 //
-// Compute the size of the global sequence and the error numbers
+// Compute the size of the global sequence
 //
 
 	long seq_size = 0;
-	long error_nb = 0;
-	
 	for (i = 0;i < n;i++)
 	{
 		if (ring[index].except == NULL)
 		{
-			int r_dim_x = (*ring[index].attr_value_4)[0].r_dim.dim_x;
-			int r_dim_y = (*ring[index].attr_value_4)[0].r_dim.dim_y;
-			int w_dim_x = (*ring[index].attr_value_4)[0].w_dim.dim_x;
-			int w_dim_y = (*ring[index].attr_value_4)[0].w_dim.dim_y;
+			int r_dim_x = (*ring[index].attr_value_3)[0].r_dim.dim_x;
+			int r_dim_y = (*ring[index].attr_value_3)[0].r_dim.dim_y;
+			int w_dim_x = (*ring[index].attr_value_3)[0].w_dim.dim_x;
+			int w_dim_y = (*ring[index].attr_value_3)[0].w_dim.dim_x;
 
 			int data_length;
 			(r_dim_y == 0) ? data_length = r_dim_x : data_length = r_dim_x * r_dim_y;
@@ -2238,8 +1933,6 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 			
 			seq_size = seq_size + data_length;
 		}
-		else
-			error_nb++;
 		
 		if (index == 0)
 			index = max_elt;
@@ -2279,7 +1972,6 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 	Tango::DevVarULongArray *new_tmp_ulg = NULL;
 	Tango::DevVarULong64Array *new_tmp_ulg64 = NULL;
 	Tango::DevVarStateArray *new_tmp_state = NULL;
-	Tango::DevVarEncodedArray *new_tmp_enc = NULL;
 					
 //
 // Read buffer
@@ -2287,7 +1979,6 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 
 	bool previous_no_data = true;
 	bool no_data = true;
-	last_quality = Tango::ATTR_VALID;
 
 	index = insert_elt;
 	if (index == 0)
@@ -2314,9 +2005,9 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 
 		if (ring[index].except == NULL)
 		{
-			if ((quals_length == 1) || ((*ring[index].attr_value_4)[0].quality != last_quality))
+			if ((quals_length == 1) || ((*ring[index].attr_value_3)[0].quality != last_quality))
 			{
-				last_quality = (*ring[index].attr_value_4)[0].quality;
+				last_quality = (*ring[index].attr_value_3)[0].quality;
 				ptr->quals.length(quals_length);
 				ptr->quals[quals_length - 1] = last_quality;
 				ptr->quals_array.length(quals_length);
@@ -2343,14 +2034,14 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 // The read dimension
 //
 				
-			if (((*ring[index].attr_value_4)[0].r_dim.dim_x == last_dim_read.dim_x) &&
-				((*ring[index].attr_value_4)[0].r_dim.dim_y == last_dim_read.dim_y))
+			if (((*ring[index].attr_value_3)[0].r_dim.dim_x == last_dim_read.dim_x) &&
+				((*ring[index].attr_value_3)[0].r_dim.dim_y == last_dim_read.dim_y))
 			{
 				ptr->r_dims_array[read_dims_length - 2].nb_elt++;
 			}
 			else
 			{
-				last_dim_read = (*ring[index].attr_value_4)[0].r_dim;
+				last_dim_read = (*ring[index].attr_value_3)[0].r_dim;
 				ptr->r_dims.length(read_dims_length);
 				ptr->r_dims[read_dims_length - 1] = last_dim_read;
 				ptr->r_dims_array.length(read_dims_length);
@@ -2363,14 +2054,14 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 // The write dimension
 //
 				
-			if (((*ring[index].attr_value_4)[0].w_dim.dim_x == last_dim_write.dim_x) &&
-				((*ring[index].attr_value_4)[0].w_dim.dim_y == last_dim_write.dim_y))
+			if (((*ring[index].attr_value_3)[0].w_dim.dim_x == last_dim_write.dim_x) &&
+				((*ring[index].attr_value_3)[0].w_dim.dim_y == last_dim_write.dim_y))
 			{
 				ptr->w_dims_array[write_dims_length - 2].nb_elt++;
 			}
 			else
 			{
-				last_dim_write = (*ring[index].attr_value_4)[0].w_dim;
+				last_dim_write = (*ring[index].attr_value_3)[0].w_dim;
 				ptr->w_dims.length(write_dims_length);
 				ptr->w_dims[write_dims_length - 1] = last_dim_write;
 				ptr->w_dims_array.length(write_dims_length);
@@ -2426,12 +2117,10 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 						
 			if (new_err == true)
 			{
-				if (ptr->errors.length() == 0)
-					ptr->errors.length(error_nb);
-				if (ptr->errors_array.length() == 0)
-					ptr->errors_array.length(error_nb);
 				last_err_list = ring[index].except->errors;
+				ptr->errors.length(errors_length);
 				ptr->errors[errors_length - 1] = last_err_list;
+				ptr->errors_array.length(errors_length);
 				ptr->errors_array[errors_length - 1].start = n - (i + 1);
 				ptr->errors_array[errors_length - 1].nb_elt = 1;
 				errors_length++;
@@ -2506,7 +2195,22 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 
 		if (no_data == false)
 		{
+			const Tango::DevVarDoubleArray *tmp_db;
+			const Tango::DevVarShortArray *tmp_sh;
+			const Tango::DevVarLongArray *tmp_lg;
+			const Tango::DevVarLong64Array *tmp_lg64;
+			const Tango::DevVarStringArray *tmp_str;
+			const Tango::DevVarFloatArray *tmp_fl;
+			const Tango::DevVarBooleanArray *tmp_boo;
+			const Tango::DevVarUShortArray *tmp_ush;
+			const Tango::DevVarCharArray *tmp_uch;
+			const Tango::DevVarULongArray *tmp_ulg;
+			const Tango::DevVarULong64Array *tmp_ulg64;
+			const Tango::DevVarStateArray *tmp_state;
+			Tango::DevState tmp_state_simple;
 			
+			unsigned int nb_elt;
+
 //
 // Trick: The state when read as an attribute is not store within the Any as a sequence
 // To cover this case, we use the "type" data set to DEV_VOID when we are dealing with
@@ -2515,173 +2219,134 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 			
 			switch (type)
 			{
-				case Tango::DEV_SHORT :
+			case Tango::DEV_SHORT :
+				(*ring[index].attr_value_3)[0].value >>= tmp_sh;
+				if (new_tmp_sh == NULL)
 				{
-					DevVarShortArray &tmp_seq = (*ring[index].attr_value_4)[0].value.short_att_value();
-					if (new_tmp_sh == NULL)
-					{
-						new_tmp_sh = new DevVarShortArray();
-						new_tmp_sh->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_sh,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_sh = new DevVarShortArray();
+					new_tmp_sh->length(seq_size);
 				}
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_sh,tmp_sh,ind_in_seq);
+				break;
 				
-				case Tango::DEV_DOUBLE :
+			case Tango::DEV_DOUBLE :
+				(*ring[index].attr_value_3)[0].value >>= tmp_db;
+				if (new_tmp_db == NULL)
 				{
-					DevVarDoubleArray &tmp_seq = (*ring[index].attr_value_4)[0].value.double_att_value();
-					if (new_tmp_db == NULL)
-					{
-						new_tmp_db = new DevVarDoubleArray();
-						new_tmp_db->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_db,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_db = new DevVarDoubleArray();
+					new_tmp_db->length(seq_size);
 				}
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_db,tmp_db,ind_in_seq);
+				break;
 				
-				case Tango::DEV_LONG :
+			case Tango::DEV_LONG :
+				(*ring[index].attr_value_3)[0].value >>= tmp_lg;
+				if (new_tmp_lg == NULL)
 				{
-					DevVarLongArray &tmp_seq = (*ring[index].attr_value_4)[0].value.long_att_value();
-					if (new_tmp_lg == NULL)
-					{
-						new_tmp_lg = new DevVarLongArray();
-						new_tmp_lg->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_lg,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_lg = new DevVarLongArray();
+					new_tmp_lg->length(seq_size);
 				}
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_lg,tmp_lg,ind_in_seq);
+				break;
 				
-				case Tango::DEV_LONG64 :
+			case Tango::DEV_LONG64 :
+				(*ring[index].attr_value_3)[0].value >>= tmp_lg64;
+				if (new_tmp_lg64 == NULL)
 				{
-					DevVarLong64Array &tmp_seq = (*ring[index].attr_value_4)[0].value.long64_att_value();
-					if (new_tmp_lg64 == NULL)
-					{
-						new_tmp_lg64 = new DevVarLong64Array();
-						new_tmp_lg64->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_lg64,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_lg64 = new DevVarLong64Array();
+					new_tmp_lg64->length(seq_size);
 				}
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_lg64,tmp_lg64,ind_in_seq);
+				break;
 				
-				case Tango::DEV_STRING :
+			case Tango::DEV_STRING :
+				(*ring[index].attr_value_3)[0].value >>= tmp_str;
+				if (new_tmp_str == NULL)
 				{
-					DevVarStringArray &tmp_seq = (*ring[index].attr_value_4)[0].value.string_att_value();
-					if (new_tmp_str == NULL)
-					{
-						new_tmp_str = new DevVarStringArray();
-						new_tmp_str->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_str,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_str = new DevVarStringArray();
+					new_tmp_str->length(seq_size);
 				}
-
-				case Tango::DEV_FLOAT :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_str,tmp_str,ind_in_seq);
+				break;
+				
+			case Tango::DEV_FLOAT :
+				(*ring[index].attr_value_3)[0].value >>= tmp_fl;
+				if (new_tmp_fl == NULL)
 				{
-					DevVarFloatArray &tmp_seq = (*ring[index].attr_value_4)[0].value.float_att_value();
-					if (new_tmp_fl == NULL)
-					{
-						new_tmp_fl = new DevVarFloatArray();
-						new_tmp_fl->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_fl,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_fl = new DevVarFloatArray();
+					new_tmp_fl->length(seq_size);
 				}
-
-				case Tango::DEV_BOOLEAN :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_fl,tmp_fl,ind_in_seq);
+				break;
+				
+			case Tango::DEV_BOOLEAN :
+				(*ring[index].attr_value_3)[0].value >>= tmp_boo;
+				if (new_tmp_boo == NULL)
 				{
-					DevVarBooleanArray &tmp_seq = (*ring[index].attr_value_4)[0].value.bool_att_value();
-					if (new_tmp_boo == NULL)
-					{
-						new_tmp_boo = new DevVarBooleanArray();
-						new_tmp_boo->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_boo,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_boo = new DevVarBooleanArray();
+					new_tmp_boo->length(seq_size);
 				}
-
-				case Tango::DEV_USHORT :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_boo,tmp_boo,ind_in_seq);
+				break;
+				
+			case Tango::DEV_USHORT :
+				(*ring[index].attr_value_3)[0].value >>= tmp_ush;
+				if (new_tmp_ush == NULL)
 				{
-					DevVarUShortArray &tmp_seq = (*ring[index].attr_value_4)[0].value.ushort_att_value();
-					if (new_tmp_ush == NULL)
-					{
-						new_tmp_ush = new DevVarUShortArray();
-						new_tmp_ush->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_ush,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_ush = new DevVarUShortArray();
+					new_tmp_ush->length(seq_size);
 				}
-
-				case Tango::DEV_UCHAR :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_ush,tmp_ush,ind_in_seq);
+				break;
+				
+			case Tango::DEV_UCHAR :
+				(*ring[index].attr_value_3)[0].value >>= tmp_uch;
+				if (new_tmp_uch == NULL)
 				{
-					DevVarCharArray &tmp_seq = (*ring[index].attr_value_4)[0].value.uchar_att_value();
-					if (new_tmp_uch == NULL)
-					{
-						new_tmp_uch = new DevVarUCharArray();
-						new_tmp_uch->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_uch,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_uch = new DevVarUCharArray();
+					new_tmp_uch->length(seq_size);
 				}
-
-				case Tango::DEV_ULONG :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_uch,tmp_uch,ind_in_seq);
+				break;
+				
+			case Tango::DEV_ULONG :
+				(*ring[index].attr_value_3)[0].value >>= tmp_ulg;
+				if (new_tmp_ulg == NULL)
 				{
-					DevVarULongArray &tmp_seq = (*ring[index].attr_value_4)[0].value.ulong_att_value();
-					if (new_tmp_ulg == NULL)
-					{
-						new_tmp_ulg = new DevVarULongArray();
-						new_tmp_ulg->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_ulg,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_ulg = new DevVarULongArray();
+					new_tmp_ulg->length(seq_size);
 				}
-
-				case Tango::DEV_ULONG64 :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_ulg,tmp_ulg,ind_in_seq);
+				break;
+				
+			case Tango::DEV_ULONG64 :
+				(*ring[index].attr_value_3)[0].value >>= tmp_ulg64;
+				if (new_tmp_ulg64 == NULL)
 				{
-					DevVarULong64Array &tmp_seq = (*ring[index].attr_value_4)[0].value.ulong64_att_value();
-					if (new_tmp_ulg64 == NULL)
-					{
-						new_tmp_ulg64 = new DevVarULong64Array();
-						new_tmp_ulg64->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_ulg64,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_ulg64 = new DevVarULong64Array();
+					new_tmp_ulg64->length(seq_size);
 				}
-
-				case Tango::DEV_STATE :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_ulg64,tmp_ulg64,ind_in_seq);
+				break;
+				
+			case Tango::DEV_STATE :
+				(*ring[index].attr_value_3)[0].value >>= tmp_state;
+				if (new_tmp_state == NULL)
 				{
-					DevVarStateArray &tmp_seq = (*ring[index].attr_value_4)[0].value.state_att_value();
-					if (new_tmp_state == NULL)
-					{
-						new_tmp_state = new DevVarStateArray();
-						new_tmp_state->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_state,tmp_seq,ind_in_seq);
-					break;
+					new_tmp_state = new DevVarStateArray();
+					new_tmp_state->length(seq_size);
 				}
-
-				case Tango::DEV_VOID :
+				ADD_ELT_DATA_TO_GLOBAL_SEQ(new_tmp_state,tmp_state,ind_in_seq);
+				break;
+				
+			case Tango::DEV_VOID :
+				(*ring[index].attr_value_3)[0].value >>= tmp_state_simple;
+				if (new_tmp_state == NULL)
 				{
-					DevState tmp_state = (*ring[index].attr_value_4)[0].value.dev_state_att();
-					if (new_tmp_state == NULL)
-					{
-						new_tmp_state = new DevVarStateArray();
-						new_tmp_state->length(seq_size);
-					}
-					ADD_SIMPLE_DATA_TO_GLOBAL_SEQ(new_tmp_state,tmp_state,ind_in_seq);
-					break;
+					new_tmp_state = new DevVarStateArray();
+					new_tmp_state->length(seq_size);
 				}
-
-				case Tango::DEV_ENCODED :
-				{
-					DevVarEncodedArray &tmp_seq = (*ring[index].attr_value_4)[0].value.encoded_att_value();
-					if (new_tmp_enc == NULL)
-					{
-						new_tmp_enc = new DevVarEncodedArray();
-						new_tmp_enc->length(seq_size);
-					}
-					ADD_ELT_DATA_TO_GLOBAL_SEQ_BY_PTR_REF(new_tmp_enc,tmp_seq,ind_in_seq);
-					break;
-				}
+				ADD_SIMPLE_DATA_TO_GLOBAL_SEQ(new_tmp_state,tmp_state_simple,ind_in_seq);
 			}
 		}
 		
@@ -2691,12 +2356,6 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 
 		if (i == (n  - 1))
 		{
-			if (errors_length != (error_nb + 1))
-			{
-				ptr->errors.length(errors_length - 1);
-				ptr->errors_array.length(errors_length - 1);
-			}
-			
 			switch(type)
 			{
 			case Tango::DEV_SHORT:
@@ -2754,11 +2413,6 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 					ptr->value <<= new_tmp_ulg64;
 				break;
 				
-			case Tango::DEV_ENCODED:
-				if (new_tmp_enc != NULL)
-					ptr->value <<= new_tmp_enc;
-				break;
-				
 			case Tango::DEV_STATE:
 			case Tango::DEV_VOID:
 				if (new_tmp_state != NULL)
@@ -2774,159 +2428,10 @@ void PollRing::get_attr_history(long n,Tango::DevAttrHistory_4 *ptr,long type)
 		if (index == 0)
 			index = max_elt;
 		index--;
-		seq_index--;		
-	}
-}
-
-void PollRing::get_attr_history_43(long n,Tango::DevAttrHistoryList_3 *ptr,long type)
-{
-	long i;
-	
-//
-// Set index to read ring and to initialised returned sequence
-// In the returned sequence , indice 0 is the oldest data
-//
-
-	long index = insert_elt;
-	if (index == 0)
-		index = max_elt;
-	index--;
-	
-	long seq_index = n - 1;
-
-//
-// Read buffer
-//	
-			
-	for (i = 0;i < n;i++)
-	{
-		(*ptr)[seq_index].value.time.tv_sec = ring[index].when.tv_sec + DELTA_T;
-		(*ptr)[seq_index].value.time.tv_usec = ring[index].when.tv_usec;
-		(*ptr)[seq_index].value.time.tv_nsec = 0;
-
-		if (ring[index].except == NULL)
-		{		
-			(*ptr)[seq_index].value.err_list = (*ring[index].attr_value_4)[0].err_list;
-			(*ptr)[seq_index].value.quality = (*ring[index].attr_value_4)[0].quality;
-			(*ptr)[seq_index].value.r_dim = (*ring[index].attr_value_4)[0].r_dim;
-			(*ptr)[seq_index].value.w_dim = (*ring[index].attr_value_4)[0].w_dim;
-			(*ptr)[seq_index].value.name = CORBA::string_dup((*ring[index].attr_value_4)[0].name);		
-		
-
-			(*ptr)[seq_index].attr_failed = false;
-
-			if ((*ptr)[seq_index].value.quality != Tango::ATTR_INVALID)
-			{
-				switch (type)
-				{
-				case Tango::DEV_SHORT :
-					{
-						const DevVarShortArray &tmp_seq = (*ring[index].attr_value_4)[0].value.short_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_DOUBLE :
-					{
-						const DevVarDoubleArray &tmp_seq = 	(*ring[index].attr_value_4)[0].value.double_att_value();		
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_LONG :
-					{
-						const DevVarLongArray &tmp_seq = (*ring[index].attr_value_4)[0].value.long_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-					
-				case Tango::DEV_LONG64 :
-					{
-						const DevVarLong64Array &tmp_seq = (*ring[index].attr_value_4)[0].value.long64_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_STRING :
-					{
-						const DevVarStringArray &tmp_seq = (*ring[index].attr_value_4)[0].value.string_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-					
-				case Tango::DEV_FLOAT :
-					{
-						const DevVarFloatArray &tmp_seq = (*ring[index].attr_value_4)[0].value.float_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_BOOLEAN :
-					{				
-						const DevVarBooleanArray &tmp_seq = (*ring[index].attr_value_4)[0].value.bool_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_USHORT :
-					{
-						const DevVarUShortArray &tmp_seq = (*ring[index].attr_value_4)[0].value.ushort_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_UCHAR :
-					{
-						const DevVarCharArray &tmp_seq = (*ring[index].attr_value_4)[0].value.uchar_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-
-				case Tango::DEV_ULONG :
-					{
-						const DevVarULongArray &tmp_seq = (*ring[index].attr_value_4)[0].value.ulong_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-					
-				case Tango::DEV_ULONG64 :
-					{
-						const DevVarULong64Array &tmp_seq = (*ring[index].attr_value_4)[0].value.ulong64_att_value();
-						(*ptr)[seq_index].value.value <<= tmp_seq;
-					}
-					break;
-										
-				case Tango::DEV_STATE :
-					{
-						if ((*ring[index].attr_value_4)[0].value._d() == DEVICE_STATE)
-						{
-							DevState tmp_ds = (*ring[index].attr_value_4)[0].value.dev_state_att();
-							(*ptr)[seq_index].value.value <<= tmp_ds;
-						}
-						else
-						{
-							DevVarStateArray &tmp_seq = (*ring[index].attr_value_4)[0].value.state_att_value();
-							(*ptr)[seq_index].value.value <<= tmp_seq;
-						}
-					}
-					break;
-				}
-			}
-		}
-		else			
-		{
-			(*ptr)[seq_index].attr_failed = true;
-			(*ptr)[seq_index].value.err_list = ring[index].except->errors;
-			(*ptr)[seq_index].value.quality = Tango::ATTR_INVALID;
-			clear_att_dim((*ptr)[seq_index].value);
-		}
-			
-						
-		if (index == 0)
-			index = max_elt;
-		index--;
 		seq_index--;
+		
 	}
 }
+
 
 } // End of Tango namespace

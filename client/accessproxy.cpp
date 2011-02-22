@@ -7,84 +7,12 @@
 //
 // $Author$
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // $Revision$
 //
 // $Log$
-// Revision 3.16  2010/12/09 07:55:35  taurel
-// - Default gcc on debian 30 also doesn't like getaddrinfo() AI_ADDRCONFIG
-// flag
 //
-// Revision 3.15  2010/12/08 16:27:35  taurel
-// - Compile with getnameinfo() and getaddrinfo() on Windows
-//
-// Revision 3.14  2010/12/08 09:57:46  taurel
-// - Replace gethostbyname() and gethostbyaddr() by getaddrinfo() and
-// getnameinfo()
-//
-// Revision 3.13  2010/09/09 13:43:38  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.12  2010/02/08 14:40:19  taurel
-// - Add a patch from Nicolas about Mac-OS port
-//
-// Revision 3.11  2009/09/22 11:04:45  taurel
-// - Environment variables in file also supported for Windows
-//
-// Revision 3.10  2009/04/20 13:25:50  taurel
-// - Fix bug in case of default constructed DeviceProxy and alias() method
-// - Add some ctors from "const char *" to make programmer's life easier
-//
-// Revision 3.9  2009/04/08 08:30:39  taurel
-// - Fix a bug in case of TangoAccessControl server started with
-// SUPER_TANGO set to 1
-//
-// Revision 3.8  2009/03/20 11:52:06  taurel
-// - Add tangorc files management (for env. variables)
-//
-// Revision 3.7  2009/03/13 09:32:27  taurel
-// - Small changes to fix Windows VC8 warnings in Warning level 3
-//
-// Revision 3.6  2009/03/02 15:55:51  taurel
-// - Ported to Windows
-//
-// Revision 3.5  2009/02/19 12:25:36  taurel
-// - Other Changes for Solaris compilation
-//
-// Revision 3.4  2009/01/21 12:45:14  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.3  2008/10/06 15:02:16  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.2  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.1  2008/05/20 12:42:28  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 1.1.2.1  2008/02/07 15:56:58  taurel
-// - First implementation of the Controlled Access done
-//
+// Copyleft 2008 by European Synchrotron Radiation Facility, Grenoble, France
+//               All Rights Reversed
 //-======================================================================
 
 #if HAVE_CONFIG_H
@@ -95,16 +23,11 @@
 #include <accessproxy.h>
 
 #include <sys/types.h>
-
-#ifndef _TG_WINDOWS_
 #include <pwd.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#else
-#include <ws2tcpip.h>
-#endif
 
 namespace Tango
 {
@@ -133,41 +56,29 @@ namespace Tango
 AccessProxy::AccessProxy(string &devname) : DeviceProxy(devname,false),
 forced(false)
 {
-	real_ctor();
-}
-
-
-AccessProxy::AccessProxy(const char *devname) : DeviceProxy(devname,false),
-forced(false)
-{
-	real_ctor();
-}
-
-void AccessProxy::real_ctor()
-{
-//
-//	Check if forced mode
-//
-	string super_tango;
-
-	int ret = get_env_var("SUPER_TANGO",super_tango);
-	if (ret == 0)
-	{
-		transform(super_tango.begin(),super_tango.end(),super_tango.begin(),::tolower);
-		if (super_tango == "true")
-			forced = true;
-	}
 
 //
 //	Build device proxy and check if present.
 //
 
-	if (forced == false)
-		ping();
+	ping();
+
+//
+//	Check if forced mode
+//
+
+	char *forced_str = getenv("SUPER_TANGO");
+	if (forced_str != NULL)
+	{
+		string tmp_forced(forced_str);
+		transform(tmp_forced.begin(),tmp_forced.end(),tmp_forced.begin(),::tolower);
+		if (tmp_forced == "true")
+			forced = true;
+	}
 	
-		
 	set_access_control(ACCESS_WRITE);
 }
+
 
 //===============================================================
 /**
@@ -186,14 +97,13 @@ AccessControlType AccessProxy::check_access_control(string &devname)
 	{
 
 //
-// If not already done, get user name.
+//	If not already done, get user name.
 // I am using the effective UID in order to allow applications using the seteuid(0) system call
 // to change the effective user id and therefore to take someone else rights
 //
 
 		if (user.empty() == true)
 		{
-#ifndef _TG_WINDOWS_
 			uid_t user_id = geteuid();
 
 			struct passwd pw;
@@ -218,22 +128,6 @@ AccessControlType AccessProxy::check_access_control(string &devname)
 
 			user = pw.pw_name;
 			transform(user.begin(),user.end(),user.begin(),::tolower);
-#else
-			BOOL ret;
-			TCHAR buffer[128];
-			DWORD nb = 128;
-
-			ret = GetUserName(buffer,&nb);
-			if (ret == 0)
-			{
-				cerr << "AccessProxy::check_access_control: Can't get the user name !" << endl;
-				cerr << "Access right set to ACCESS_READ" << endl;
-
-				return ACCESS_READ;
-			}
-			user = buffer;
-			transform(user.begin(),user.end(),user.begin(),::tolower);
-#endif
 		}
 
 //
@@ -246,75 +140,27 @@ AccessControlType AccessProxy::check_access_control(string &devname)
 			int res = gethostname(h_name,80);
 			if (res == 0)
 			{
-  				struct addrinfo hints;
+				struct hostent my_addr;
+				struct hostent *my_addr_ptr;
+				char buffer[__AC_BUFFER_SIZE];
+				int err;
 
-				memset(&hints,0,sizeof(struct addrinfo));
-#ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
-				hints.ai_falgs	   = AI_ADDRCONFIG;
-#endif
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
-  				hints.ai_flags     = AI_ADDRCONFIG;
-#endif
-#endif
-  				hints.ai_family    = AF_INET;
-  				hints.ai_socktype  = SOCK_STREAM;
-
-  				struct addrinfo	*info;
-				struct addrinfo *ptr;
-				char tmp_host[128];
-
-  				int result = getaddrinfo(h_name,NULL,&hints,&info);
-
-  				if (result == 0)
-				{
-					ptr = info;
-					string at_least;
-					bool first = true;
-					bool found = false;
-
-					while (ptr != NULL)
-					{
-    					if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,128,0,0,NI_NUMERICHOST) == 0)
-						{
-							string host_str(tmp_host);
-							if (first == true)
-							{
-								at_least = host_str;
-								first = false;
-							}
-
-							if (host_str.find("127.") == 0) {}
-							else
-							{
-								host = tmp_host;
-								found = true;
-								break;
-							}
-						}
-						else
-						{
-							cerr << "AccessProxy::check_access_control: Can't get my IP address !" << endl;
-							cerr << "Access right set to ACCESS_READ" << endl;
-
-							freeaddrinfo(info);
-							return ACCESS_READ;
-						}
-						ptr = ptr->ai_next;
-					}
-					freeaddrinfo(info);
-
-					if (found == false)
-						host = at_least;
-				}
-				else
+				if (gethostbyname_r(h_name,&my_addr,buffer,sizeof(buffer),&my_addr_ptr,&err) != 0)
 				{
 					cerr << "AccessProxy::check_access_control: Can't get my IP address !" << endl;
 					cerr << "Access right set to ACCESS_READ" << endl;
 
 					return ACCESS_READ;
 				}
+
+				struct in_addr **addr_list;
+
+//
+// TODO : Manage the case of host with several network address
+//
+					
+				addr_list = (struct in_addr **)my_addr.h_addr_list;
+				host = inet_ntoa(*addr_list[0]);
 			}
 			else
 			{
@@ -406,7 +252,7 @@ bool AccessProxy::is_command_allowed(string &classname,string &cmd)
 
 	else
 	{
-		for (unsigned int i = 0;i < allowed.size();++i)
+		for (int i = 0;i < allowed.size();++i)
 		{
 			if (TG_strcasecmp(allowed[i].c_str(),cmd.c_str()) == 0)
 			{
@@ -437,7 +283,7 @@ void AccessProxy::get_allowed_commands(string &classname,vector<string> &allowed
 
 		dout >> allowed;
 	}
-	catch (Tango::DevFailed &)
+	catch (Tango::DevFailed &e)
 	{
 		allowed.clear();
 	}

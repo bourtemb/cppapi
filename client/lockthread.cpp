@@ -13,63 +13,19 @@ static const char *RcsId = "$Id$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // $Revision$
 //
 // $Log$
-// Revision 3.8  2010/09/09 13:44:06  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.7  2009/03/13 09:32:27  taurel
-// - Small changes to fix Windows VC8 warnings in Warning level 3
-//
-// Revision 3.6  2009/03/02 15:55:51  taurel
-// - Ported to Windows
-//
-// Revision 3.5  2009/01/21 12:45:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.4  2008/10/06 15:02:17  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.3  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.2  2008/09/04 07:35:38  taurel
-// - Fix bug in memorized attributes
-// - Changes for the new IDL 4
-//
-// Revision 3.1  2008/05/20 12:42:30  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 1.1.2.3  2008/01/03 16:04:23  taurel
-// - Some changes in locking feature implementation
-//
 // Revision 1.1.2.2  2007/12/20 14:27:18  taurel
 // - Some more work on locking
 //
 // Revision 1.1.2.1  2007/12/19 15:53:08  taurel
 // - Still some work going on for the locking feature
 //
+//
+// copyleft :           European Synchrotron Radiation Facility
+//                      BP 220, Grenoble 38043
+//                      FRANCE
 //
 //-============================================================================
 
@@ -82,14 +38,9 @@ static const char *RcsId = "$Id$";
 
 #include <functional>
 #include <algorithm>
-#include <time.h>
 
-#ifndef _TG_WINDOWS_
 #include <sys/time.h>
-#else
-#include <sys/types.h>
-#include <sys/timeb.h>
-#endif
+#include <time.h>
 
 namespace Tango
 {
@@ -128,15 +79,7 @@ void LockThread::run(void *ptr)
 {
 	LockCmdType received;
 
-#ifdef _TG_WINDOWS_
-	struct _timeb now_win;
-
-	_ftime(&now_win);
-	next_work.tv_sec = (unsigned long)now_win.time;
-	next_work.tv_usec = (long)now_win.millitm * 1000;
-#else
 	gettimeofday(&next_work,NULL);
-#endif
 	T_ADD(next_work,period);
 	
 //
@@ -386,8 +329,7 @@ void LockThread::one_more_lock()
 		for (unsigned long loop = 0;loop < e.errors.length();loop++)
 		{
 			if ((::strcmp(e.errors[loop].reason.in(),"API_DeviceLocked") == 0) ||
-			    (::strcmp(e.errors[loop].reason.in(),"API_DeviceNotLocked") == 0) ||
-			    (::strcmp(e.errors[loop].reason.in(),"API_DeviceNotExported") == 0))
+			    (::strcmp(e.errors[loop].reason.in(),"API_DeviceNotLocked") == 0))
 			{
 				string error_message(e.errors[loop].desc.in());
 				string::size_type pos = error_message.find(':');
@@ -397,7 +339,7 @@ void LockThread::one_more_lock()
 					vector<LockedDevice>::iterator ite;
 					for (ite = locked_devices.begin();ite != locked_devices.end();++ite)
 					{
-						if (TG_strcasecmp(local_dev_name.c_str(),ite->dev_name.c_str()) == 0)
+						if (::strcasecmp(local_dev_name.c_str(),ite->dev_name.c_str()) == 0)
 						{
 							locked_devices.erase(ite);
 							if (locked_devices.empty() == true)
@@ -426,7 +368,7 @@ void LockThread::one_more_lock()
 
 void LockThread::unlock_all_devs()
 {	
-	if (locked_devices.empty() == false)
+	if (locked_devices.empty() != false)
 	{
 	  	string cmd("UnLockDevice");
 	  	DeviceData din;
@@ -444,7 +386,7 @@ void LockThread::unlock_all_devs()
 		{
 			admin_proxy->command_inout("UnLockDevice",din);
 		}
-		catch (Tango::DevFailed &) {}
+		catch (Tango::DevFailed &e) {}
 	}
 
 }
@@ -499,31 +441,15 @@ void LockThread::compute_sleep_time(bool cmd)
 	if (cmd == false)
 	{
 		sleep = period_ms;
-#ifdef _TG_WINDOWS_
-		struct _timeb now_win;
-
-		_ftime(&now_win);
-		next_work.tv_sec = (unsigned long)now_win.time;
-		next_work.tv_usec = (long)now_win.millitm * 1000;
-#else
 		gettimeofday(&next_work,NULL);
-#endif
 		T_ADD(next_work,period);
 	}
 	else
 	{
 		struct timeval now;
 		long diff;
-
-#ifdef _TG_WINDOWS_
-		struct _timeb now_win;
-
-		_ftime(&now_win);
-		now.tv_sec = (unsigned long)now_win.time;
-		now.tv_usec = (long)now_win.millitm * 1000;
-#else
+		
 		gettimeofday(&now,NULL);
-#endif
 		T_DIFF(now,next_work,diff);
 		if (diff < 0)
 			sleep = -1;

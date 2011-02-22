@@ -11,61 +11,9 @@
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // $Revision$
 //
 // $Log$
-// Revision 3.15  2010/09/09 13:44:46  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.14  2010/09/09 13:29:09  taurel
-// - Commit after the last merge with the bugfixes branch
-// - Fix some warning when compiled -W -Wall
-//
-// Revision 3.13  2009/01/21 12:49:04  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.12  2009/01/08 14:58:03  taurel
-// - The read_attribute_4 also transfer the client authentification
-//
-// Revision 3.11  2008/10/06 15:00:36  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.10  2008/10/03 06:51:36  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.9  2008/09/01 14:27:10  taurel
-// - Fix some bugs in locking implementation
-//
-// Revision 3.8  2008/06/10 07:52:14  taurel
-// - Add code for the DevEncoded attribute data type
-//
-// Revision 3.7  2008/05/20 12:44:09  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.6.2.6  2008/05/20 06:17:44  taurel
-// - Last commit before merge with trunk
-// (start the implementation of the new DevEncoded data type)
-//
 // Revision 3.6.2.5  2008/02/07 15:58:13  taurel
 // - First implementation of the Controlled Access done
 //
@@ -251,6 +199,11 @@
 // Revision 1.1.1.1  2000/02/04 10:58:28  taurel
 // Imported sources
 //
+//
+// copyleft :           European Synchrotron Radiation Facility
+//                      BP 220, Grenoble 38043
+//                      FRANCE
+//
 //=============================================================================
 
 #ifndef _BLACKBOX_H
@@ -286,8 +239,7 @@ public:
 	TangoSys_Pid		client_pid;
 	string				java_main_class;
 	DevULong64			java_ident[2];
-
-	int client_ip_2_client_name(string &) const;
+	
 	friend ostream &operator<<(ostream &o_str,const client_addr &ca);
 };
 
@@ -375,12 +327,12 @@ public:
 	string					java_main_class;
 };
 
-inline bool operator<(const BlackBoxElt &,const BlackBoxElt &)
+inline bool operator<(const BlackBoxElt &l,const BlackBoxElt &r)
 {
 	return true;
 }
 
-inline bool operator==(const BlackBoxElt &,const BlackBoxElt &)
+inline bool operator==(const BlackBoxElt &l,const BlackBoxElt &r)
 {
 	return true;
 }
@@ -403,10 +355,9 @@ public:
 	void insert_corba_attr(BlackBoxElt_AttrType);
 	void insert_cmd(const char *,long vers=1,DevSource=Tango::DEV);
 	void insert_attr(const Tango::DevVarStringArray &,long vers=1,DevSource=Tango::DEV);
-	void insert_attr(const Tango::DevVarStringArray &,const ClntIdent &,long vers=1,DevSource=Tango::DEV);
 	void insert_attr(const Tango::AttributeValueList &,long vers=1);
-	void insert_attr(const Tango::AttributeValueList_4 &,const ClntIdent &,long vers);
-	void insert_wr_attr(const Tango::AttributeValueList_4 &,const ClntIdent &,long vers);
+	void insert_attr(const Tango::AttributeValueList &,const ClntIdent &,long vers);
+	void insert_wr_attr(const Tango::AttributeValueList &,const ClntIdent &,long vers);
 	void insert_op(BlackBoxElt_OpType);
 	void insert_op(BlackBoxElt_OpType,const ClntIdent &);
 
@@ -426,8 +377,7 @@ private:
 	void add_source(long);
 	void insert_op_nl(BlackBoxElt_OpType);
 	void insert_attr_nl(const Tango::AttributeValueList &,long);
-	void insert_attr_nl_4(const Tango::AttributeValueList_4 &);
-	void insert_attr_wr_nl(const Tango::AttributeValueList_4 &,long);
+	void insert_attr_wr_nl(const Tango::AttributeValueList &,long);
 	
 	vector<BlackBoxElt>	box;
 	long				insert_elt;
