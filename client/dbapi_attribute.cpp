@@ -6,26 +6,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- July 2003
 //
-// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011
-//						European Synchrotron Radiation Facility
-//                      BP 220, Grenoble 38043
-//                      FRANCE
-//
-// This file is part of Tango.
-//
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-//
 // last changed	- 7/7/20003
 //
 // version 	- 1.0
@@ -47,7 +27,7 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DbAttribute::DbAttribute(string &att_name, string &dev_name, Database *att_dbase)
+DbAttribute::DbAttribute(string &att_name, string & dev_name, Database *att_dbase)
 {
 	name = att_name;
 	device_name = dev_name;
@@ -114,11 +94,11 @@ DbAttribute::~DbAttribute()
 void DbAttribute::get_property(DbData &db_data)
 {
 	if (ext_dbase == true)
-		dbase->get_device_attribute_property(device_name, db_data);
+		dbase->get_device_attribute_property(name, db_data);
 	else
 	{
 		ApiUtil *au = ApiUtil::instance();
-		(au->get_db_vect())[db_ind]->get_device_attribute_property(device_name,db_data);
+		(au->get_db_vect())[db_ind]->get_device_attribute_property(name,db_data);
 	}
 	return;
 }
@@ -132,11 +112,11 @@ void DbAttribute::get_property(DbData &db_data)
 void DbAttribute::put_property(DbData &db_data)
 {
 	if (ext_dbase == true)
-		dbase->put_device_attribute_property(device_name, db_data);
+		dbase->put_device_attribute_property(name, db_data);
 	else
 	{
 		ApiUtil *au = ApiUtil::instance();
-		(au->get_db_vect())[db_ind]->put_device_attribute_property(device_name,db_data);
+		(au->get_db_vect())[db_ind]->put_device_attribute_property(name,db_data);
 	}
 	return;
 }
@@ -150,11 +130,11 @@ void DbAttribute::put_property(DbData &db_data)
 void DbAttribute::delete_property(DbData &db_data)
 {
 	if (ext_dbase == true)
-		dbase->delete_device_attribute_property(device_name, db_data);
+		dbase->delete_device_attribute_property(name, db_data);
 	else
 	{
 		ApiUtil *au = ApiUtil::instance();
-		(au->get_db_vect())[db_ind]->delete_device_attribute_property(device_name,db_data);
+		(au->get_db_vect())[db_ind]->delete_device_attribute_property(name,db_data);
 	}
 	return;
 }
