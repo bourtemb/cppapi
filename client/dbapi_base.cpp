@@ -7,7 +7,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- September 2000
 //
-// Copyright (C) :      2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -4161,6 +4161,7 @@ void Database::check_access()
 
 AccessControlType Database::check_access_control(string &devname)
 {
+
 //
 // For DB device
 //
@@ -4212,8 +4213,27 @@ AccessControlType Database::check_access_control(string &devname)
 			
 //
 // Build the local AccessProxy instance
+// If the database has been built for a device defined with a FQDN,
+// don't forget to add db_host and port on the TAC device name
+// but only if FQDN infos are not already defined in the service
+// device name
 //
 
+			if (from_env_var == false)
+			{
+				int num = 0;
+#ifdef __SUNPRO_CC
+				count(access_devname_str.begin(),access_devname_str.end(),'/',num);
+#else
+				num = count(access_devname_str.begin(),access_devname_str.end(),'/');
+#endif
+				if (num == 2)
+				{
+					string fqdn("tango://");
+					fqdn = fqdn + db_host + ":" + db_port + "/";
+					access_devname_str.insert(0,fqdn);
+				}
+			}
 			access_proxy = new AccessProxy(access_devname_str);
 		}
 
@@ -4280,20 +4300,27 @@ bool Database::is_command_allowed(string &devname,string &cmd)
 		}
 	}
 
-	if (devname == db_device_name)
+	if ( access == ACCESS_WRITE )
 	{
-		string db_class("Database");
-		ret = access_proxy->is_command_allowed(db_class,cmd);
+		ret = true;
 	}
 	else
 	{
+		if (devname == db_device_name)
+		{
+			string db_class("Database");
+			ret = access_proxy->is_command_allowed(db_class,cmd);
+		}
+		else
+		{
 
-//
-// Get device class
-//
+		//
+		// Get device class
+		//
 
-		string dev_class = get_class_for_device(devname);
-		ret = access_proxy->is_command_allowed(dev_class,cmd);
+			string dev_class = get_class_for_device(devname);
+			ret = access_proxy->is_command_allowed(dev_class,cmd);
+		}
 	}
 	
 	return ret;
