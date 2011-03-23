@@ -45,15 +45,6 @@ SL_EXT = dylib
 endif
 
 
-ifdef hpux
-CC = aCC
-AR = ar rv
-AR_SL = $(CC) -b
-VERS_OPT = -Wl,+h,
-SL_EXT = so
-endif
-
-
 CLIENT_SRC = client
 SERVER_SRC = server
 IDL_SRC    = server/idl
@@ -91,6 +82,7 @@ CXXFLAGS = $(CXXFLAGS) -g
 CXXFLAGS_SL = $(CXXFLAGS_SL) -g
 endif
 endif
+endif
 
 
 ifdef linux
@@ -113,7 +105,6 @@ MMFLAG      = -mmmx -O0
 CXXFLAGS    = -DJPG_USE_ASM $(FLAGS)
 CXXFLAGS_SL = -DJPG_USE_ASM $(FLAGS) -fPIC
 endif
-
 endif
 
 ifdef macosx-darwin8
