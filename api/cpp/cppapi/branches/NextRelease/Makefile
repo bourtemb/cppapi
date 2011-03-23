@@ -119,9 +119,9 @@ endif
 LIBNAME = libtango
 
 ifdef debug
-LIBDIR = lib
+LIB_DIR = lib/debug
 else
-LIBDIR = lib/debug
+LIB_DIR = lib
 endif
 
 AR_EXT = a
@@ -448,14 +448,14 @@ $(LIBNAME).$(AR_EXT): 	$(IDL_OBJS) $(SERVER_OBJS) $(CLIENT_OBJS)
 
 ifndef macosx-darwin8
 $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
-	@./cr_dir $(INSTALL_BASE)/$(LIB_DIR))
-	$(AR_SL) -o $(INSTALL_BASE)/$(LIBDIR)/$(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS) \
+	@./cr_dir $(INSTALL_BASE)/$(LIB_DIR)
+	$(AR_SL) -o $(INSTALL_BASE)/$(LIB_DIR)/$(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS) \
 	$(VERS_OPT)$(LIBNAME).$(SL_EXT).$(MAJOR_VERS) \
 	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
 
 install_link:
 	d=`pwd`
-	cd $(INSTALL_BASE)/$(LIBDIR); \
+	cd $(INSTALL_BASE)/$(LIB_DIR); \
 	rm $(LIBNAME).$(AR_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(AR_EXT) $(LIBNAME).$(AR_EXT); \
 	rm $(LIBNAME).$(SL_EXT); ln -s $(LIBNAME).$(SL_EXT).$(MAJOR_VERS) $(LIBNAME).$(SL_EXT); \
 	rm $(LIBNAME).$(SL_EXT).$(MAJOR_VERS); ln -s $(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS) $(LIBNAME).$(SL_EXT).$(MAJOR_VERS); \
@@ -464,10 +464,10 @@ install_link:
 else
 # MacOSX has to link the shared library
 $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
-	@./cr_dir $(INSTALL_BASE)/$(LIBDIR)
+	@./cr_dir $(INSTALL_BASE)/$(LIB_DIR)
 	$(AR_SL) \
-	-o $(INSTALL_BASE)/$(LIBDIR)/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) \
-	-install_name $(INSTALL_BASE)/$(LIBDIR)/$(LIBNAME).$(MAJOR_VERS).$(SL_EXT) \
+	-o $(INSTALL_BASE)/$(LIB_DIR)/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) \
+	-install_name $(INSTALL_BASE)/$(LIB_DIR)/$(LIBNAME).$(MAJOR_VERS).$(SL_EXT) \
 	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL) \
 	-L$(OMNI_BASE)/lib -L$(LOG4TANGO_BASE)/lib \
 	-llog4tango             \
@@ -479,7 +479,7 @@ $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
 # library verioning is not handled the same way under MacOSX
 install_link:
 	d=`pwd`
-	cd $(INSTALL_BASE)/$(LIBDIR); \
+	cd $(INSTALL_BASE)/$(LIB_DIR); \
 	rm $(LIBNAME).$(AR_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(AR_EXT) $(LIBNAME).$(AR_EXT); \
 	rm $(LIBNAME).$(SL_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(SL_EXT) $(LIBNAME).$(SL_EXT); \
 	rm $(LIBNAME).$(MAJOR_VERS).$(SL_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) $(LIBNAME).$(MAJOR_VERS).$(SL_EXT); \
