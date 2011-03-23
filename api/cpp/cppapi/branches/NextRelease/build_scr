@@ -11,12 +11,14 @@ do
 		echo "Ubuntu 10.04 OS"
 		OS_SPEC="linux=1 ubuntu=1"
 		CPU_BUS="64bits=1"
+		MAKE_PATH="make"
 	fi
 	
 	if [ $i = "solaris10" ]
 	then
 		echo "Solaris 10 OS"
 		OS_SPEC="_solaris=1"
+		MAKE_PATH="/usr/local/bin/make"
 	fi
 	
 	if [ $i = "redhate5" ]
@@ -24,6 +26,7 @@ do
 		echo "redhate 5 OS"
 		OS_SPEC="linux=1"
 		CPU_BUS="64bits=1"
+		MAKE_PATH="make"
 	fi
 done
 
@@ -40,7 +43,7 @@ then
 	DEBUG_MODE="debug=1"
 fi
 
-MAKE_CMD="make prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
+MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
 
 cd NextRelease
 echo $MAKE_CMD
