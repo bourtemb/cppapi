@@ -52,16 +52,6 @@ BIN_DIR = $(OS)_CC
 endif
 endif
 
-ifdef linux
-ifdef suse72_gcc32
-BIN_DIR = suse72_gcc32
-else
-ifdef debian30
-BIN_DIR = debian30
-endif
-endif
-endif
-
 # check for 64 bits!!!!
 ifdef 64bits
 ifneq ($(OS),ubuntu1004)
@@ -106,6 +96,5 @@ LOG4TANGO_BASE = $(TANGO_HOME)/tools/log4tango-release/log4tango4.0.3/$(BIN_DIR)
 #
 ##############################################################################
 
-#DOXYGEN = $(TANGO_HOME)/bin/doxygen
 DOXYGEN = doxygen
 

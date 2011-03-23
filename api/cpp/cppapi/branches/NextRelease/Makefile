@@ -86,15 +86,22 @@ CXXFLAGS = -mt -D_POSIX_PTHREAD_SEMANTICS -D_TANGO_LIB \
 	   	  -DOMNI_UNLOADABLE_STUBS \
 	        -xregs=no%appl $(INCLUDE_DIRS)
 CXXFLAGS_SL = $(CXXFLAGS) -KPIC
+ifdef debug
+CXXFLAGS = $(CXXFLAGS) -g
+CXXFLAGS_SL = $(CXXFLAGS_SL) -g
 endif
 endif
 
 
 ifdef linux
+ifdef debug
 FLAGS = -g -D_REENTRANT -DOMNI_UNLOADABLE_STUBS $(INCLUDE_DIRS)
 #FLAGS    = -g -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
-#FLAGS    = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
+else
+FLAGS    = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 #FLAGS    = -O2 -D_REENTRANT $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
+endif
+
 # gcc does not allow MMX optimisation with -fPIC in 64bits
 ifdef 64bits
 MMFLAG      = -mmmx -D_64BITS
@@ -115,14 +122,17 @@ CXXFLAGS = -g -D_REENTRANT -DOMNI_UNLOADABLE_STUBS $(INCLUDE_DIRS)
 CXXFLAGS_SL = $(CXXFLAGS) -fPIC
 endif
 
-ifdef hpux
-CXXFLAGS = -AA -mt +Z -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS 
-CXXFLAGS_SL = $(CXXFLAGS)
-endif
 
 #-------------------------------------------------------------------
 
 LIBNAME = libtango
+
+ifdef debug
+LIBDIR = lib
+else
+LIBDIR = lib/debug
+endif
+
 AR_EXT = a
 
 IDL_OBJS =	$(OBJS_DIR)/tangoSK.o \
@@ -437,8 +447,8 @@ $(OBJS_DIR_SL)/jpeg_dct_mmx.so.o: $(JPG_SRC_MMX)/jpeg_dct_mmx.cpp
 #
 
 $(LIBNAME).$(AR_EXT): 	$(IDL_OBJS) $(SERVER_OBJS) $(CLIENT_OBJS)
-	@./cr_dir $(INSTALL_BASE)/lib
-	$(AR) $(INSTALL_BASE)/lib/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(AR_EXT) \
+	@./cr_dir $(INSTALL_BASE)/$(LIB_DIR)
+	$(AR) $(INSTALL_BASE)/$(LIB_DIR)/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(AR_EXT) \
 	$(IDL_OBJS) $(SERVER_OBJS) $(CLIENT_OBJS)
 
 #
@@ -447,14 +457,14 @@ $(LIBNAME).$(AR_EXT): 	$(IDL_OBJS) $(SERVER_OBJS) $(CLIENT_OBJS)
 
 ifndef macosx-darwin8
 $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
-	@./cr_dir $(INSTALL_BASE)/lib
-	$(AR_SL) -o $(INSTALL_BASE)/lib/$(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS) \
+	@./cr_dir $(INSTALL_BASE)/$(LIB_DIR))
+	$(AR_SL) -o $(INSTALL_BASE)/$(LIBDIR)/$(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS) \
 	$(VERS_OPT)$(LIBNAME).$(SL_EXT).$(MAJOR_VERS) \
 	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
 
 install_link:
 	d=`pwd`
-	cd $(INSTALL_BASE)/lib; \
+	cd $(INSTALL_BASE)/$(LIBDIR); \
 	rm $(LIBNAME).$(AR_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(AR_EXT) $(LIBNAME).$(AR_EXT); \
 	rm $(LIBNAME).$(SL_EXT); ln -s $(LIBNAME).$(SL_EXT).$(MAJOR_VERS) $(LIBNAME).$(SL_EXT); \
 	rm $(LIBNAME).$(SL_EXT).$(MAJOR_VERS); ln -s $(LIBNAME).$(SL_EXT).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS) $(LIBNAME).$(SL_EXT).$(MAJOR_VERS); \
@@ -463,10 +473,10 @@ install_link:
 else
 # MacOSX has to link the shared library
 $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
-	@./cr_dir $(INSTALL_BASE)/lib
+	@./cr_dir $(INSTALL_BASE)/$(LIBDIR)
 	$(AR_SL) \
-	-o $(INSTALL_BASE)/lib/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) \
-	-install_name $(INSTALL_BASE)/lib/$(LIBNAME).$(MAJOR_VERS).$(SL_EXT) \
+	-o $(INSTALL_BASE)/$(LIBDIR)/$(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) \
+	-install_name $(INSTALL_BASE)/$(LIBDIR)/$(LIBNAME).$(MAJOR_VERS).$(SL_EXT) \
 	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL) \
 	-L$(OMNI_BASE)/lib -L$(LOG4TANGO_BASE)/lib \
 	-llog4tango             \
@@ -478,7 +488,7 @@ $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
 # library verioning is not handled the same way under MacOSX
 install_link:
 	d=`pwd`
-	cd $(INSTALL_BASE)/lib; \
+	cd $(INSTALL_BASE)/$(LIBDIR); \
 	rm $(LIBNAME).$(AR_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(AR_EXT) $(LIBNAME).$(AR_EXT); \
 	rm $(LIBNAME).$(SL_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(SL_EXT) $(LIBNAME).$(SL_EXT); \
 	rm $(LIBNAME).$(MAJOR_VERS).$(SL_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) $(LIBNAME).$(MAJOR_VERS).$(SL_EXT); \

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+INSTALL_DIR=/segfs/tango/tmp/ci
+
+for i in $NODE_LABELS
+do
+	echo $i
+	if [ $i = "ubuntu10.04" ]
+	then
+		echo "Ubuntu 10.04 OS"
+		OS_SPEC="linux=1"
+	fi
+	
+	if [ $i = "solaris10" ]
+	then
+		echo "Solaris 10 OS"
+		OS_SPEC="_solaris=1"
+	fi
+	
+	if [ $i = "redhate5" ]
+	then
+		echo "redhate 5 OS"
+		OS_SPEC="linux=1"
+		CPU_BUS="64bits=1"
+	fi
+done
+
+
+if [ $LibType = "shared" ]
+then
+	LIBNAME=libtango.so
+else
+	LIBNAME=libtango.a
+fi
+
+if [ $DebugMode = "debug" ]
+then
+	DEBUG_MODE="debug=1"
+fi
+
+make prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME
