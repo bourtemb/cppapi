@@ -40,7 +40,7 @@ then
 	DEBUG_MODE="debug=1"
 fi
 
-MAKE_CMD="make prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME"
+MAKE_CMD="make prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
 
 cd NextRelease
 echo $MAKE_CMD
