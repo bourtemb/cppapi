@@ -39,4 +39,5 @@ then
 	DEBUG_MODE="debug=1"
 fi
 
+cd NextRelease
 make prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME
