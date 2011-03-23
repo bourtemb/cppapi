@@ -44,4 +44,4 @@ MAKE_CMD="make prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME"
 
 cd NextRelease
 echo $MAKE_CMD
-MAKE_CMD
+$MAKE_CMD
