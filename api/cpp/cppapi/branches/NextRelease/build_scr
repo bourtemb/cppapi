@@ -8,7 +8,8 @@ do
 	if [ $i = "ubuntu10.04" ]
 	then
 		echo "Ubuntu 10.04 OS"
-		OS_SPEC="linux=1"
+		OS_SPEC="linux=1 ubuntu=1"
+		CPU_BUS="64bits=1"
 	fi
 	
 	if [ $i = "solaris10" ]

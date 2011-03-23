@@ -31,7 +31,7 @@ OS=$(shell /csadmin/common/scripts/get_os.share)
 endif
 
 ifdef ubuntu
-OS=ubuntu904
+OS=ubuntu1004
 endif
 
 ##############################################################################
