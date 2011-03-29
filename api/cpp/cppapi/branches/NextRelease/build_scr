@@ -20,6 +20,13 @@ do
 		OS_SPEC="_solaris=1"
 		MAKE_PATH="/usr/local/bin/make"
 	fi
+
+	if [ $i = "Windows_VC9" ]
+	then
+		echo "Windows VC9"
+		OS_SPEC="_solaris=1"
+		MAKE_PATH="/usr/local/bin/make"
+	fi
 	
 	if [ $i = "redhate5" ]
 	then
@@ -30,7 +37,7 @@ do
 	fi
 done
 
-
+echo $LibType
 if [ $LibType = "shared" ]
 then
 	LIBNAME=libtango.so
