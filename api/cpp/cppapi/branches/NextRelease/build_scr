@@ -25,7 +25,7 @@ do
 	then
 		echo "Windows VC9"
 		OS_SPEC="Windows"
-		MAKE_PATH="/cygdrive/c/\"Program Files\"/\"Microsoft Visual Studio 9.0\"/Common7/IDE/devenv"
+		MAKE_PATH=/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE/devenv
 	fi
 	
 	if [ $i = "redhate5" ]
