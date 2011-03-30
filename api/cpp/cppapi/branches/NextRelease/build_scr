@@ -43,8 +43,10 @@ then
 	if [ $LibType = "shared" ]
 	then
 		LIBNAME=tango_dll
+		OUTFILE="devenv_dll"
 	else
 		LIBNAME=tango_static
+		OUTFILE="devenv_static"
 	fi
 else
 	if [ $LibType = "shared" ]
@@ -60,8 +62,10 @@ then
 	if [ $DebugMode = "debug" ]
 	then
 		DEBUG_MODE="debug"
+		OUTFILE="$OUTFILE_debug"
 	else
 		DEBUG_MODE="release"
+		OUTFILE="$OUTFILE_release"
 	fi
 else
 	if [ $DebugMode = "debug" ]
@@ -70,9 +74,11 @@ else
 	fi
 fi
 
+printenv
+
 if [ $OS_SPEC = "Windows" ]
 then
-	MAKE_CMD="$MAKE_PATH /build $DEBUG_MODE /project $LIBNAME winnt_lib.sln"
+	MAKE_CMD="$MAKE_PATH /build $DEBUG_MODE /project $LIBNAME /out $OUTFILE winnt_lib.sln"
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 	echo $PATH
 	cd NextRelease/win32/tango_vc9
