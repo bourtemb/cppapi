@@ -25,7 +25,7 @@ do
 	then
 		echo "Windows VC9"
 		OS_SPEC="Windows"
-		MAKE_PATH=/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE/devenv
+		MAKE_PATH="devenv"
 	fi
 	
 	if [ $i = "redhate5" ]
@@ -73,7 +73,8 @@ fi
 if [ $OS_SPEC = "Windows" ]
 then
 	MAKE_CMD="$MAKE_PATH /build $DEBUG_MODE /project $LIBNAME winnt_lib.sln"
-
+	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
+	echo $PATH
 	cd NextRelease/win32/tango_vc9
 else
 	MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
