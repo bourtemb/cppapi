@@ -43,10 +43,10 @@ then
 	if [ $LibType = "shared" ]
 	then
 		LIBNAME=tango_dll
-		OUTFILE="devenv_dll"
+		OUTFILEBASE="devenv_dll"
 	else
 		LIBNAME=tango_static
-		OUTFILE="devenv_static"
+		OUTFILEBASE="devenv_static"
 	fi
 else
 	if [ $LibType = "shared" ]
@@ -62,10 +62,10 @@ then
 	if [ $DebugMode = "debug" ]
 	then
 		DEBUG_MODE="debug"
-		OUTFILE="$OUTFILE_debug"
+		OUTFILE=$OUTFILEBASE"_debug"
 	else
 		DEBUG_MODE="release"
-		OUTFILE="$OUTFILE_release"
+		OUTFILE=$OUTFILEBASE"_release"
 	fi
 else
 	if [ $DebugMode = "debug" ]
@@ -74,7 +74,7 @@ else
 	fi
 fi
 
-printenv
+/bin/printenv
 
 if [ $OS_SPEC = "Windows" ]
 then
