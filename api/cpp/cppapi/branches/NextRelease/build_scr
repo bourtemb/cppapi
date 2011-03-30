@@ -3,6 +3,10 @@
 #INSTALL_DIR=/segfs/tango/tmp/ci
 INSTALL_DIR=/tmp/ci
 
+#
+# Set some variables according to OS
+#
+
 for i in $NODE_LABELS
 do
 	echo $i
@@ -37,7 +41,10 @@ do
 	fi
 done
 
-echo "Libtype = $LibType"
+#
+# Set library type
+#
+
 if [ $OS_SPEC = "Windows" ]
 then
 	if [ $LIBTYPE = "shared" ]
@@ -57,6 +64,10 @@ else
 	fi
 fi
 
+#
+# Set debug type
+#
+
 if [ $OS_SPEC = "Windows" ]
 then
 	if [ $DEBUGMODE = "debug" ]
@@ -74,7 +85,9 @@ else
 	fi
 fi
 
-/bin/printenv
+#
+# Build library
+#
 
 if [ $OS_SPEC = "Windows" ]
 then
@@ -90,3 +103,14 @@ fi
 
 echo $MAKE_CMD
 $MAKE_CMD
+RET=$?
+
+if [ $OS_SPEC = "Windows" ]
+then
+	/bin/cat $OUTFILE
+fi
+
+if [ $RET != 0 ]
+then
+	exit -1
+fi
