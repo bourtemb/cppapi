@@ -95,7 +95,7 @@ then
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 	echo $PATH
 	cd NextRelease/win32/tango_vc9
-	rm -f $OUTFILE
+	/bin/rm -f $OUTFILE
 else
 	MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
 
