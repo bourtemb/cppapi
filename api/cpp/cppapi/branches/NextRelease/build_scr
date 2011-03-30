@@ -40,7 +40,7 @@ done
 echo "Libtype = $LibType"
 if [ $OS_SPEC = "Windows" ]
 then
-	if [ $LibType = "shared" ]
+	if [ $LIBTYPE = "shared" ]
 	then
 		LIBNAME=tango_dll
 		OUTFILEBASE="devenv_dll"
@@ -49,7 +49,7 @@ then
 		OUTFILEBASE="devenv_static"
 	fi
 else
-	if [ $LibType = "shared" ]
+	if [ $LIBTYPE = "shared" ]
 	then
 		LIBNAME=libtango.so
 	else
@@ -59,7 +59,7 @@ fi
 
 if [ $OS_SPEC = "Windows" ]
 then
-	if [ $DebugMode = "debug" ]
+	if [ $DEBUGMODE = "debug" ]
 	then
 		DEBUG_MODE="debug"
 		OUTFILE=$OUTFILEBASE"_debug"
@@ -68,7 +68,7 @@ then
 		OUTFILE=$OUTFILEBASE"_release"
 	fi
 else
-	if [ $DebugMode = "debug" ]
+	if [ $DEBUGMODE = "debug" ]
 	then
 		DEBUG_MODE="debug=1"
 	fi
