@@ -24,8 +24,8 @@ do
 	if [ $i = "Windows_VC9" ]
 	then
 		echo "Windows VC9"
-		OS_SPEC="_solaris=1"
-		MAKE_PATH="/usr/local/bin/make"
+		OS_SPEC="Windows"
+		MAKE_PATH="/cygdrive/c/"Program Files"/"Microsoft Visual Studio 9.0"/Common7/IDE/devenv"
 	fi
 	
 	if [ $i = "redhate5" ]
@@ -38,20 +38,48 @@ do
 done
 
 echo $LibType
-if [ $LibType = "shared" ]
+if [ $OS_SPEC = "Windows" ]
 then
-	LIBNAME=libtango.so
+	if [ $LibType = "shared" ]
+	then
+		LIBNAME=tango_dll
+	else
+		LIBNAME=tango_static
+	fi
 else
-	LIBNAME=libtango.a
+	if [ $LibType = "shared" ]
+	then
+		LIBNAME=libtango.so
+	else
+		LIBNAME=libtango.a
+	fi
 fi
 
-if [ $DebugMode = "debug" ]
+if [ $OS_SPEC = "Windows" ]
 then
-	DEBUG_MODE="debug=1"
+	if [ $DebugMode = "debug" ]
+	then
+		DEBUG_MODE="debug"
+	else
+		DEBUG_MODE="release"
+	fi
+else
+	if [ $DebugMode = "debug" ]
+	then
+		DEBUG_MODE="debug=1"
+	fi
 fi
 
-MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
+if [ $OS_SPEC = "Windows" ]
+then
+	MAKE_CMD="$MAKE_PATH /build $DEBUG_MODE /project $LIBNAME winnt_lib.sln"
 
-cd NextRelease
+	cd NextRelease/win32/tango_vc9
+else
+	MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $LIBNAME install_include install_link"
+
+	cd NextRelease
+fi
+
 echo $MAKE_CMD
 $MAKE_CMD
