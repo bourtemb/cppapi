@@ -98,7 +98,7 @@ fi
 
 if [ $OS_TYPE = "Windows" ]
 then
-	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME /build $DEBUG_MODE /out $OUTFILE"
+	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME /build /projectconfig $DEBUG_MODE /out $OUTFILE"
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 	echo $PATH
 	export PREFIX=$INSTALL_DIR
