@@ -32,7 +32,7 @@ do
 		OS_TYPE="Windows"
 		OS_SPEC="Windows"
 		MAKE_PATH="devenv"
-		INSTALL_DIR=/cygdrive/c/tango_src/ci
+		INSTALL_DIR=C:\tango_src\ci
 	fi
 	
 	if [ $i = "redhate5" ]
@@ -121,11 +121,11 @@ then
 	if [ $RET = 0 ]
 	then
 		cd ../..
-		mkdir -p $INSTALL_DIR/win32/include
-		mkdir -p $INSTALL_DIR/win32/include/idl
-		cp client/*.h $INSTALL_DIR/win32/include
-		cp server/*.h $INSTALL_DIR/win32/include
-		cp server/idl/*.h $INSTALL_DIR/win32/include/idl
+		/bin/mkdir -p $INSTALL_DIR/win32/include
+		/bin/mkdir -p $INSTALL_DIR/win32/include/idl
+		/bin/cp client/*.h $INSTALL_DIR/win32/include
+		/bin/cp server/*.h $INSTALL_DIR/win32/include
+		/bin/cp server/idl/*.h $INSTALL_DIR/win32/include/idl
 	fi
 fi
 
