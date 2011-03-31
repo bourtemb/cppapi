@@ -79,10 +79,10 @@ if [ $OS_TYPE = "Windows" ]
 then
 	if [ $DEBUGMODE = "debug" ]
 	then
-		DEBUG_MODE="debug"
+		DEBUG_MODE="Debug"
 		OUTFILE=$OUTFILEBASE"_debug"
 	else
-		DEBUG_MODE="release"
+		DEBUG_MODE="Release"
 		OUTFILE=$OUTFILEBASE"_release"
 	fi
 else
@@ -98,7 +98,7 @@ fi
 
 if [ $OS_TYPE = "Windows" ]
 then
-	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME /build /projectconfig $DEBUG_MODE /out $OUTFILE"
+	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME /build $DEBUG_MODE /projectconfig $DEBUG_MODE /out $OUTFILE"
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 	echo $PATH
 	export PREFIX=$INSTALL_DIR
