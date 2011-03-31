@@ -1,5 +1,8 @@
 #!/bin/bash
 
+UX_INSTALL_DIR="/tmp/ci"
+WIN_INSTALL_DIR="C:\tango_src\ci"
+
 #
 # Set some variables according to OS
 #
@@ -14,7 +17,7 @@ do
 		OS_SPEC="linux=1 ubuntu=1"
 		CPU_BUS="64bits=1"
 		MAKE_PATH="make"
-		INSTALL_DIR=/tmp/ci
+		INSTALL_DIR=$UX_INSTALL_DIR
 	fi
 	
 	if [ $i = "solaris10" ]
@@ -23,7 +26,7 @@ do
 		OS_TYPE="solaris"
 		OS_SPEC="_solaris=1"
 		MAKE_PATH="/usr/local/bin/make"
-		INSTALL_DIR=/tmp/ci
+		INSTALL_DIR=$UX_INSTALL_DIR
 	fi
 
 	if [ $i = "Windows_VC9" ]
@@ -32,7 +35,7 @@ do
 		OS_TYPE="Windows"
 		OS_SPEC="Windows"
 		MAKE_PATH="devenv"
-		INSTALL_DIR="C:\tango_src\ci"
+		INSTALL_DIR=$WIN_INSTALL_DIR
 	fi
 	
 	if [ $i = "redhate5" ]
@@ -41,7 +44,7 @@ do
 		OS_SPEC="linux=1"
 		CPU_BUS="64bits=1"
 		MAKE_PATH="make"
-		INSTALL_DIR=/tmp/ci
+		INSTALL_DIR=$UX_INSTALL_DIR
 	fi
 done
 
@@ -95,11 +98,10 @@ fi
 
 if [ $OS_TYPE = "Windows" ]
 then
-	MAKE_CMD="$MAKE_PATH /build $DEBUG_MODE /project $LIBNAME /out $OUTFILE winnt_lib.sln"
+	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME /build $DEBUG_MODE /out $OUTFILE"
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 	echo $PATH
 	export PREFIX=$INSTALL_DIR
-	/bin/printenv
 	cd NextRelease/win32/tango_vc9
 	/bin/rm -f $OUTFILE
 else
