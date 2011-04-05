@@ -109,7 +109,6 @@
 namespace Tango
 {
 
-
 /** 
  *	This class is extends TangoApi.DeviceProxy 
  *	to manage Tango access device.
