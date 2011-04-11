@@ -54,7 +54,7 @@ endif
 
 # check for 64 bits!!!!
 ifdef 64bits
-ifneq ($(OS),ubuntu1004)
+ifeq ($(OS),redhate4)
 BIN_DIR = $(OS)_64
 endif
 endif
