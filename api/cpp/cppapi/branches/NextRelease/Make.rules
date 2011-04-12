@@ -70,7 +70,7 @@ INSTALL_BASE = $(prefix)/$(BIN_DIR)
 INSTALL_BASE_WIN32 = $(prefix)/win32
 else
 #INSTALL_BASE = /segfs/tango/tmp/install/$(BIN_DIR)
-INSTALL_BASE = /home/taurel/tango/install/$(BIN_DIR)
+INSTALL_BASE = /home/lapseg/tango/install/$(BIN_DIR)
 INSTALL_BASE_WIN32 = /segfs/tango/install/win32
 endif
 
