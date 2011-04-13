@@ -7,13 +7,12 @@ WIN_INSTALL_DIR="C:\tango_src\ci"
 # Is clean required ?
 #
 
+CLEAN=""
 if [ $# = 1 ]
 then
 	if [ $1 = "clean" ]
 	then
 		CLEAN="clean"
-	else
-		CLEAN=" "
 	fi
 fi
 
