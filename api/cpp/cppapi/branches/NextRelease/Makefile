@@ -59,7 +59,7 @@ INCLUDE_DIRS = -I$(CLIENT_SRC) \
 	       -I$(SERVER_SRC)	\
 	       -I$(JPG_SRC) \
 	       -I$(OMNI_BASE)/include \
-	       -I$(LOG4TANGO_BASE)/include
+	       -I$(LOG4TANGO_BASE)/include/tango
 
 # -----------------------------------------------------------------
 #
