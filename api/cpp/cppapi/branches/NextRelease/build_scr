@@ -7,7 +7,6 @@ WIN_INSTALL_DIR="C:\tango_src\ci"
 # Is clean required ?
 #
 
-CLEAN=" "
 if [ $# = 1 ]
 then
 	if [ $1 = "clean" ]
@@ -121,11 +120,11 @@ fi
 
 if [ $OS_TYPE = "Windows" ]
 then
-	if [ $CLEAN = "clean" ]
+	if [ -z $CLEAN ]
 	then
-		BUILD="/rebuild"
-	else
 		BUILD="/build"
+	else
+		BUILD="/rebuild"
 	fi
 	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME $BUILD $DEBUG_MODE /projectconfig $DEBUG_MODE /out $OUTFILE"
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
