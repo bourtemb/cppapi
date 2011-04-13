@@ -30,35 +30,6 @@
 //
 // $Revision$
 //
-// $Log$
-// Revision 3.9  2010/09/09 13:45:22  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.8  2009/09/18 09:18:06  taurel
-// - End of attribute serialization implementation?
-//
-// Revision 3.7  2009/09/08 14:22:15  taurel
-// - Manage internal buffer(s) as a cicular buffer pool
-//
-// Revision 3.6  2009/09/02 08:00:54  taurel
-// - Fix Solaris CC warning
-//
-// Revision 3.5  2009/04/20 14:55:58  jlpons
-// Added GPL header, changed memory allocation to C++ fashion.
-//
-// Revision 3.4  2009/04/06 06:54:34  taurel
-// - Fix some typos
-// - Commit in Unix format
-//
-// Revision 3.3  2009/03/26 16:08:44  jlpons
-// Added decoding interface (DevEncoded format)
-//
-// Revision 3.2  2009/03/20 15:15:31  jlpons
-// Fixed inline assembly error on gcc 4 release
-//
-// Revision 3.1  2009/03/19 17:50:29  jlpons
-// Added management of DevEncoded format
-//
 //
 //=============================================================================
 
@@ -252,205 +223,263 @@ void EncodedAttribute::encode_rgb24(unsigned char *rgb24,int width,int height) {
 
 // ----------------------------------------------------------------------------
 
-void EncodedAttribute::decode_rgb32(DeviceAttribute *attr,int *width,int *height,unsigned char **rgb32) {
+void EncodedAttribute::decode_rgb32(DeviceAttribute *attr,int *width,int *height,unsigned char **rgb32)
+{
+ 	if (attr->is_empty())
+	{  
+    	Except::throw_exception((const char *)"API_WrongFormat",
+                            	(const char *)"Attribute contains no data",
+                            	(const char *)"EncodedAttribute::decode_gray8");
+	}
 
-  vector<unsigned char> rawBuff;
-  string local_format;
-  attr->extract(local_format,rawBuff);
+	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	if (encDataSeq.operator->() == NULL)
+	{   
+    	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
+      			(const char*)"Cannot extract, data in DeviceAttribute object is not DevEncoded",
+      			(const char*)"EncodedAttribute::decode_gray8");  
+	}  
 
-  int isRGB  = (strcmp(local_format.c_str() ,RGB24 ) == 0);
-  int isJPEG = (strcmp(local_format.c_str() ,JPEG_RGB ) == 0);
+	string local_format(encDataSeq.in()[0].encoded_format);
 
-  if( !isRGB && !isJPEG ) {
+	int isRGB  = (strcmp(local_format.c_str() ,RGB24 ) == 0);
+	int isJPEG = (strcmp(local_format.c_str() ,JPEG_RGB ) == 0);
 
-    Except::throw_exception((const char *)"API_WrongFormat",
-                            (const char *)"Not a color format",
-                            (const char *)"EncodedAttribute::decode_rgb32");
+	if( !isRGB && !isJPEG )
+	{
+		Except::throw_exception((const char *)"API_WrongFormat",
+                            	(const char *)"Not a color format",
+                            	(const char *)"EncodedAttribute::decode_rgb32");
+	}
 
-  }
+	unsigned char *rawBuff = NULL;
+	int size = -1;
 
-  if( isRGB ) {
+    DevVarEncodedArray &encData = encDataSeq.inout();
+    DevVarCharArray &encBuff = encData[0].encoded_data;
+    size = encBuff.length();
+    rawBuff = encBuff.get_buffer(false);
+
+	if( isRGB )
+	{
     
-    // Get width and height
-    int wh = ((int)rawBuff[0] & 0xFF);
-    int wl = ((int)rawBuff[1] & 0xFF);
-    wh = wh << 8;
-    int iWidth = wh | wl;
+    	// Get width and height
+    	int wh = ((int)rawBuff[0] & 0xFF);
+    	int wl = ((int)rawBuff[1] & 0xFF);
+    	wh = wh << 8;
+    	int iWidth = wh | wl;
 
-    int hh = ((int)rawBuff[2] & 0xFF);
-    int hl = ((int)rawBuff[3] & 0xFF);
-    hh = hh << 8;
-    int iHeight = hh | hl;
+    	int hh = ((int)rawBuff[2] & 0xFF);
+    	int hl = ((int)rawBuff[3] & 0xFF);
+    	hh = hh << 8;
+    	int iHeight = hh | hl;
 
-    unsigned char *data = new unsigned char[iWidth*iHeight*4];
+    	unsigned char *data = new unsigned char[iWidth*iHeight*4];
     
-    // Convert to RGB32
-    int srcIdx = 4;
-    int dstIdx = 0;
-    for(int j=0;j<iHeight;j++) {
-      for(int i=0;i<iWidth;i++) {
-        data[dstIdx++] = rawBuff[srcIdx++]; // R
-        data[dstIdx++] = rawBuff[srcIdx++]; // G
-        data[dstIdx++] = rawBuff[srcIdx++]; // B
-        data[dstIdx++] = 0;
-      }
-    }
+    	// Convert to RGB32
+    	int srcIdx = 4;
+    	int dstIdx = 0;
+    	for(int j=0;j<iHeight;j++)
+		{
+      		for(int i=0;i<iWidth;i++)
+			{
+        		data[dstIdx++] = rawBuff[srcIdx++]; // R
+        		data[dstIdx++] = rawBuff[srcIdx++]; // G
+        		data[dstIdx++] = rawBuff[srcIdx++]; // B
+        		data[dstIdx++] = 0;
+      		}
+    	}
 
-    *rgb32  = data;
-    *width  = iWidth;
-    *height = iHeight;
+		*rgb32  = data;
+		*width  = iWidth;
+		*height = iHeight;
 
-    return;
+		return;
+	}
 
-  }
-
-  if( isJPEG ) {
-
-    int jFormat;
-    int err = jpeg_decode((int)rawBuff.size(),&(rawBuff[0]),width,height,&jFormat,rgb32);
-    if(err) {
-
-	    TangoSys_OMemStream o;
+	if( isJPEG )
+	{
+		int jFormat;
+		int err = jpeg_decode(size,&(rawBuff[0]),width,height,&jFormat,rgb32);
+		if(err)
+		{
+	    	TangoSys_OMemStream o;
 			o << jpeg_get_error_msg(err);
-	    Except::throw_exception((const char *)"API_DecodeErr",
-                              o.str(),
+	    	Except::throw_exception((const char *)"API_DecodeErr",
+                              	o.str(),
                               (const char *)"EncodedAttribute::decode_rgb32");
+		}
 
-    }
+		if( jFormat==JPEG_GRAY_FORMAT )
+		{
+      		// Should not happen
+      		Except::throw_exception((const char *)"API_WrongFormat",
+                              		(const char *)"Not a color format",
+                              		(const char *)"EncodedAttribute::decode_rgb32");
+		}
 
-    if( jFormat==JPEG_GRAY_FORMAT ) {
-      // Should not happen
-      Except::throw_exception((const char *)"API_WrongFormat",
-                              (const char *)"Not a color format",
-                              (const char *)"EncodedAttribute::decode_rgb32");
-    }
-
-    return;
-
-  }
-
+		return;
+	}
 }
 
 // ----------------------------------------------------------------------------
 
-void EncodedAttribute::decode_gray8(DeviceAttribute *attr,int *width,int *height,unsigned char **gray8) {
+void EncodedAttribute::decode_gray8(DeviceAttribute *attr,int *width,int *height,unsigned char **gray8)
+{
 
-  vector<unsigned char> rawBuff;
-  string local_format;
-  attr->extract(local_format,rawBuff);
+ 	if (attr->is_empty())
+	{  
+    	Except::throw_exception((const char *)"API_WrongFormat",
+                            	(const char *)"Attribute contains no data",
+                            	(const char *)"EncodedAttribute::decode_gray8");
+	}
 
-  int isGrey  = (strcmp(local_format.c_str() ,GRAY8 ) == 0);
-  int isJPEG = (strcmp(local_format.c_str() ,JPEG_GRAY8 ) == 0);
+	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	if (encDataSeq.operator->() == NULL)
+	{   
+    	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
+      			(const char*)"Cannot extract, data in DeviceAttribute object is not DevEncoded",
+      			(const char*)"EncodedAttribute::decode_gray8");  
+	}  
 
-  if( !isGrey && !isJPEG ) {
+	string local_format(encDataSeq.in()[0].encoded_format);
 
-    Except::throw_exception((const char *)"API_WrongFormat",
-                            (const char *)"Not a grayscale 8bit format",
-                            (const char *)"EncodedAttribute::decode_gray8");
+	int isGrey  = (strcmp(local_format.c_str() ,GRAY8 ) == 0);
+	int isJPEG = (strcmp(local_format.c_str() ,JPEG_GRAY8 ) == 0);
 
-  }
+	if( !isGrey && !isJPEG )
+	{
+		Except::throw_exception((const char *)"API_WrongFormat",
+                            	(const char *)"Not a grayscale 8bit format",
+                            	(const char *)"EncodedAttribute::decode_gray8");
+	}
 
-  if( isGrey ) {
+	unsigned char *rawBuff = NULL;
+	int size = -1;
+
+    DevVarEncodedArray &encData = encDataSeq.inout();
+    DevVarCharArray &encBuff = encData[0].encoded_data;
+    size = encBuff.length();
+    rawBuff = encBuff.get_buffer(false);
+
+	if( isGrey )
+	{
     
-    // Get width and height
-    int wh = ((int)rawBuff[0] & 0xFF);
-    int wl = ((int)rawBuff[1] & 0xFF);
-    wh = wh << 8;
-    int iWidth = wh | wl;
+    	// Get width and height
+    	int wh = ((int)rawBuff[0] & 0xFF);
+    	int wl = ((int)rawBuff[1] & 0xFF);
+    	wh = wh << 8;
+    	int iWidth = wh | wl;
 
-    int hh = ((int)rawBuff[2] & 0xFF);
-    int hl = ((int)rawBuff[3] & 0xFF);
-    hh = hh << 8;
-    int iHeight = hh | hl;
+    	int hh = ((int)rawBuff[2] & 0xFF);
+    	int hl = ((int)rawBuff[3] & 0xFF);
+    	hh = hh << 8;
+    	int iHeight = hh | hl;
 
-    unsigned char *data = new unsigned char[iWidth*iHeight];
-    memcpy(data,&(rawBuff[4]),iWidth*iHeight);
+    	unsigned char *data = new unsigned char[iWidth*iHeight];
+    	memcpy(data,&(rawBuff[4]),iWidth*iHeight);
 
-    *gray8  = data;
-    *width  = iWidth;
-    *height = iHeight;
+    	*gray8  = data;
+    	*width  = iWidth;
+    	*height = iHeight;
 
-    return;
+    	return;
+	}
 
-  }
-
-  if( isJPEG ) {
-
-    int jFormat;
-    int err = jpeg_decode((int)rawBuff.size(),&(rawBuff[0]),width,height,&jFormat,gray8);
-    if(err) {
-
-	    TangoSys_OMemStream o;
+	if( isJPEG )
+	{
+    	int jFormat;
+    	int err = jpeg_decode(size,&(rawBuff[0]),width,height,&jFormat,gray8);
+    	if(err)
+		{
+	    	TangoSys_OMemStream o;
 			o << jpeg_get_error_msg(err);
-	    Except::throw_exception((const char *)"API_DecodeErr",
-                              o.str(),
-                              (const char *)"EncodedAttribute::decode_gray8");
+	    	Except::throw_exception((const char *)"API_DecodeErr",
+                              		o.str(),
+                              		(const char *)"EncodedAttribute::decode_gray8");
 
-    }
+    	}
 
-    if( jFormat!=JPEG_GRAY_FORMAT ) {
+    	if( jFormat!=JPEG_GRAY_FORMAT )
+		{
       // Should not happen
-      Except::throw_exception((const char *)"API_WrongFormat",
+      		Except::throw_exception((const char *)"API_WrongFormat",
                               (const char *)"Not a grayscale 8bit format",
                               (const char *)"EncodedAttribute::decode_gray8");
-    }
+    	}
 
-    return;
-
-  }
+		return;
+	}
 
 }
 
 // ----------------------------------------------------------------------------
 
-void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *height,unsigned short **gray16) {
+void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *height,unsigned short **gray16)
+{
 
-  vector<unsigned char> rawBuff;
-  string local_format;
-  attr->extract(local_format,rawBuff);
+ 	if (attr->is_empty())
+	{  
+    	Except::throw_exception((const char *)"API_WrongFormat",
+                            	(const char *)"Attribute contains no data",
+                            	(const char *)"EncodedAttribute::decode_gray16");
+	}
 
-  int isGrey  = (strcmp(local_format.c_str() ,GRAY16 ) == 0);
+	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	if (encDataSeq.operator->() == NULL)
+	{   
+    	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
+      			(const char*)"Cannot extract, data in DeviceAttribute object is not DevEncoded",
+      			(const char*)"EncodedAttribute::decode_gray16");  
+	}  
 
-  if( !isGrey ) {
+	string local_format(encDataSeq.in()[0].encoded_format);
 
-    Except::throw_exception((const char *)"API_WrongFormat",
-                            (const char *)"Not a grayscale 16bit format",
-                            (const char *)"EncodedAttribute::decode_gray16");
+	int isGrey  = (strcmp(local_format.c_str() ,GRAY16 ) == 0);
 
-  }
+	if( !isGrey )
+	{
+    	Except::throw_exception((const char *)"API_WrongFormat",
+                            	(const char *)"Not a grayscale 16bit format",
+                            	(const char *)"EncodedAttribute::decode_gray16");
+	}
 
-  if( isGrey ) {
+	unsigned char *rawBuff = NULL;
+
+    DevVarEncodedArray &encData = encDataSeq.inout();
+    DevVarCharArray &encBuff = encData[0].encoded_data;
+    rawBuff = encBuff.get_buffer(false);
+
+	if( isGrey )
+	{
     
-    // Get width and height
-    int wh = ((int)rawBuff[0] & 0xFF);
-    int wl = ((int)rawBuff[1] & 0xFF);
-    wh = wh << 8;
-    int iWidth = wh | wl;
+    	// Get width and height
+    	int wh = ((int)rawBuff[0] & 0xFF);
+    	int wl = ((int)rawBuff[1] & 0xFF);
+    	wh = wh << 8;
+    	int iWidth = wh | wl;
 
-    int hh = ((int)rawBuff[2] & 0xFF);
-    int hl = ((int)rawBuff[3] & 0xFF);
-    hh = hh << 8;
-    int iHeight = hh | hl;
+    	int hh = ((int)rawBuff[2] & 0xFF);
+    	int hl = ((int)rawBuff[3] & 0xFF);
+    	hh = hh << 8;
+    	int iHeight = hh | hl;
 
-    unsigned short *data = new unsigned short[ iWidth*iHeight*2 ];
+    	unsigned short *data = new unsigned short[ iWidth*iHeight*2 ];
 
-    int srcIdx = 4;
-    int dstIdx = 0;
-    for(int j=0;j<iHeight;j++) {
-      for(int i=0;i<iWidth;i++) {
-        unsigned short hh = ((unsigned short)rawBuff[srcIdx++] & 0xFF);
-        unsigned short hl = ((unsigned short)rawBuff[srcIdx++] & 0xFF);
-        data[dstIdx++] = (hh << 8) | hl;
-      }
-    }
+    	int srcIdx = 4;
+    	int dstIdx = 0;
+    	for(int j=0;j<iHeight;j++)
+		{
+      		for(int i=0;i<iWidth;i++)
+			{
+        		unsigned short hh = ((unsigned short)rawBuff[srcIdx++] & 0xFF);
+        		unsigned short hl = ((unsigned short)rawBuff[srcIdx++] & 0xFF);
+        		data[dstIdx++] = (hh << 8) | hl;
+      		}
+    	}
 
-    *gray16 = data;
-    *width  = iWidth;
-    *height = iHeight;
-
-    return;
-
-  }
-
-
+    	*gray16 = data;
+    	*width  = iWidth;
+    	*height = iHeight;
+  	}
 }
