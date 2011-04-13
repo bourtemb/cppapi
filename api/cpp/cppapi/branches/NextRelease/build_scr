@@ -12,6 +12,8 @@ then
 	if [ $1 = "clean" ]
 	then
 		CLEAN="clean"
+	else
+		CLEAN=" "
 	fi
 fi
 
