@@ -1681,7 +1681,7 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 				if (_finite(fl_seq[i]) == 0)
 #else
 	#ifdef __SUNPRO_CC
-				if (isnan(fl_seq[i]) == 0)
+				if (isnan(fl_seq[i]) != 0)
 	#else
 				if (isfinite(fl_seq[i]) == 0)
 	#endif
