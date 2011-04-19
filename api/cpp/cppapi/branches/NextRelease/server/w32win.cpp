@@ -25,12 +25,12 @@ static const char *Vers = "$Revision$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -205,7 +205,7 @@ static LOGFONT user_font;
 //+----------------------------------------------------------------------------
 //
 // method : 		W32Win::W32Win()
-// 
+//
 // description : 	Constructor of the W32Win class. It mainly creates
 //                      the server output main window
 //
@@ -216,9 +216,9 @@ W32Win::W32Win(Util *ptr,int nCmd)
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	hInst = hInstance;
-	
+
 	RegisterTangoClass(hInstance);
-		
+
 	InitInstance(hInstance,nCmd);
 
 	pcb = new CoutBuf(hInstance,nCmd,win,ptr->get_ds_name().c_str());
@@ -335,7 +335,7 @@ void W32Win::InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK TangoWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int wmId, wmEvent;
+	int wmId;
 	PAINTSTRUCT ps;
 	HDC hdc;
 	BOOL bo;
@@ -346,11 +346,10 @@ LRESULT CALLBACK TangoWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 	bool too_large = false;
 	Tango::Util *tg = Tango::Util::instance();
 
-	switch (message) 
+	switch (message)
 	{
 	case WM_COMMAND:
-		wmId    = LOWORD(wParam); 
-		wmEvent = HIWORD(wParam); 
+		wmId    = LOWORD(wParam);
 			// Parse the menu selections:
 		switch (wmId)
 		{
@@ -420,43 +419,43 @@ LRESULT CALLBACK TangoWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			Logging::get_core_logger()->set_level(log4tango::Level::INFO);
 			add_cout_appender(tg);
 			break;
-			
+
 		case ID_DEBUG_LEVEL5:
 			SetDebugLevel(LOG_DEBUG,GetMenu(hWnd),true);
 			tg->set_trace_level(4);
 			Logging::get_core_logger()->set_level(log4tango::Level::DEBUG);
 			add_cout_appender(tg);
 			break;
-			
+
 		case ID_DEV_DEBUG_LEVEL0:
 			SetDebugLevel(LOG_OFF,GetMenu(hWnd),false);
 			all_dev(tg,LOG_OFF);
 			break;
-			
+
 		case ID_DEV_DEBUG_LEVEL1:
 			SetDebugLevel(LOG_FATAL,GetMenu(hWnd),false);
 			all_dev(tg,LOG_FATAL);
 			all_dev_add_cout(tg);
 			break;
-			
+
 		case ID_DEV_DEBUG_LEVEL2:
 			SetDebugLevel(LOG_ERROR,GetMenu(hWnd),false);
 			all_dev(tg,LOG_ERROR);
 			all_dev_add_cout(tg);
 			break;
-			
+
 		case ID_DEV_DEBUG_LEVEL3:
 			SetDebugLevel(LOG_WARN,GetMenu(hWnd),false);
 			all_dev(tg,LOG_WARN);
 			all_dev_add_cout(tg);
 			break;
-			
+
 		case ID_DEV_DEBUG_LEVEL4:
 			SetDebugLevel(LOG_INFO,GetMenu(hWnd),false);
 			all_dev(tg,LOG_INFO);
 			all_dev_add_cout(tg);
 			break;
-			
+
 		case ID_DEV_DEBUG_LEVEL5:
 			SetDebugLevel(LOG_DEBUG,GetMenu(hWnd),false);
 			all_dev(tg,LOG_DEBUG);
@@ -467,7 +466,7 @@ LRESULT CALLBACK TangoWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
-		
+
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		BitBlt(hdc,0,0,Main_Win_width,Main_Win_height,Main_Win_MemDC,0,0,SRCCOPY);
@@ -539,19 +538,19 @@ LRESULT CALLBACK TangoWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			DrawText(hdc,tg->get_main_window_text().c_str(),-1,&re,DT_CENTER);
 
         	log_level = Logging::log4tango_to_tango_level(Logging::get_core_logger()->get_level());
-		SetDebugLevel(log_level,GetMenu(hWnd),true);	
+		SetDebugLevel(log_level,GetMenu(hWnd),true);
 		if (get_all_dev_log_level(tg,log_level) == 0)
 			SetDebugLevel(log_level,GetMenu(hWnd),false);
 		else
 			NoDebugLevel(GetMenu(hWnd),false);
 		EndPaint(hWnd, &ps);
 		break;
-		
+
 	case WM_DESTROY:
 //		tg->get_dserver_device()->DServer::~DServer();
 		PostQuitMessage(0);
 		break;
-		
+
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -570,7 +569,7 @@ void SetDebugLevel(LogLevel level,HMENU menu,bool admin_dev)
 	mii.fMask = MIIM_STATE;
 	mii.fState = 0;
 	mii.cbSize = sizeof(mii);
-	
+
 	if (admin_dev == true)
 	{
 		bo = SetMenuItemInfo(menu,ID_DEBUG_LEVEL0,FALSE,&mii);
@@ -611,28 +610,28 @@ void SetDebugLevel(LogLevel level,HMENU menu,bool admin_dev)
 		else
 			bo = SetMenuItemInfo(menu,ID_DEV_DEBUG_LEVEL1,FALSE,&mii);
 		break;
-	
+
 	case LOG_ERROR:
 		if (admin_dev == true)
 			bo = SetMenuItemInfo(menu,ID_DEBUG_LEVEL2,FALSE,&mii);
 		else
 			bo = SetMenuItemInfo(menu,ID_DEV_DEBUG_LEVEL2,FALSE,&mii);
 		break;
-	
+
 	case LOG_WARN:
 		if (admin_dev == true)
 			bo = SetMenuItemInfo(menu,ID_DEBUG_LEVEL3,FALSE,&mii);
 		else
 			bo = SetMenuItemInfo(menu,ID_DEV_DEBUG_LEVEL3,FALSE,&mii);
 		break;
-	
+
 	case LOG_INFO:
 		if (admin_dev == true)
 			bo = SetMenuItemInfo(menu,ID_DEBUG_LEVEL4,FALSE,&mii);
 		else
 			bo = SetMenuItemInfo(menu,ID_DEV_DEBUG_LEVEL4,FALSE,&mii);
 		break;
-		
+
 	case LOG_DEBUG:
 		if (admin_dev == true)
 			bo = SetMenuItemInfo(menu,ID_DEBUG_LEVEL5,FALSE,&mii);
@@ -654,7 +653,7 @@ void NoDebugLevel(HMENU menu,bool admin_dev)
 	mii.fMask = MIIM_STATE;
 	mii.fState = 0;
 	mii.cbSize = sizeof(mii);
-	
+
 	if (admin_dev == true)
 	{
 		bo = SetMenuItemInfo(menu,ID_DEBUG_LEVEL0,FALSE,&mii);
@@ -719,11 +718,11 @@ LRESULT CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 
 		strcpy(str,"Server release : ");
 		strcat(str,tg->get_server_version().c_str());
-		SetDlgItemText(hDlg,TANGO_ABOUT_TEXT5,(LPCSTR)str);		
+		SetDlgItemText(hDlg,TANGO_ABOUT_TEXT5,(LPCSTR)str);
 		return TRUE;
 
 	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) 
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
 		{
 			EndDialog(hDlg, LOWORD(wParam));
 			return TRUE;
@@ -736,7 +735,7 @@ LRESULT CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 void all_dev(Util *tg,LogLevel level)
 {
 	vector<DeviceImpl *> dev_list;
-	
+
 	dev_list = tg->get_device_list("*");
 	for (unsigned int i = 0;i < dev_list.size();i++)
 	{
@@ -759,16 +758,16 @@ int get_all_dev_log_level(Util *tg,LogLevel &lev)
 	LogLevel ini_log_level = LOG_WARN;
 	LogLevel log_level;
 	int i,j;
-	
+
 	dev_list = tg->get_device_list("*");
 	int nb_dev = dev_list.size();
-	
+
 //
 // If not fully initialized yet
 //
 	if (nb_dev == 0)
 		return -1;
-		
+
 //
 // A loop on each device but forget admin device
 //
@@ -793,14 +792,14 @@ int get_all_dev_log_level(Util *tg,LogLevel &lev)
 				return -1;
 		}
 	}
-	
+
 //
 // If only one device (the admin one)
 //
 
 	if ((i == 1) && (j == 0))
 		return -1;
-		
+
 	lev = ini_log_level;
 	return 0;
 }
@@ -809,7 +808,7 @@ void add_cout_appender(Util *tg)
 {
 	int i,nb_appenders;
 	Tango::DevVarStringArray *log_target;
-	
+
 	try
 	{
 		log_target = Logging::get_logging_target(tg->get_dserver_device()->get_name());
@@ -828,7 +827,7 @@ void add_cout_appender(Util *tg)
 		}
 		delete log_target;
 	}
-	catch(...) {}			
+	catch(...) {}
 }
 
 
@@ -837,7 +836,7 @@ void all_dev_add_cout(Util *tg)
 	vector<DeviceImpl *> dev_list;
 	int j,nb_appenders;
 	Tango::DevVarStringArray *log_target;
-	
+
 	dev_list = tg->get_device_list("*");
 	for (unsigned int i = 0;i < dev_list.size();i++)
 	{
