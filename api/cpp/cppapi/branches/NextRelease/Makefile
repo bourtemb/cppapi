@@ -14,7 +14,7 @@ VERS_OPT = -Wl,-h,
 SL_EXT = so
 else
 CC = /opt/SUNWspro/bin/CC
-AR = $(CC) -xar -o 
+AR = $(CC) -xar -o
 AR_SL = $(CC) -mt -G -lCstd -ldl
 VERS_OPT = -h
 SL_EXT = so
@@ -25,7 +25,7 @@ endif
 ifdef linux
 CC = c++
 AR = ar rv
-AR_SL = $(CC) -fPIC -shared -ldl 
+AR_SL = $(CC) -fPIC -shared -ldl
 VERS_OPT = -Wl,-soname,
 SL_EXT = so
 #
@@ -40,7 +40,7 @@ AR = ar rv
 #AR_SL = $(CC) -isysroot /DevelopAR_SLAR_SLper/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc -fPIC \
         -dynamiclib -flat_namespace --disable-dependency-tracking
 AR_SL  = $(CC) -fPIC \
-        -dynamiclib -flat_namespace --disable-dependency-tracking		  
+        -dynamiclib -flat_namespace --disable-dependency-tracking
 SL_EXT = dylib
 endif
 
@@ -70,7 +70,7 @@ MMFLAG =
 
 ifdef _solaris
 ifdef gcc
-CXXFLAGS = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS 
+CXXFLAGS = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 CXXFLAGS_SL = $(CXXFLAGS) -fPIC
 else
 BASE_CXXFLAGS = -mt -D_POSIX_PTHREAD_SEMANTICS -D_TANGO_LIB \
@@ -130,7 +130,7 @@ AR_EXT = a
 
 IDL_OBJS =	$(OBJS_DIR)/tangoSK.o \
 		$(OBJS_DIR)/tangoDynSK.o
-			
+
 SERVER_OBJS = 	$(OBJS_DIR)/device.o \
 		$(OBJS_DIR)/device_2.o \
 		$(OBJS_DIR)/device_3.o \
@@ -185,7 +185,7 @@ SERVER_OBJS = 	$(OBJS_DIR)/device.o \
 		$(OBJS_DIR)/jpeg_decoder.o \
 		$(OBJS_DIR)/jpeg_encoder.o \
 		$(OBJS_DIR)/jpeg_memory.o
-				
+
 CLIENT_OBJS = 	$(OBJS_DIR)/dbapi_base.o \
 		$(OBJS_DIR)/dbapi_history.o \
 		$(OBJS_DIR)/dbapi_class.o \
@@ -213,7 +213,7 @@ CLIENT_OBJS = 	$(OBJS_DIR)/dbapi_base.o \
 
 IDL_OBJS_SL =	$(OBJS_DIR_SL)/tangoSK.so.o \
 		$(OBJS_DIR_SL)/tangoDynSK.so.o
-						
+
 SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
 		$(OBJS_DIR_SL)/device_2.so.o \
 		$(OBJS_DIR_SL)/device_3.so.o \
@@ -268,7 +268,7 @@ SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
 		$(OBJS_DIR_SL)/jpeg_decoder.so.o \
 		$(OBJS_DIR_SL)/jpeg_encoder.so.o \
 		$(OBJS_DIR_SL)/jpeg_memory.so.o
-	  
+
 CLIENT_OBJS_SL = $(OBJS_DIR_SL)/dbapi_base.so.o \
 		$(OBJS_DIR_SL)/dbapi_history.so.o \
 		$(OBJS_DIR_SL)/dbapi_class.so.o \
@@ -300,7 +300,7 @@ HELPERS_INCLUDE =	DeviceProxyHelper.h \
 			PogoHelper.h \
 			TangoExceptionsHelper.h \
 			Xstring.h
-						
+
 CLIENT_INCLUDE =	apiexcept.h \
 			cbthread.h \
 			lockthread.h \
@@ -310,7 +310,7 @@ CLIENT_INCLUDE =	apiexcept.h \
 			filedatabase.h \
 			group.h \
 			accessproxy.h
-						
+
 SERVER_INCLUDE =	attrdesc.h \
 			attribute.h \
 			attrmanip.h \
@@ -358,7 +358,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			subdev_diag.h \
 			encoded_attribute.h \
 			encoded_format.h
-				
+
 
 #-----------------------------------------------------------------
 
@@ -367,7 +367,7 @@ all:	$(LIBNAME).$(AR_EXT) $(LIBNAME).$(SL_EXT) install_include install_link
 #
 # Rule for archive libary
 #
-	
+
 .SUFFIXES:	.o .cpp
 .cpp.o:
 	$(CC) $(CXXFLAGS) -c $<
@@ -394,7 +394,7 @@ $(OBJS_DIR)/%.o: $(IDL_SRC)/%.cpp
 $(OBJS_DIR)/%.o: $(JPG_SRC)/%.cpp
 	@./cr_dir $(OBJS_DIR)
 	$(CC) $(CXXFLAGS) -c $< -o $(OBJS_DIR)/$*.o
-		
+
 $(OBJS_DIR)/%.o: $(CLIENT_SRC)/%.cpp
 	@./cr_dir $(OBJS_DIR)
 	$(CC) $(CXXFLAGS) -c $< -o $(OBJS_DIR)/$*.o
@@ -412,7 +412,7 @@ $(OBJS_DIR)/jpeg_dct_mmx.o: $(JPG_SRC_MMX)/jpeg_dct_mmx.cpp
 $(OBJS_DIR_SL)/%.so.o: $(SERVER_SRC)/%.cpp
 	@./cr_dir $(OBJS_DIR_SL)
 	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
-	
+
 $(OBJS_DIR_SL)/%.so.o: $(IDL_SRC)/%.cpp
 	@./cr_dir $(OBJS_DIR_SL)
 	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
@@ -420,7 +420,7 @@ $(OBJS_DIR_SL)/%.so.o: $(IDL_SRC)/%.cpp
 $(OBJS_DIR_SL)/%.so.o: $(JPG_SRC)/%.cpp
 	@./cr_dir $(OBJS_DIR_SL)
 	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
-	
+
 $(OBJS_DIR_SL)/%.so.o: $(CLIENT_SRC)/%.cpp
 	@./cr_dir $(OBJS_DIR_SL)
 	$(CC) $(CXXFLAGS_SL) -c $< -o $(OBJS_DIR_SL)/$*.so.o
@@ -433,7 +433,7 @@ $(OBJS_DIR_SL)/jpeg_dct_mmx.so.o: $(JPG_SRC_MMX)/jpeg_dct_mmx.cpp
 	@./cr_dir $(OBJS_DIR)
 	$(CC) $(CXXFLAGS_SL) $(MMFLAG) -c $(JPG_SRC_MMX)/jpeg_dct_mmx.cpp -o $(OBJS_DIR_SL)/jpeg_dct_mmx.so.o
 
-					
+
 #-----------------------------------------------------------------
 #
 #	The archive libs
@@ -487,7 +487,7 @@ install_link:
 	rm $(LIBNAME).$(MAJOR_VERS).$(SL_EXT); ln -s $(LIBNAME).$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).$(SL_EXT) $(LIBNAME).$(MAJOR_VERS).$(SL_EXT); \
 	cd $d
 endif
-	
+
 install_include:
 	@./cr_dir $(INSTALL_BASE)/include
 	@./cr_dir $(INSTALL_BASE)/include/idl
@@ -522,9 +522,9 @@ install_win32:
 	cd client/helpers; cp $(HELPERS_INCLUDE) $(INSTALL_BASE_WIN32)/include/vc8; cd ../..
 	cd client/helpers; cp $(HELPERS_INCLUDE) $(INSTALL_BASE_WIN32)/include/vc9; cd ../..
 	cd client; cp $(CLIENT_INCLUDE) $(INSTALL_BASE_WIN32)/include/vc8; cd ..
-	cd client; cp $(CLIENT_INCLUDE) $(INSTALL_BASE_WIN32)/include/vc9; cd ..	
+	cd client; cp $(CLIENT_INCLUDE) $(INSTALL_BASE_WIN32)/include/vc9; cd ..
 
-	
+
 #	@./cr_dir $(INSTALL_BASE_WIN32)/lib
 #	cp win32/winnt_lib/tango_static/lib/tangod.$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).lib $(INSTALL_BASE_WIN32)/lib
 #	cp win32/winnt_lib/tango_static/lib/tangod.$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).pdb $(INSTALL_BASE_WIN32)/lib
@@ -547,7 +547,7 @@ install_win32:
 #	rm tango.lib; ln -s tango.$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS).lib tango.lib;	\
 #	cd $d
 
-	
+
 doc:
 	cd server; $(GEN_DOC); cd ..
 
@@ -578,4 +578,4 @@ clean_all:
 	rm -f winnt_lib/tango_dll/Release/*.dll
 	rm -f winnt_lib/tango_dll/Release/*.exp
 	rm -f winnt_lib/tango_dll/Release/*.map
-	
+
