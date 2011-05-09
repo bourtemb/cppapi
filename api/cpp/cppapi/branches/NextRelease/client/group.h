@@ -250,65 +250,9 @@ public:
   //- dtor
   virtual ~GroupCmdReply ();
   //- data accessor (may throw Tango::DevFailed)
-  /*const*/ DeviceData& get_data (void);
+  DeviceData& get_data (void);
   //- template data exctractor method
-  template <typename T> bool operator >> (T& dest) 
-  {
-    bool result = true;
-    if (GroupReply::group_element_enabled_m == false) 
-    {
-      if (exception_enabled) 
-      {
-        Tango::DevErrorList errors(1);
-		    errors.length(1);
-		    errors[0].severity = Tango::ERR;
-		    errors[0].desc = CORBA::string_dup("no available data");
-		    errors[0].reason = CORBA::string_dup("no data - group member is disabled");
-		    errors[0].origin = CORBA::string_dup("GroupCmdReply::operator>>");
-        DevFailed df(errors);
-        throw df;
-      }
-      result = false;
-    }
-    else if (GroupReply::has_failed_m == true) 
-    {
-      if (exception_enabled)
-        throw GroupReply::exception_m;
-      result = false;
-    }
-    else 
-    {
-      std::bitset<DeviceData::numFlags> bs;
-      data_m.exceptions(exception_enabled ? bs.set() : bs.reset()); 
-      try 
-      { 
-        result = data_m >> dest;
-      }
-      catch (const DevFailed& df) 
-      {
-        GroupReply::exception_m = df;
-        if (exception_enabled) 
-          throw GroupReply::exception_m;
-        result = false;
-      }
-      catch (...) {
-        if (exception_enabled) 
-        {
-          Tango::DevErrorList errors(1);
-		      errors.length(1);
-		      errors[0].severity = Tango::ERR;
-		      errors[0].desc = CORBA::string_dup("unknown exception caught");
-		      errors[0].reason = CORBA::string_dup("an error occured while trying to extract data");
-		      errors[0].origin = CORBA::string_dup("GroupCmdReply::operator>>");
-          DevFailed df(errors);
-          GroupReply::exception_m = df;
-          throw GroupReply::exception_m;
-        }
-        result = false;
-      }
-    }
-    return result;
-  }
+  template <typename T> bool operator>> (T& dest);
   //- data exctractor method for DevVarLongStringArray
   bool extract (std::vector<DevLong>& vl, std::vector<std::string>& vs);
   //- data exctractor method for DevVarDoubleStringArray
@@ -344,67 +288,9 @@ public:
   //- dtor
   virtual ~GroupAttrReply ();
   //- data accessor (may throw Tango::DevFailed)
-  /*const*/ DeviceAttribute& get_data (void);
+  DeviceAttribute& get_data (void);
   //- template data exctractor method
-  template <typename T> bool operator >> (T& dest) 
-  {
-    bool result = true;
-    if (GroupReply::group_element_enabled_m == false) 
-    {
-      if (exception_enabled) 
-      {
-        Tango::DevErrorList errors(1);
-		    errors.length(1);
-		    errors[0].severity = Tango::ERR;
-		    errors[0].desc = CORBA::string_dup("no available data");
-		    errors[0].reason = CORBA::string_dup("no data - group member is disabled");
-		    errors[0].origin = CORBA::string_dup("GroupAttrReply::operator>>");
-        DevFailed df(errors);
-        throw df;
-      }
-      result = false;  
-    }
-    else if (GroupReply::has_failed_m == true) 
-    {
-      if (exception_enabled)
-        throw GroupReply::exception_m;
-      result = false;
-    }
-    else 
-    {
-      std::bitset<DeviceAttribute::numFlags> bs;
-      data_m.exceptions(exception_enabled ? bs.set() : bs.reset()); 
-      bool result;
-      try 
-      {
-        result = data_m >> dest;
-      }
-      catch (const DevFailed& df) 
-      {
-        GroupReply::exception_m = df;
-        if (exception_enabled) 
-          throw GroupReply::exception_m;
-        result = false;
-      }
-      catch (...) 
-      {
-        if (exception_enabled) 
-        {
-          Tango::DevErrorList errors(1);
-		      errors.length(1);
-		      errors[0].severity = Tango::ERR;
-		      errors[0].desc = CORBA::string_dup("unknown exception caught");
-		      errors[0].reason = CORBA::string_dup("an error occured while trying to extract data");
-		      errors[0].origin = CORBA::string_dup("GroupAttrReply::operator>>");
-          DevFailed df(errors);
-          GroupReply::exception_m = df;
-          throw GroupReply::exception_m;
-        }
-        result = false;
-      }
-    }
-    return result;
-  }
+  template <typename T> bool operator>> (T& dest);
 private:
   //- data: valid if GroupReply::has_failed_m set to false and 
   //- GroupReply::enabled_m set to true
@@ -725,61 +611,17 @@ public:
   //-
   virtual void set_timeout_millis (int timeout_ms);
   //-
-  GroupCmdReplyList command_inout (const std::string& c, bool forward = true);
+  virtual GroupCmdReplyList command_inout (const std::string& c, bool forward = true);
   //-
-  GroupCmdReplyList command_inout (const std::string& c, const DeviceData& d, bool forward = true);
+  virtual GroupCmdReplyList command_inout (const std::string& c, const DeviceData& d, bool forward = true);
   //-
-  template<typename T> GroupCmdReplyList command_inout (const std::string& c, /*const*/ std::vector<T>& d, bool forward = true)
-  {
-    long id = command_inout_asynch(c, d, false, forward);
-    return command_inout_reply(id);
-  }
+  virtual GroupCmdReplyList command_inout (const std::vector<DeviceData>& d, const std::string& c, bool forward = true);
   //-
   virtual long command_inout_asynch (const std::string& c, bool forget = false, bool forward = true, long reserved = -1);
   //-
   virtual long command_inout_asynch (const std::string& c, const DeviceData& d, bool forget = false, bool forward = true, long reserved = -1);
   //-
-  template<typename T> long command_inout_asynch (const std::string& c, /*const*/ std::vector<T>& d, bool forget = false, bool forward = true, long reserved = -1)
-  {  
-    #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
-      omni_mutex_lock guard(elements_mutex);
-    #endif
-    long gsize = get_size_i(forward);
-    if (gsize != static_cast<long>(d.size())) {
-      TangoSys_OMemStream desc;
-		  desc << "the size of the input argument list must equal the number of device in the group" 
-           << " [expected:" 
-           << gsize 
-           << " - got:" 
-           << d.size()
-           << "]"
-           << ends;
-      ApiDataExcept::throw_exception((const char*)"API_MethodArgument", 
-                                     (const char*)desc.str().c_str(), 
-                                     (const char*)"Group::command_inout_asynch");
-    }
-    if (reserved == -1) {
-      reserved = next_req_id();
-    }
-    Tango::DeviceData dd;
-    for (unsigned int i = 0, j = 0; i < elements.size(); i++) {
-      if (elements[i]->is_device()) {
-        dd << d[j++];
-        elements[i]->command_inout_asynch(c, dd, forget, false, reserved);
-      }
-      else if (forward) {
-        Tango::Group * g = reinterpret_cast<Tango::Group*>(elements[i]);
-        long gsize = g->get_size_i(forward);
-        std::vector<T> sub_d(d.begin() + j,  d.begin() + j + gsize);
-        reinterpret_cast<Tango::Group*>(elements[i])->command_inout_asynch(c, sub_d, forget, false, reserved);
-        j += gsize;
-      }
-    }
-    if (forget == false) {
-      push_async_request(reserved, forward);
-    }
-    return reserved;
-  }
+  virtual long command_inout_asynch (const std::vector<DeviceData>& d, const std::string& c, bool forget = false, bool forward = true, long reserved = -1);
   //-
   virtual GroupCmdReplyList command_inout_reply (long req_id, long timeout_ms = 0);
   //-
@@ -797,58 +639,27 @@ public:
   //-
   virtual GroupReplyList write_attribute (const DeviceAttribute& d, bool forward = true);
   //-
-  template<typename T> GroupReplyList write_attribute (const std::string& n, /*const*/ std::vector<T>& d, bool forward = true)
-  {
-    long id = write_attribute_asynch(n, d, forward);
-    return write_attribute_reply(id);
-  }
+  virtual GroupReplyList write_attribute (const std::vector<DeviceAttribute>& d, bool forward = true);
   //-
   virtual long write_attribute_asynch (const DeviceAttribute& d, bool forward = true, long reserved = -1);
   //-
-  template<typename T> long write_attribute_asynch (const std::string& a, /*const*/ std::vector<T>& d, bool forward = true, long reserved = -1)
-  {
-    #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
-     omni_mutex_lock guard(elements_mutex);
-    #endif
-    GroupReplyList rl;
-    long gsize = get_size_i(forward);
-    if (gsize != static_cast<long>(d.size())) {
-      TangoSys_OMemStream desc;
-		  desc << "the size of the input argument list must equal the number of device in the group" 
-           << " [expected:" 
-           << gsize 
-           << " - got:" 
-           << d.size()
-           << "]"
-           << ends;
-      ApiDataExcept::throw_exception((const char*)"API_MethodArgument", 
-                                     (const char*)desc.str().c_str(), 
-                                     (const char*)"Group::write_attribute_asynch");
-    }
-    if (reserved == -1) {
-      reserved = next_req_id();
-    }
-    DeviceAttribute da(const_cast<string&>(a),  0.);
-    for (unsigned int i = 0, j = 0; i < elements.size(); i++) {
-      if (elements[i]->is_device()) {
-       	da << d[j++];
-        elements[i]->write_attribute_asynch(da, false, reserved);
-      }
-      else if (forward) {
-        Tango::Group * g = reinterpret_cast<Tango::Group*>(elements[i]);
-        long gsize = g->get_size_i(forward);
-        std::vector<T> sub_d(d.begin() + j,  d.begin() + j + gsize);
-        reinterpret_cast<Tango::Group*>(elements[i])->write_attribute_asynch(a, sub_d, false, reserved);
-        j += gsize;
-      }
-    }
-    push_async_request(reserved, forward);
-    return reserved;
-  }
+  virtual long write_attribute_asynch (const std::vector<DeviceAttribute>& d, bool forward = true, long reserved = -1);
   //-
   virtual GroupReplyList write_attribute_reply (long req_id, long timeout_ms = 0);
   //-
+  template<typename T> 
+    GroupCmdReplyList command_inout (const std::string& c, /*const*/ std::vector<T>& d, bool forward = true);
+  //-
+  template<typename T> 
+    long command_inout_asynch (const std::string& c, /*const*/ std::vector<T>& d, bool forget = false, bool forward = true, long reserved = -1);
+  //-
+  template<typename T> 
+    GroupReplyList write_attribute (const std::string& n, /*const*/ std::vector<T>& d, bool forward = true);
+  //-
+  template<typename T> 
+    long write_attribute_asynch (const std::string& a, /*const*/ std::vector<T>& d, bool forward = true, long reserved = -1);
 
+  //-
   //- Misc.
   //---------------------------------------------
   //-
@@ -985,6 +796,259 @@ private:
   GroupDeviceElement (const GroupDeviceElement&);
   GroupDeviceElement& operator=(const GroupDeviceElement&);
 };
+
+//=============================================================================
+// GroupCmdReply::operator>> template impl.
+//=============================================================================
+template <typename T> 
+bool GroupCmdReply::operator>> (T& dest) 
+{
+  bool result = true;
+  if (GroupReply::group_element_enabled_m == false) 
+  {
+    if (exception_enabled) 
+    {
+      Tango::DevErrorList errors(1);
+      errors.length(1);
+      errors[0].severity = Tango::ERR;
+      errors[0].desc = CORBA::string_dup("no available data");
+      errors[0].reason = CORBA::string_dup("no data - group member is disabled");
+      errors[0].origin = CORBA::string_dup("GroupCmdReply::operator>>");
+      DevFailed df(errors);
+      throw df;
+    }
+    result = false;
+  }
+  else if (GroupReply::has_failed_m == true) 
+  {
+    if (exception_enabled)
+      throw GroupReply::exception_m;
+    result = false;
+  }
+  else 
+  {
+    std::bitset<DeviceData::numFlags> bs;
+    data_m.exceptions(exception_enabled ? bs.set() : bs.reset()); 
+    try 
+    { 
+      result = data_m >> dest;
+    }
+    catch (const DevFailed& df) 
+    {
+      GroupReply::exception_m = df;
+      if (exception_enabled) 
+        throw GroupReply::exception_m;
+      result = false;
+    }
+    catch (...) {
+      if (exception_enabled) 
+      {
+        Tango::DevErrorList errors(1);
+        errors.length(1);
+        errors[0].severity = Tango::ERR;
+        errors[0].desc = CORBA::string_dup("unknown exception caught");
+        errors[0].reason = CORBA::string_dup("an error occured while trying to extract data");
+        errors[0].origin = CORBA::string_dup("GroupCmdReply::operator>>");
+        DevFailed df(errors);
+        GroupReply::exception_m = df;
+        throw GroupReply::exception_m;
+      }
+      result = false;
+    }
+  }
+  return result;
+}
+
+//=============================================================================
+// GroupAttrReply::operator>> template impl.
+//=============================================================================
+template <typename T> 
+bool GroupAttrReply::operator>> (T& dest) 
+{
+  bool result = true;
+  if (GroupReply::group_element_enabled_m == false) 
+  {
+    if (exception_enabled) 
+    {
+      Tango::DevErrorList errors(1);
+	    errors.length(1);
+	    errors[0].severity = Tango::ERR;
+	    errors[0].desc = CORBA::string_dup("no available data");
+	    errors[0].reason = CORBA::string_dup("no data - group member is disabled");
+	    errors[0].origin = CORBA::string_dup("GroupAttrReply::operator>>");
+      DevFailed df(errors);
+      throw df;
+    }
+    result = false;  
+  }
+  else if (GroupReply::has_failed_m == true) 
+  {
+    if (exception_enabled)
+      throw GroupReply::exception_m;
+    result = false;
+  }
+  else 
+  {
+    std::bitset<DeviceAttribute::numFlags> bs;
+    data_m.exceptions(exception_enabled ? bs.set() : bs.reset()); 
+    bool result;
+    try 
+    {
+      result = data_m >> dest;
+    }
+    catch (const DevFailed& df) 
+    {
+      GroupReply::exception_m = df;
+      if (exception_enabled) 
+        throw GroupReply::exception_m;
+      result = false;
+    }
+    catch (...) 
+    {
+      if (exception_enabled) 
+      {
+        Tango::DevErrorList errors(1);
+	      errors.length(1);
+	      errors[0].severity = Tango::ERR;
+	      errors[0].desc = CORBA::string_dup("unknown exception caught");
+	      errors[0].reason = CORBA::string_dup("an error occured while trying to extract data");
+	      errors[0].origin = CORBA::string_dup("GroupAttrReply::operator>>");
+        DevFailed df(errors);
+        GroupReply::exception_m = df;
+        throw GroupReply::exception_m;
+      }
+      result = false;
+    }
+  }
+  return result;
+}
+
+//=============================================================================
+// Group::command_inout template impl.
+//=============================================================================
+template<typename T> 
+GroupCmdReplyList Group::command_inout (const std::string& c, /*const*/ std::vector<T>& d, bool forward)
+{
+  long id = command_inout_asynch<T>(c, d, false, forward);
+  return command_inout_reply(id);
+}
+
+//=============================================================================
+// Group::command_inout_asynch template impl.
+//=============================================================================
+template<typename T> 
+long Group::command_inout_asynch (const std::string& c, /*const*/ std::vector<T>& d, bool forget, bool forward, long reserved)
+{  
+  #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
+    omni_mutex_lock guard(elements_mutex);
+  #endif
+
+  long gsize = get_size_i(forward);
+  if (gsize != static_cast<long>(d.size())) 
+  {
+    TangoSys_OMemStream desc;
+	  desc << "the size of the input argument list must equal the number of device in the group" 
+         << " [expected:" 
+         << gsize 
+         << " - got:" 
+         << d.size()
+         << "]"
+         << ends;
+    ApiDataExcept::throw_exception((const char*)"API_MethodArgument", 
+                                   (const char*)desc.str().c_str(), 
+                                   (const char*)"Group::command_inout_asynch");
+  }
+
+  if (reserved == -1)
+    reserved = next_req_id();
+  
+  for (unsigned int i = 0, j = 0; i < elements.size(); i++) 
+  {
+    if (elements[i]->is_device()) 
+    {
+      Tango::DeviceData dd;
+      dd << d[j++];
+      elements[i]->command_inout_asynch(c, dd, forget, false, reserved);
+    }
+    else if (forward) 
+    {
+      Tango::Group * g = reinterpret_cast<Tango::Group*>(elements[i]);
+      long gsize = g->get_size_i(forward);
+      std::vector<T> sub_d(d.begin() + j,  d.begin() + j + gsize);
+      reinterpret_cast<Tango::Group*>(elements[i])->command_inout_asynch<T>(c, sub_d, forget, forward, reserved);
+      j += gsize;
+    }
+  }
+
+  if (forget == false) {
+    push_async_request(reserved, forward);
+  }
+
+  return reserved;
+}
+
+//=============================================================================
+// Group::write_attribute_asynch template impl.
+//=============================================================================
+template<typename T> 
+GroupReplyList Group::write_attribute (const std::string& a, /*const*/ std::vector<T>& d, bool forward)
+{
+  long id = write_attribute_asynch<T>(a, d, forward);
+  return write_attribute_reply(id);
+}
+
+//=============================================================================
+// Group::write_attribute_asynch template impl.
+//=============================================================================
+template<typename T> 
+long Group::write_attribute_asynch (const std::string& a, /*const*/ std::vector<T>& d, bool forward, long reserved)
+{
+  #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
+   omni_mutex_lock guard(elements_mutex);
+  #endif
+
+  GroupReplyList rl;
+  long gsize = get_size_i(forward);
+  if (gsize != static_cast<long>(d.size())) 
+  {
+    TangoSys_OMemStream desc;
+	  desc << "the size of the input argument list must equal the number of device in the group" 
+         << " [expected:" 
+         << gsize 
+         << " - got:" 
+         << d.size()
+         << "]"
+         << ends;
+    ApiDataExcept::throw_exception((const char*)"API_MethodArgument", 
+                                   (const char*)desc.str().c_str(), 
+                                   (const char*)"Group::write_attribute_asynch");
+  }
+
+  if (reserved == -1)
+    reserved = next_req_id();
+
+  DeviceAttribute da;
+  da.name = a;
+
+  for (unsigned int i = 0, j = 0; i < elements.size(); i++) 
+  {
+    if (elements[i]->is_device()) 
+    {
+      da << d[j++];
+      elements[i]->write_attribute_asynch(da, false, reserved);
+    }
+    else if (forward) 
+    {
+      Tango::Group * g = reinterpret_cast<Tango::Group*>(elements[i]);
+      long gsize = g->get_size_i(forward);
+      std::vector<T> sub_d(d.begin() + j,  d.begin() + j + gsize);
+      reinterpret_cast<Tango::Group*>(elements[i])->write_attribute_asynch(a, sub_d, forward, reserved);
+      j += gsize;
+    }
+  }
+  push_async_request(reserved, forward);
+  return reserved;
+}
 
 } // namespace Tango
 

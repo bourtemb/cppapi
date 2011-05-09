@@ -1157,6 +1157,12 @@ GroupCmdReplyList Group::command_inout (const std::string& c, const DeviceData& 
   return command_inout_reply(id);
 }
 //-----------------------------------------------------------------------------
+GroupCmdReplyList Group::command_inout (const std::vector<DeviceData>& d, const std::string& c, bool fwd)
+{
+  long id = command_inout_asynch(d, c, false, fwd);
+  return command_inout_reply(id);
+}
+//-----------------------------------------------------------------------------
 long Group::command_inout_asynch (const std::string& c, bool fgt, bool fwd, long id)
 {
 #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
@@ -1196,6 +1202,53 @@ long Group::command_inout_asynch (const std::string& c, const DeviceData& d, boo
   if (fgt == false) {
     push_async_request(id, fwd);
   }
+  return id;
+}
+//-----------------------------------------------------------------------------
+long Group::command_inout_asynch (const std::vector<DeviceData>& d, const std::string& c, bool fgt, bool fwd, long id)
+{  
+  #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
+    omni_mutex_lock guard(elements_mutex);
+  #endif
+
+  long gsize = get_size_i(fwd);
+  if (gsize != static_cast<long>(d.size())) 
+  {
+    TangoSys_OMemStream desc;
+	  desc << "the size of the input argument list must equal the number of device in the group" 
+         << " [expected:" 
+         << gsize 
+         << " - got:" 
+         << d.size()
+         << "]"
+         << ends;
+    ApiDataExcept::throw_exception((const char*)"API_MethodArgument", 
+                                   (const char*)desc.str().c_str(), 
+                                   (const char*)"Group::command_inout_asynch");
+  }
+
+  if (id == -1)
+    id = next_req_id();
+  
+  for (unsigned int i = 0, j = 0; i < elements.size(); i++) 
+  {
+    if (elements[i]->is_device()) 
+    {
+      elements[i]->command_inout_asynch(c, d[j++], fgt, false, id);
+    }
+    else if (fwd) 
+    {
+      Tango::Group * g = reinterpret_cast<Tango::Group*>(elements[i]);
+      gsize = g->get_size_i(fwd);
+      std::vector<Tango::DeviceData> sub_d(d.begin() + j,  d.begin() + j + gsize);
+      g->command_inout_asynch(sub_d, c, fgt, fwd, id);
+      j += gsize;
+    }
+  }
+
+  if (fgt == false)
+    push_async_request(id, fwd);
+
   return id;
 }
 //-----------------------------------------------------------------------------
@@ -1360,6 +1413,12 @@ GroupReplyList Group::write_attribute (const DeviceAttribute& d, bool fwd)
   return write_attribute_reply(id);
 } 
 //-----------------------------------------------------------------------------
+GroupReplyList Group::write_attribute (const std::vector<DeviceAttribute>& d, bool fwd)
+{
+  long id = write_attribute_asynch(d, fwd);
+  return write_attribute_reply(id);
+} 
+//-----------------------------------------------------------------------------
 long Group::write_attribute_asynch (const DeviceAttribute& d, bool fwd, long id)
 {
 #ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
@@ -1373,6 +1432,45 @@ long Group::write_attribute_asynch (const DeviceAttribute& d, bool fwd, long id)
   for (; it != end; ++it) {
     if ((*it)->is_device() || fwd) {
       id = (*it)->write_attribute_asynch(d, fwd, id);
+    }
+  }
+  push_async_request(id, fwd);
+  return id;
+}
+//-----------------------------------------------------------------------------
+long Group::write_attribute_asynch (const std::vector<DeviceAttribute>& d, bool fwd, long id)
+{
+#ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
+  omni_mutex_lock guard(elements_mutex);
+#endif
+  GroupReplyList rl;
+  long gsize = get_size_i(fwd);
+  if (gsize != static_cast<long>(d.size())) {
+    TangoSys_OMemStream desc;
+	  desc << "the size of the input argument list must equal the number of device in the group" 
+         << " [expected:" 
+         << gsize 
+         << " - got:" 
+         << d.size()
+         << "]"
+         << ends;
+    ApiDataExcept::throw_exception((const char*)"API_MethodArgument", 
+                                   (const char*)desc.str().c_str(), 
+                                   (const char*)"Group::write_attribute_asynch");
+  }
+  if (id == -1) {
+    id = next_req_id();
+  }
+  for (unsigned int i = 0, j = 0; i < elements.size(); i++) {
+    if (elements[i]->is_device()) {
+      elements[i]->write_attribute_asynch(d[j++], false, id);
+    }
+    else if (fwd) {
+      Tango::Group * g = reinterpret_cast<Tango::Group*>(elements[i]);
+      long gsize = g->get_size_i(fwd);
+      std::vector<DeviceAttribute> sub_d(d.begin() + j,  d.begin() + j + gsize);
+      reinterpret_cast<Tango::Group*>(elements[i])->write_attribute_asynch(sub_d, fwd, id);
+      j += gsize;
     }
   }
   push_async_request(id, fwd);
