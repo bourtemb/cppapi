@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="log4tango.lib omniorb414_rt.lib omnidynamic414_rt.lib omnithread34_rt.lib COS414_rt.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="log4tango.lib omniorb415_rt.lib omnidynamic415_rt.lib omnithread34_rt.lib COS415_rt.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(PREFIX)\win32\lib\vc9_dll\tango727.dll"
 				Version="7.2.7"
 				LinkIncremental="1"
@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="log4tangod.lib omniORB414_rtd.lib omniDynamic414_rtd.lib COS414_rtd.lib omnithread34_rtd.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="log4tangod.lib omniORB415_rtd.lib omniDynamic415_rtd.lib COS415_rtd.lib omnithread34_rtd.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
 				ShowProgress="2"
 				OutputFile="$(PREFIX)\win32\lib\vc9_dll\tango727d.dll"
 				Version="7.2.7"
@@ -1995,11 +1995,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\tango.h"
+				RelativePath="..\..\..\server\idl\tango.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\idl\tango.h"
+				RelativePath="..\..\..\server\tango.h"
 				>
 			</File>
 			<File
