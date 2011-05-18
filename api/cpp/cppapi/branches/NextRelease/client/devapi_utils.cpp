@@ -27,44 +27,9 @@ static const char *RcsId = "$Id$";
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
-// log			- $Log$
-// log			- Revision 3.9  2010/09/09 13:44:06  taurel
-// log			- - Add year 2010 in Copyright notice
-// log			-
-// log			- Revision 3.8  2009/04/07 15:22:50  taurel
-// log			- - Add some equality operators
-// log			- - Fix some warnings when compiled using gcc 4.3 on 64 bits computer
-// log			-
-// log			- Revision 3.7  2009/03/18 12:16:56  taurel
-// log			- - Fix warnings reported when compiled with the option -Wall
-// log			-
-// log			- Revision 3.6  2009/03/13 09:32:27  taurel
-// log			- - Small changes to fix Windows VC8 warnings in Warning level 3
-// log			-
-// log			- Revision 3.5  2009/01/21 12:45:15  taurel
-// log			- - Change CopyRights for 2009
-// log			-
-// log			- Revision 3.4  2008/10/06 15:02:16  taurel
-// log			- - Changed the licensing info from GPL to LGPL
-// log			-
-// log			- Revision 3.3  2008/10/02 16:09:25  taurel
-// log			- - Add some licensing information in each files...
-// log			-
-// log			- Revision 3.2  2008/09/23 14:38:28  taurel
-// log			- - Commit after the end of DevEncoded data type implementation
-// log			- - The new test suite is also now running fine
-// log			-
-// log			- Revision 3.1  2008/05/20 12:42:30  taurel
-// log			- - Commit after merge with release 7 branch
-// log			-
-// log			- Revision 1.1.2.2  2007/11/20 14:39:12  taurel
-// log			- - Add the new way to retrieve command history from polling buffer
-// log			- implemented in Tango V7
-// log			-
-// log			- Revision 1.1.2.1  2007/11/16 14:10:59  taurel
-// log			- - Added a new IDL interface (Device_4)
-// log			- - Added a new way to get attribute history from polling buffer (must faster)
-// log			-
+// $Revision$
+//
+//
 
 #if HAVE_CONFIG_H
 #include <ac_config.h>
@@ -541,6 +506,7 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 	const Tango::DevVarStateArray *tmp_state;
 	const Tango::DevVarLongStringArray *tmp_lg_str;
 	const Tango::DevVarDoubleStringArray *tmp_db_str;
+	const Tango::DevVarEncodedArray *tmp_enc;
 
 	unsigned int seq_size;
 	unsigned int seq_size_str;
@@ -627,6 +593,11 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 		hist_4->value >>= tmp_db_str;
 		seq_size_str = tmp_db_str->svalue.length();
 		seq_size_num = tmp_db_str->dvalue.length();
+		break;
+		
+		case DEV_ENCODED:
+		hist_4->value >>= tmp_enc;
+		seq_size = tmp_enc->length();
 		break;
 	}
 
@@ -911,6 +882,23 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 				(*ddh)[loop].any = any_ptr;
 			}
 			break;
+			
+			case Tango::DEV_ENCODED:
+			{
+/*				Tango::DevEncoded &tmp_data = (*tmp_enc)[base - 1];
+
+				Tango::DevEncoded EncSeq;
+				EncSeq.encoded_format = CORBA::string_dup(tmp_data.encoded_format);
+				unsigned int buffer_length = tmp_data.encoded_data.length();
+				EncSeq.encoded_data.length(buffer_length);
+				for (unsigned int ll = 0;ll << buffer_length;++ll)
+					EncSeq.encoded_data[ll] = tmp_data.encoded_data[ll];*/
+									
+				CORBA::Any *any_ptr = new CORBA::Any();
+				(*any_ptr) <<= (*tmp_enc)[base - 1];
+				(*ddh)[loop].any = any_ptr;
+			}
+			break;
 		}
 
 		if ((hist_4->cmd_type == DEVVAR_LONGSTRINGARRAY) || (hist_4->cmd_type == DEVVAR_DOUBLESTRINGARRAY))
@@ -927,7 +915,6 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 //-----------------------------------------------------------------------------
 //
 // Some operator method definition to make Python binding development easier
-//
 //
 //-----------------------------------------------------------------------------
 

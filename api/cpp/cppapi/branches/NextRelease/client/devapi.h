@@ -1,7 +1,7 @@
 //
 // devapi.h - include file for TANGO device api
 //
-// 
+//
 // Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
@@ -13,12 +13,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -73,11 +73,11 @@ public:
 	DeviceAttributeExt & operator=(const DeviceAttributeExt &);
 
 	void deep_copy(const DeviceAttributeExt &);
-	
+
 	DevErrorList_var		err_list;
 	long 					w_dim_x;
 	long					w_dim_y;
-	
+
 	DevVarLong64Array_var	Long64Seq;
 	DevVarULongArray_var	ULongSeq;
 	DevVarULong64Array_var	ULong64Seq;
@@ -91,10 +91,10 @@ public:
 	ConnectionExt():tr_reco(true),prev_failed(false),prev_failed_t0(0.0),user_connect_timeout(-1),tango_host_localhost(false) {}
 	~ConnectionExt() {}
 	ConnectionExt & operator=(const ConnectionExt &);
-	
+
 	bool				tr_reco;
 	Tango::Device_3_var device_3;
-	
+
 	bool			  	prev_failed;
 	double		  		prev_failed_t0;
 
@@ -111,7 +111,7 @@ class DeviceProxyExt
 {
 public:
 	DeviceProxyExt() {};
-	
+
 	omni_mutex			lock_mutex;
 };
 
@@ -119,10 +119,10 @@ class ApiUtilExt
 {
 public:
 	ApiUtilExt():event_consumer(NULL),cl_pid(0),user_connect_timeout(-1) {};
-	
+
 	EventConsumer 		*event_consumer;
 	TangoSys_Pid		cl_pid;
-	int					user_connect_timeout;	
+	int					user_connect_timeout;
 };
 
 
@@ -156,7 +156,7 @@ struct _DevCommandInfo
 	long 		out_type;
 	string 		in_type_desc;
 	string 		out_type_desc;
-	
+
 	bool operator==(const _DevCommandInfo &);
 };
 
@@ -171,7 +171,7 @@ typedef struct _DevCommandInfo DevCommandInfo;
 struct _CommandInfo : public DevCommandInfo
 {
 	Tango::DispLevel disp_level;
-	
+
 	bool operator==(const _CommandInfo &);
 };
 
@@ -187,7 +187,7 @@ struct _DeviceInfo
 	string doc_url;
 	string dev_type;
 };
-	
+
 typedef _DeviceInfo DeviceInfo;
 
 
@@ -212,16 +212,16 @@ struct _DeviceAttributeConfig
 	string 			max_alarm;
 	string 			writable_attr_name;
 	vector<string> 	extensions;
-	
+
 	bool operator==(const _DeviceAttributeConfig &);
 };
-	
+
 typedef struct _DeviceAttributeConfig DeviceAttributeConfig;
 
 struct _AttributeInfo : public DeviceAttributeConfig
 {
 	Tango::DispLevel disp_level;
-	
+
 	friend ostream &operator<<(ostream &,_AttributeInfo &);
 	bool operator==(const _AttributeInfo &);
 };
@@ -281,10 +281,10 @@ struct _AttributeInfoEx : public AttributeInfo
 	AttributeAlarmInfo 	alarms;
 	AttributeEventInfo	events;
 	vector<string>		sys_extensions;
-	
+
 	_AttributeInfoEx & operator=(AttributeConfig_2 *);
 	_AttributeInfoEx & operator=(AttributeConfig_3 *);
-	
+
 	friend ostream &operator<<(ostream &,_AttributeInfoEx &);
 	bool operator==(const _AttributeInfoEx &);
 };
@@ -296,7 +296,7 @@ typedef vector<AttributeInfoEx> AttributeInfoListEx;
 // Can't use CALLBACK (without _) in the following enum because it's a
 // pre-defined type on Windows....
 //
-	
+
 enum asyn_req_type
 {
 	POLLING,
@@ -354,19 +354,19 @@ public:
 	bool in_server() {return in_serv;}
 	void in_server(bool serv) {in_serv = serv;}
 	AsynReq	*get_pasyn_table() {return asyn_p_table;}
-	
+
 	void create_event_consumer();
 	EventConsumer *get_event_consumer();
-	
+
 	TangoSys_Pid get_client_pid() {return ext->cl_pid;}
 	void clean_locking_threads(bool clean=true);
-	
+
 	bool is_lock_exit_installed() {omni_mutex_lock guard(lock_th_map);return exit_lock_installed;}
 	void set_lock_exit_installed(bool in) {omni_mutex_lock guard(lock_th_map);exit_lock_installed = in;}
-	
+
 	bool need_reset_already_flag() {return reset_already_executed_flag;}
 	void need_reset_already_flag(bool in) {reset_already_executed_flag = in;}
-	
+
 	size_t pending_asynch_call(asyn_req_type ty)
 	{if (ty==POLLING)return asyn_p_table->get_request_nb();
 	 else if (ty==CALL_BACK)return asyn_p_table->get_cb_request_nb();
@@ -374,7 +374,7 @@ public:
 
 	TANGO_IMP_EXP static inline void cleanup()
 	{if (_instance != NULL){delete _instance;_instance=NULL;}}
-	
+
 	TANGO_IMP_EXP static inline bool _is_instance_null()
 	{return _instance == NULL;}
 
@@ -383,41 +383,41 @@ public:
 	bool is_event_consumer_created() {return ext->event_consumer != NULL;}
 
 	int get_user_connect_timeout() {return ext->user_connect_timeout;}
-	
+
 //
 // Asynchronous methods
 //
-	
+
 	void get_asynch_replies();
 	void get_asynch_replies(long);
-	
+
 	void set_asynch_cb_sub_model(cb_sub_model);
 	cb_sub_model get_asynch_cb_sub_model() {return auto_cb;}
 	static void attr_to_device(const AttributeValue *,const AttributeValue_3 *,long,DeviceAttribute *);
 	static void attr_to_device(const AttributeValue_4 *,long,DeviceAttribute *);
-	
+
 	static void device_to_attr(const DeviceAttribute &,AttributeValue_4 &);
 	static void device_to_attr(const DeviceAttribute &,AttributeValue &,string &);
-			
+
 protected:
 	ApiUtil();
 	virtual ~ApiUtil();
-	
+
 	vector<Database *>			db_vect;
 	omni_mutex					the_mutex;
 	CORBA::ORB_ptr				_orb;
 	bool						in_serv;
-	
+
 	cb_sub_model				auto_cb;
 	CbThreadCmd					cb_thread_cmd;
 	CallBackThread				*cb_thread_ptr;
-	
+
 	AsynReq						*asyn_p_table;
 
 public:
 	omni_mutex					lock_th_map;
 	map<string,LockingThread>	lock_threads;
-		
+
 private:
 	TANGO_IMP static ApiUtil 	*_instance;
 	ApiUtilExt					*ext; 		// Class extension
@@ -432,8 +432,8 @@ private:
  * 					--------------------												*
  * 																						*
  ***************************************************************************************/
- 
- 
+
+
 class DeviceData
 {
 
@@ -459,7 +459,7 @@ public :
 	void reset_exceptions(except_flags fl) {exceptions_flags.reset((size_t)fl);}
 	void set_exceptions(except_flags fl) {exceptions_flags.set((size_t)fl);}
 	int get_type();
-		
+
 	CORBA::Any_var any;
 //
 // insert methods for native C++ types
@@ -470,7 +470,7 @@ public :
 	void operator << (DevLong datum) {any <<= datum;}
 	void operator << (DevULong datum) {any <<= datum;}
 	void operator << (DevLong64 datum) {any <<= datum;}
-	void operator << (DevULong64 datum) {any <<= datum;}	
+	void operator << (DevULong64 datum) {any <<= datum;}
 	void operator << (float datum) {any <<= datum;}
 	void operator << (double datum) {any <<= datum;}
 	void operator << (char *&datum) {any <<= datum;}
@@ -479,7 +479,7 @@ public :
 	void operator << (vector<unsigned char>&);
 	void operator << (vector<string>&);
 	void operator << (vector<short>&);
-	void operator << (vector<unsigned short>&);	
+	void operator << (vector<unsigned short>&);
 	void operator << (vector<DevLong> &);
 	void operator << (vector<DevULong> &);
 	void operator << (vector<DevLong64> &);
@@ -487,12 +487,18 @@ public :
 	void operator << (vector<float>&);
 	void operator << (vector<double>&);
 	void operator << (DevState datum) {(any.inout()) <<= datum;}
+	void operator << (DevEncoded &datum) {(any.inout()) <<= datum;}
+
 	void insert(vector<DevLong>&, vector<string>&);
 	void insert(vector<double>&, vector<string>&);
+
+	void insert(const string &,vector<unsigned char>&);
+	void insert(const char *,DevVarCharArray *);
 
 //
 // insert methods for TANGO CORBA sequence types
 //
+
 	inline void operator << (DevVarCharArray* datum) { any.inout() <<= datum;}
 	inline void operator << (DevVarShortArray* datum) { any.inout() <<= datum;}
 	inline void operator << (DevVarUShortArray* datum) { any.inout() <<= datum;}
@@ -518,10 +524,11 @@ public :
 	inline void operator << (DevVarStringArray &datum) { any.inout() <<= datum;}
 	inline void operator << (DevVarLongStringArray &datum) { any.inout() <<= datum;}
 	inline void operator << (DevVarDoubleStringArray &datum) { any.inout() <<= datum;}
-	
+
 //
 // extract methods for native C++ types
 //
+
 	bool operator >> (bool&);
 	bool operator >> (short&);
 	bool operator >> (unsigned short&);
@@ -533,7 +540,7 @@ public :
 	bool operator >> (double&);
 	bool operator >> (const char*&);
 	bool operator >> (string&);
-	
+
 	bool operator >> (vector<unsigned char>&);
 	bool operator >> (vector<string>&);
 	bool operator >> (vector<short>&);
@@ -547,9 +554,11 @@ public :
 	bool operator >> (DevState&);
 	bool extract(vector<DevLong>&, vector<string>&);
 	bool extract(vector<double>&, vector<string>&);
+
 //
 // extract methods for TANGO CORBA sequence types
 //
+
 	bool operator >> (const DevVarCharArray* &datum);
 	bool operator >> (const DevVarShortArray* &datum);
 	bool operator >> (const DevVarUShortArray* &datum);
@@ -562,14 +571,17 @@ public :
 	bool operator >> (const DevVarStringArray* &datum);
 	bool operator >> (const DevVarLongStringArray* &datum);
 	bool operator >> (const DevVarDoubleStringArray* &datum);
-	
+
+	bool operator >> (const DevEncoded* &datum);
+	bool operator >> (DevEncoded &datum);
+
 	friend ostream &operator<<(ostream &,DeviceData &);
 
 protected :
 	bool any_is_null();
-	
+
 	bitset<numFlags> 	exceptions_flags;
-	
+
 	DeviceDataExt		*ext;			// Class extension
 };
 
@@ -580,7 +592,7 @@ protected :
  * 					-------------------------											*
  * 																						*
  ***************************************************************************************/
- 
+
 class DeviceAttribute
 {
 
@@ -602,9 +614,9 @@ public :
 	DeviceAttribute & operator=(const DeviceAttribute &);
 
 	void deep_copy(const DeviceAttribute &);
-	
+
 	DeviceAttribute(AttributeValue);
-	
+
 	DeviceAttribute(string&, short);
 	DeviceAttribute(string&, DevLong);
 	DeviceAttribute(string&, double);
@@ -619,7 +631,7 @@ public :
 	DeviceAttribute(string&, DevULong64);
 	DeviceAttribute(string&, DevState);
 	DeviceAttribute(string&, DevEncoded &);
-	
+
 	DeviceAttribute(string&, vector<short> &);
 	DeviceAttribute(string&, vector<DevLong> &);
 	DeviceAttribute(string&, vector<double> &);
@@ -632,7 +644,7 @@ public :
 	DeviceAttribute(string&, vector<DevULong> &);
 	DeviceAttribute(string&, vector<DevULong64> &);
 	DeviceAttribute(string&, vector<DevState> &);
-		
+
 	DeviceAttribute(string&, vector<short> &,int,int);
 	DeviceAttribute(string&, vector<DevLong> &,int,int);
 	DeviceAttribute(string&, vector<double> &,int,int);
@@ -645,7 +657,7 @@ public :
 	DeviceAttribute(string&, vector<DevULong> &,int,int);
 	DeviceAttribute(string&, vector<DevULong64> &,int,int);
 	DeviceAttribute(string&, vector<DevState> &,int,int);
-			
+
 	DeviceAttribute(const char *, short);
 	DeviceAttribute(const char *, DevLong);
 	DeviceAttribute(const char *, double);
@@ -660,7 +672,7 @@ public :
 	DeviceAttribute(const char *, DevULong64);
 	DeviceAttribute(const char *, DevState);
 	DeviceAttribute(const char *, DevEncoded &);
-	
+
 	DeviceAttribute(const char *, vector<short> &);
 	DeviceAttribute(const char *, vector<DevLong> &);
 	DeviceAttribute(const char *, vector<double> &);
@@ -673,7 +685,7 @@ public :
 	DeviceAttribute(const char *, vector<DevULong> &);
 	DeviceAttribute(const char *, vector<DevULong64> &);
 	DeviceAttribute(const char *, vector<DevState> &);
-		
+
 	DeviceAttribute(const char *, vector<short> &,int,int);
 	DeviceAttribute(const char *, vector<DevLong> &,int,int);
 	DeviceAttribute(const char *, vector<double> &,int,int);
@@ -686,9 +698,9 @@ public :
 	DeviceAttribute(const char *, vector<DevULong> &,int,int);
 	DeviceAttribute(const char *, vector<DevULong64> &,int,int);
 	DeviceAttribute(const char *, vector<DevState> &,int,int);
-		
+
 	~DeviceAttribute();
-	
+
 	AttrQuality 		quality;
 	AttrDataFormat		data_format;
 	string 				name;
@@ -696,10 +708,10 @@ public :
 	int 				dim_y;
 	TimeVal 			time;
 	DeviceAttributeExt	*ext;		// Class extension
-		
+
 	string &get_name() {return name;}
 	AttrQuality &get_quality() {return quality;}
-	
+
 	int get_dim_x() {return dim_x;}
 	int get_dim_y() {return dim_y;}
 	int get_written_dim_x() {return ext->w_dim_x;}
@@ -708,23 +720,23 @@ public :
 	AttributeDimension get_w_dimension();
 	long get_nb_read();
 	long get_nb_written();
-	
+
 	int get_type();
 	AttrDataFormat get_data_format();
-	TimeVal &get_date() {return time;}	
+	TimeVal &get_date() {return time;}
 	void set_name(string &na) {name =  na;}
 	void set_name(const char *na) {string str(na);name = str;}
 	bool is_empty();
 	bool has_failed() {DevErrorList *tmp;if ((tmp=ext->err_list.operator->())==NULL)return false;
 	                   else{if (tmp->length() != 0)return true;else return false;}}
 	const DevErrorList &get_err_stack() {return ext->err_list.in();}
-	
+
 	void exceptions(bitset<numFlags> fl) {exceptions_flags = fl;}
 	bitset<numFlags> exceptions() {return exceptions_flags;}
 	void reset_exceptions(except_flags fl) {exceptions_flags.reset((size_t)fl);}
 	void set_exceptions(except_flags fl) {exceptions_flags.set((size_t)fl);}
-	
-	
+
+
 	DevVarLongArray_var 	LongSeq;
 	DevVarShortArray_var 	ShortSeq;
 	DevVarDoubleArray_var 	DoubleSeq;
@@ -733,7 +745,7 @@ public :
 	DevVarBooleanArray_var	BooleanSeq;
 	DevVarUShortArray_var	UShortSeq;
 	DevVarCharArray_var		UCharSeq;
-	
+
 //
 // For the state attribute
 //
@@ -760,7 +772,7 @@ public :
 	void operator << (DevEncoded &);
 	void operator << (DevString);
 	void operator << (const char *);
-		
+
 	void operator << (vector<short> &);
 	void operator << (vector<DevLong> &);
 	void operator << (vector<double> &);
@@ -786,7 +798,7 @@ public :
 	void operator << (const DevVarULongArray &datum);
 	void operator << (const DevVarULong64Array &datum);
 	void operator << (const DevVarStateArray &datum);
-		
+
 	void operator << (DevVarShortArray *datum);
 	void operator << (DevVarLongArray *datum);
 	void operator << (DevVarDoubleArray *datum);
@@ -799,11 +811,11 @@ public :
 	void operator << (DevVarULongArray *datum);
 	void operator << (DevVarULong64Array *datum);
 	void operator << (DevVarStateArray *datum);
-	
+
 //
 // Insert methods
 //
-	
+
 	void insert(vector<short> &,int,int);
 	void insert(vector<DevLong> &,int,int);
 	void insert(vector<double> &,int,int);
@@ -816,7 +828,7 @@ public :
 	void insert(vector<DevULong> &,int,int);
 	void insert(vector<DevULong64> &,int,int);
 	void insert(vector<DevState> &,int,int);
-	
+
 	void insert(const DevVarShortArray &datum,int,int);
 	void insert(const DevVarLongArray &datum,int,int);
 	void insert(const DevVarDoubleArray &datum,int,int);
@@ -829,7 +841,7 @@ public :
 	void insert(const DevVarULongArray &datum,int,int);
 	void insert(const DevVarULong64Array &datum,int,int);
 	void insert(const DevVarStateArray &datum,int,int);
-		
+
 	void insert(DevVarShortArray *datum,int,int);
 	void insert(DevVarLongArray *datum,int,int);
 	void insert(DevVarDoubleArray *datum,int,int);
@@ -845,7 +857,7 @@ public :
 
 	void insert(char *&,unsigned char *&,unsigned int);
 	void insert(string &,vector<unsigned char> &);
-				
+
 //
 // Extract operators for  C++ types
 //
@@ -863,7 +875,7 @@ public :
 	bool operator >> (DevULong64 &);
 	bool operator >> (DevState &);
 	bool operator >> (DevEncoded &);
-	
+
 	bool operator >> (vector<string>&);
 	bool operator >> (vector<short>&);
 	bool operator >> (vector<DevLong>&);
@@ -890,11 +902,11 @@ public :
 	bool operator >> (DevVarULong64Array * &datum);
 	bool operator >> (DevVarStateArray * &datum);
 	bool operator >> (DevVarEncodedArray *&datum);
-	
+
 //
 // Extract_xxx methods
 //
-	
+
 	bool extract_read (vector<string>&);
 	bool extract_read (vector<short>&);
 	bool extract_read (vector<DevLong>&);
@@ -908,13 +920,13 @@ public :
 	bool extract_read (vector<DevULong64>&);
 	bool extract_read (vector<DevState>&);
 	bool extract_read (string &,vector<unsigned char> &);
-	
+
 	bool extract_set  (vector<string>&);
 	bool extract_set  (vector<short>&);
-	bool extract_set  (vector<DevLong>&);  
+	bool extract_set  (vector<DevLong>&);
 	bool extract_set  (vector<double>&);
-	bool extract_set  (vector<float>&);    
-	bool extract_set  (vector<bool>&); 
+	bool extract_set  (vector<float>&);
+	bool extract_set  (vector<bool>&);
 	bool extract_set  (vector<unsigned short>&);
 	bool extract_set  (vector<unsigned char>&);
 	bool extract_set  (vector<DevLong64>&);
@@ -922,18 +934,18 @@ public :
 	bool extract_set  (vector<DevULong64>&);
 	bool extract_set  (vector<DevState>&);
 	bool extract_set  (string &,vector<unsigned char> &);
-			
+
 	bool extract(const char *&,unsigned char *&,unsigned int &);
 	bool extract(string &,vector<unsigned char> &);
-	
+
 	friend ostream &operator<<(ostream &,DeviceAttribute &);
-	
-protected :	
+
+protected :
 	bitset<numFlags> 	exceptions_flags;
 	void del_mem(int);
 	bool check_for_data();
 	bool check_wrong_type_exception();
-	int  check_set_value_size(int seq_length);	
+	int  check_set_value_size(int seq_length);
 };
 
 
@@ -943,7 +955,7 @@ protected :
  * 					--------------------------											*
  * 																						*
  ***************************************************************************************/
- 
+
 class DeviceDataHistory: public DeviceData
 {
 
@@ -956,7 +968,7 @@ public :
 	DeviceDataHistory(int, int *,DevCmdHistoryList *);
 	DeviceDataHistory(const DeviceDataHistory &);
 	DeviceDataHistory & operator=(const DeviceDataHistory &);
-	
+
 	~DeviceDataHistory();
 
 	bool has_failed() {return fail;}
@@ -965,23 +977,23 @@ public :
 	friend ostream &operator<<(ostream &,DeviceDataHistory &);
 
 // Three following methods for compatibility with older release
-	
+
 	bool failed() {return fail;}
 	void failed(bool val) {fail = val;}
 	void set_date(TimeVal &tv) {time = tv;}
 	TimeVal &date() {return time;}
-	const DevErrorList &errors() {return err.in();}	
+	const DevErrorList &errors() {return err.in();}
 	void errors(DevErrorList_var &del) {err = del;}
-	
+
 protected:
 	bool 				fail;
 	TimeVal 			time;
 	DevErrorList_var 	err;
-		
+
 	DevCmdHistoryList 	*seq_ptr;
 	int 				*ref_ctr_ptr;
 
-private:	
+private:
 	DeviceDataHistoryExt	*ext_hist;		// Class extension
 };
 
@@ -1000,26 +1012,26 @@ public :
 	DeviceAttributeHistory(int, DevAttrHistoryList_3_var &);
 	DeviceAttributeHistory(const DeviceAttributeHistory &);
 	DeviceAttributeHistory & operator=(const DeviceAttributeHistory &);
-	
+
 	~DeviceAttributeHistory();
 
 	bool has_failed() {return fail;}
 
 // Three following methods for compatibility with older release
-		
+
 	bool failed() {return fail;}
 	void failed(bool val) {fail = val;}
 	TimeVal &date() {return time;}
 //	const DevErrorList &errors() {return err;}
 
  	friend ostream &operator<<(ostream &,DeviceAttributeHistory &);
-	
+
 protected:
 	bool 				fail;
 	char 				compatibility_padding[16];
 
-private:	
-	DeviceAttributeHistoryExt	*ext_hist;	// Class extension		
+private:
+	DeviceAttributeHistoryExt	*ext_hist;	// Class extension
 };
 
 
@@ -1029,34 +1041,34 @@ private:
  * 					--------------------												*
  * 																						*
  ***************************************************************************************/
- 
-class Connection 
+
+class Connection
 {
 protected :
 	bool 				dbase_used;			// Dev. with database
 	bool 				from_env_var;		// DB from TANGO_HOST
-	
+
 	string 				host;				// DS host (if dbase_used=false)
 	string 				port;				// DS port (if dbase_used=false)
 	int 				port_num;			// DS port (as number)
-	
+
 	string 				db_host;			// DB host
 	string 				db_port;			// DB port
 	int 				db_port_num;		// DB port (as number)
-	
+
 	string 				ior;
 	long 				pasyn_ctr;
 	long				pasyn_cb_ctr;
-		
+
 	Tango::Device_var 	device;
 	Tango::Device_2_var device_2;
-	
+
 	int 				timeout;
-	
+
 	int 				connection_state;
 	int 				version;
 	Tango::DevSource 	source;
-	
+
 	bool				check_acc;
 	AccessControlType	access;
 
@@ -1066,12 +1078,12 @@ protected :
 	virtual void set_lock_ctr(int)=0;
 
 	ConnectionExt		*ext; 	// Class extension
-	
+
 	DeviceData redo_synch_cmd(TgRequest &);
 
 	int get_env_var(const char *,string &);
 	int get_env_var_from_file(string &,const char *,string &);
-	
+
 	void set_connection_state(int);
 	void check_and_reconnect();
 	void check_and_reconnect(Tango::DevSource &);
@@ -1084,15 +1096,15 @@ protected :
 	void add_asyn_cb_request(CORBA::Request_ptr,CallBack *,Connection *,TgRequest::ReqType);
 	void remove_asyn_cb_request(Connection *,CORBA::Request_ptr);
 	long get_pasyn_cb_ctr();
-			
+
 public :
 	virtual string dev_name()=0;
-	
+
 	Connection(CORBA::ORB *orb = NULL);
 	Connection(bool dummy);
 	virtual ~Connection();
 	Connection(const Connection &);
-	
+
 	string &get_db_host() {return db_host;}
 	string &get_db_port() {return db_port;}
 	int get_db_port_num() {return db_port_num;}
@@ -1102,19 +1114,19 @@ public :
 	bool is_dbase_used() {return dbase_used;}
 	string &get_dev_host() {return host;}
 	string &get_dev_port() {return port;}
-	
+
 	void connect(string &name);
 	virtual void reconnect(bool);
 	int get_idl_version() {return version;}
 	Tango::Device_var &get_device() {return device;} 	// For CORBA expert !!
-	
+
 	virtual void set_timeout_millis(int timeout);
 	virtual int get_timeout_millis();
 	virtual Tango::DevSource get_source();
 	virtual void set_source(Tango::DevSource sou);
 	virtual void set_transparency_reconnection(bool val) {ext->tr_reco = val;}
 	virtual bool get_transparency_reconnection() {return ext->tr_reco;}
-	
+
 	virtual DeviceData command_inout(string &);
 	virtual DeviceData command_inout(const char *co) {string str(co);return command_inout(str);}
 	virtual DeviceData command_inout(string &, DeviceData &);
@@ -1130,34 +1142,34 @@ public :
 	void Cb_ReadAttr_Request(CORBA::Request_ptr,Tango::CallBack *);
 	void Cb_WriteAttr_Request(CORBA::Request_ptr req,Tango::CallBack *cb_ptr);
 	void dec_asynch_counter(asyn_req_type ty);
-		
-	virtual long command_inout_asynch(const char *,DeviceData &argin,bool forget=false);	
-	virtual long command_inout_asynch(string &,DeviceData &argin,bool forget=false);	
-	virtual long command_inout_asynch(const char *,bool forget=false);	
+
+	virtual long command_inout_asynch(const char *,DeviceData &argin,bool forget=false);
+	virtual long command_inout_asynch(string &,DeviceData &argin,bool forget=false);
+	virtual long command_inout_asynch(const char *,bool forget=false);
 	virtual long command_inout_asynch(string &,bool forget=false);
 
 	virtual DeviceData command_inout_reply(long);
 	virtual DeviceData command_inout_reply(long,long);
-	
-	virtual void command_inout_asynch(const char *,DeviceData &argin,CallBack &cb);    
-	virtual void command_inout_asynch(string &,DeviceData &argin,CallBack &cb);	   
-	virtual void command_inout_asynch(const char *,CallBack &cb);	   
+
+	virtual void command_inout_asynch(const char *,DeviceData &argin,CallBack &cb);
+	virtual void command_inout_asynch(string &,DeviceData &argin,CallBack &cb);
+	virtual void command_inout_asynch(const char *,CallBack &cb);
 	virtual void command_inout_asynch(string &,CallBack &cb);
 
 	virtual void get_asynch_replies();
 	virtual void get_asynch_replies(long);
-	
+
 	virtual void cancel_asynch_request(long);
 	virtual void cancel_all_polling_asynch_request();
-	
+
 //
 // Control access related methods
 //
-	
+
 	AccessControlType get_access_control() {return access;}
 	void set_access_control(AccessControlType acc) {access=acc;}
 	AccessControlType get_access_right() {return get_access_control();}
-	
+
 };
 
 /****************************************************************************************
@@ -1171,7 +1183,7 @@ class DeviceProxy: public Tango::Connection
 {
 private :
 	void real_constructor(string &,bool ch_acc=true);
-	
+
 	Tango::DbDevice 	*db_dev;
 	string 				device_name;
 	string 				alias_name;
@@ -1182,9 +1194,9 @@ private :
 	omni_mutex 			netcalls_mutex;
 	int					lock_ctr;
 	int					lock_valid;
-	
+
 	void connect_to_adm_device();
-	
+
 	void retrieve_read_args(TgRequest &,vector<string> &);
 	DeviceAttribute *redo_synch_read_call(TgRequest &);
 	vector<DeviceAttribute> *redo_synch_reads_call(TgRequest &);
@@ -1200,13 +1212,13 @@ private :
 		MULTIPLE
 	};
 
-	
+
 	void read_attr_except(CORBA::Request_ptr,long,read_attr_type);
 	void write_attr_except(CORBA::Request_ptr,long,TgRequest::ReqType);
 	void check_connect_adm_device();
-	
+
 	friend class AttributeProxy;
-			
+
 protected :
 	virtual string get_corba_name(bool);
 	virtual string build_corba_name();
@@ -1218,7 +1230,7 @@ protected :
 		Cmd,
 		Attr
 	};
-		
+
 	bool is_polled(polled_object,string &, string &);
 	virtual void reconnect(bool);
 	void get_remaining_param(AttributeInfoListEx *);
@@ -1228,10 +1240,10 @@ protected :
 	void get_locker_host(string &,string &);
 
 	void same_att_name(vector<string> &,const char *);
-	
+
 private:
 	DeviceProxyExt		*ext_proxy;		// Class extension
-	
+
 public :
 	DeviceProxy(string &name, CORBA::ORB *orb=NULL);
 	DeviceProxy(string &name, bool ch_access, CORBA::ORB *orb=NULL);
@@ -1240,7 +1252,7 @@ public :
 	DeviceProxy(const DeviceProxy &);
 	DeviceProxy & operator=(const DeviceProxy &);
 	virtual ~DeviceProxy();
-	
+
 	DeviceProxy():Connection((CORBA::ORB *)NULL),db_dev(NULL),adm_device(NULL),ext_proxy(NULL)
 	{dbase_used = false;}
 
@@ -1252,14 +1264,14 @@ public :
 	virtual inline string dev_name() { return device_name; }
 	virtual void parse_name(string &);
 	virtual Database *get_device_db();
-	
+
 	virtual string status();
 	virtual DevState state();
 	virtual string adm_name();
 	virtual string description();
 	virtual string name();
 	virtual string alias();
-	
+
 	virtual int ping();
 	virtual vector<string> *black_box(int);
 //
@@ -1267,12 +1279,12 @@ public :
 //
 	virtual CommandInfo command_query(string);
 	virtual CommandInfoList *command_list_query();
-	
+
 	virtual DbDevImportInfo import_info();
 //
 // property methods
 //
-	virtual void get_property(string&, DbData&); 
+	virtual void get_property(string&, DbData&);
 	virtual void get_property(vector<string>&, DbData&);
 	virtual void get_property(DbData&);
 	virtual void put_property(DbData&);
@@ -1284,36 +1296,36 @@ public :
 // attribute methods
 //
 	virtual vector<string> *get_attribute_list();
-	
+
 	virtual AttributeInfoList *get_attribute_config(vector<string>&);
 	virtual AttributeInfoListEx *get_attribute_config_ex(vector<string>&);
 	virtual AttributeInfoEx get_attribute_config(const string &);
-	
+
 	virtual AttributeInfoEx attribute_query(string name) {return get_attribute_config(name);}
 	virtual AttributeInfoList *attribute_list_query();
 	virtual AttributeInfoListEx *attribute_list_query_ex();
-	
+
 	virtual void set_attribute_config(AttributeInfoList &);
 	virtual void set_attribute_config(AttributeInfoListEx &);
-	
+
 	virtual DeviceAttribute read_attribute(string&);
 	virtual DeviceAttribute read_attribute(const char *at) {string str(at);return read_attribute(str);}
 	void read_attribute(const char *,DeviceAttribute &);
 	void read_attribute(string &at,DeviceAttribute &da) {read_attribute(at.c_str(),da);}
 	virtual vector<DeviceAttribute> *read_attributes(vector<string>&);
-	
+
 	virtual void write_attribute(DeviceAttribute&);
 	virtual void write_attributes(vector<DeviceAttribute>&);
-	
+
 	virtual DeviceAttribute write_read_attribute(DeviceAttribute &);
-	
+
 //
 // history methods
 //
 	virtual vector<DeviceDataHistory> *command_history(string &,int);
 	virtual vector<DeviceDataHistory> *command_history(const char *na,int n)
 			{string str(na);return command_history(str,n);}
-	
+
 	virtual vector<DeviceAttributeHistory> *attribute_history(string &,int);
 	virtual vector<DeviceAttributeHistory> *attribute_history(const char *na,int n)
 			{string str(na);return attribute_history(str,n);}
@@ -1321,43 +1333,43 @@ public :
 // Polling administration methods
 //
 	virtual vector<string> *polling_status();
-	
+
 	virtual void poll_command(string &, int);
 	virtual void poll_command(const char *na, int per) {string tmp(na);poll_command(tmp,per);}
 	virtual void poll_attribute(string &, int);
 	virtual void poll_attribute(const char *na, int per) {string tmp(na);poll_attribute(tmp,per);}
-		
+
 	virtual int get_command_poll_period(string &);
 	virtual int get_command_poll_period(const char *na)
-			{string tmp(na);return get_command_poll_period(tmp);}	
+			{string tmp(na);return get_command_poll_period(tmp);}
 	virtual int get_attribute_poll_period(string &);
 	virtual int get_attribute_poll_period(const char *na)
 			{string tmp(na);return get_attribute_poll_period(tmp);}
-	
+
 	virtual bool is_command_polled(string &);
 	virtual bool is_command_polled(const char *na) {string tmp(na);return is_command_polled(tmp);}
 	virtual bool is_attribute_polled(string &);
 	virtual bool is_attribute_polled(const char *na) {string tmp(na);return is_attribute_polled(tmp);}
-	
+
 	virtual void stop_poll_command(string &);
 	virtual void stop_poll_command(const char *na) {string tmp(na);stop_poll_command(tmp);}
 	virtual void stop_poll_attribute(string &);
-	virtual void stop_poll_attribute(const char *na) {string tmp(na);stop_poll_attribute(tmp);}	
+	virtual void stop_poll_attribute(const char *na) {string tmp(na);stop_poll_attribute(tmp);}
 //
 // Asynchronous methods
 //
-	virtual long read_attribute_asynch(const char *na) {string tmp(na);return read_attribute_asynch(tmp);}	
-	virtual long read_attribute_asynch(string &att_name);	
-	virtual long read_attributes_asynch(vector <string> &);	
+	virtual long read_attribute_asynch(const char *na) {string tmp(na);return read_attribute_asynch(tmp);}
+	virtual long read_attribute_asynch(string &att_name);
+	virtual long read_attributes_asynch(vector <string> &);
 
 	virtual vector<DeviceAttribute> *read_attributes_reply(long);
 	virtual vector<DeviceAttribute> *read_attributes_reply(long,long);
 	virtual DeviceAttribute *read_attribute_reply(long);
 	virtual DeviceAttribute *read_attribute_reply(long,long);
-	
+
 	virtual long write_attribute_asynch(DeviceAttribute &);
 	virtual long write_attributes_asynch(vector<DeviceAttribute> &);
-	
+
 	virtual void write_attributes_reply(long);
 	virtual void write_attributes_reply(long,long);
 	virtual void write_attribute_reply(long id) {write_attributes_reply(id);}
@@ -1367,11 +1379,11 @@ public :
 			{if (req == POLLING)return pasyn_ctr;
 			else if (req==CALL_BACK) return pasyn_cb_ctr;
 			else return (pasyn_ctr + pasyn_cb_ctr);}
-	
+
 	virtual void read_attributes_asynch(vector<string> &,CallBack &);
 	virtual void read_attribute_asynch(const char *na,CallBack &cb) {string tmp(na);read_attribute_asynch(tmp,cb);}
 	virtual void read_attribute_asynch(string &,CallBack &);
-	
+
 	virtual void write_attribute_asynch(DeviceAttribute &,CallBack &);
 	virtual void write_attributes_asynch(vector<DeviceAttribute> &,CallBack &);
 //
@@ -1381,11 +1393,11 @@ public :
 	virtual void add_logging_target(const string &target_type_name);
 	virtual void add_logging_target(const char *target_type_name)
 			{add_logging_target(string(target_type_name));}
-	
+
 	virtual void remove_logging_target(const string &target_type_name);
 	virtual void remove_logging_target(const char *target_type_name)
 			{remove_logging_target(string(target_type_name));}
-	
+
 	virtual vector<string> get_logging_target (void);
 	virtual int get_logging_level (void);
 	virtual void set_logging_level (int level);
@@ -1393,16 +1405,16 @@ public :
 //
 // Event methods
 //
-	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *, 
+	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *,
 	                   const vector<string> &filters);
-	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *, 
+	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *,
 	                   const vector<string> &filters, bool stateless);
-	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size, 
-	                   const vector<string> &filters, bool stateless = false); 
+	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size,
+	                   const vector<string> &filters, bool stateless = false);
 	virtual void unsubscribe_event(int event_id);
 //
 // Methods to access data in event queues
-//	
+//
 	virtual void get_events (int event_id, EventDataList &event_list);
 	virtual void get_events (int event_id, AttrConfEventDataList &event_list);
 	virtual void get_events (int event_id, DataReadyEventDataList &event_list);
@@ -1410,7 +1422,7 @@ public :
 	virtual int  event_queue_size(int event_id);
 	virtual TimeVal get_last_event_date(int event_id);
 	virtual bool is_event_queue_empty(int event_id);
-	
+
 //
 // Locking methods
 //
@@ -1451,7 +1463,7 @@ private :
 
 	void real_constructor(string &);
 	void ctor_from_dp(const DeviceProxy *,string &);
-	
+
 public :
 	AttributeProxy(string &name);
 	AttributeProxy(const char *);
@@ -1467,42 +1479,42 @@ public :
 	virtual inline string name() { return attr_name; }
 	virtual inline DeviceProxy* get_device_proxy() { return dev_proxy; }
 	virtual void parse_name(string &);
-	
+
 	virtual string status();
 	virtual DevState state();
 	virtual int ping();
 	virtual void set_transparency_reconnection(bool);
 	virtual bool get_transparency_reconnection();
-	
+
 //
 // property methods
 //
 
-	virtual void get_property(string&, DbData&); 
+	virtual void get_property(string&, DbData&);
 	virtual void get_property(vector<string>&, DbData&);
 	virtual void get_property(DbData&);
 	virtual void put_property(DbData&);
 	virtual void delete_property(string&);
 	virtual void delete_property(vector<string>&);
-	virtual void delete_property(DbData&);	
-	
+	virtual void delete_property(DbData&);
+
 //
 // attribute methods
 //
 
-	virtual AttributeInfoEx get_config();	
-	virtual void set_config(AttributeInfo &);	
-	virtual void set_config(AttributeInfoEx &);	
-	virtual DeviceAttribute read();	
+	virtual AttributeInfoEx get_config();
+	virtual void set_config(AttributeInfo &);
+	virtual void set_config(AttributeInfoEx &);
+	virtual DeviceAttribute read();
 	virtual void write(DeviceAttribute&);
 	virtual DeviceAttribute write_read(DeviceAttribute &);
-	
+
 //
 // history methods
 //
 
 	virtual vector<DeviceAttributeHistory> *history(int);
-	
+
 //
 // Polling administration methods
 //
@@ -1511,7 +1523,7 @@ public :
 	virtual int get_poll_period();
 	virtual bool is_polled();
 	virtual void stop_poll();
-	
+
 //
 // Asynchronous methods
 //
@@ -1519,41 +1531,41 @@ public :
 	virtual long read_asynch() {return dev_proxy->read_attribute_asynch(attr_name);}
 	virtual DeviceAttribute *read_reply(long id) {return dev_proxy->read_attribute_reply(id);}
 	virtual DeviceAttribute *read_reply(long id,long to) {return dev_proxy->read_attribute_reply(id,to);}
-	
+
 	virtual long write_asynch(DeviceAttribute &da) {return dev_proxy->write_attribute_asynch(da);}
 	virtual void write_reply(long id) {dev_proxy->write_attribute_reply(id);}
 	virtual void write_reply(long id,long to) {dev_proxy->write_attribute_reply(id,to);}
 
 	virtual void read_asynch(CallBack &cb) {dev_proxy->read_attribute_asynch(attr_name,cb);}
 	virtual void write_asynch(DeviceAttribute &da,CallBack &cb) {dev_proxy->write_attribute_asynch(da,cb);}
-	
+
 //
 // Event methods
 //
 
-	virtual int subscribe_event (EventType event, CallBack *, 
+	virtual int subscribe_event (EventType event, CallBack *,
 	                    const vector<string> &filters);
-	virtual int subscribe_event (EventType event, CallBack *, 
+	virtual int subscribe_event (EventType event, CallBack *,
 	                    const vector<string> &filters, bool stateless);
-	virtual int subscribe_event (EventType event, int event_queue_size, 
-	                    const vector<string> &filters, bool stateless = false); 
+	virtual int subscribe_event (EventType event, int event_queue_size,
+	                    const vector<string> &filters, bool stateless = false);
 	virtual void unsubscribe_event (int ev_id) {dev_proxy->unsubscribe_event(ev_id);}
-	
+
 	// methods to access data in event queues
-	
+
 	virtual void get_events (int event_id, EventDataList &event_list)
 	               {dev_proxy->get_events (event_id, event_list);}
 	virtual void get_events (int event_id, AttrConfEventDataList &event_list)
 	               {dev_proxy->get_events (event_id, event_list);}
 	virtual void get_events (int event_id, CallBack *cb)
-	               {dev_proxy->get_events (event_id, cb);}			   
+	               {dev_proxy->get_events (event_id, cb);}
 	virtual int  event_queue_size(int event_id)
 	               {return dev_proxy->event_queue_size(event_id);}
 	virtual TimeVal get_last_event_date(int event_id)
 	               {return dev_proxy->get_last_event_date(event_id);}
-	virtual bool is_event_queue_empty(int event_id) 
+	virtual bool is_event_queue_empty(int event_id)
 	               {return dev_proxy->is_event_queue_empty(event_id);}
-		
+
 };
 
 /****************************************************************************************
@@ -1588,7 +1600,7 @@ public:
 inline ApiUtil *ApiUtil::instance()
 {
 	omni_mutex_lock lo(inst_mutex);
-	
+
 	if (_instance == NULL)
 		_instance = new ApiUtil();
 	return _instance;
@@ -1601,14 +1613,14 @@ inline long Connection::add_asyn_request(CORBA::Request_ptr req,TgRequest::ReqTy
 	pasyn_ctr++;
 	return id;
 }
-	
+
 inline void Connection::remove_asyn_request(long id)
 {
 	omni_mutex_lock guard(ext->asyn_mutex);
 
 	ApiUtil::instance()->get_pasyn_table()->remove_request(id);
 	pasyn_ctr--;
-}	
+}
 
 inline void Connection::add_asyn_cb_request(CORBA::Request_ptr req,CallBack *cb,Connection *con,TgRequest::ReqType req_type)
 {
@@ -1622,7 +1634,7 @@ inline void Connection::remove_asyn_cb_request(Connection *con,CORBA::Request_pt
 	omni_mutex_lock guard(ext->asyn_mutex);
 	ApiUtil::instance()->get_pasyn_table()->remove_request(con,req);
 	pasyn_cb_ctr--;
-}	
+}
 
 inline long Connection::get_pasyn_cb_ctr()
 {
@@ -1641,14 +1653,14 @@ inline void Connection::dec_asynch_counter(asyn_req_type ty)
 	else if (ty==CALL_BACK)
 		pasyn_cb_ctr--;
 }
-	
+
 inline void DeviceProxy::check_connect_adm_device()
 {
 	omni_mutex_lock guard(ext->adm_dev_mutex);
 	if (adm_device == NULL)
 		connect_to_adm_device();
 }
-	
+
 //
 //					Some macros
 //					-----------
@@ -1719,11 +1731,11 @@ inline void DeviceProxy::check_connect_adm_device()
                         			      desc.str(), \
 						      (const char*)"DeviceProxy::read_attribute()"); \
 		}
-	
+
 //
 // 					Small utility classes
 //					---------------------
- 
+
 
 class AutoConnectTimeout
 {
@@ -1761,7 +1773,7 @@ public:
 	AttributeProxyExt() {};
 };
 
-	
+
 } // End of Tango namespace
 
 #endif /* _DEVAPI_H */

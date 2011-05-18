@@ -18,12 +18,12 @@ static const char *RcsId = "$Id$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -35,7 +35,7 @@ static const char *RcsId = "$Id$";
 #endif
 
 #include <tango.h>
-                                                     
+
 using namespace CORBA;
 
 namespace Tango
@@ -43,7 +43,7 @@ namespace Tango
 
 //-----------------------------------------------------------------------------
 //
-// DeviceData::DeviceData() - constructor to create DeviceData 
+// DeviceData::DeviceData() - constructor to create DeviceData
 //
 //-----------------------------------------------------------------------------
 
@@ -57,12 +57,12 @@ DeviceData::DeviceData():ext(NULL)
 	ApiUtil *au = ApiUtil::instance();
 	if (CORBA::is_nil(au->get_orb()) == true)
 		au->create_orb();
-		
+
 	any = new CORBA::Any();
 	exceptions_flags.set(isempty_flag);
 }
 
-DeviceData::DeviceData(const DeviceData & source) 
+DeviceData::DeviceData(const DeviceData & source)
 {
 	exceptions_flags = source.exceptions_flags;
 	any = const_cast<DeviceData &>(source).any._retn();
@@ -120,7 +120,7 @@ bool DeviceData::any_is_null()
 	CORBA::TypeCode_ptr tc;
 
 	tc = any->type();
-	if (tc->equal(CORBA::_tc_null)) 
+	if (tc->equal(CORBA::_tc_null))
 	{
 		if (exceptions_flags.test(isempty_flag))
 		{
@@ -145,7 +145,7 @@ bool DeviceData::any_is_null()
 int DeviceData::get_type()
 {
 	int data_type;
-	
+
 	if (any_is_null() == true)
 		return -1;
 	else
@@ -154,50 +154,50 @@ int DeviceData::get_type()
 		CORBA::TypeCode_var tc_al;
 		CORBA::TypeCode_var tc_seq;
 		CORBA::TypeCode_var tc_field;
-		
+
 		tc = any->type();
-		switch(tc->kind()) 
+		switch(tc->kind())
 		{
 		case CORBA::tk_boolean:
 			data_type = Tango::DEV_BOOLEAN;
 			break;
-			
+
 		case CORBA::tk_short:
 			data_type = Tango::DEV_SHORT;
 			break;
-			
+
 		case CORBA::tk_long:
 			data_type = Tango::DEV_LONG;
 			break;
-			
+
 		case CORBA::tk_longlong:
 			data_type = Tango::DEV_LONG64;
 			break;
-			
+
 		case CORBA::tk_float:
 			data_type = Tango::DEV_FLOAT;
 			break;
-			
+
 		case CORBA::tk_double:
 			data_type = Tango::DEV_DOUBLE;
 			break;
-			
+
 		case CORBA::tk_ushort:
 			data_type = Tango::DEV_USHORT;
 			break;
-			
+
 		case CORBA::tk_ulong:
 			data_type = Tango::DEV_ULONG;
 			break;
-			
+
 		case CORBA::tk_ulonglong:
 			data_type = Tango::DEV_ULONG64;
 			break;
-			
+
 		case CORBA::tk_string:
 			data_type = Tango::DEV_STRING;
 			break;
-			
+
 		case CORBA::tk_alias:
 			tc_al = tc->content_type();
 			tc_seq = tc_al->content_type();
@@ -206,31 +206,31 @@ int DeviceData::get_type()
 			case CORBA::tk_octet:
 				data_type = Tango::DEVVAR_CHARARRAY;
 				break;
-				
+
 			case CORBA::tk_short:
 				data_type = Tango::DEVVAR_SHORTARRAY;
 				break;
-				
+
 			case CORBA::tk_long:
 				data_type = Tango::DEVVAR_LONGARRAY;
 				break;
-				
+
 			case CORBA::tk_longlong:
 				data_type = Tango::DEVVAR_LONG64ARRAY;
 				break;
-				
+
 			case CORBA::tk_float:
 				data_type = Tango::DEVVAR_FLOATARRAY;
 				break;
-				
+
 			case CORBA::tk_double:
 				data_type = Tango::DEVVAR_DOUBLEARRAY;
 				break;
-				
+
 			case CORBA::tk_ushort:
 				data_type = Tango::DEVVAR_USHORTARRAY;
 				break;
-				
+
 			case CORBA::tk_ulong:
 				data_type = Tango::DEVVAR_ULONGARRAY;
 				break;
@@ -238,47 +238,59 @@ int DeviceData::get_type()
 			case CORBA::tk_ulonglong:
 				data_type = Tango::DEVVAR_ULONG64ARRAY;
 				break;
-								
+
 			case CORBA::tk_string:
 				data_type = Tango::DEVVAR_STRINGARRAY;
-				break;
-				
-			default:
-				break;
-			}
-			break;
-			
-		case CORBA::tk_struct:
-			tc_field = tc->member_type(0);
-			tc_al = tc_field->content_type();
-			tc_seq = tc_al->content_type();
-			switch (tc_seq->kind())
-			{
-			case CORBA::tk_long:
-				data_type = Tango::DEVVAR_LONGSTRINGARRAY;
-				break;
-				
-			case CORBA::tk_double:
-				data_type = Tango::DEVVAR_DOUBLESTRINGARRAY;
 				break;
 
 			default:
 				break;
 			}
 			break;
-			
+
+		case CORBA::tk_struct:
+			tc_field = tc->member_type(0);
+			tc_al = tc_field->content_type();
+            switch (tc_al->kind())
+            {
+                case CORBA::tk_sequence:
+                    tc_seq = tc_al->content_type();
+                    switch (tc_seq->kind())
+                    {
+                    case CORBA::tk_long:
+                        data_type = Tango::DEVVAR_LONGSTRINGARRAY;
+                        break;
+
+                    case CORBA::tk_double:
+                        data_type = Tango::DEVVAR_DOUBLESTRINGARRAY;
+                        break;
+
+                    default:
+                        break;
+                    }
+                    break;
+
+                case CORBA::tk_string:
+                    data_type = Tango::DEV_ENCODED;
+                    break;
+
+                default:
+                    break;
+            }
+			break;
+
 		case CORBA::tk_enum:
 			data_type = Tango::DEV_STATE;
 			break;
-			
+
 		default:
 			break;
-			
+
 		}
-		
+
 		CORBA::release(tc);
 	}
-	
+
 	return data_type;
 }
 
@@ -292,7 +304,7 @@ int DeviceData::get_type()
 bool DeviceData::operator >> (bool& datum)
 {
 	bool ret = true;
-	
+
 	ret = any >>= CORBA::Any::to_boolean(datum);
 	if (ret == false)
 	{
@@ -319,7 +331,7 @@ bool DeviceData::operator >> (bool& datum)
 bool DeviceData::operator >> (short& datum)
 {
 	bool ret = true;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -347,7 +359,7 @@ bool DeviceData::operator >> (short& datum)
 bool DeviceData::operator >> (unsigned short& datum)
 {
 	bool ret;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -373,8 +385,8 @@ bool DeviceData::operator >> (unsigned short& datum)
 
 bool DeviceData::operator >> (DevLong& datum)
 {
-	bool ret;	
-		
+	bool ret;
+
 	ret = (any >>= datum);
 	if (ret == false)
 	{
@@ -401,7 +413,7 @@ bool DeviceData::operator >> (DevLong& datum)
 bool DeviceData::operator >> (DevULong& datum)
 {
 	bool ret;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -427,7 +439,7 @@ bool DeviceData::operator >> (DevULong& datum)
 
 bool DeviceData::operator >> (DevLong64 & datum)
 {
-	bool ret;	
+	bool ret;
 
 	ret = any >>= datum;
 	if (ret == false)
@@ -455,7 +467,7 @@ bool DeviceData::operator >> (DevLong64 & datum)
 bool DeviceData::operator >> (DevULong64 & datum)
 {
 	bool ret;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -482,7 +494,7 @@ bool DeviceData::operator >> (DevULong64 & datum)
 bool DeviceData::operator >> (float& datum)
 {
 	bool ret;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -510,7 +522,7 @@ bool DeviceData::operator >> (float& datum)
 bool DeviceData::operator >> (double& datum)
 {
 	bool ret = true;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -537,7 +549,7 @@ bool DeviceData::operator >> (double& datum)
 bool DeviceData::operator >> (string& datum)
 {
 	bool ret;
-	
+
 	const char *c_string;
 	ret = (any >>= c_string);
 	if (ret == false)
@@ -569,7 +581,7 @@ bool DeviceData::operator >> (string& datum)
 bool DeviceData::operator >> (const char*& datum)
 {
 	bool ret;
-	
+
 	ret = any >>= datum;
 	if (ret == false)
 	{
@@ -596,7 +608,7 @@ bool DeviceData::operator >> (const char*& datum)
 bool DeviceData::operator >> (DevState& datum)
 {
 	bool ret;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -623,7 +635,7 @@ bool DeviceData::operator >> (DevState& datum)
 bool DeviceData::operator >> (vector<unsigned char>& datum)
 {
 	bool ret;
-	
+
 	const DevVarCharArray *char_array;
 	ret = (any.inout() >>= char_array);
 	if (ret == false)
@@ -661,7 +673,7 @@ bool DeviceData::operator >> (vector<unsigned char>& datum)
 bool DeviceData::operator >> (const DevVarCharArray* &datum)
 {
 	bool ret;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -688,7 +700,7 @@ bool DeviceData::operator >> (const DevVarCharArray* &datum)
 bool DeviceData::operator >> (vector<short>& datum)
 {
 	bool ret;
-	
+
 	const DevVarShortArray *short_array;
 	ret = (any.inout() >>= short_array);
 	if (ret == false)
@@ -710,7 +722,7 @@ bool DeviceData::operator >> (vector<short>& datum)
 		for (unsigned int i=0; i<short_array->length(); i++)
 		{
 			datum[i] = (*short_array)[i];
-		}		
+		}
 	}
 	return ret;
 }
@@ -726,9 +738,9 @@ bool DeviceData::operator >> (vector<short>& datum)
 bool DeviceData::operator >> (const DevVarShortArray* &datum)
 {
 	bool ret;
-	
+
 	ret = (any.inout() >>= datum);
-		
+
 	if (ret == false)
 	{
 		if (exceptions_flags.test(isempty_flag))
@@ -754,7 +766,7 @@ bool DeviceData::operator >> (const DevVarShortArray* &datum)
 bool DeviceData::operator >> (vector<unsigned short>& datum)
 {
 	bool ret = true;
-	
+
 	const DevVarUShortArray *ushort_array;
 	ret = (any.inout() >>= ushort_array);
 	if (ret == false)
@@ -792,7 +804,7 @@ bool DeviceData::operator >> (vector<unsigned short>& datum)
 bool DeviceData::operator >> (const DevVarUShortArray* &datum)
 {
 	bool ret = true;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -858,7 +870,7 @@ bool DeviceData::operator >> (vector<DevLong>& datum)
 bool DeviceData::operator >> (const DevVarLongArray* &datum)
 {
 	bool ret = true;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -885,7 +897,7 @@ bool DeviceData::operator >> (const DevVarLongArray* &datum)
 bool DeviceData::operator >> (vector<DevULong>& datum)
 {
 	bool ret = true;
-	
+
 	const DevVarULongArray *ulong_array;
 
 	ret = (any.inout() >>= ulong_array);
@@ -924,7 +936,7 @@ bool DeviceData::operator >> (vector<DevULong>& datum)
 bool DeviceData::operator >> (const DevVarULongArray* &datum)
 {
 	bool ret = true;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -953,7 +965,7 @@ bool DeviceData::operator >> (const DevVarULongArray* &datum)
 bool DeviceData::operator >> (const DevVarLong64Array* &datum)
 {
 	bool ret = true;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -981,7 +993,7 @@ bool DeviceData::operator >> (const DevVarLong64Array* &datum)
 bool DeviceData::operator >> (const DevVarULong64Array* &datum)
 {
 	bool ret = true;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -1008,7 +1020,7 @@ bool DeviceData::operator >> (const DevVarULong64Array* &datum)
 bool DeviceData::operator >> (vector<DevLong64>& datum)
 {
 	bool ret = true;
-	
+
 	const DevVarLong64Array *ll_array;
 	ret = (any.inout() >>= ll_array);
 	if (ret == false)
@@ -1044,7 +1056,7 @@ bool DeviceData::operator >> (vector<DevLong64>& datum)
 bool DeviceData::operator >> (vector<DevULong64>& datum)
 {
 	bool ret = true;
-	
+
 	const DevVarULong64Array *ull_array;
 	ret = (any.inout() >>= ull_array);
 	if (ret == false)
@@ -1080,7 +1092,7 @@ bool DeviceData::operator >> (vector<DevULong64>& datum)
 bool DeviceData::operator >> (vector<float>& datum)
 {
 	bool ret = true;
-	
+
 	const DevVarFloatArray *float_array;
 	ret = (any.inout() >>= float_array);
 	if (ret == false)
@@ -1118,7 +1130,7 @@ bool DeviceData::operator >> (vector<float>& datum)
 bool DeviceData::operator >> (const DevVarFloatArray* &datum)
 {
 	bool ret = true;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -1146,7 +1158,7 @@ bool DeviceData::operator >> (vector<double>& datum)
 {
 	bool ret = true;
 	const DevVarDoubleArray *double_array;
-	
+
 	ret = (any.inout() >>= double_array);
 	if (ret == false)
 	{
@@ -1183,7 +1195,7 @@ bool DeviceData::operator >> (vector<double>& datum)
 bool DeviceData::operator >> (const DevVarDoubleArray* &datum)
 {
 	bool ret;
-	
+
 	ret = (any.inout() >>= datum);
 	if (ret == false)
 	{
@@ -1211,7 +1223,7 @@ bool DeviceData::operator >> (vector<string>& datum)
 {
 	bool ret;
 	const DevVarStringArray *string_array;
-	
+
 	ret = (any.inout() >>= string_array);
 	if (ret == false)
 	{
@@ -1264,6 +1276,69 @@ bool DeviceData::operator >> (const DevVarStringArray* &datum)
 	return ret;
 }
 
+//-----------------------------------------------------------------------------
+//
+// DeviceData::operator >>(DevEncoded *) - extract a DevEncoded from DeviceData
+// by pointer
+//
+//-----------------------------------------------------------------------------
+
+bool DeviceData::operator >> (const DevEncoded* &datum)
+{
+	bool ret = true;
+	ret = (any.inout() >>= datum);
+	if (ret == false)
+	{
+		if (exceptions_flags.test(isempty_flag))
+		{
+			any_is_null();
+		}
+		if (exceptions_flags.test(wrongtype_flag))
+		{
+			ApiDataExcept::throw_exception((const char*)"API_IncompatibleCmdArgumentType",
+				       		(const char*)"Cannot extract, data in DeviceData object is not a DevEncoded",
+				        	(const char*)"DeviceData::operator>>");
+		}
+	}
+	return ret;
+}
+
+//-----------------------------------------------------------------------------
+//
+// DeviceData::operator >>(DevEncoded &) - extract a DevEncoded from DeviceData
+// by reference
+//
+//-----------------------------------------------------------------------------
+
+bool DeviceData::operator >> (DevEncoded &datum)
+{
+    bool ret = true;
+    const DevEncoded *tmp_enc;
+	ret = (any.inout() >>= tmp_enc);
+	if (ret == false)
+	{
+		if (exceptions_flags.test(isempty_flag))
+		{
+			any_is_null();
+		}
+		if (exceptions_flags.test(wrongtype_flag))
+		{
+			ApiDataExcept::throw_exception((const char*)"API_IncompatibleCmdArgumentType",
+				       		(const char*)"Cannot extract, data in DeviceData object is not a DevEncoded",
+				        	(const char*)"DeviceData::operator>>");
+		}
+	}
+	else
+	{
+		datum.encoded_data.length(tmp_enc->encoded_data.length());
+		for (unsigned int i=0; i<tmp_enc->encoded_data.length(); i++)
+		{
+			datum.encoded_data[i] = tmp_enc->encoded_data[i];
+		}
+		datum.encoded_format = CORBA::string_dup(tmp_enc->encoded_format);
+	}
+	return ret;
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -1394,7 +1469,7 @@ void DeviceData::operator << (vector<double>& datum)
 //-----------------------------------------------------------------------------
 
 void DeviceData::operator << (vector<string>& datum)
-{	
+{
 	DevVarStringArray *string_array = new DevVarStringArray();
 	string_array->length(datum.size());
 	for (unsigned int i=0; i<datum.size(); i++)
@@ -1411,7 +1486,7 @@ void DeviceData::operator << (vector<string>& datum)
 //-----------------------------------------------------------------------------
 
 void DeviceData::operator << (vector<DevLong64>& datum)
-{	
+{
 	DevVarLong64Array *ll_array = new DevVarLong64Array();
 	ll_array->length(datum.size());
 	for (unsigned int i=0; i<datum.size(); i++)
@@ -1428,7 +1503,7 @@ void DeviceData::operator << (vector<DevLong64>& datum)
 //-----------------------------------------------------------------------------
 
 void DeviceData::operator << (vector<DevULong64>& datum)
-{	
+{
 	DevVarULong64Array *ull_array = new DevVarULong64Array();
 	ull_array->length(datum.size());
 	for (unsigned int i=0; i<datum.size(); i++)
@@ -1474,7 +1549,7 @@ bool DeviceData::extract(vector<DevLong> &long_datum, vector<string>& string_dat
 {
 	bool ret;
 	unsigned int i;
-	const DevVarLongStringArray *long_string_array; 
+	const DevVarLongStringArray *long_string_array;
 	ret = (any.inout() >>= long_string_array);
 	if (ret == false)
 	{
@@ -1512,7 +1587,7 @@ bool DeviceData::extract(vector<DevLong> &long_datum, vector<string>& string_dat
 //-----------------------------------------------------------------------------
 
 bool DeviceData::operator >> (const DevVarLongStringArray* &datum)
-{	
+{
 	bool ret = true;
 	ret = (any.inout() >>= datum);
 	if (ret == false)
@@ -1568,7 +1643,7 @@ bool DeviceData::extract (vector<double> &double_datum, vector<string>& string_d
 {
 	bool ret;
 	unsigned int i;
-	const DevVarDoubleStringArray *double_string_array; 
+	const DevVarDoubleStringArray *double_string_array;
 	ret = (any.inout() >>= double_string_array);
 	if (ret == false)
 	{
@@ -1625,10 +1700,43 @@ bool DeviceData::operator >> (const DevVarDoubleStringArray* &datum)
 	return ret;
 }
 
+//-----------------------------------------------------------------------------
+//
+// DeviceData::insert (string, vector<unsigned char> &) - insert a pair of
+//             string,vector<unsigned char> into DeviceData
+//
+//-----------------------------------------------------------------------------
+
+void DeviceData::insert (const string &str_datum, vector<unsigned char>& char_datum)
+{
+	DevEncoded *the_enc = new DevEncoded();
+	the_enc->encoded_format = CORBA::string_dup(str_datum.c_str());
+
+	the_enc->encoded_data.replace(char_datum.size(),char_datum.size(),&(char_datum[0]),false);
+	any.inout() <<= the_enc;
+}
+
+//-----------------------------------------------------------------------------
+//
+// DeviceData::insert (const char *, DevVarCharArray *) - insert a pair of
+//             char *,DevVarCharArray into DeviceData
+//
+//-----------------------------------------------------------------------------
+
+void DeviceData::insert (const char *str_datum, DevVarCharArray *char_datum)
+{
+	DevEncoded *the_enc = new DevEncoded();
+	the_enc->encoded_format = CORBA::string_dup(str_datum);
+
+	the_enc->encoded_data.replace(char_datum->length(),char_datum->length(),char_datum->get_buffer(),false);
+	any.inout() <<= the_enc;
+}
+
+
 //+-------------------------------------------------------------------------
 //
 // operator overloading : 	<<
-// 
+//
 // description : 	Friend function to ease printing instance of the
 //			DeviceData class
 //
@@ -1644,9 +1752,9 @@ ostream &operator<<(ostream &o_str,DeviceData &dd)
 		CORBA::TypeCode_var tc_al;
 		CORBA::TypeCode_var tc_seq;
 		CORBA::TypeCode_var tc_field;
-		
+
 		tc = dd.any->type();
-		switch(tc->kind()) 
+		switch(tc->kind())
 		{
 		case CORBA::tk_boolean:
 			bool bo_tmp;
@@ -1656,19 +1764,19 @@ ostream &operator<<(ostream &o_str,DeviceData &dd)
 			else
 				o_str << "false" ;
 			break;
-			
+
 		case CORBA::tk_short:
 			short tmp;
 			dd.any >>= tmp;
 			o_str << tmp;
 			break;
-			
+
 		case CORBA::tk_long:
 			Tango::DevLong l_tmp;
 			dd.any >>= l_tmp;
 			o_str << l_tmp;
 			break;
-			
+
 		case CORBA::tk_longlong:
 #ifdef TANGO_LONG32
 			long long ll_tmp;
@@ -1678,43 +1786,43 @@ ostream &operator<<(ostream &o_str,DeviceData &dd)
 			dd.any >>= ll_tmp;
 			o_str << ll_tmp;
 			break;
-			
+
 		case CORBA::tk_float:
 			float f_tmp;
 			dd.any >>= f_tmp;
 			o_str << f_tmp;
 			break;
-			
+
 		case CORBA::tk_double:
 			double db_tmp;
 			dd.any >>= db_tmp;
 			o_str << db_tmp;
 			break;
-			
+
 		case CORBA::tk_ushort:
 			unsigned short us_tmp;
 			dd.any >>= us_tmp;
 			o_str << us_tmp;
 			break;
-			
+
 		case CORBA::tk_ulong:
 			Tango::DevULong ul_tmp;
 			dd.any >>= ul_tmp;
 			o_str << ul_tmp;
 			break;
-			
+
 		case CORBA::tk_ulonglong:
 			unsigned long ull_tmp;
 			dd.any >>= ull_tmp;
 			o_str << ull_tmp;
 			break;
-			
+
 		case CORBA::tk_string:
 			const char *str_tmp;
 			dd.any >>= str_tmp;
 			o_str << str_tmp;
 			break;
-			
+
 		case CORBA::tk_alias:
 			tc_al = tc->content_type();
 			tc_seq = tc_al->content_type();
@@ -1725,105 +1833,128 @@ ostream &operator<<(ostream &o_str,DeviceData &dd)
 				dd.any.inout() >>= ch_arr;
 				o_str << *ch_arr;
 				break;
-				
+
 			case CORBA::tk_short:
 				Tango::DevVarShortArray *sh_arr;
 				dd.any.inout() >>= sh_arr;
 				o_str << *sh_arr;
 				break;
-				
+
 			case CORBA::tk_long:
 				Tango::DevVarLongArray *lg_arr;
 				dd.any.inout() >>= lg_arr;
 				o_str << *lg_arr;
 				break;
-				
+
 			case CORBA::tk_longlong:
 				Tango::DevVarLong64Array *llg_arr;
 				dd.any.inout() >>= llg_arr;
 				o_str << *llg_arr;
 				break;
-				
+
 			case CORBA::tk_float:
 				Tango::DevVarFloatArray *fl_arr;
 				dd.any.inout() >>= fl_arr;
 				o_str << *fl_arr;
 				break;
-				
+
 			case CORBA::tk_double:
 				Tango::DevVarDoubleArray *db_arr;
 				dd.any.inout() >>= db_arr;
 				o_str << *db_arr;
 				break;
-				
+
 			case CORBA::tk_ushort:
 				Tango::DevVarUShortArray *us_arr;
 				dd.any.inout() >>= us_arr;
 				o_str << *us_arr;
 				break;
-				
+
 			case CORBA::tk_ulong:
 				Tango::DevVarULongArray *ul_arr;
 				dd.any.inout() >>= ul_arr;
 				o_str << *ul_arr;
 				break;
-				
+
 			case CORBA::tk_ulonglong:
 				Tango::DevVarULong64Array *ull_arr;
 				dd.any.inout() >>= ull_arr;
 				o_str << *ull_arr;
 				break;
-				
+
 			case CORBA::tk_string:
 				Tango::DevVarStringArray *str_arr;
 				dd.any.inout() >>= str_arr;
 				o_str << *str_arr;
 				break;
-				
+
 			default:
 				break;
 			}
 			break;
-			
+
 		case CORBA::tk_struct:
-			tc_field = tc->member_type(0);
-			tc_al = tc_field->content_type();
-			tc_seq = tc_al->content_type();
-			switch (tc_seq->kind())
+            tc_field = tc->member_type(0);
+            tc_al = tc_field->content_type();
+            switch (tc_al->kind())
 			{
-			case CORBA::tk_long:
-				Tango::DevVarLongStringArray *lgstr_arr;
-				dd.any.inout() >>= lgstr_arr;
-				o_str << lgstr_arr->lvalue << endl;
-				o_str << lgstr_arr->svalue;
-				break;
-				
-			case CORBA::tk_double:
-				Tango::DevVarDoubleStringArray *dbstr_arr;
-				dd.any.inout() >>= dbstr_arr;
-				o_str << dbstr_arr->dvalue << endl;
-				o_str << dbstr_arr->svalue;
-				break;
-				
-			default:
-				break;
+                case CORBA::tk_sequence:
+                    tc_seq = tc_al->content_type();
+                    switch (tc_seq->kind())
+                    {
+                        case CORBA::tk_long:
+                            Tango::DevVarLongStringArray *lgstr_arr;
+                            dd.any.inout() >>= lgstr_arr;
+                            o_str << lgstr_arr->lvalue << endl;
+                            o_str << lgstr_arr->svalue;
+                            break;
+
+                        case CORBA::tk_double:
+                            Tango::DevVarDoubleStringArray *dbstr_arr;
+                            dd.any.inout() >>= dbstr_arr;
+                            o_str << dbstr_arr->dvalue << endl;
+                            o_str << dbstr_arr->svalue;
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+
+                case CORBA::tk_string:
+                    Tango::DevEncoded *enc;
+                    dd.any.inout() >>= enc;
+                    o_str << "Encoding string: " << enc->encoded_format << endl;
+                    {
+                        long nb_data_elt = enc->encoded_data.length();
+                        for (long i = 0;i < nb_data_elt;i++)
+                        {
+                            o_str << "Data element number [" << i << "] = " << (int)enc->encoded_data[i];
+                            if (i < (nb_data_elt - 1))
+                                o_str << '\n';
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
 			}
 			break;
-			
+
 		case CORBA::tk_enum:
 			Tango::DevState tmp_state;
 			dd.any.inout() >>= tmp_state;
 			o_str << Tango::DevStateName[tmp_state];
 			break;
-			
+
 		default:
 			break;
-			
+
 		}
-		
+
 		CORBA::release(tc);
 	}
-	
+
 	return o_str;
 }
 
