@@ -469,7 +469,7 @@ public:
  */
 	bool is_svr_shutting_down() {return ext->svr_stopping;}
 //@}
-	
+
 	void set_interceptors(Interceptors *in) {ext->inter = in;}
 	Interceptors *get_interceptors() {return ext->inter;}
 
@@ -511,11 +511,6 @@ public:
 	void unvalidate_db_cache() {if (ext->db_cache!=NULL){delete ext->db_cache;ext->db_cache = NULL;}}
 
 	void set_svr_starting(bool val) {ext->svr_starting = val;}
-
-	bool is_svr_starting() {return ext->svr_starting;}
-	void set_svr_starting(bool val) {ext->svr_starting = val;}
-	
-	bool is_svr_shutting_down() {return ext->svr_stopping;}
 	void set_svr_shutting_down(bool val) {ext->svr_stopping = val;}
 
 	vector<string> &get_polled_dyn_attr_names() {return ext->polled_dyn_attr_names;}
