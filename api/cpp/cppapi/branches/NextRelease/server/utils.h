@@ -2,7 +2,7 @@
 //
 // file :               utils.h
 //
-// description :        Include for utility functions or classes  
+// description :        Include for utility functions or classes
 //
 // project :            TANGO
 //
@@ -19,12 +19,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -56,7 +56,7 @@
 #ifndef TANGO_HAS_LOG4TANGO
 
 #define	cout1	if ((Tango::Util::_tracelevel >= 1) && \
-		    (Tango::Util::_tracelevel < 5)) cout 
+		    (Tango::Util::_tracelevel < 5)) cout
 #define cout2  	if ((Tango::Util::_tracelevel >= 2) && \
 		    (Tango::Util::_tracelevel < 5)) cout
 #define cout3	if ((Tango::Util::_tracelevel >= 3) && \
@@ -97,7 +97,7 @@ class PyLock
 public:
 	PyLock() {}
 	virtual ~PyLock() {}
-	
+
 	virtual void Get() {}
 	virtual void Release() {}
 };
@@ -107,7 +107,7 @@ class CreatePyLock
 public:
 	CreatePyLock() {}
 	virtual ~CreatePyLock() {}
-	
+
 	virtual PyLock *create() {return new PyLock();}
 };
 
@@ -116,7 +116,7 @@ class Interceptors
 public:
 	Interceptors() {}
 	virtual ~Interceptors() {}
-	
+
 	virtual void	create_thread() {}
 	virtual	void	delete_thread() {}
 };
@@ -126,9 +126,9 @@ public:
 //			The Util class
 //
 // description :	This class contains all properties and methods
-//			which a device server process requires only once e.g. 
+//			which a device server process requires only once e.g.
 //			the orb and boa pointers....
-//			This class is a singleton ( The constructor is 
+//			This class is a singleton ( The constructor is
 //			protected and the _instance data member is static)
 //
 //			This class must be created at the beginning of each
@@ -146,9 +146,9 @@ public:
 		  conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false)
 	{shared_data.cmd_pending=false;shared_data.trigger=false;
 	cr_py_lock = new CreatePyLock();}
-	
+
 	vector<string>				cmd_line_name_list;
-	
+
 	PollThread					*heartbeat_th;			// The heartbeat thread object
 	int							heartbeat_th_id;		// The heartbeat thread identifier
 	PollThCmd					shared_data;			// The shared buffer
@@ -162,28 +162,28 @@ public:
 	bool						py_ds;					// The Python DS flag
 	CreatePyLock				*cr_py_lock;			// The python lock creator pointer
 	bool						py_dbg;					// Badly written Python dbg flag
-	
+
 	DbServerCache				*db_cache;				// The db cache
 	Interceptors				*inter;					// The user interceptors
-	
+
 	bool						svr_starting;			// Server is starting flag
 	bool						svr_stopping;			// Server is shutting down flag
-	
+
 	vector<string>				polled_dyn_attr_names;	// Dynamic att. names (used for polling clean-up)
 	vector<string>				polled_att_list;		// Full polled att list
 	vector<string>				all_dyn_attr;			// All dynamic attr name list
 	string						dyn_att_dev_name;		// Device name (use for dyn att clean-up)
 	int							db_svr_version;			// Db server version;
-	
+
 	unsigned long				poll_pool_size;			// Polling threads pool size
 	vector<string>  			poll_pool_conf;			// Polling threads pool conf.
 	map<string,int>				dev_poll_th_map;		// Link between device name and polling thread id
 	vector<PollingThreadInfo *>	poll_ths;				// Polling threads
 	bool						conf_needs_db_upd;		// Polling conf needs to be udated in db
-	
+
 	bool 						(*ev_loop_func)(void);	// Ptr to user event loop
 	bool						shutdown_server;		// Flag to exit the manual event loop
-	
+
 	SubDevDiag					sub_dev_diag;			// Object to handle sub device diagnostics
 	bool						_dummy_thread;			// The main DS thread is not the process main thread
 
@@ -199,7 +199,7 @@ public:
  * $Author$
  * $Revision$
  */
- 
+
 class Util
 {
 	friend class Tango::AutoTangoMonitor;
@@ -215,7 +215,7 @@ public:
  * Create and get the singleton object reference.
  *
  * This method returns a reference to the object of the Util class.
- * If the class singleton object has not been created, it will be 
+ * If the class singleton object has not been created, it will be
  * instanciated
  *
  * @param argc The process command line argument number
@@ -228,8 +228,8 @@ public:
  * Create and get the singleton object reference.
  *
  * This method returns a reference to the object of the Util class.
- * If the class singleton object has not been created, it will be 
- * instanciated. This method must be used only for non-console mode windows 
+ * If the class singleton object has not been created, it will be
+ * instanciated. This method must be used only for non-console mode windows
  * device server
  *
  * @param AppInst The application instance
@@ -238,7 +238,7 @@ public:
  */
         TANGO_IMP_EXP static Util *init(HINSTANCE AppInst,int CmdShow);
 #endif
-	
+
 /**
  * Get the singleton object reference.
  *
@@ -268,9 +268,9 @@ public:
  * This is a CORBA _duplicate of the original reference
  *
  * @return The CORBA ORB
- */		
+ */
 	CORBA::ORB_ptr get_orb() {return CORBA::ORB::_duplicate(orb);}
-	
+
 /**
  * Get a reference to the CORBA Portable Object Adapter (POA)
  *
@@ -290,9 +290,9 @@ public:
  * Set the process trace level.
  *
  * @param level The new process level
- */	
+ */
 	void set_trace_level(int level) {_tracelevel = level;}
-	
+
 /**
  * Get the process trace level.
  *
@@ -305,30 +305,30 @@ public:
  * Set the process trace output .
  *
  * @param level The new process output
- */	
+ */
 	void set_trace_output(string &trace) {trace_output = trace;}
-	
+
 /**
  * Get the process trace output.
  *
  * @return The process trace output
- */	
-	string &get_trace_output() {return trace_output;}	
+ */
+	string &get_trace_output() {return trace_output;}
 
 /**
  * Get the temporary process output print stream
  *
  * @return The process output print stream
- */	
+ */
 	TangoSys_Cout &get_out() {return cout_tmp;}
-	
+
 /**
  * Set the process trace output stream.
  *
  * @param in The new process output stream
- */	
+ */
 	void set_trace_output_stream(ofstream *in) {file_stream = in;}
-	
+
 /**
  * Get the process output print stream
  *
@@ -341,16 +341,16 @@ public:
  * Get the device server instance name.
  *
  * @return The device server instance name
- */	
+ */
 	string &get_ds_inst_name() {return ds_instance_name;}
-	
+
 /**
  * Get the device server executable name.
  *
  * @return The device server executable name
  */
 	string &get_ds_exec_name() {return ds_exec_name;}
-	
+
 /**
  * Get the device server name.
  *
@@ -364,52 +364,52 @@ public:
  * Get the host name where the device server process is running.
  *
  * @return The host name
- */	
+ */
 	string &get_host_name() {return hostname;}
-	
+
 /**
  * Get the device server process identifier as a String
  *
  * @return The device server process identifier as a string
  */
 	string &get_pid_str() {return pid_str;}
-	
+
 /**
  * Get the device server process identifier
  *
  * @return The device server process identifier
  */
 	TangoSys_Pid get_pid() {return pid;}
-	
+
 /**
  * Get the TANGO library version number.
  *
  * @return The Tango library release number coded in 3 digits
  * (for instance 550,551,552,600,....)
- */	
+ */
 	long get_tango_lib_release();
-	
+
 /**
  * Get the IDL TANGO version.
  *
  * @return The device server version
- */	
+ */
 	string &get_version_str() {return version_str;}
-	
+
 /**
  * Get the device server version.
  *
  * @return The device server version
- */	
+ */
 	string &get_server_version() {return server_version;}
 
 /**
  * Set the device server version.
  *
  * @param vers The device server version
- */	
+ */
 	void set_server_version(const char *vers) {server_version = vers;}
-	
+
 /**
  * Set the DeviceClass list pointer
  *
@@ -423,28 +423,28 @@ public:
  * @param cl The DeviceClass ptr
  */
  	void add_class_to_list(DeviceClass * cl) {cl_list.push_back(cl);}
-		
+
 /**
  * Get the DeviceClass list pointer
  *
  * @return The DeviceClass ptr vector address
- */	
+ */
 	const vector<DeviceClass *> *get_class_list() {return &cl_list;}
-	
+
 /**
  * Set the serialization model
  *
  * @param ser The new serialization model. The serialization model must be one
  * of BY_DEVICE, BY_CLASS, BY_PROCESS or NO_SYNC
- */	
+ */
 	void set_serial_model(SerialModel ser) {ext->ser_model = ser;}
-	
+
 /**
  * Get the serialization model
  *
  * @return The serialization model. This serialization model is one of
  * BY_DEVICE, BY_CLASS, BY_PROCESS or NO_SYNC
- */	
+ */
 	SerialModel get_serial_model() {return ext->ser_model;}
 /**
  * Get a reference to the TANGO EventSupplier object
@@ -470,10 +470,9 @@ public:
 	bool is_svr_shutting_down() {return ext->svr_stopping;}
 //@}
 	
-
 	void set_interceptors(Interceptors *in) {ext->inter = in;}
 	Interceptors *get_interceptors() {return ext->inter;}
-	
+
 	vector<string> &get_cmd_line_name_list() {return ext->cmd_line_name_list;}
 	TangoMonitor &get_heartbeat_monitor() {return ext->poll_mon;}
 	PollThCmd &get_heartbeat_shared_cmd() {return ext->shared_data;}
@@ -483,7 +482,7 @@ public:
 //
 // Some methods are duplicated here (with different names). It is for compatibility reason
 //
-	
+
 	void polling_configure();
 	PollThread *get_polling_thread_object() {return ext->heartbeat_th;}
 	PollThread *get_heartbeat_thread_object() {return ext->heartbeat_th;}
@@ -493,38 +492,43 @@ public:
 	int get_heartbeat_thread_id() {return ext->heartbeat_th_id;}
 	void stop_heartbeat_thread();
 	string &get_svr_port_num() {return ext->svr_port_num;}
-	
+
 	void create_event_supplier();
-	
+
 	void *get_py_interp() {return ext->py_interp;}
 	void set_py_interp(void *ptr) {ext->py_interp = ptr;}
 
 	bool is_py_ds() {return ext->py_ds;}
 	void set_py_ds() {ext->py_ds=true;}
-	
+
 	bool is_py_dbg() {return ext->py_dbg;}
 	void set_py_dbg() {ext->py_dbg=true;}
 
 	void set_py_lock_creator(CreatePyLock *py) {ext->cr_py_lock = py;}
 	CreatePyLock *get_py_lock_creator() {return ext->cr_py_lock;}
-	
+
 	DbServerCache *get_db_cache() {return ext->db_cache;}
 	void unvalidate_db_cache() {if (ext->db_cache!=NULL){delete ext->db_cache;ext->db_cache = NULL;}}
-	
+
 	void set_svr_starting(bool val) {ext->svr_starting = val;}
-	void set_svr_shutting_down(bool val) {ext->svr_stopping = val;}
+
+	bool is_svr_starting() {return ext->svr_starting;}
+	void set_svr_starting(bool val) {ext->svr_starting = val;}
 	
+	bool is_svr_shutting_down() {return ext->svr_stopping;}
+	void set_svr_shutting_down(bool val) {ext->svr_stopping = val;}
+
 	vector<string> &get_polled_dyn_attr_names() {return ext->polled_dyn_attr_names;}
 	vector<string> &get_full_polled_att_list() {return ext->polled_att_list;}
 	string &get_dyn_att_dev_name() {return ext->dyn_att_dev_name;}
 	vector<string> &get_all_dyn_attr_names() {return ext->all_dyn_attr;}
-	
+
 	int get_db_svr_version() {return ext->db_svr_version;}
 	void set_db_svr_version();
-	
+
 	void clean_attr_polled_prop();
 	void clean_dyn_attr_prop();
-	
+
 	int create_poll_thread(const char *dev_name,bool startup,int smallest_upd = -1);
 	void stop_all_polling_threads();
 	vector<PollingThreadInfo *> &get_polling_threads_info() {return ext->poll_ths;}
@@ -536,20 +540,20 @@ public:
 	void upd_polling_prop(vector<DevDbUpd> &,DServer *);
 	int get_th_polled_devs(string &,vector<string> &);
 	void get_th_polled_devs(long,vector<string> &);
-	void build_first_pool_conf();
+	void build_first_pool_conf(vector<string> &);
 	bool is_dev_already_in_pool_conf(string &,vector<string>&,int);
 	vector<string> &get_poll_pool_conf() {return ext->poll_pool_conf;}
 	int get_dev_entry_in_pool_conf(string &);
 	void remove_dev_from_polling_map(string &dev_name);
 	void remove_polling_thread_info_by_id(int);
-	
+
 	bool is_server_event_loop_set() {if (ext->ev_loop_func != NULL)return true;else return false;}
 	void set_shutdown_server(bool val) {ext->shutdown_server = val;}
-	
+
 	void shutdown_server();
-	
+
 	SubDevDiag &get_sub_dev_diag() {return ext->sub_dev_diag;}
-	
+
 /**@name Database related methods */
 //@{
 /**
@@ -562,22 +566,22 @@ public:
 
 /**
  * Reread the file database
- */ 
+ */
 	void reset_filedatabase();
-		
+
 /**
  * Get a reference to the TANGO database object
  *
  * @return The database object
  */
 	Database *get_database() {return db;}
-		
+
 /**
  * Unregister a device server process from the TANGO database.
  *
  * If the database call fails, a message is displayed on the screen and the
  * process is aborted
- */	
+ */
 	void unregister_server();
 //@}
 
@@ -591,13 +595,13 @@ public:
  *
  * @param class_name The TANGO device class name
  * @return The device reference list
- * @exception DevFailed If in the device server process there is no TANGO 
+ * @exception DevFailed If in the device server process there is no TANGO
  * device pattern implemented the TANGO device class given as parameter
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
 	vector<DeviceImpl *> &get_device_list_by_class(const string &class_name);
-	
+
 /**
  * Get the list of device references for a given TANGO class.
  *
@@ -606,13 +610,13 @@ public:
  *
  * @param class_name The TANGO device class name
  * @return The device reference list
- * @exception DevFailed If in the device server process there is no TANGO 
+ * @exception DevFailed If in the device server process there is no TANGO
  * device pattern implemented the TANGO device class given as parameter
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
 	vector<DeviceImpl *> &get_device_list_by_class(const char *class_name);
-	
+
 /**
  * Get a device reference from its name
  *
@@ -624,7 +628,7 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	DeviceImpl *get_device_by_name(const string &dev_name);
-	
+
 /**
  * Get a device reference from its name
  *
@@ -636,14 +640,14 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	DeviceImpl *get_device_by_name(const char *dev_name);
-	
+
 /**
  * Get a reference to the dserver device attached to the device server process
  *
  * @return A reference to the dserver device
  */
 	DServer *get_dserver_device();
-	
+
 /**
  * Get DeviceList from name.
  *
@@ -652,7 +656,7 @@ public:
  *
  * @param name The device name
  * @return The DeviceClass ptr vector address
- */	
+ */
 	vector<DeviceImpl *> get_device_list(const string &name);
 //@}
 
@@ -665,18 +669,18 @@ public:
  * @exception DevFailed If the device pattern initialistaion failed
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
- */	
+ */
 	void server_init(bool with_window = false);
-	
+
 /**
  * Run the CORBA event loop
  *
  * This method runs the CORBA event loop. For UNIX or Linux operating system,
- * this method does not return. For Windows in a non-console mode, 
+ * this method does not return. For Windows in a non-console mode,
  * this method start a thread which enter the CORBA event loop.
  */
  	void server_run();
-	
+
 /**
  * Cleanup a Tango device server process before exit
  *
@@ -684,16 +688,16 @@ public:
  * resources before the process exit
  */
  	void server_cleanup();
- 	
+
 /**
  * Set the server event loop
  *
  * This method registers an event loop function in a Tango server.
  * This function will be called by the process main thread in an infinite loop
- * The process will not use the classical ORB blocking event loop. 
+ * The process will not use the classical ORB blocking event loop.
  * It is the user responsability to code this function in a way that it implements
  * some kind of blocking in order not to load the computer CPU
- * 
+ *
  * @param f_ptr The event loop function pointer. This function will not receive
  * any argument. It returns a boolean value. If this boolean is set to true,
  * the device server process exit.
@@ -706,7 +710,7 @@ public:
 //@{
 /**
  * The process trace level
- */	
+ */
 	static int		_tracelevel;
 /**
  * The database use flag (Use with extreme care). Implemented for device
@@ -730,8 +734,8 @@ public:
  */
  	TANGO_IMP static long	_sleep_between_connect;
 
-	
-//@}	
+
+//@}
 
 #ifdef _TG_WINDOWS_
 /**@name Windows specific methods */
@@ -741,9 +745,9 @@ public:
  *
  * @return The device server graphical interface console window instance
  */
- 
+
 	HWND			get_console_window();
-	
+
 /**
  * Get the main window instance
  *
@@ -763,7 +767,7 @@ public:
  * Get the text displayed on main server window.
  *
  * @return The text to be displayed
- */	
+ */
 	string &get_main_window_text() {return main_win_text;}
 
 /**
@@ -771,7 +775,7 @@ public:
  *
  * @param 	txt 	The new text to be displayed at the bottom of the
  * main window
- */	
+ */
 	void set_main_window_text(string &txt) {main_win_text = txt;}
 //@}
 #endif
@@ -800,7 +804,7 @@ protected:
  */
 	Util(HINSTANCE AppInst,int CmdShow);
 #endif
-		
+
 private:
 	TANGO_IMP static Util	*_instance;
 	static bool				_constructed;
@@ -817,14 +821,14 @@ private:
 
 	void build_argc_argv();
 	void install_cons_handler();
-	
-	class ORBWin32Loop: public omni_thread	
+
+	class ORBWin32Loop: public omni_thread
 	{
 		Util *util;
 	public:
 		ORBWin32Loop(Util *u):util(u) {}
 		virtual ~ORBWin32Loop() {}
-		
+
 		void *run_undetached(void *);
 		void start() {start_undetached();}
 	private:
@@ -836,11 +840,11 @@ private:
 
 	CORBA::ORB_var 			orb;
 	PortableServer::POA_var _poa;
-	
+
 	string					ds_instance_name;	// The instance name
 	string					ds_exec_name;		// The server exec. name
 	string					ds_name;			// The server name
-	
+
 	string					hostname;			// The host name
 	string					pid_str;			// The process PID (as string)
 	TangoSys_Pid			pid;				// The process PID
@@ -850,19 +854,19 @@ private:
 
 	string      			database_file_name;
 
-#ifndef TANGO_HAS_LOG4TANGO	
+#ifndef TANGO_HAS_LOG4TANGO
 	string			trace_output;
 	TangoSys_Cout		cout_tmp;
 	ofstream		*file_stream;
 #endif //TANGO_HAS_LOG4TANGO
 
 	Database				*db;			// The db proxy
-	
+
 	void effective_job(int,char *[]);
 	void create_CORBA_objects();
 	void misc_init();
 	void init_host_name();
-	void server_already_running();	
+	void server_already_running();
 	void print_usage(char *);
 	static void print_err_message(const char *,Tango::MessBoxType type = Tango::STOP);
 	void print_err_message(const string &mess,Tango::MessBoxType type = Tango::STOP)
@@ -874,7 +878,7 @@ private:
 	DeviceImpl *find_device_name_core(string &);
 
 	bool  							display_help;	// display help message flag
-	const vector<DeviceClass *>		*cl_list_ptr;	// Ptr to server device class list	
+	const vector<DeviceClass *>		*cl_list_ptr;	// Ptr to server device class list
 	UtilExt							*ext;			// Class extension
 	vector<DeviceClass *>			cl_list;		// Full class list ptr
 
@@ -886,36 +890,36 @@ public:
  * Trigger polling for polled command.
  *
  * This method send the order to the polling thread to poll one object
- * registered with an update period defined as "externally triggerred"  
+ * registered with an update period defined as "externally triggerred"
  *
  * @param dev The TANGO device
  * @param name The command name which must be polled
  * @exception DevFailed If the call failed
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
- */	
+ */
 	void trigger_cmd_polling(DeviceImpl *dev,const string &name);
-	
+
 /**
  * Trigger polling for polled attribute.
  *
  * This method send the order to the polling thread to poll one object
- * registered with an update period defined as "externally triggerred"  
+ * registered with an update period defined as "externally triggerred"
  *
  * @param dev The TANGO device
  * @param name The attribute name which must be polled
  * @exception DevFailed If the call failed
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
- */	
+ */
 	void trigger_attr_polling(DeviceImpl *dev,const string &name);
 
 /**
  * Fill polling buffer for polled attribute.
  *
  * This method fills the polling buffer for one polled attribute
- * registered with an update period defined as "externally triggerred" 
- * (polling period set to 0) 
+ * registered with an update period defined as "externally triggerred"
+ * (polling period set to 0)
  *
  * @param dev The TANGO device
  * @param att_name The attribute name which must be polled
@@ -942,16 +946,16 @@ public:
 			Except::throw_exception((const char *)"API_DeviceNotPolled",o.str(),
 				   		(const char *)"Util::fill_attr_polling_buffer");
 		}
-	
+
 //
 // Attribute name in lower case letters and check that it is marked as polled
 //
 
 		string obj_name(att_name);
 		transform(obj_name.begin(),obj_name.end(),obj_name.begin(),::tolower);
-		
+
 		dev->get_polled_obj_by_type_name(Tango::POLL_ATTR,obj_name);
-	
+
 //
 // Get a reference on the Attribute object
 //
@@ -995,14 +999,14 @@ public:
 
 					Except::throw_exception((const char *)"API_NotSupportedFeature",o.str(),
 				   							(const char *)"Util::fill_attr_polling_buffer");
-				}	
+				}
 			}
 		}
 
 //
 // For device implementing IDL 3, DevEncoded data type is not supported
 //
-		
+
 		long idl_vers = dev->get_dev_idl_version();
 		if ((att.get_data_type() == DEV_ENCODED) && (idl_vers == 3))
 		{
@@ -1013,7 +1017,7 @@ public:
 			o << " DEV_ENCODED data type is supported starting with IDL V4" << ends;
 
 			Except::throw_exception((const char *)"API_NotSupportedFeature",o.str(),
-				   		(const char *)"Util::fill_attr_polling_buffer");			
+				   		(const char *)"Util::fill_attr_polling_buffer");
 		}
 
 //
@@ -1021,7 +1025,7 @@ public:
 // Paranoid code? This case should never happens!
 //
 
-		if ((att.get_data_type() == DEV_ENCODED) && 
+		if ((att.get_data_type() == DEV_ENCODED) &&
 			(att.get_data_format() != Tango::SCALAR) &&
 			(w_type == Tango::READ_WRITE))
 		{
@@ -1037,14 +1041,14 @@ public:
 
 					Except::throw_exception((const char *)"API_NotSupportedFeature",o.str(),
 				   							(const char *)"Util::fill_attr_polling_buffer");
-				}	
+				}
 			}
 		}
 
 //
 // Check that the device IDL is at least 3
 //
-		
+
 		if (idl_vers <= 2)
 		{
 			TangoSys_OMemStream o;
@@ -1052,9 +1056,9 @@ public:
 			o << "Please update your device to IDL 3 or more" << ends;
 
 			Except::throw_exception((const char *)"API_NotSupportedFeature",o.str(),
-				   		(const char *)"Util::fill_attr_polling_buffer");	
-		}			
-		
+				   		(const char *)"Util::fill_attr_polling_buffer");
+		}
+
 //
 // Check that history is not larger than polling buffer
 //
@@ -1072,17 +1076,17 @@ public:
 			Except::throw_exception((const char *)"API_DeviceNotPolled",o.str(),
 				   		(const char *)"Util::fill_attr_polling_buffer");
 		}
-	
+
 //
 // A loop on each record
 //
-	
-		unsigned long i;	
+
+		unsigned long i;
 		Tango::DevFailed *save_except;
 		Tango::AttributeValueList_3 *back_3;
 		Tango::AttributeValueList_4 *back_4;
 		bool attr_failed;
-		
+
 		struct timeval zero,when;
 		zero.tv_sec = zero.tv_usec = 0;
 
@@ -1091,13 +1095,13 @@ public:
 // In case of large element number, it is time cousuming to take/release
 // the monitor in the loop
 //
-		
+
 		dev->get_poll_monitor().get_monitor();
-		
+
 //
 // The loop for each element
 //
-		
+
 		for (i = 0;i < nb_elt;i++)
 		{
 			save_except = NULL;
@@ -1114,15 +1118,15 @@ public:
 				}
 				catch (bad_alloc)
 				{
-					dev->get_poll_monitor().rel_monitor();					
+					dev->get_poll_monitor().rel_monitor();
 					Except::throw_exception((const char *)"API_MemoryAllocation",
 				        			(const char *)"Can't allocate memory in server",
 				        			(const char *)"Util::fill_attr_polling_buffer");
-				}		
+				}
 			}
 			else
 			{
-			
+
 //
 // Allocate memory for the AttributeValueList sequence
 //
@@ -1167,7 +1171,7 @@ public:
 					(*back_4)[0].w_dim.dim_y = 0;
 					(*back_4)[0].r_dim.dim_x = 0;
 					(*back_4)[0].r_dim.dim_y = 0;
-					
+
 					(*back_4)[0].data_format = att.get_data_format();
 				}
 				else
@@ -1184,12 +1188,12 @@ public:
 					(*back_3)[0].r_dim.dim_x = 0;
 					(*back_3)[0].r_dim.dim_y = 0;
 				}
-				if ((qu == Tango::ATTR_VALID) || 
+				if ((qu == Tango::ATTR_VALID) ||
 				    (qu == Tango::ATTR_ALARM) ||
-				    (qu == Tango::ATTR_WARNING) ||  
+				    (qu == Tango::ATTR_WARNING) ||
 				    (qu == Tango::ATTR_CHANGING))
 				{
-				
+
 //
 // Set Attribute object value
 //
@@ -1198,9 +1202,9 @@ public:
 						      (data.get_data())[i].x,
 						      (data.get_data())[i].y,
 						      (data.get_data())[i].release);
-					att.set_date((data.get_data())[i].t_val);			      
+					att.set_date((data.get_data())[i].t_val);
 					att.set_quality(qu,false);
-					      
+
 //
 // Init remaining fields in AttributeValueList
 //
@@ -1215,7 +1219,7 @@ public:
 													(data.get_data())[i].wr_x,
 													(data.get_data())[i].wr_y);
 							dev->get_device_attr()->add_write_value(att);
-				
+
 							if ((data.get_data())[i].release == true)
 							{
 								if (att.get_data_format() == Tango::SCALAR)
@@ -1229,13 +1233,13 @@ public:
 							dev->get_device_attr()->add_write_value(att);
 						}
 					}
-						
+
 //
 // Insert data into the AttributeValue object
 //
 
 					dev->data_into_net_object(att,back_3,back_4,0,w_type,true);
-					
+
 //
 // Init remaining fields
 //
@@ -1244,7 +1248,7 @@ public:
 					{
 						(*back_4)[0].r_dim.dim_x = (data.get_data())[i].x;
 						(*back_4)[0].r_dim.dim_y = (data.get_data())[i].y;
-							
+
 						if ((w_type == Tango::READ_WRITE) || (w_type == Tango::READ_WITH_WRITE))
 						{
 							WAttribute &assoc_att = dev->get_device_attr()->get_w_attr_by_ind(att.get_assoc_ind());
@@ -1309,7 +1313,7 @@ public:
 			}
 
 		}
-		
+
 		dev->get_poll_monitor().rel_monitor();
 	}
 
@@ -1317,8 +1321,8 @@ public:
  * Fill polling buffer for polled command.
  *
  * This method fills the polling buffer for one polled command
- * registered with an update period defined as "externally triggerred" 
- * (polling period set to 0) 
+ * registered with an update period defined as "externally triggerred"
+ * (polling period set to 0)
  *
  * @param dev The TANGO device
  * @param cmd_name The command name which must be polled
@@ -1346,16 +1350,16 @@ public:
 			Except::throw_exception((const char *)"API_DeviceNotPolled",o.str(),
 				   		(const char *)"Util::fill_cmd_polling_buffer");
 		}
-	
+
 //
 // Command name in lower case letters and check that it is marked as polled
 //
 
 		string obj_name(cmd_name);
 		transform(obj_name.begin(),obj_name.end(),obj_name.begin(),::tolower);
-		
+
 		dev->get_polled_obj_by_type_name(Tango::POLL_CMD,obj_name);
-			
+
 //
 // Check that history is not larger than polling buffer
 //
@@ -1380,18 +1384,18 @@ public:
 // In case of large element number, it is time cousuming to take/release
 // the monitor in the loop
 //
-				
+
 		dev->get_poll_monitor().get_monitor();
-				
+
 //
 // A loop on each record
 //
-	
-		long i;	
+
+		long i;
 		Tango::DevFailed *save_except;
 		bool cmd_failed;
 		CORBA::Any *any_ptr;
-		
+
 		struct timeval zero,when;
 		zero.tv_sec = zero.tv_usec = 0;
 
@@ -1413,11 +1417,11 @@ public:
 					Except::throw_exception((const char *)"API_MemoryAllocation",
 				        			(const char *)"Can't allocate memory in server",
 				        			(const char *)"Util::fill_cmd_polling_buffer");
-				}		
+				}
 			}
 			else
 			{
-			
+
 //
 // Allocate memory for the Any object
 //
@@ -1433,7 +1437,7 @@ public:
 				        			(const char *)"Can't allocate memory in server",
 				        			(const char *)"Util::fill_cmd_polling_buffer");
 				}
-				
+
 //
 // Set command value in Any object
 // If the Any insertion is by pointer, with omniORB, it copy data into the Any
@@ -1447,7 +1451,7 @@ public:
 					(*any_ptr) <<= tmp_ptr;
 				else
 					(*any_ptr) <<= (*tmp_ptr);
-					      
+
 			}
 
 //
@@ -1473,23 +1477,23 @@ public:
 			}
 
 		}
-		
+
 		dev->get_poll_monitor().rel_monitor();
 	}
-	
+
 /**
  * Set the polling threads pool size
  *
  * @param thread_nb The maximun number of threads in the polling threads pool
- */	
-	void set_polling_threads_pool_size(long thread_nb) {ext->poll_pool_size = thread_nb;}
-	
+ */
+	void set_polling_threads_pool_size(unsigned long thread_nb) {ext->poll_pool_size = thread_nb;}
+
 /**
  * Get the polling threads pool size
  *
  * @return The maximun number of threads in the polling threads pool
- */	
-	long get_polling_threads_pool_size() {return ext->poll_pool_size;}
+ */
+	unsigned long get_polling_threads_pool_size() {return ext->poll_pool_size;}
 //@}
 
 };
@@ -1497,7 +1501,7 @@ public:
 //+-------------------------------------------------------------------------
 //
 // function : 		return_empty_any
-// 
+//
 // description : 	Return from a command when the command does not have
 //			any output argument
 //
@@ -1530,7 +1534,7 @@ inline CORBA::Any *return_empty_any(const char *cmd)
 	catch (bad_alloc)
 	{
 		TangoSys_MemStream o;
-		
+
 		o << cmd << "::execute";
 #if !defined(_TG_WINDOWS_) || (defined(_MSC_VER) && _MSC_VER >= 1300)
 		//cout3 << "Bad allocation while in " << cmd << "::execute()" << endl;
@@ -1540,10 +1544,10 @@ inline CORBA::Any *return_empty_any(const char *cmd)
 					     o.str());
 	}
 #if !defined(_TG_WINDOWS_) || (defined(_MSC_VER) && _MSC_VER >= 1300)
-	//cout4 << "Leaving " << cmd << "::execute()" << endl;	
+	//cout4 << "Leaving " << cmd << "::execute()" << endl;
 #endif
 	return(out_any);
-	
+
 }
 
 inline DbDevice *DeviceImpl::get_db_device()
@@ -1554,12 +1558,12 @@ inline DbDevice *DeviceImpl::get_db_device()
 		desc_mess << "Method not available for device ";
 		desc_mess << device_name;
 		desc_mess << " which is a non database device";
-		
+
 		Except::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc_mess.str(),
 					(const char *)"DeviceImpl::get_db_device");
 	}
-	
+
 	return db_dev;
 }
 
@@ -1581,8 +1585,8 @@ struct PollingThreadInfo
 	vector<string>						polled_devices;		// Polled devices for this thread
 	int									nb_polled_objects;	// Polled objects number in this thread
 	int 								smallest_upd;		// Smallest thread update period
-	vector<DevVarLongStringArray *> 	v_poll_cmd;			// Command(s) to send 
-	
+	vector<DevVarLongStringArray *> 	v_poll_cmd;			// Command(s) to send
+
 	PollingThreadInfo():poll_mon("Polling_thread_mon"),nb_polled_objects(0),smallest_upd(0)
 	{shared_data.cmd_pending = false;shared_data.trigger=false;}
 };
@@ -1614,7 +1618,7 @@ public:
 	PyData():rec_state(false),rec_status(false)
 	{
 		device_name = "No associated device name!";
-		
+
 		try
 		{
 			Util *tg = Util::instance(false);
@@ -1623,7 +1627,7 @@ public:
 		}
 		catch(Tango::DevFailed &) {PerTh_py_lock=NULL;}
 	}
-	
+
 	~PyData()
 	{
 		if (PerTh_py_lock != NULL)
@@ -1643,20 +1647,20 @@ public:
 	DevVarLong64Array			PerTh_dvl64a;
 	DevVarULong64Array			PerTh_dvul64a;
 	DevVarEncodedArray			PerTh_dvea;
-	
+
 	string						PerTh_string;
 	DevFailed					PerTh_df;
 	vector<string>				PerTh_vec_str;
 	vector<double>				PerTh_vec_db;
 	DevErrorList				PerTh_del;
-	
+
 	bool						rec_state;
 	bool						rec_status;
-	
+
 	// name of the associated device to a thread
 	// used to sub device referencing
 	string 						device_name;
-	
+
 	PyLock						*PerTh_py_lock;
 };
 
@@ -1671,5 +1675,5 @@ public:
 long _convert_tango_lib_release(const char *vers_str);
 
 } // End of Tango namespace
-		     
+
 #endif /* UTILS */
