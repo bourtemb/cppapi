@@ -924,6 +924,15 @@ bool Group::contains (const std::string& n, bool fwd)
   return (find_i(n, fwd) != 0) ? true : false;
 }
 //-----------------------------------------------------------------------------
+bool Group::is_enabled (const std::string& device_name, bool fwd) 
+{
+#ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
+  omni_mutex_lock guard(elements_mutex);
+#endif
+  GroupElement * ge = this->find_i(device_name, fwd);
+  return ge ? ge->is_enabled() : false;
+}
+//-----------------------------------------------------------------------------
 GroupElement* Group::find_i (const std::string& n, bool fwd)
 {
   std::string::size_type pos = n.find('*',0);
