@@ -868,7 +868,7 @@ int Util::create_poll_thread(const char *dev_name,bool startup,int smallest_upd)
 
 		for (iter = ext->poll_ths.begin();iter != ext->poll_ths.end();++iter)
 		{
-			if ((*iter)->nb_polled_objects < lower_polled_objects)
+			if ((*iter)->nb_polled_objects <= lower_polled_objects)
 			{
 				lower_polled_objects = (*iter)->nb_polled_objects;
 				lower_iter = iter;
@@ -929,7 +929,6 @@ int Util::create_poll_thread(const char *dev_name,bool startup,int smallest_upd)
 			if (smallest_upd < (*lower_iter)->smallest_upd)
 				(*lower_iter)->smallest_upd = smallest_upd;
 		}
-
 		ret = ind;
 	}
 
