@@ -2,7 +2,7 @@
 ///
 ///  file       event.h
 ///
-/// 	        C++ include file for implementing the TANGO event server and 
+/// 	        C++ include file for implementing the TANGO event server and
 ///		client singleton classes - EventSupplier and EventConsumer.
 ///             These classes are used to send events from the server
 ///             to the notification service and to receive events from
@@ -21,12 +21,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -86,7 +86,7 @@ public :
 	~EventData();
 	EventData(const EventData &);
 	EventData & operator=(const EventData &);
-	
+
 	DeviceProxy *device;
 	string attr_name;
 	string event;
@@ -132,7 +132,7 @@ public:
 				{
 				delete (*vpos);
 				}
-		
+
 			this->vector<EventData *>::clear();
 			}
 		}
@@ -144,7 +144,7 @@ public:
  * 						AttrConfEventData class									*
  * 																				*
  *******************************************************************************/
- 
+
 class AttrConfEventData
 {
 public :
@@ -154,7 +154,7 @@ public :
 	~AttrConfEventData();
 	AttrConfEventData(const AttrConfEventData &);
 	AttrConfEventData & operator=(const AttrConfEventData &);
-	
+
 	DeviceProxy *device;
 	string attr_name;
 	string event;
@@ -201,7 +201,7 @@ public:
 				{
 				delete (*vpos);
 				}
-		
+
 			this->vector<AttrConfEventData *>::clear();
 			}
 		}
@@ -212,7 +212,7 @@ public:
  * 						DataReadyEventData class								*
  * 																				*
  *******************************************************************************/
- 
+
 class DataReadyEventData
 {
 public :
@@ -220,7 +220,7 @@ public :
 	~DataReadyEventData() {};
 	DataReadyEventData(const DataReadyEventData &);
 	DataReadyEventData & operator=(const DataReadyEventData &);
-	
+
 	DeviceProxy 	*device;
 	string 			attr_name;
 	string			event;
@@ -269,7 +269,7 @@ public:
 			{
 				delete (*vpos);
 			}
-		
+
 			this->vector<DataReadyEventData *>::clear();
 		}
 	}
@@ -292,27 +292,27 @@ public:
 	void insert_event(EventData         	*new_event);
 	void insert_event(AttrConfEventData 	*new_event);
 	void insert_event(DataReadyEventData 	*new_event);
-	
+
 	int      size();
 	TimeVal get_last_event_date();
 	bool     is_empty() {if (event_buffer.size() == 0) return true;else return false;}
-	
+
 	void get_events(EventDataList         	&event_list);
 	void get_events(AttrConfEventDataList 	&event_list);
 	void get_events(DataReadyEventDataList	&event_list);
 	void get_events(CallBack *cb);
-	
+
 private:
 	void inc_indexes();
-	
+
 	vector<EventData *>         	event_buffer;
 	vector<AttrConfEventData *> 	conf_event_buffer;
 	vector<DataReadyEventData *>	ready_event_buffer;
-	
+
 	long	max_elt;
 	long	insert_elt;
 	long	nb_elt;
-	
+
 	omni_mutex	modification_mutex;
 };
 
@@ -323,12 +323,12 @@ private:
  * 						KeepAliveThCmd class									*
  * 																				*
  *******************************************************************************/
- 
+
 class KeepAliveThCmd:public omni_mutex
 {
 public :
 	KeepAliveThCmd():cond(this) {};
-	
+
 	bool				cmd_pending;	// The new command flag
 	KeepAliveCmdCode	cmd_code;		// The command code
 	omni_condition 		cond;
@@ -399,8 +399,8 @@ typedef std::map<std::string,EventCallBackStruct>::iterator EvCbIte;
  * 						EventConsumer class										*
  * 																				*
  *******************************************************************************/
- 
- 	
+
+
 class EventConsumer : public POA_CosNotifyComm::StructuredPushConsumer ,
 	      	      	  public omni_thread
 {
@@ -414,20 +414,20 @@ public :
 	virtual void push_structured_event(const CosNotification::StructuredEvent&);
 	void connect(DeviceProxy* device_proxy);
 	void disconnect_structured_push_consumer();
-	void disconnect_from_notifd();	
+	void disconnect_from_notifd();
 	void offer_change(const CosNotification::EventTypeSeq& added,
                       const CosNotification::EventTypeSeq& deled);
-	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event, 
+	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
 	                   CallBack *callback, const vector<string> &filters, bool stateless = false);
-	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event, 
+	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
 	                   int event_queue_size, const vector<string> &filters, bool stateless = false);
-	int connect_event  (DeviceProxy *device, const string &attribute, EventType event, 
-	                   CallBack *callback, EventQueue *ev_queue, const vector<string> &filters, 
+	int connect_event  (DeviceProxy *device, const string &attribute, EventType event,
+	                   CallBack *callback, EventQueue *ev_queue, const vector<string> &filters,
 	                   string &event_name, int event_id = 0);
 	void unsubscribe_event(int event_id);
-	
+
 	// methods to access data in event queues
-	
+
 	void get_events (int event_id, EventDataList &event_list);
 	void get_events (int event_id, AttrConfEventDataList &event_list);
 	void get_events (int event_id, DataReadyEventDataList &event_list);
@@ -435,20 +435,20 @@ public :
 	int  event_queue_size(int event_id);
 	TimeVal get_last_event_date(int event_id);
 	bool is_event_queue_empty(int event_id);
-	
-	
+
+
 	void cleanup_EventChannel_map();
 	TANGO_IMP_EXP static void cleanup()
 	{if (_instance != NULL){_instance=NULL;}}
-	
+
 	CORBA::ORB_var 					orb_;
 	KeepAliveThCmd					cmd;
 	EventConsumerKeepAliveThread 	*keep_alive_thread;
 
 protected :
-	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event, 
-	                   CallBack *callback, EventQueue *ev_queue, 
-					   const vector<string> &filters, bool stateless = false);	
+	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
+	                   CallBack *callback, EventQueue *ev_queue,
+					   const vector<string> &filters, bool stateless = false);
 	friend class EventConsumerKeepAliveThread;
 	void attr_to_device(const AttributeValue *,const AttributeValue_3 *,long,DeviceAttribute *);
 	void attr_to_device(const AttributeValue_4 *,DeviceAttribute *);
@@ -466,10 +466,10 @@ private :
 	CosNotifyChannelAdmin::ProxySupplier_var 				proxySupplier;
 	CosNotifyChannelAdmin::StructuredProxyPushSupplier_var	structuredProxyPushSupplier;
 	CosNotifyChannelAdmin::EventChannelFactory_var 			eventChannelFactory;
-	
-	map<std::string,std::string> 							device_channel_map;
-	map<std::string,EventCallBackStruct> 					event_callback_map;
-	map<std::string,EventChannelStruct> 					channel_map;
+
+	map<std::string,std::string> 							device_channel_map;     // key - device_name, value - channel name
+	map<std::string,EventCallBackStruct> 					event_callback_map;     // key - callback_key, value - Event CallBack info
+	map<std::string,EventChannelStruct> 					channel_map;            // key - channel_name, value - Event Channel info
 	ReadersWritersLock 										map_modification_lock;
 
 	vector<EventNotConnected> 								event_not_connected;
@@ -485,7 +485,7 @@ private :
 	void *run_undetached(void *arg);
 	void connect_event_channel(string &channel_name,Database *,bool);
 	int add_new_callback(EvCbIte &,CallBack *,EventQueue *,int);
-	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &);	
+	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &,EventCallBackStruct &);
 };
 
 /********************************************************************************
@@ -493,7 +493,7 @@ private :
  * 						EventConsumerKeepAliveThread class						*
  * 																				*
  *******************************************************************************/
- 
+
 class EventConsumerKeepAliveThread : public omni_thread
 {
 
@@ -502,10 +502,10 @@ public :
     EventConsumerKeepAliveThread(const EventConsumer&);
 	EventConsumerKeepAliveThread(KeepAliveThCmd &cmd):shared_cmd(cmd){};
 	void start() {start_undetached();}
-	
+
 protected :
 	KeepAliveThCmd		&shared_cmd;
-	
+
 private :
 	void *run_undetached(void *arg);
 	bool reconnect_to_channel(EvChanIte &,EventConsumer *);
@@ -519,14 +519,14 @@ private :
  * 						DelayedEventUnsubThread class							*
  * 																				*
  *******************************************************************************/
- 
+
 class DelayedEventUnsubThread: public omni_thread
 {
 public:
 	DelayedEventUnsubThread(EventConsumer *ec,int id,TangoMonitor *m):omni_thread(),event_id(id),ev_cons(ec),the_mon(m) {}
-	
+
 	void run(void *);
-	
+
 private:
 	int 			event_id;
 	EventConsumer 	*ev_cons;
