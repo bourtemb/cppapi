@@ -1,8 +1,8 @@
-//=============================================================================	
+//=============================================================================
 //
 // file :		MultiAttribute.h
 //
-// description :	Include file for the MultiAttribute class. 
+// description :	Include file for the MultiAttribute class.
 //			Each device has one object of this class. All device
 //			attribute objects are stored in this class
 //
@@ -21,12 +21,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -146,13 +146,13 @@ class MultiAttributeExt
 
 /**
  * There is one instance of this class for each device. This class is mainly
- * an aggregate of Attribute or WAttribute objects. It eases management of 
+ * an aggregate of Attribute or WAttribute objects. It eases management of
  * multiple attributes
  *
  * $Author$
  * $Revision$
  */
- 
+
 class MultiAttribute
 {
 public:
@@ -250,7 +250,7 @@ public:
  *
  * @return  A vector of long data. Each object is the index in the main
  * attribute vector of attribute with alarm level defined
- */	
+ */
 	vector<long> &get_alarm_list() {return alarm_attr_list;}
 /**
  * Get attribute number.
@@ -271,7 +271,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  *
- */		
+ */
 	bool check_alarm(const char *attr_name) {return get_attr_by_name(attr_name).check_alarm();}
 /**
  * Check alarm for one attribute from its index in the main attributes vector.
@@ -290,7 +290,7 @@ public:
 /**
  * Check alarm on all attribute(s) with an alarm defined.
  *
- * This method returns a boolean set to true if one of the attribute with an 
+ * This method returns a boolean set to true if one of the attribute with an
  * alarm level defined is in alarm condition.
  *
  * @return A boolean set to true if one attribute is in alarm
@@ -311,14 +311,14 @@ public:
  */
 	void read_alarm(string &status);
 /**
- * Get the vetctor of attribute objects.
+ * Get the vector of attribute objects.
  *
  * Returns the vector of attribute objects.
  *
  */
 	 vector<Attribute *> &get_attribute_list(){return attr_list;}
 //@}
-	
+
 	void add_write_value(Attribute &);
 	void add_attribute(string &,DeviceClass *,long);
 	void remove_attribute(string &,bool);
@@ -333,9 +333,9 @@ private:
 	void concat(vector<AttrProperty> &,vector<AttrProperty> &,vector<AttrProperty> &);
 	void add_user_default(vector<AttrProperty> &,vector<AttrProperty> &);
 	void check_associated(long,string &);
-	
+
 	MultiAttributeExt		*ext;
-	
+
 protected:
 /**@name Class data members */
 //@{
@@ -343,7 +343,7 @@ protected:
  * The Attribute objects vector.
  *
  * This vector is often referred as the main attributes vector
- */	
+ */
 	vector<Attribute *>	attr_list;
 /**
  * The list of writable attribute.

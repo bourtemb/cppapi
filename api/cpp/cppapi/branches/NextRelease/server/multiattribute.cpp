@@ -36,212 +36,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // $Revision$
 //
-// $Log$
-// Revision 3.28  2010/09/17 08:21:12  taurel
-// - Add optimization in MultiAttribute::get_attr_ind_by_name()
-//
-// Revision 3.27  2010/09/09 13:46:00  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.26  2010/08/25 11:41:27  taurel
-// - Fix some bugs preventing dynamic attributes management (in some cases)
-//
-// Revision 3.25  2010/07/16 10:51:53  taurel
-// - Now it's possible to fill the polling buffer externally for R/W attribute
-// specifying the attribute written part
-//
-// Revision 3.24  2010/06/21 14:01:15  taurel
-// - Yet another merge with the Release_7_1_1-bugfixes branch
-//
-// Revision 3.23.2.1  2010/06/16 07:21:07  taurel
-// - Fix bug in state command when attribute(s) has alarm level defined
-// but their attribute quality is INVALID
-//
-// Revision 3.23  2009/10/27 16:33:44  taurel
-// - Fix a bug in attribute mutex management in case the attribute
-// is_allowed() method returns false
-//
-// Revision 3.22  2009/10/23 14:36:27  taurel
-// - Tango 7.1.1
-// - Fix bugs 2880372 and 2881841
-// - Now support event in case of Tango system with multi db server
-// - The polling threads start with polling inactive
-//
-// Revision 3.21  2009/09/18 09:18:06  taurel
-// - End of attribute serialization implementation?
-//
-// Revision 3.20  2009/01/21 12:47:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.19  2008/10/06 15:01:36  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.18  2008/10/03 06:52:31  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.17  2008/06/10 07:52:15  taurel
-// - Add code for the DevEncoded attribute data type
-//
-// Revision 3.16  2008/03/11 14:38:25  taurel
-// - Apply patches from Frederic Picca about compilation with gcc 4.2
-//
-// Revision 3.15  2008/01/30 10:28:47  jensmeyer
-// Corrected bug in get_w_attr_by_name method.
-// The method returned without exception also for non writabe attributes.
-//
-// Revision 3.14  2007/10/26 11:36:35  taurel
-// - Clarify some exception messages
-//
-// Revision 3.13  2007/10/16 08:23:37  taurel
-// - Add management of the TC connection establishment timeout for DB access
-// - Add DB server cache in DS used during DS startup sequence
-// - Comment out the sleep time during DS startup sequence
-//
-// Revision 3.12  2007/04/16 14:57:42  taurel
-// - Added 3 new attributes data types (DevULong, DevULong64 and DevState)
-// - Ported to omniORB4.1
-// - Increased the MAX_TRANSFER_SIZE to 256 MBytes
-// - Added a new filterable field in the archive event
-//
-// Revision 3.11  2007/03/06 08:19:03  taurel
-// - Added 64 bits data types for 64 bits computer...
-//
-// Revision 3.10  2007/02/08 16:21:19  taurel
-// - Fix a bug in index management in the remove_attribute() method
-//
-// Revision 3.9  2006/11/09 16:29:44  taurel
-// - Fix bug in some index management of the remove_attribute() feature
-//
-// Revision 3.8  2005/06/29 08:31:18  taurel
-// - Last commit before release 5.2 ?
-//
-// Revision 3.7  2005/01/13 09:27:53  taurel
-// Fix some bugs :
-// - R/W attribute : W value not returned when read if set by set_write_value
-// - Core dumped when retrieving attribute polling history for Device_2Impl device which
-//   has stored an exception
-// - Remove device_name in lib default attribute label property
-// - Lib default value for label not store in db any more
-// - Size of the DaData used by the Database::get_device_attribute_property() and
-//   Database::get_class_attribute_property()
-// - R/W attribute: W part not returned when read for Device_2Impl device
-// Some changes :
-// - Improvement of the -file option error management (now throw exception in case of
-//   error)
-// - Reset "string" attribute property to the default value (lib or user) when new
-//   value is an empty string
-//
-// Revision 3.5.2.6  2004/11/26 13:53:21  taurel
-// - Fix bug if exception thrown during Util class construction
-// - Change attribute label and format default values
-//
-// Revision 3.5.2.5  2004/10/27 05:59:47  taurel
-// - Some minor changes to compile on all our supported platforms
-//
-// Revision 3.5.2.4  2004/10/22 11:26:32  taurel
-// Added warning alarm
-// Change attribute config. It now includes alarm and event parameters
-// Array attribute property now supported
-// subscribe_event throws exception for change event if they are not correctly configured
-// Change in the polling thread: The event heartbeat has its own work in the work list
-// Also add some event_unregister
-// Fix order in which classes are destructed
-// Fix bug in asynchronous mode (PUSH_CALLBACK). The callback thread ate all the CPU
-// Change in the CORBA info call for the device type
-//
-// Revision 3.5.2.3  2004/09/27 09:10:06  taurel
-// - Changes to allow reading state and/or status as attributes
-//
-// Revision 3.5.2.2  2004/09/15 06:47:16  taurel
-// - Added four new types for attributes (boolean, float, unsigned short and unsigned char)
-// - It is also possible to read state and status as attributes
-// - Fix bug in Database::get_class_property() method (missing ends insertion)
-// - Fix bug in admin device DevRestart command (device name case problem)
-//
-// Revision 3.5.2.1  2004/08/19 07:44:59  taurel
-// - Replace server low level database access call by Database class method call
-// - Split device monitor in 3 : 1 to protect harware access, 1 to protect cache access and one mutex for device black box
-//
-// Revision 3.5  2004/07/07 08:40:11  taurel
-//
-// - Fisrt commit after merge between Trunk and release 4 branch
-// - Add EventData copy ctor, asiignement operator and dtor
-// - Add Database and DeviceProxy::get_alias() method
-// - Add AttributeProxy ctor from "device_alias/attribute_name"
-// - Exception thrown when subscribing two times for exactly yhe same event
-//
-// Revision 3.4  2003/08/22 12:52:55  taurel
-// - For device implementing release 3 of IDL (derivating from device_3impl), change
-//   the way how attributes are read or written
-// - Fix small bug in vector iterator usage in case of "erase()" method called in
-//   a for loop
-//
-// Revision 3.3  2003/08/21 07:24:37  taurel
-// - End of the implementation of the new way to transfer data for read and
-//   write attributes (better use of exception)
-// - Added Attribute::set_date() and Attribute::set_value_date_quality() methods
-// - Added DeviceAttribute ctors from "const char *"
-// - Enable writing of spectrum and image attributes
-// - Many new DeviceAttribute ctors/inserters to enable easy image and spectrums
-//   attribute writing
-// - Attribute date automatically set in case of attribute quality factor set to INVALID
-// - Change in the polling thread discarding element algo. to support case of polling
-//   several cmd/atts at the same polling period with cmd/attr having a long response time
-// - Take cmd/attr execution time into account in the "Data not updated since" polling
-//   status string
-// - Split "str().c_str()" code in two lines of code. It was the reason of some problem
-//   on Windows device server
-// - Add the possibility to set a cmd/attr polling as "externally triggered". Add method
-//   to send trigger to the polling thread
-//
-// Revision 3.2.2.4  2004/03/09 16:36:37  taurel
-// - Added HP aCC port (thanks to Claudio from Elettra)
-// - Some last small bugs fixes
-//
-// Revision 3.2.2.3  2004/03/02 07:41:56  taurel
-// - Fix compiler warnings (gcc used with -Wall)
-// - Fix bug in DbDatum insertion operator fro vectors
-// - Now support "modulo" as periodic filter
-//
-// Revision 3.2.2.2  2004/02/18 15:06:18  taurel
-// Now the DevRestart command immediately restart device event (if any). Previously, it was possible to wait up to 200 secondes before they
-// restart
-//
-// Revision 3.2.2.1  2003/09/30 11:50:43  taurel
-// Add some changes foreseen for release 4.1 and already implemented on
-// the trunck into this release 4.0 branch
-//
-// Revision 3.2  2003/05/28 14:55:10  taurel
-// Add the include (conditionally) of the include files generated by autoconf
-//
-// Revision 3.1  2003/05/16 08:46:16  taurel
-// Many changes for release 3.0.1. The most important ones are :
-// - Timeout are backs
-// - Multiple db servers (change in TANGO_HOST syntax)
-// - Added methods to print DeviceData, DeviceDataHistory, DeviceAttribute and DeviceAttributeHistory instances
-// - Attributes name stored in blackbox
-// - Remove check if a class is created without any device
-// - It's now possible to create a DeviceProxy from its alias name
-// - Command, attribute names are case insensitive
-// - Change parameters of some DeviceProxy logging methods
-// - Change parameters of DeviceProxy asynchronous replies calls
-// - New serialization model in device server (no serialization model)
-// - Win32 (2000) device server service does not exit at loggoff anymore
-// - Miscellaneous bug fixes
-//
-// Revision 3.0  2003/03/25 16:44:11  taurel
-// Many changes for Tango release 3.0 including
-// - Added full logging features
-// - Added asynchronous calls
-// - Host name of clients now stored in black-box
-// - Three serialization model in DS
-// - Fix miscellaneous bugs
-// - Ported to gcc 3.2
-// - Added ApiUtil::cleanup() and destructor methods
-// - Some internal cleanups
-// - Change the way how TangoMonitor class is implemented. It's a recursive
-//   mutex
-//
 //-============================================================================
 
 #if HAVE_CONFIG_H
@@ -1137,9 +931,12 @@ bool MultiAttribute::check_alarm()
 		}
 		if (qua != Tango::ATTR_INVALID)
 		{
-			tmp_ret = check_alarm(alarm_attr_list[i]);
-			if (tmp_ret == true)
-				ret = true;
+		    if (get_attr_by_ind(alarm_attr_list[i]).is_polled() == false)
+		    {
+                tmp_ret = check_alarm(alarm_attr_list[i]);
+                if (tmp_ret == true)
+                    ret = true;
+		    }
 		}
 	}
 
@@ -1151,7 +948,7 @@ bool MultiAttribute::check_alarm()
 // method : 		MultiAttribute::read_alarm
 //
 // description : 	Add a message in the device status string if one of
-//			the device attribute is in the alarm state
+//			        the device attribute is in the alarm state
 //
 // in :			status : The device status
 //

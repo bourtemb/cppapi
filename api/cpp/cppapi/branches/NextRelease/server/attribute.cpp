@@ -5243,25 +5243,25 @@ bool Attribute::check_level_alarm()
 		case Tango::DEV_DOUBLE:
 			if (check_scalar_wattribute() == true)
 			{
-				Tango::DevDouble tmp_val;
-				if (date == false)
-					tmp_val = (*value.db_seq)[0];
-				else
-					tmp_val = tmp_db[0];
+                Tango::DevDouble tmp_val;
+                if (date == false)
+                    tmp_val = (*value.db_seq)[0];
+                else
+                    tmp_val = tmp_db[0];
 
-				if (tmp_val <= min_alarm.db)
-					returned = true;
+                if (tmp_val <= min_alarm.db)
+                    returned = true;
 			}
 			else
 			{
-				for (i = 0;i < data_size;i++)
-				{
-					if ((*value.db_seq)[i] <= min_alarm.db)
-					{
-						returned = true;
-						break;
-					}
-				}
+                for (i = 0;i < data_size;i++)
+                {
+                    if ((*value.db_seq)[i] <= min_alarm.db)
+                    {
+                        returned = true;
+                        break;
+                    }
+			    }
 			}
 			break;
 

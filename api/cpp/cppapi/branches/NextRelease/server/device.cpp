@@ -1237,25 +1237,66 @@ Tango::DevState DeviceImpl::dev_state()
 	{
 
 //
-// Read the hardware
+// Build attribute lists
 //
 
 		long vers = get_dev_idl_version();
 		bool set_alrm = false;
 
-		vector<long> &attr_list = dev_attr->get_alarm_list();
-		vector<long> &attr_list_2 = get_alarmed_not_read();
+		vector<long> attr_list = dev_attr->get_alarm_list();
+		vector<long> attr_list_2 = get_alarmed_not_read();
+		vector<long> attr_polled_list;
 		long nb_wanted_attr;
 
-		if ((vers >= 3) && (ext->state_from_read == true))
-			nb_wanted_attr = attr_list_2.size();
+		if (vers >= 3)
+        {
+            if (ext->state_from_read == true)
+            {
+                vector<long>::iterator ite;
+                for (ite = attr_list_2.begin();ite != attr_list_2.end();++ite)
+                {
+                    Attribute &att = dev_attr->get_attr_by_ind(*ite);
+                    if (att.is_polled() == true)
+                    {
+                        ite = attr_list_2.erase(ite);
+                        --ite;
+                    }
+                }
+                nb_wanted_attr = attr_list_2.size();
+            }
+            else
+            {
+                vector<long>::iterator ite;
+                for (ite = attr_list.begin();ite != attr_list.end();++ite)
+                {
+                    Attribute &att = dev_attr->get_attr_by_ind(*ite);
+                    if (att.is_polled() == true)
+                    {
+                        ite = attr_list.erase(ite);
+                        --ite;
+                    }
+                }
+                nb_wanted_attr = attr_list.size();
+            }
+		}
 		else
+		{
 			nb_wanted_attr = attr_list.size();
+		}
+
+        cout4 << "State: Number of attribute(s) to read: " << nb_wanted_attr << endl;
 
 		if (nb_wanted_attr != 0)
 		{
+
+//
+// Read the hardware
+//
+
 			if (ext->state_from_read == false)
+			{
 				read_attr_hardware(attr_list);
+			}
 
 //
 // Set attr value
@@ -1279,8 +1320,6 @@ Tango::DevState DeviceImpl::dev_state()
 					idx = attr_list[i];
 
 				Attribute &att = dev_attr->get_attr_by_ind(idx);
-				att.wanted_date(false);
-				att.set_value_flag(false);
 
 				try
 				{
@@ -1288,26 +1327,34 @@ Tango::DevState DeviceImpl::dev_state()
 						read_attr(att);
 					else
 					{
-						if (attr_vect[att.get_attr_idx()]->is_allowed(this,Tango::READ_REQ) == false)
-						{
-							att.wanted_date(true);
-							continue;
-						}
-						attr_vect[att.get_attr_idx()]->read(this,att);
-						Tango::AttrQuality qua = att.get_quality();
-						if ((qua != Tango::ATTR_INVALID) && (att.get_value_flag() == false))
-						{
-							TangoSys_OMemStream o;
 
-							o << "Read value for attribute ";
-							o << att.get_name();
-							o << " has not been updated";
-							o << "Hint: Did the server follow Tango V5 attribute reading framework ?" << ends;
+//
+// Otherwise, get it from device
+//
 
-							Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
-				        			   (const char *)"DeviceImpl::dev_state");
-						}
-					}
+                        att.wanted_date(false);
+                        att.set_value_flag(false);
+
+                        if (attr_vect[att.get_attr_idx()]->is_allowed(this,Tango::READ_REQ) == false)
+                        {
+                            att.wanted_date(true);
+                            continue;
+                        }
+                        attr_vect[att.get_attr_idx()]->read(this,att);
+                        Tango::AttrQuality qua = att.get_quality();
+                        if ((qua != Tango::ATTR_INVALID) && (att.get_value_flag() == false))
+                        {
+                            TangoSys_OMemStream o;
+
+                            o << "Read value for attribute ";
+                            o << att.get_name();
+                            o << " has not been updated";
+                            o << "Hint: Did the server follow Tango V5 attribute reading framework ?" << ends;
+
+                            Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
+                                        (const char *)"DeviceImpl::dev_state");
+                        }
+                    }
 				}
 				catch (Tango::DevFailed)
 				{
@@ -1355,11 +1402,11 @@ Tango::DevState DeviceImpl::dev_state()
 				else
 					idx = attr_list[i];
 				Tango::Attribute &att = dev_attr->get_attr_by_ind(idx);
-				att.wanted_date(true);
-				if (att.get_quality() != Tango::ATTR_INVALID)
-					att.delete_seq();
-			}
 
+                att.wanted_date(true);
+                if (att.get_quality() != Tango::ATTR_INVALID)
+                    att.delete_seq();
+			}
 		}
 
 //
