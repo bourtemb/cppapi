@@ -1252,29 +1252,29 @@ Tango::DevState DeviceImpl::dev_state()
         {
             if (ext->state_from_read == true)
             {
-                vector<long>::iterator ite;
-                for (ite = attr_list_2.begin();ite != attr_list_2.end();++ite)
+                vector<long>::iterator ite = attr_list_2.begin();
+				while (ite != attr_list_2.end())
                 {
                     Attribute &att = dev_attr->get_attr_by_ind(*ite);
                     if (att.is_polled() == true)
                     {
                         ite = attr_list_2.erase(ite);
-                        --ite;
                     }
+					else
+						++ite;
                 }
                 nb_wanted_attr = attr_list_2.size();
             }
             else
             {
-                vector<long>::iterator ite;
-                for (ite = attr_list.begin();ite != attr_list.end();++ite)
+                vector<long>::iterator ite = attr_list.begin();
+                while (ite != attr_list.end())
                 {
                     Attribute &att = dev_attr->get_attr_by_ind(*ite);
                     if (att.is_polled() == true)
-                    {
                         ite = attr_list.erase(ite);
-                        --ite;
-                    }
+					else
+						++ite;
                 }
                 nb_wanted_attr = attr_list.size();
             }
