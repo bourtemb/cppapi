@@ -907,7 +907,7 @@ long MultiAttribute::get_attr_ind_by_name(const char *attr_name)
 // method : 		MultiAttribute::check_alarm
 //
 // description : 	check alarm on all the attribute where one alarm is
-//			defined
+//			        defined
 //
 // This method returns a boolen set to true if one of the attribute with
 // an alarm defined is in alarm state
@@ -931,7 +931,14 @@ bool MultiAttribute::check_alarm()
 		}
 		if (qua != Tango::ATTR_INVALID)
 		{
-		    if (get_attr_by_ind(alarm_attr_list[i]).is_polled() == false)
+
+//
+// If the attribute is polled, the check_alarm method has already been called when
+// the polling thread has read the attribute.
+//
+
+		    Attribute &att = get_attr_by_ind(alarm_attr_list[i]);
+		    if (att.is_polled() == false)
 		    {
                 tmp_ret = check_alarm(alarm_attr_list[i]);
                 if (tmp_ret == true)
