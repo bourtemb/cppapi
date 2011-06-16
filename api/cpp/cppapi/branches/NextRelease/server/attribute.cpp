@@ -8170,7 +8170,7 @@ ostream &operator<<(ostream &o_str,Attribute &p)
 		break;
 	}
 
-	if (conf.writable == static_cast<unsigned char>(true))
+	if ((conf.writable == Tango::WRITE) || (conf.writable == Tango::READ_WRITE))
 		cout << "Attribute is writable" << endl;
 	else
 		cout << "Attribute is not writable" << endl;

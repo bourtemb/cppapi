@@ -16,12 +16,12 @@ static const char *RcsId = "$Id$\n$Name$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Lesser Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -319,7 +319,7 @@ omni_mutex ApiUtil::inst_mutex;
 //+----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::ApiUtil()
-// 
+//
 // description : 	Constructor of the ApiUtil class.
 //
 //-----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ omni_mutex ApiUtil::inst_mutex;
 ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 {
 	_orb = CORBA::ORB::_nil();
-	
+
 //
 // Check if it is created from a device server
 //
@@ -342,26 +342,26 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 //
 
 	ext = new ApiUtilExt();
-		
+
 //
 // Create the Asynchronous polling request Id generator
 //
 
 	UniqIdent *ui = new UniqIdent();
-	
+
 //
 // Create the table used to store asynchronous polling requests
 //
 
 	asyn_p_table = new AsynReq(ui);
-	
+
 //
 // Set the asynchronous callback mode to "ON_CALL"
 //
 
 	auto_cb = PULL_CALLBACK;
 	cb_thread_ptr = NULL;
-	
+
 //
 // Get the process PID
 //
@@ -390,7 +390,7 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 //+----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::~ApiUtil()
-// 
+//
 // description : 	Destructor of the ApiUtil class.
 //
 //-----------------------------------------------------------------------------
@@ -402,7 +402,7 @@ ApiUtil::~ApiUtil()
 //
 
 	delete asyn_p_table;
-	
+
 	if (cb_thread_ptr != NULL)
 	{
 		cb_thread_cmd.stop_thread();
@@ -414,11 +414,11 @@ ApiUtil::~ApiUtil()
 //
 
 	clean_locking_threads();
-	
+
 //
 // Release event stuff (in case it is necessary)
 //
-	
+
 	bool event_was_used = false;
 	if (ext != NULL)
 	{
@@ -439,7 +439,7 @@ ApiUtil::~ApiUtil()
 	{
 		delete db_vect[i];
 	}
-				
+
 //
 // Properly shutdown the ORB
 //
@@ -481,16 +481,16 @@ void ApiUtil::create_orb()
 
 //
 // Init the ORB
-//		
+//
 
 	const char *options[][2] = {
 			{"clientCallTimeOutPeriod",CLNT_TIMEOUT_STR},
 			{"verifyObjectExistsAndType","0"},
 			{"giopMaxMsgSize",MAX_TRANSFER_SIZE},
 			{0,0}};
-				
+
 	_orb = CORBA::ORB_init(_argc,_argv,"omniORB4",options);
-	
+
 	free(_argv);
 }
 
@@ -510,7 +510,7 @@ int ApiUtil::get_db_ind()
 		if (db_vect[i]->get_from_env_var() == true)
 			return i;
 	}
-	
+
 //
 // The database object has not been found, create it
 //
@@ -518,7 +518,7 @@ int ApiUtil::get_db_ind()
 	db_vect.push_back(new Database());
 
 	return (db_vect.size() - 1);
-	
+
 }
 
 int ApiUtil::get_db_ind(string &host,int port)
@@ -533,22 +533,22 @@ int ApiUtil::get_db_ind(string &host,int port)
 				return i;
 		}
 	}
-	
+
 //
 // The database object has not been found, create it
 //
 
 	db_vect.push_back(new Database(host,port));
-	
+
 	return (db_vect.size() - 1);
-	
+
 }
 
 
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::get_asynch_replies()
-// 
+//
 // description : 	Try to obtain data returned by a command asynchronously
 //			requested. This method does not block if the reply is
 //			not yet arrived. Fire callback for replies alaredy
@@ -569,7 +569,7 @@ void ApiUtil::get_asynch_replies()
 		{
 			CORBA::Request_ptr req;
 			_orb->get_next_response(req);
-				
+
 //
 // Retrieve this request in the cb request map and mark it as "arrived" in both maps
 //
@@ -578,8 +578,8 @@ void ApiUtil::get_asynch_replies()
 
 			tg_req.arrived = true;
 			asyn_p_table->mark_as_arrived(req);
-			
-//		
+
+//
 // Process request
 //
 
@@ -588,27 +588,27 @@ void ApiUtil::get_asynch_replies()
 			case TgRequest::CMD_INOUT :
 				tg_req.dev->Cb_Cmd_Request(req,tg_req.cb_ptr);
 				break;
-				
+
 			case TgRequest::READ_ATTR :
 				tg_req.dev->Cb_ReadAttr_Request(req,tg_req.cb_ptr);
 				break;
-				
+
 			case TgRequest::WRITE_ATTR :
 			case TgRequest::WRITE_ATTR_SINGLE :
 				tg_req.dev->Cb_WriteAttr_Request(req,tg_req.cb_ptr);
 				break;
 			}
-			
+
 			tg_req.dev->dec_asynch_counter(CALL_BACK);
 			asyn_p_table->remove_request(tg_req.dev,req);
-		}				
+		}
 	}
 	catch (CORBA::BAD_INV_ORDER &e)
 	{
 		if (e.minor() != omni::BAD_INV_ORDER_RequestNotSentYet)
 			throw;
 	}
-	
+
 //
 // For all replies already there
 //
@@ -625,11 +625,11 @@ void ApiUtil::get_asynch_replies()
 			case TgRequest::CMD_INOUT :
 				pos->first->Cb_Cmd_Request(pos->second.request,pos->second.cb_ptr);
 				break;
-				
+
 			case TgRequest::READ_ATTR :
 				pos->first->Cb_ReadAttr_Request(pos->second.request,pos->second.cb_ptr);
 				break;
-				
+
 			case TgRequest::WRITE_ATTR :
 			case TgRequest::WRITE_ATTR_SINGLE :
 				pos->first->Cb_WriteAttr_Request(pos->second.request,pos->second.cb_ptr);
@@ -638,16 +638,16 @@ void ApiUtil::get_asynch_replies()
 			pos->first->dec_asynch_counter(CALL_BACK);
 			asyn_p_table->remove_request(pos->first,pos->second.request);
 		}
-		
-	}	
-	
+
+	}
+
 }
 
 
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::get_asynch_replies()
-// 
+//
 // description : 	Try to obtain data returned by a command asynchronously
 //			requested. This method does not block if the reply is
 //			not yet arrived. Fire callback for replies alaredy
@@ -675,11 +675,11 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 			case TgRequest::CMD_INOUT :
 				pos->first->Cb_Cmd_Request(pos->second.request,pos->second.cb_ptr);
 				break;
-				
+
 			case TgRequest::READ_ATTR :
 				pos->first->Cb_ReadAttr_Request(pos->second.request,pos->second.cb_ptr);
 				break;
-				
+
 			case TgRequest::WRITE_ATTR :
 			case TgRequest::WRITE_ATTR_SINGLE :
 				pos->first->Cb_WriteAttr_Request(pos->second.request,pos->second.cb_ptr);
@@ -688,17 +688,17 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 			pos->first->dec_asynch_counter(CALL_BACK);
 			asyn_p_table->remove_request(pos->first,pos->second.request);
 		}
-		
+
 	}
-	
+
 //
 // If they are requests already sent but without being replied yet
 //
 
 	if (asyn_p_table->get_cb_request_nb() != 0)
-	{	
+	{
 		CORBA::Request_ptr req;
-		
+
 		if (call_timeout != 0)
 		{
 //
@@ -709,11 +709,11 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 
 			long nb = call_timeout / 20;
 #ifndef _TG_WINDOWS_
-			struct timespec to_wait,inter;		
+			struct timespec to_wait,inter;
 			to_wait.tv_sec = 0;
 			to_wait.tv_nsec = 20000000;
-#endif				
-				
+#endif
+
 			while ((nb > 0) && (asyn_p_table->get_cb_request_nb() != 0))
 			{
 #ifdef _TG_WINDOWS_
@@ -724,11 +724,11 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 				nb--;
 
 				try
-				{			
+				{
 					if (_orb->poll_next_response() == true)
 					{
 						_orb->get_next_response(req);
-					
+
 //
 // Retrieve this request in the cb request map and mark it as "arrived" in both maps
 //
@@ -737,8 +737,8 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 
 						tg_req.arrived = true;
 						asyn_p_table->mark_as_arrived(req);
-					
-//		
+
+//
 // Is it a request for our device, process it ?
 //
 
@@ -761,27 +761,27 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 						tg_req.dev->dec_asynch_counter(CALL_BACK);
 						asyn_p_table->remove_request(tg_req.dev,req);
 					}
-				} 
+				}
 				catch (CORBA::BAD_INV_ORDER &e)
 				{
 					if (e.minor() != omni::BAD_INV_ORDER_RequestNotSentYet)
 						throw;
 				}
 			}
-			
+
 //
 // Throw exception if the timeout has expired but there are still request
 // without replies
 //
-			
+
 			if ((nb == 0) && (asyn_p_table->get_cb_request_nb() != 0))
-			{	
+			{
 				TangoSys_OMemStream desc;
 				desc << "Still some reply(ies) for asynchronous callback call(s) to be received" << ends;
 				ApiAsynNotThereExcept::throw_exception((const char *)"API_AsynReplyNotArrived",
 						       	       desc.str(),
-						               (const char *)"ApiUtil::get_asynch_replies");		
-			}	
+						               (const char *)"ApiUtil::get_asynch_replies");
+			}
 		}
 		else
 		{
@@ -791,11 +791,11 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 //
 
 			while (asyn_p_table->get_cb_request_nb() != 0)
-			{					
+			{
 				try
 				{
 					_orb->get_next_response(req);
-								
+
 //
 // Retrieve this request in the cb request map and mark it as "arrived" in both maps
 //
@@ -804,8 +804,8 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 
 					tg_req.arrived = true;
 					asyn_p_table->mark_as_arrived(req);
-				
-//		
+
+//
 // Process the reply
 //
 
@@ -832,17 +832,17 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 				{
 					if (e.minor() != omni::BAD_INV_ORDER_RequestNotSentYet)
 						throw;
-				}			
+				}
 			}
 		}
 	}
-			
+
 }
 
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::set_asynch_cb_sub_model()
-// 
+//
 // description : 	Set the callback automatic mode (Fired by dedicated call
 //			or automatically fired by a separate thread)
 //
@@ -857,9 +857,9 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 	{
 		if (mode == PUSH_CALLBACK)
 		{
-		
+
 //
-// In this case, delete the old object in case it is needed, create a new 
+// In this case, delete the old object in case it is needed, create a new
 // thread and start it
 //
 
@@ -869,7 +869,7 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 				cb_thread_ptr = NULL;
 			}
 			cb_thread_cmd.start_thread();
-			
+
 			cb_thread_ptr = new CallBackThread(cb_thread_cmd,asyn_p_table);
 			cb_thread_ptr->start();
 			auto_cb = PUSH_CALLBACK;
@@ -879,7 +879,7 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 	{
 		if (mode == PULL_CALLBACK)
 		{
-		
+
 //
 // Ask the thread to stop and to exit
 //
@@ -889,13 +889,13 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 			asyn_p_table->signal();
 		}
 	}
-	
+
 }
 
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::create_event_consumer()
-// 
+//
 // description : 	Create the event consumer. This will automatically
 //			start a new thread which is waiting in a CORBA::run()
 //			indefintely for events. It will then trigger the events.
@@ -910,14 +910,14 @@ void ApiUtil::create_event_consumer()
 }
 
 EventConsumer *ApiUtil::get_event_consumer()
-{	
+{
 	return ext->event_consumer;
 }
-	
+
 //+----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::clean_locking_threads()
-// 
+//
 // description : 	Ask all remaining locking threads to exit
 //
 //-----------------------------------------------------------------------------
@@ -925,7 +925,7 @@ EventConsumer *ApiUtil::get_event_consumer()
 void ApiUtil::clean_locking_threads(bool clean)
 {
 	omni_mutex_lock oml(lock_th_map);
-	
+
 	if (lock_threads.empty() == false)
 	{
 		map<string,LockingThread>::iterator pos;
@@ -940,25 +940,25 @@ void ApiUtil::clean_locking_threads(bool clean)
 			{
 				{
 					omni_mutex_lock sync(*(pos->second.mon));
-	
+
 					pos->second.shared->cmd_pending = true;
 					if (clean == true)
 						pos->second.shared->cmd_code = LOCK_UNLOCK_ALL_EXIT;
 					else
 						pos->second.shared->cmd_code = LOCK_EXIT;
-		
+
 					pos->second.mon->signal();
-						
+
 					cout4 << "Cmd sent to locking thread" << endl;
-				
+
 					if (pos->second.shared->cmd_pending == true)
-						pos->second.mon->wait(DEFAULT_TIMEOUT);		
+						pos->second.mon->wait(DEFAULT_TIMEOUT);
 				}
 				delete pos->second.shared;
 				delete pos->second.mon;
 			}
 		}
-		
+
 		if (clean == false)
 			lock_threads.clear();
 	}
@@ -967,7 +967,7 @@ void ApiUtil::clean_locking_threads(bool clean)
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::attr_to_device()
-// 
+//
 // description : 	Create the event consumer. This will automatically
 //			start a new thread which is waiting in a CORBA::run()
 //			indefintely for events. It will then trigger the events.
@@ -1005,11 +1005,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 	CORBA::ULongLong *tmp_ulolo;
 	const DevVarStateArray *tmp_seq_state;
 	Tango::DevState *tmp_state;
-		
+
 	CORBA::ULong max,len;
 
 	if (vers == 3)
-	{	
+	{
 		dev_attr->name = attr_value_3->name;
 		dev_attr->quality = attr_value_3->quality;
 		dev_attr->time = attr_value_3->time;
@@ -1027,7 +1027,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 		dev_attr->dim_x = attr_value->dim_x;
 		dev_attr->dim_y = attr_value->dim_y;
 	}
-	
+
 	if (dev_attr->quality != Tango::ATTR_INVALID)
 	{
 		CORBA::TypeCode_var ty;
@@ -1035,7 +1035,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 			ty = attr_value_3->value.type();
 		else
 			ty = attr_value->value.type();
-			
+
 		if (ty->kind() == CORBA::tk_enum)
 		{
 			attr_value_3->value >>= dev_attr->d_state;
@@ -1050,7 +1050,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 			case CORBA::tk_long:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_lo;
-				else		
+				else
 					attr_value->value >>= tmp_seq_lo;
 				max = tmp_seq_lo->maximum();
 				len = tmp_seq_lo->length();
@@ -1065,11 +1065,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->LongSeq = new DevVarLongArray(max,len,tmp_lo,false);
 				}
 				break;
-	
+
 			case CORBA::tk_longlong:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_64;
-				else		
+				else
 					attr_value->value >>= tmp_seq_64;
 				max = tmp_seq_64->maximum();
 				len = tmp_seq_64->length();
@@ -1084,7 +1084,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,false);
 				}
 				break;
-				
+
 			case CORBA::tk_short:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_sh;
@@ -1122,7 +1122,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,false);
 				}
 				break;
-	
+
 			case CORBA::tk_string:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_str;
@@ -1145,7 +1145,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 			case CORBA::tk_float:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_fl;
-				else		
+				else
 					attr_value->value >>= tmp_seq_fl;
 				max = tmp_seq_fl->maximum();
 				len = tmp_seq_fl->length();
@@ -1160,11 +1160,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->FloatSeq = new DevVarFloatArray(max,len,tmp_fl,false);
 				}
 				break;
-			
+
 			case CORBA::tk_boolean:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_boo;
-				else		
+				else
 					attr_value->value >>= tmp_seq_boo;
 				max = tmp_seq_boo->maximum();
 				len = tmp_seq_boo->length();
@@ -1183,7 +1183,7 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 			case CORBA::tk_ushort:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_ush;
-				else		
+				else
 					attr_value->value >>= tmp_seq_ush;
 				max = tmp_seq_ush->maximum();
 				len = tmp_seq_ush->length();
@@ -1198,11 +1198,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->UShortSeq = new DevVarUShortArray(max,len,tmp_ush,false);
 				}
 				break;
-			
+
 			case CORBA::tk_octet:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_uch;
-				else		
+				else
 					attr_value->value >>= tmp_seq_uch;
 				max = tmp_seq_uch->maximum();
 				len = tmp_seq_uch->length();
@@ -1217,11 +1217,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->UCharSeq = new DevVarCharArray(max,len,tmp_uch,false);
 				}
 				break;
-				
+
 			case CORBA::tk_ulong:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_ulo;
-				else		
+				else
 					attr_value->value >>= tmp_seq_ulo;
 				max = tmp_seq_ulo->maximum();
 				len = tmp_seq_ulo->length();
@@ -1236,11 +1236,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
 				}
 				break;
-				
+
 			case CORBA::tk_ulonglong:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_u64;
-				else		
+				else
 					attr_value->value >>= tmp_seq_u64;
 				max = tmp_seq_u64->maximum();
 				len = tmp_seq_u64->length();
@@ -1255,11 +1255,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
 				}
 				break;
-				
+
 			case CORBA::tk_enum:
 				if (vers == 3)
 					attr_value_3->value >>= tmp_seq_state;
-				else		
+				else
 					attr_value->value >>= tmp_seq_state;
 				max = tmp_seq_state->maximum();
 				len = tmp_seq_state->length();
@@ -1274,11 +1274,11 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
 				}
 				break;
-				
+
 			default:
 				break;
 		}
-	}	
+	}
 }
 
 void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(long vers),DeviceAttribute *dev_attr)
@@ -1297,7 +1297,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 	CORBA::ULongLong *tmp_ulolo;
 	Tango::DevState *tmp_state;
 	Tango::DevEncoded *tmp_enc;
-		
+
 	CORBA::ULong max,len;
 
 	dev_attr->name = attr_value_4->name;
@@ -1308,8 +1308,8 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
 	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
 	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
-	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);		
-	
+	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
+
 	if (dev_attr->quality != Tango::ATTR_INVALID)
 	{
 		switch (attr_value_4->value._d())
@@ -1331,7 +1331,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_SHORT:
 			{
 				const DevVarShortArray &tmp_seq = attr_value_4->value.short_att_value();
@@ -1349,7 +1349,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_LONG:
 			{
 				const DevVarLongArray &tmp_seq = attr_value_4->value.long_att_value();
@@ -1367,7 +1367,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_LONG64:
 			{
 				const DevVarLong64Array &tmp_seq = attr_value_4->value.long64_att_value();
@@ -1385,7 +1385,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_FLOAT:
 			{
 				const DevVarFloatArray &tmp_seq = attr_value_4->value.float_att_value();
@@ -1403,7 +1403,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_DOUBLE:
 			{
 				const DevVarDoubleArray &tmp_seq = attr_value_4->value.double_att_value();
@@ -1412,7 +1412,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				if (tmp_seq.release() == true)
 				{
 					tmp_db = (const_cast<DevVarDoubleArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-					dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,true);	
+					dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,true);
 				}
 				else
 				{
@@ -1421,7 +1421,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_UCHAR:
 			{
 				const DevVarCharArray &tmp_seq = attr_value_4->value.uchar_att_value();
@@ -1439,7 +1439,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_USHORT:
 			{
 				const DevVarUShortArray &tmp_seq = attr_value_4->value.ushort_att_value();
@@ -1457,7 +1457,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_ULONG:
 			{
 				const DevVarULongArray &tmp_seq = attr_value_4->value.ulong_att_value();
@@ -1475,7 +1475,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_ULONG64:
 			{
 				const DevVarULong64Array &tmp_seq = attr_value_4->value.ulong64_att_value();
@@ -1493,7 +1493,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_STRING:
 			{
 				const DevVarStringArray &tmp_seq = attr_value_4->value.string_att_value();
@@ -1511,7 +1511,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case ATT_STATE:
 			{
 				const DevVarStateArray &tmp_seq = attr_value_4->value.state_att_value();
@@ -1529,14 +1529,14 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case DEVICE_STATE:
 			{
 				dev_attr->d_state = attr_value_4->value.dev_state_att();
 				dev_attr->d_state_filled = true;
 			}
 			break;
-			
+
 			case ATT_ENCODED:
 			{
 				const DevVarEncodedArray &tmp_seq = attr_value_4->value.encoded_att_value();
@@ -1554,7 +1554,7 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				}
 			}
 			break;
-			
+
 			case NO_DATA:
 			break;
 		}
@@ -1564,8 +1564,8 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::device_to_attr()
-// 
-// description : 	
+//
+// description :
 //
 // argin(s) :		none
 //
@@ -1579,9 +1579,9 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue_4 &a
 	att.w_dim.dim_x = dev_attr.dim_x;
 	att.w_dim.dim_y = dev_attr.dim_y;
 	att.data_format = Tango::FMT_UNKNOWN;
-		
+
 	if (dev_attr.LongSeq.operator->() != NULL)
-		att.value.long_att_value(dev_attr.LongSeq.in());	
+		att.value.long_att_value(dev_attr.LongSeq.in());
 	else if (dev_attr.ShortSeq.operator->() != NULL)
 		att.value.short_att_value(dev_attr.ShortSeq.in());
 	else if (dev_attr.DoubleSeq.operator->() != NULL)
@@ -1589,7 +1589,7 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue_4 &a
 	else if (dev_attr.StringSeq.operator->() != NULL)
 		att.value.string_att_value(dev_attr.StringSeq.in());
 	else if (dev_attr.FloatSeq.operator->() != NULL)
-		att.value.float_att_value(dev_attr.FloatSeq.in());	
+		att.value.float_att_value(dev_attr.FloatSeq.in());
 	else if (dev_attr.BooleanSeq.operator->() != NULL)
 		att.value.bool_att_value(dev_attr.BooleanSeq.in());
 	else if (dev_attr.UShortSeq.operator->() != NULL)
@@ -1616,28 +1616,28 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue &att
 	att.time = dev_attr.time;
 	att.dim_x = dev_attr.dim_x;
 	att.dim_y = dev_attr.dim_y;
-		
+
 	if (dev_attr.LongSeq.operator->() != NULL)
-		att.value <<= dev_attr.LongSeq.in();	
-	else if (dev_attr.ShortSeq.operator->() != NULL)	
-		att.value <<= dev_attr.ShortSeq.in();	
-	else if (dev_attr.DoubleSeq.operator->() != NULL)	
+		att.value <<= dev_attr.LongSeq.in();
+	else if (dev_attr.ShortSeq.operator->() != NULL)
+		att.value <<= dev_attr.ShortSeq.in();
+	else if (dev_attr.DoubleSeq.operator->() != NULL)
 		att.value <<= dev_attr.DoubleSeq.in();
 	else if (dev_attr.StringSeq.operator->() != NULL)
 		att.value  <<= dev_attr.StringSeq.in();
 	else if (dev_attr.FloatSeq.operator->() != NULL)
-		att.value <<= dev_attr.FloatSeq.in();	
-	else if (dev_attr.BooleanSeq.operator->() != NULL)	
-		att.value <<= dev_attr.BooleanSeq.in();	
-	else if (dev_attr.UShortSeq.operator->() != NULL)	
+		att.value <<= dev_attr.FloatSeq.in();
+	else if (dev_attr.BooleanSeq.operator->() != NULL)
+		att.value <<= dev_attr.BooleanSeq.in();
+	else if (dev_attr.UShortSeq.operator->() != NULL)
 		att.value <<= dev_attr.UShortSeq.in();
-	else if (dev_attr.UCharSeq.operator->() != NULL)	
+	else if (dev_attr.UCharSeq.operator->() != NULL)
 		att.value  <<= dev_attr.UCharSeq.in();
-	else if (dev_attr.ext->Long64Seq.operator->() != NULL)	
+	else if (dev_attr.ext->Long64Seq.operator->() != NULL)
 		att.value  <<= dev_attr.ext->Long64Seq.in();
-	else if (dev_attr.ext->ULongSeq.operator->() != NULL)	
+	else if (dev_attr.ext->ULongSeq.operator->() != NULL)
 		att.value  <<= dev_attr.ext->ULongSeq.in();
-	else if (dev_attr.ext->ULong64Seq.operator->() != NULL)	
+	else if (dev_attr.ext->ULong64Seq.operator->() != NULL)
 		att.value  <<= dev_attr.ext->ULong64Seq.in();
 	else if (dev_attr.ext->StateSeq.operator->() != NULL)
 		att.value  <<= dev_attr.ext->StateSeq.in();
@@ -1655,8 +1655,8 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue &att
 //-----------------------------------------------------------------------------
 //
 // method : 		ApiUtil::get_env_var()
-// 
-// description : 	
+//
+// description :
 //
 // argin(s) :		- env_var_name : The environment variable name
 //					- env_var : Reference to the string initialised with
@@ -1676,7 +1676,7 @@ int ApiUtil::get_env_var(const char *env_var_name,string &env_var)
 //+-------------------------------------------------------------------------
 //
 // operator overloading : 	<<
-// 
+//
 // description : 	Friend function to ease printing instance of the
 //			AttributeInfo class
 //
@@ -1689,7 +1689,7 @@ ostream &operator<<(ostream &o_str,AttributeInfo &p)
 //
 // Print all these properties
 //
-	
+
 	o_str << "Attribute name = " << p.name << endl;
 	o_str << "Attribute data_type = ";
 	switch (p.data_type)
@@ -1697,60 +1697,60 @@ ostream &operator<<(ostream &o_str,AttributeInfo &p)
 	case Tango::DEV_SHORT :
 		o_str << "Tango::DevShort" << endl;
 		break;
-		
+
 	case Tango::DEV_LONG :
 		o_str << "Tango::DevLong" << endl;
 		break;
-		
+
 	case Tango::DEV_DOUBLE :
 		o_str << "Tango::DevDouble" << endl;
 		break;
-		
+
 	case Tango::DEV_STRING :
 		o_str << "Tango::DevString" << endl;
 		break;
-		
+
 	case Tango::DEV_FLOAT :
 		o_str << "Tango::DevFloat" << endl;
 		break;
-		
+
 	case Tango::DEV_USHORT :
 		o_str << "Tango::DevUShort" << endl;
 		break;
-		
+
 	case Tango::DEV_UCHAR :
 		o_str << "Tango::DevUChar" << endl;
 		break;
-		
+
 	case Tango::DEV_BOOLEAN :
 		o_str << "Tango::DevBoolean" << endl;
 		break;
-		
+
 	case Tango::DEV_STATE :
 		o_str << "Tango::DevState" << endl;
 		break;
 	}
-	
+
 	o_str << "Attribute data_format = ";
 	switch (p.data_format)
 	{
 	case Tango::FMT_UNKNOWN:
 		break;
-		
+
 	case Tango::SCALAR :
 		o_str << "scalar" << endl;
 		break;
-		
+
 	case Tango::SPECTRUM :
 		o_str << "spectrum, max_dim_x = " << p.max_dim_x << endl;
 		break;
-		
+
 	case Tango::IMAGE :
 		o_str << "image, max_dim_x = " << p.max_dim_x << ", max_dim_y = " << p.max_dim_y << endl;
 		break;
 	}
 
-	if (p.writable == static_cast<unsigned char>(true))
+	if ((p.writable == Tango::WRITE) || (p.writable == Tango::READ_WRITE))
 		o_str << "Attribute is writable" << endl;
 	else
 		o_str << "Attribute is not writable" << endl;
@@ -1763,16 +1763,16 @@ ostream &operator<<(ostream &o_str,AttributeInfo &p)
 	o_str << "Attribute min alarm = " << p.min_alarm << endl;
 	o_str << "Attribute max alarm = " << p.max_alarm << endl;
 	o_str << "Attribute min value = " << p.min_value << endl;
-	o_str << "Attribute max value = " << p.max_value << endl;	
+	o_str << "Attribute max value = " << p.max_value << endl;
 	o_str << "Attribute writable_attr_name = " << p.writable_attr_name;
-	
+
 	return o_str;
 }
 
 //+-------------------------------------------------------------------------
 //
 // operator overloading : 	=
-// 
+//
 // description : 	Assignement operator for the AttributeInfoEx class
 //					from a AttributeConfig_2 pointer
 //
@@ -1803,14 +1803,14 @@ AttributeInfoEx &AttributeInfoEx::operator=(AttributeConfig_2 *att_2)
 		extensions[j] = att_2->extensions[j];
 	}
 	disp_level = att_2->level;
-	
+
 	return *this;
 }
 
 //+-------------------------------------------------------------------------
 //
 // operator overloading : 	=
-// 
+//
 // description : 	Assignement operator for the AttributeInfoEx class
 //					from a AttributeConfig_3 pointer
 //
@@ -1841,7 +1841,7 @@ AttributeInfoEx &AttributeInfoEx::operator=(AttributeConfig_3 *att_3)
 		extensions[j] = att_3->sys_extensions[j];
 	}
 	disp_level = att_3->level;
-	
+
 	alarms.min_alarm = att_3->att_alarm.min_alarm;
 	alarms.max_alarm = att_3->att_alarm.max_alarm;
 	alarms.min_warning = att_3->att_alarm.min_warning;
@@ -1854,7 +1854,7 @@ AttributeInfoEx &AttributeInfoEx::operator=(AttributeConfig_3 *att_3)
 		alarms.extensions[j] = att_3->att_alarm.extensions[j];
 	}
 
-	events.ch_event.abs_change = att_3->event_prop.ch_event.abs_change;		
+	events.ch_event.abs_change = att_3->event_prop.ch_event.abs_change;
 	events.ch_event.rel_change = att_3->event_prop.ch_event.rel_change;
 	events.ch_event.extensions.resize(att_3->event_prop.ch_event.extensions.length());
 	for (unsigned int j=0; j<att_3->event_prop.ch_event.extensions.length(); j++)
@@ -1862,14 +1862,14 @@ AttributeInfoEx &AttributeInfoEx::operator=(AttributeConfig_3 *att_3)
 		events.ch_event.extensions[j] = att_3->event_prop.ch_event.extensions[j];
 	}
 
-	events.per_event.period = att_3->event_prop.per_event.period;		
+	events.per_event.period = att_3->event_prop.per_event.period;
 	events.per_event.extensions.resize(att_3->event_prop.per_event.extensions.length());
 	for (unsigned int j=0; j<att_3->event_prop.per_event.extensions.length(); j++)
 	{
 		events.per_event.extensions[j] = att_3->event_prop.per_event.extensions[j];
 	}
-	
-	events.arch_event.archive_abs_change = att_3->event_prop.arch_event.abs_change;		
+
+	events.arch_event.archive_abs_change = att_3->event_prop.arch_event.abs_change;
 	events.arch_event.archive_rel_change = att_3->event_prop.arch_event.rel_change;
 	events.arch_event.archive_period = att_3->event_prop.arch_event.period;
 	events.arch_event.extensions.resize(att_3->event_prop.arch_event.extensions.length());
@@ -1877,14 +1877,14 @@ AttributeInfoEx &AttributeInfoEx::operator=(AttributeConfig_3 *att_3)
 	{
 		events.arch_event.extensions[j] = att_3->event_prop.arch_event.extensions[j];
 	}
-		
+
 	return *this;
 }
 
 //+-------------------------------------------------------------------------
 //
 // operator overloading : 	<<
-// 
+//
 // description : 	Friend function to ease printing instance of the
 //			AttributeInfo class
 //
@@ -1897,7 +1897,7 @@ ostream &operator<<(ostream &o_str,AttributeInfoEx &p)
 //
 // Print all these properties
 //
-	
+
 	o_str << "Attribute name = " << p.name << endl;
 	o_str << "Attribute data_type = ";
 	switch (p.data_type)
@@ -1905,60 +1905,60 @@ ostream &operator<<(ostream &o_str,AttributeInfoEx &p)
 	case Tango::DEV_SHORT :
 		o_str << "Tango::DevShort" << endl;
 		break;
-		
+
 	case Tango::DEV_LONG :
 		o_str << "Tango::DevLong" << endl;
 		break;
-		
+
 	case Tango::DEV_DOUBLE :
 		o_str << "Tango::DevDouble" << endl;
 		break;
-		
+
 	case Tango::DEV_STRING :
 		o_str << "Tango::DevString" << endl;
 		break;
-		
+
 	case Tango::DEV_FLOAT :
 		o_str << "Tango::DevFloat" << endl;
 		break;
-		
+
 	case Tango::DEV_USHORT :
 		o_str << "Tango::DevUShort" << endl;
 		break;
-		
+
 	case Tango::DEV_UCHAR :
 		o_str << "Tango::DevUChar" << endl;
 		break;
-		
+
 	case Tango::DEV_BOOLEAN :
 		o_str << "Tango::DevBoolean" << endl;
 		break;
-		
+
 	case Tango::DEV_STATE :
 		o_str << "Tango::DevState" << endl;
 		break;
 	}
-	
+
 	o_str << "Attribute data_format = ";
 	switch (p.data_format)
 	{
 	case Tango::FMT_UNKNOWN:
 		break;
-		
+
 	case Tango::SCALAR :
 		o_str << "scalar" << endl;
 		break;
-		
+
 	case Tango::SPECTRUM :
 		o_str << "spectrum, max_dim_x = " << p.max_dim_x << endl;
 		break;
-		
+
 	case Tango::IMAGE :
 		o_str << "image, max_dim_x = " << p.max_dim_x << ", max_dim_y = " << p.max_dim_y << endl;
 		break;
 	}
 
-	if (p.writable == static_cast<unsigned char>(true))
+	if ((p.writable == Tango::WRITE) || (p.writable == Tango::READ_WRITE))
 		o_str << "Attribute is writable" << endl;
 	else
 		o_str << "Attribute is not writable" << endl;
@@ -1969,70 +1969,70 @@ ostream &operator<<(ostream &o_str,AttributeInfoEx &p)
 	o_str << ", display unit = " << p.display_unit << endl;
 	o_str << "Attribute format = " << p.format << endl;
 	o_str << "Attribute min value = " << p.min_value << endl;
-	o_str << "Attribute max value = " << p.max_value << endl;	
+	o_str << "Attribute max value = " << p.max_value << endl;
 	o_str << "Attribute writable_attr_name = " << p.writable_attr_name << endl;
 
-	unsigned int i;	
+	unsigned int i;
 	for (i = 0;i < p.extensions.size();i++)
 		o_str << "Attribute extensions " << i + 1 << " = " << p.extensions[i] << endl;
 
 	o_str << "Attribute alarm : min alarm = ";
 	p.alarms.min_alarm.empty() == true ? o_str << "Not specified" : o_str << p.alarms.min_alarm;
 	o_str << endl;
-		
+
 	o_str << "Attribute alarm : max alarm = ";
 	p.alarms.max_alarm.empty() == true ? o_str << "Not specified" : o_str << p.alarms.max_alarm;
 	o_str << endl;
-		
+
 	o_str << "Attribute warning alarm : min warning = ";
 	p.alarms.min_warning.empty() == true ? o_str << "Not specified" : o_str << p.alarms.min_warning;
-	o_str << endl;	
+	o_str << endl;
 
 	o_str << "Attribute warning alarm : max warning = ";
 	p.alarms.max_warning.empty() == true ? o_str << "Not specified" : o_str << p.alarms.max_warning;
-	o_str << endl;		
+	o_str << endl;
 
 	o_str << "Attribute rds alarm : delta time = ";
 	p.alarms.delta_t.empty() == true ? o_str << "Not specified" : o_str << p.alarms.delta_t;
 	o_str << endl;
-		
+
 	o_str << "Attribute rds alarm : delta value = ";
 	p.alarms.delta_val.empty() == true ? o_str << "Not specified" : o_str << p.alarms.delta_val;
 	o_str << endl;
-		
+
 	for (i = 0;i < p.alarms.extensions.size();i++)
 		o_str << "Attribute alarm extensions " << i + 1 << " = " << p.alarms.extensions[i] << endl;
 
 	o_str << "Attribute event : change event absolute change = ";
 	p.events.ch_event.abs_change.empty() == true ? o_str << "Not specified" : o_str << p.events.ch_event.abs_change;
 	o_str << endl;
-		
+
 	o_str << "Attribute event : change event relative change = ";
 	p.events.ch_event.rel_change.empty() == true ? o_str << "Not specified" : o_str << p.events.ch_event.rel_change;
 	o_str << endl;
-		
+
 	for (i = 0;i < p.events.ch_event.extensions.size();i++)
 		o_str << "Attribute alarm : change event extensions " << i + 1 << " = " << p.events.ch_event.extensions[i] << endl;
 
 	o_str << "Attribute event : periodic event period = ";
 	p.events.per_event.period.empty() == true ? o_str << "Not specified" : o_str << p.events.per_event.period;
 	o_str << endl;
-		
+
 	for (i = 0;i < p.events.per_event.extensions.size();i++)
 		o_str << "Attribute alarm : periodic event extensions " << i + 1 << " = " << p.events.per_event.extensions[i] << endl;
-					
+
 	o_str << "Attribute event : archive event absolute change = ";
 	p.events.arch_event.archive_abs_change.empty() == true ? o_str << "Not specified" : o_str << p.events.arch_event.archive_abs_change;
 	o_str << endl;
-		
+
 	o_str << "Attribute event : archive event relative change = ";
 	p.events.arch_event.archive_rel_change.empty() == true ? o_str << "Not specified" : o_str << p.events.arch_event.archive_rel_change;
 	o_str << endl;
-		
+
 	o_str << "Attribute event : archive event period = ";
 	p.events.arch_event.archive_period.empty() == true ? o_str << "Not specified" : o_str << p.events.arch_event.archive_period;
 	o_str << endl;
-		
+
 	for (i = 0;i < p.events.arch_event.extensions.size();i++)
 	{
 		if (i == 0)
@@ -2041,8 +2041,8 @@ ostream &operator<<(ostream &o_str,AttributeInfoEx &p)
 		if (i != p.events.arch_event.extensions.size() - 1)
 			o_str << endl;
 	}
-	
+
 	return o_str;
 }
-	
+
 } // End of tango namespace
