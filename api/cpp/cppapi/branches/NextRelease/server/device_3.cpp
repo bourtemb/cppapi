@@ -2391,7 +2391,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 	EventSupplier *ev_supply = tg->get_event_supplier();
 
 //
-// Update attribute config first in database, then locally
+// Update attribute config first locally then in database
 //
 
 	long nb_attr = new_conf.length();
@@ -2412,9 +2412,9 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 			Attribute &attr = dev_attr->get_attr_by_name(new_conf[i].name);
 			bool old_alarm = attr.is_alarmed().any();
+			attr.set_properties(new_conf[i],device_name);
 			if (Tango::Util::_UseDb == true)
 				attr.upd_database(new_conf[i],device_name);
-			attr.set_properties(new_conf[i],device_name);
 
 //
 // In case the attribute quality factor was set to ALARM, reset it to VALID

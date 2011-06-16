@@ -831,13 +831,21 @@ enum AttrSerialModel
 	ATTR_BY_USER
 };
 
-enum KeepAliveCmdCode {
+enum KeepAliveCmdCode
+{
 	EXIT_TH = 0
 };
 
-enum AccessControlType {
+enum AccessControlType
+{
 	ACCESS_READ = 0,
 	ACCESS_WRITE
+};
+
+enum MinMaxValueCheck
+{
+    MIN = 0,
+    MAX
 };
 
 //

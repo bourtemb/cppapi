@@ -1090,6 +1090,35 @@ void Attribute::throw_err_data_type(const char *prop_name,string &dev_name)
 
 //+-------------------------------------------------------------------------
 //
+// method : 		Attribute::throw_min_max_value
+//
+// description : 	Throw a Tango DevFailed exception when an error on
+//					min/max value is detected
+//
+// in :	dev_name : The device name
+//      memorized_value : The attribute memorized value
+//      check_type : The type of check which was done (min_value or max_value)
+//
+//--------------------------------------------------------------------------
+
+void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,MinMaxValueCheck check_type)
+{
+	TangoSys_OMemStream o;
+
+	o << "Device " << dev_name << "-> Attribute : " << name;
+	o << "\nThis attribute is memorized and the memorized value (" << memorized_value << ") is ";
+	if (check_type == MIN)
+        o << "below";
+    else
+        o << "above";
+    o << " the new limit!!" << ends;
+	Except::throw_exception((const char *)"API_AttrOptProp",
+			      o.str(),
+			      (const char *)"Attribute::throw_min_max_value");
+}
+
+//+-------------------------------------------------------------------------
+//
 // method : 		Attribute::is_polled
 //
 // description : 	Check if the attribute polled
@@ -1682,7 +1711,12 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 //
 
 	TangoSys_MemStream str;
+	string old_min_value_str = min_value_str;
+	Attr_CheckVal old_min_value;
+	bool old_check_min_value = check_min_value;
+
 	min_value_str = conf.min_value;
+
 	if (min_value_str == NotANumber)
 	{
 		min_value_str = AlrmValueNotSpec;
@@ -1755,12 +1789,36 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				break;
 			}
 			check_min_value = true;
+
+//
+// If the attribute is READ_WRITE or WRITE and memorized, check that the new
+// min_value is not above the already memorized value
+//
+
+            Tango::AttrWriteType w_type = att.get_writable();
+            if ((w_type == Tango::READ_WRITE) || (w_type == Tango::WRITE))
+            {
+                WAttribute *w_att = static_cast<WAttribute *>(this);
+                string mem_value;
+                if ((w_att->is_memorized() == true) && (w_att->mem_value_below_above(MIN,mem_value) == true))
+                {
+                    min_value_str = old_min_value_str;
+                    min_value = old_min_value;
+                    check_min_value = old_check_min_value;
+                    throw_min_max_value(dev_name,mem_value,MIN);
+                }
+            }
 		}
 		else
 			check_min_value = false;
 	}
 
-	max_value_str = conf.max_value;
+	string old_max_value_str = max_value_str;
+	Attr_CheckVal old_max_value;
+	bool old_check_max_value = check_max_value;
+
+    max_value_str = conf.max_value;
+
 	if (max_value_str == NotANumber)
 	{
 		max_value_str = AlrmValueNotSpec;
@@ -1837,6 +1895,25 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				break;
 			}
 			check_max_value = true;
+
+//
+// If the attribute is READ_WRITE or WRITE and memorized, check that the new
+// max_value is not below the already memorized value
+//
+
+            Tango::AttrWriteType w_type = att.get_writable();
+            if ((w_type == Tango::READ_WRITE) || (w_type == Tango::WRITE))
+            {
+                WAttribute *w_att = static_cast<WAttribute *>(this);
+                string m_value;
+                if ((w_att->is_memorized() == true) && (w_att->mem_value_below_above(MAX,m_value) == true))
+                {
+                    max_value_str = old_max_value_str;
+                    max_value = old_max_value;
+                    check_max_value = old_check_max_value;
+                    throw_min_max_value(dev_name,m_value,MAX);
+                }
+            }
 		}
 		else
 			check_max_value = false;

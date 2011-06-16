@@ -4731,4 +4731,283 @@ void WAttribute::set_min_value(Tango::DevULong64 &new_val)
 	get_att_device()->push_att_conf_event(this);
 }
 
+
+//+-------------------------------------------------------------------------
+//
+// method : 		WAttribute::mem_value_below_above()
+//
+// description : 	Check if the attribute last written value is below
+//                  (or above) the new threshold sent by the requester
+//
+// Arg in :			check_type : Which check has to be done: Below or above
+//
+// This method returns true if the new threshold wanted by the user is not
+// coherent with the memorized value. Otherwise, returns false.
+//
+//--------------------------------------------------------------------------
+
+bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_value)
+{
+	bool ret = false;
+
+//
+// Check last written attribute value with the new threshold
+//
+
+    long nb_written,i;
+    stringstream ss;
+
+    switch (data_type)
+    {
+    case Tango::DEV_SHORT:
+        nb_written = short_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (short_array_val[i] < min_value.sh)
+                {
+                    ss << short_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (short_array_val[i] > max_value.sh)
+                {
+                    ss << short_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_LONG:
+        nb_written = long_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (long_array_val[i] < min_value.lg)
+                {
+                    ss << long_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (long_array_val[i] > max_value.lg)
+                {
+                    ss << long_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_LONG64:
+        nb_written = w_ext->long64_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (w_ext->long64_array_val[i] < min_value.lg64)
+                {
+                    ss << w_ext->long64_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (w_ext->long64_array_val[i] > max_value.lg64)
+                {
+                    ss << w_ext->long64_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_DOUBLE:
+        nb_written = double_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (double_array_val[i] < min_value.db)
+                {
+                    ss << double_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (double_array_val[i] > max_value.db)
+                {
+                    ss << double_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_FLOAT:
+        nb_written = float_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (float_array_val[i] < min_value.fl)
+                {
+                    ss << float_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (float_array_val[i] > max_value.fl)
+                {
+                    ss << float_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_USHORT:
+        nb_written = ushort_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (ushort_array_val[i] < min_value.ush)
+                {
+                    ss << ushort_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (ushort_array_val[i] > max_value.ush)
+                {
+                    ss << ushort_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_UCHAR:
+        nb_written = uchar_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (uchar_array_val[i] < min_value.uch)
+                {
+                    ss << uchar_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (uchar_array_val[i] > max_value.uch)
+                {
+                    ss << uchar_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_ULONG:
+        nb_written = w_ext->ulong_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (w_ext->ulong_array_val[i] < min_value.ulg)
+                {
+                    ss << w_ext->ulong_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (w_ext->ulong_array_val[i] > max_value.ulg)
+                {
+                    ss << w_ext->ulong_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    case Tango::DEV_ULONG64:
+        nb_written = w_ext->ulong64_array_val.length();
+        for (i = 0;i < nb_written;i++)
+        {
+            if (check_type == MIN)
+            {
+                if (w_ext->ulong64_array_val[i] < min_value.ulg64)
+                {
+                    ss << w_ext->ulong64_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+            else
+            {
+                if (w_ext->ulong64_array_val[i] > max_value.ulg64)
+                {
+                    ss << w_ext->ulong64_array_val[i];
+                    mem_value = ss.str();
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        break;
+
+    default:
+        break;
+    }
+
+	return ret;
+}
+
+
 } // End of Tango namespace

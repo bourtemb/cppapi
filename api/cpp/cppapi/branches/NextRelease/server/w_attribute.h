@@ -1035,6 +1035,7 @@ public:
 	void set_memorized_init(bool mem_init) {memorized_init = mem_init;}
 	string &get_mem_value() {return mem_value;}
 	void set_written_date();
+    bool mem_value_below_above(MinMaxValueCheck,string &);
 
 protected:
 	virtual bool check_rds_alarm();

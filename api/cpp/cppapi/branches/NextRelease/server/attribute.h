@@ -1896,6 +1896,7 @@ private:
 	void set_data_size();
 	void throw_err_format(const char *,string &);
 	void throw_err_data_type(const char *,string &);
+	void throw_min_max_value(string &,string &,MinMaxValueCheck);
 	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &);
 
 	unsigned long 		name_size;
