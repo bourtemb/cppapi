@@ -262,6 +262,20 @@ void WAttribute::set_rvalue()
 			set_value(const_cast<DevUChar *>(uchar_array_val.get_buffer()),w_dim_x,w_dim_y,false);
 		break;
 
+	case Tango::DEV_ULONG:
+		if (data_format == Tango::SCALAR)
+			set_value(&w_ext->ulong_val,1,0,false);
+		else
+			set_value(const_cast<DevULong *>(w_ext->ulong_array_val.get_buffer()),w_dim_x,w_dim_y,false);
+		break;
+
+	case Tango::DEV_ULONG64:
+		if (data_format == Tango::SCALAR)
+			set_value(&w_ext->ulong64_val,1,0,false);
+		else
+			set_value(const_cast<DevULong64 *>(w_ext->ulong64_array_val.get_buffer()),w_dim_x,w_dim_y,false);
+		break;
+
 	case Tango::DEV_ENCODED:
 		set_value(&encoded_val,1,0,false);
 		break;
@@ -996,6 +1010,183 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 			w_dim_x = x;
 			w_dim_y = y;
 		}
+		break;
+
+	case Tango::DEV_ULONG :
+
+//
+// Check data type inside the any
+//
+
+		const Tango::DevVarULongArray *ulo_ptr;
+		if ((any >>= ulo_ptr) == false)
+		{
+			TangoSys_OMemStream o;
+
+			o << "Incompatible attribute type, expected type is : Tango::DevVarULongArray (even for single value)" << ends;
+			Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					      o.str(),
+					      (const char *)"WAttribute::check_written_value()");
+		}
+		nb_data = ulo_ptr->length();
+		if (y == 0)
+		{
+			if (nb_data != x)
+			{
+				Except::throw_exception((const char *)"API_AttrIncorrectDataNumber",
+					        (const char *)"Incorrect data number",
+					        (const char *)"WAttribute::check_written_value()");
+			}
+		}
+		else
+		{
+			if (nb_data != (x * y))
+			{
+				Except::throw_exception((const char *)"API_AttrIncorrectDataNumber",
+					        (const char *)"Incorrect data number",
+					        (const char *)"WAttribute::check_written_value()");
+			}
+		}
+
+//
+// Check the incoming value
+//
+
+		if (check_min_value == true)
+		{
+			for (i = 0;i < nb_data;i++)
+			{
+				if ((*ulo_ptr)[i] < min_value.ulg)
+				{
+					TangoSys_OMemStream o;
+
+					o << "Set value for attribute " << name;
+					o << " is below the minimum authorized (at least element " << i << ")" << ends;
+					Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+						      o.str(),
+						      (const char *)"WAttribute::check_written_value()");
+				}
+			}
+		}
+		if (check_max_value == true)
+		{
+			for (i = 0;i < nb_data;i++)
+			{
+				if ((*ulo_ptr)[i] > max_value.ulg)
+				{
+					TangoSys_OMemStream o;
+
+					o << "Set value for attribute " << name;
+					o << " is above the maximum authorized (at least element " << i << ")" << ends;
+					Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+						      o.str(),
+						      (const char *)"WAttribute::check_written_value()");
+				}
+			}
+		}
+
+		w_ext->ulong_ptr = ulo_ptr->get_buffer();
+		if (data_format == Tango::SCALAR)
+		{
+			w_ext->old_ulong_val = w_ext->ulong_val;
+			w_ext->ulong_val = (*ulo_ptr)[0];
+			w_dim_x = 1;
+			w_dim_y = 0;
+		}
+		else
+		{
+			w_dim_x = x;
+			w_dim_y = y;
+		}
+		break;
+
+	case Tango::DEV_ULONG64 :
+
+//
+// Check data type inside the any
+//
+
+		const Tango::DevVarULong64Array *ulg64_ptr;
+		if ((any >>= ulg64_ptr) == false)
+		{
+			TangoSys_OMemStream o;
+
+			o << "Incompatible attribute type, expected type is : Tango::DevVarULong64Array (even for single value)" << ends;
+			Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					      o.str(),
+					      (const char *)"WAttribute::check_written_value()");
+		}
+		nb_data = ulg64_ptr->length();
+		if (y == 0)
+		{
+			if (nb_data != x)
+			{
+				Except::throw_exception((const char *)"API_AttrIncorrectDataNumber",
+					        (const char *)"Incorrect data number",
+					        (const char *)"WAttribute::check_written_value()");
+			}
+		}
+		else
+		{
+			if (nb_data != (x * y))
+			{
+				Except::throw_exception((const char *)"API_AttrIncorrectDataNumber",
+					        (const char *)"Incorrect data number",
+					        (const char *)"WAttribute::check_written_value()");
+			}
+		}
+
+//
+// Check the incoming value
+//
+
+		if (check_min_value == true)
+		{
+			for (i = 0;i < nb_data;i++)
+			{
+				if ((*ulg64_ptr)[i] < min_value.ulg64)
+				{
+					TangoSys_OMemStream o;
+
+					o << "Set value for attribute " << name;
+					o << " is below the minimum authorized (at least element " << i << ")" << ends;
+					Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+						      o.str(),
+						      (const char *)"WAttribute::check_written_value()");
+				}
+			}
+		}
+		if (check_max_value == true)
+		{
+			for (i = 0;i < nb_data;i++)
+			{
+				if ((*ulg64_ptr)[i] > max_value.ulg64)
+				{
+					TangoSys_OMemStream o;
+
+					o << "Set value for attribute " << name;
+					o << " is above the maximum authorized (at least element " << i << ")" << ends;
+					Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+						      o.str(),
+						      (const char *)"WAttribute::check_written_value()");
+				}
+			}
+		}
+
+		w_ext->ulong64_ptr = ulg64_ptr->get_buffer();
+		if (data_format == Tango::SCALAR)
+		{
+			w_ext->old_ulong64_val = w_ext->ulong64_val;
+			w_ext->ulong64_val = (*ulg64_ptr)[0];
+			w_dim_x = 1;
+			w_dim_y = 0;
+		}
+		else
+		{
+			w_dim_x = x;
+			w_dim_y = y;
+		}
+
 		break;
 
 	case Tango::DEV_BOOLEAN :
