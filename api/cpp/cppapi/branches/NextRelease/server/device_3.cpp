@@ -1144,6 +1144,14 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 			Attribute &att = dev_attr->get_attr_by_name(names[non_polled[i]]);
 			poll_period.push_back(att.get_polling_period());
 
+// TODO: This code is needed for DS started without DB and with attribute
+// where polling is defined in code. Polling info are stored in DB
+// and can't be retrieved in this case. The att.get_polling_period()
+// returns something different than 0 but the attribute is not polled.....
+
+if (Tango::Util::_UseDb == false)
+    poll_period.back() = 0;
+
 			if (poll_period.back() == 0)
 			{
 				TangoSys_OMemStream o;
