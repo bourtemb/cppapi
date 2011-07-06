@@ -42,7 +42,13 @@ namespace Tango
 // Some general interest define
 //
 
-#define		TgLibVers				"7.2.7"		// Please, always code this following format "X.Y.Z"
+#define     TANGO_VERSION_MAJOR     7
+#define     TANGO_VERSION_MINOR     2
+#define     TANGO_VERSION_PATCH     7
+
+#define     build_string(s)         #s
+#define     xbuild_string(s)        build_string(s)
+#define     TgLibVers               xbuild_string(TANGO_VERSION_MAJOR.TANGO_VERSION_MINOR.TANGO_VERSION_PATCH)
 
 #define		DevVersion				4			// IDL version number
 #define		DefaultMaxSeq			20

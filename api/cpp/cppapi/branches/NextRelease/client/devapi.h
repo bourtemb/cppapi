@@ -1,3 +1,4 @@
+//////////////////////////////////////////////////////////////////
 //
 // devapi.h - include file for TANGO device api
 //
@@ -21,6 +22,10 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
+//
+// $Revision$
+//
+///////////////////////////////////////////////////////////////
 
 #ifndef _DEVAPI_H
 #define _DEVAPI_H

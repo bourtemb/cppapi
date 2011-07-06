@@ -1,19 +1,19 @@
 static const char *RcsId = "$Id$";
 
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  file 	eventsupplier.cpp
-///
-///		C++ classes for implementing the event server and client
-///		singleton classes - EventSupplier and EventConsumer.
-///		These classes are used to send events from the server
-///		to the notification service and to receive events from
-///		the notification service.
-///
-///		author(s) : E.Taurel (taurel@esrf.fr)
-///
-///		original : 29 June 2004
-///
+//
+//  file 	eventsupplier.cpp
+//
+//		C++ classes for implementing the event server and client
+//		singleton classes - EventSupplier and EventConsumer.
+//		These classes are used to send events from the server
+//		to the notification service and to receive events from
+//		the notification service.
+//
+//  	author(s) : E.Taurel (taurel@esrf.fr)
+//
+//		original : 29 June 2004
+//
 // Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
@@ -33,10 +33,10 @@ static const char *RcsId = "$Id$";
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
-///
-///		$Revision$
-///
-///
+//
+//		$Revision$
+//
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>

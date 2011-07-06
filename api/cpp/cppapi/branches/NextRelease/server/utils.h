@@ -1667,7 +1667,7 @@ public:
 	~AutoPyLock();
 };
 
-long _convert_tango_lib_release(const char *vers_str);
+long _convert_tango_lib_release();
 
 } // End of Tango namespace
 
