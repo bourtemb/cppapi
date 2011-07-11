@@ -7111,65 +7111,20 @@ bool DeviceProxy::is_locked_by_me()
 // Get the host address(es) and check if it is the same than the one sent by the server
 //
 
-				char h_name[80];
-				int res = gethostname(h_name,80);
-				if (res == 0)
-				{
-					netcalls_mutex.lock();
+                ApiUtil *au = ApiUtil::instance();
+                vector<string> adrs;
+                string at_least_one;
 
-  					struct addrinfo hints;
+                au->get_ip_from_if(adrs);
 
-					memset(&hints,0,sizeof(struct addrinfo));
-#ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
-					hints.ai_falgs	   = AI_ADDRCONFIG;
-#endif
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
-  					hints.ai_flags     = AI_ADDRCONFIG;
-#endif
-#endif
-  					hints.ai_family    = AF_INET;
-  					hints.ai_socktype  = SOCK_STREAM;
-
-  					struct addrinfo	*info;
-					struct addrinfo *ptr;
-					char tmp_host[128];
-
-  					int result = getaddrinfo(h_name,NULL,&hints,&info);
-
-  					if (result == 0)
-					{
-						ptr = info;
-						while (ptr != NULL)
-						{
-    						if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,128,0,0,NI_NUMERICHOST) == 0)
-							{
-								if (::strcmp(tmp_host,full_ip_str.c_str()) == 0)
-								{
-									ret = true;
-									break;
-								}
-							}
-							ptr = ptr->ai_next;
-						}
-						freeaddrinfo(info);
-						netcalls_mutex.unlock();
-					}
-					else
-					{
-						netcalls_mutex.unlock();
-						Tango::Except::throw_exception((const char*)"API_WrongLockingStatus",
-														   (const char *)"Can't retrieve my IP address (getaddrinfo)!",
-														   (const char *)"DeviceProxy::is_locked_by_me()");
-					}
-				}
-				else
-				{
-					Tango::Except::throw_exception((const char*)"API_WrongLockingStatus",
-													   (const char *)"Can't retrieve my name (getaddrinfo)!",
-													   (const char *)"DeviceProxy::is_locked_by_me()");
-				}
+                for (unsigned int nb_adrs = 0;nb_adrs < adrs.size();nb_adrs++)
+                {
+                    if (adrs[nb_adrs] == full_ip_str)
+                    {
+                        ret = true;
+                        break;
+                    }
+                }
 			}
 		}
 	}

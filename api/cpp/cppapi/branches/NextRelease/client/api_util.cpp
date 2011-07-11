@@ -1,5 +1,6 @@
 static const char *RcsId = "$Id$\n$Name$";
 
+//-----------------------------------------------------------------------------
 //
 // cpp 	- C++ source code file for TANGO api class ApiUtil
 //
@@ -27,284 +28,29 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- May 2002
 //
-// $Log$
-// Revision 3.34  2010/09/12 12:18:23  taurel
-// - Now, the test suite seems OK
+// $Revision$
 //
-// Revision 3.33  2010/09/09 13:43:38  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.32  2010/09/09 13:28:03  taurel
-// - Commit after the last merge with the bugfixes branch
-// - Fix some warning when compiled -W -Wall
-//
-// Revision 3.31  2010/09/08 12:32:11  taurel
-// - Miscellaneous changes to implement a better timeout management
-// (now manage a user connect timeout with the env. variable TANGOconnectTimeout)
-//
-// Revision 3.30  2010/08/25 11:37:12  taurel
-// - Just some beautifulling!!
-//
-// Revision 3.29  2010/01/07 08:35:06  taurel
-// - Several change sto improve thread safety of the DeviceProxy, AttributeProxy, ApiUtul and EventConsumer classes
-// Revision 3.28.2.1  2010/06/23 14:10:23  taurel
-// - Full Tango as described in doc Appendix C is now also supported
-// for group
-//
-// Revision 3.28  2009/08/27 07:22:43  taurel
-// - Commit after anothre merge with Release_7_0_2-bugfixes branch
-//
-// Revision 3.27  2009/04/27 14:52:18  taurel
-// - No change, just to make tkcvs quiet
-//
-// Revision 3.26  2009/03/27 13:05:10  taurel
-// - Fix bug due to new Attribute format data member in AttributeValue4
-// structure
-//
-// Revision 3.25  2009/03/18 12:16:53  taurel
-// - Fix warnings reported when compiled with the option -Wall
-//
-// Revision 3.24  2009/02/26 07:47:29  taurel
-// - The attribute data format is now transferred within the AttributeValue_4 structure
-//
-// Revision 3.23  2009/01/21 12:45:14  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.22  2008/12/17 09:54:44  taurel
-// - First implementation of attributes sent on the wire using IDL Union
-// instead of IDL Any
-//
-// Revision 3.21  2008/10/13 15:02:34  taurel
-// - Set the ORB verifyObjectExistsAndType option to false when creating the ORB
-//
-// Revision 3.20  2008/10/06 15:02:17  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.19  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.18  2008/09/23 14:38:27  taurel
-// - Commit after the end of DevEncoded data type implementation
-// - The new test suite is also now running fine
-//
-// Revision 3.17  2008/09/04 07:35:37  taurel
-// - Fix bug in memorized attributes
-// - Changes for the new IDL 4
-//
-// Revision 3.16  2008/06/10 07:48:46  taurel
-// - Fix client threadig issue when first device proxy instance created
-// in threads which are not the main thread
-//
-// Revision 3.15  2008/05/20 12:42:29  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.14  2008/03/11 14:36:44  taurel
-// - Apply patches from Frederic Picca about compilation with gcc 4.2
-// Revision 3.12.2.5  2008/05/20 06:14:19  taurel
-// - Last commit before merge with trunk
-//
-// Revision 3.13  2008/02/29 13:24:30  taurel
-// - Add a try/catch in the get_asynch_replies() method
-// Revision 3.12.2.4  2008/01/03 16:04:23  taurel
-// - Some changes in locking feature implementation
-//
-// Revision 3.12.2.3  2007/12/20 14:27:18  taurel
-// - Some more work on locking
-//
-// Revision 3.12.2.2  2007/12/19 15:53:07  taurel
-// - Still some work going on for the locking feature
-//
-// Revision 3.12.2.1  2007/11/22 12:35:50  taurel
-// - First part of the device locking implementation
-//
-// Revision 3.12  2007/04/20 14:38:33  taurel
-// - Ported to Windows 64 bits x64 architecture
-//
-// Revision 3.11  2007/04/16 14:55:16  taurel
-// - Added 3 new attributes data types (DevULong, DevULong64 and DevState)
-// - Ported to omniORB4.1
-// - Increased the MAX_TRANSFER_SIZE to 256 MBytes
-// - Added a new filterable field in the archive event
-//
-// Revision 3.10  2007/03/06 08:20:45  taurel
-// - Added 64 bits data types for 64 bits computer...
-//
-// Revision 3.9  2007/02/16 10:38:52  taurel
-// - Implementing a new types of event on the Attribute configuration
-//
-// Revision 3.8  2005/05/10 13:51:21  taurel
-// - Minor changes for Windows compiler
-//
-// Revision 3.7  2005/05/04 11:52:18  taurel
-// - Changes for 32<-->64 bits data exchange
-// - Fix a bug in the DeviceAttribute::has_failed() method (devapi.h file)
-//
-// Revision 3.6  2005/04/15 11:35:05  taurel
-// - Changes to support Tango on 64 bits computer
-// - Support for Linux 2.6 kernel with NPTL (Signal management)
-//
-// Revision 3.5  2005/01/13 08:36:36  taurel
-// - Merge trunk with Release_5_0 from brach Release_5_branch
-//
-// Revision 3.4.2.5  2004/11/26 13:44:06  taurel
-// - Fix some bug in method for printing one attribute config object
-// - DeviceData and DeviceAttribute default mode is to throw exception when trying to extract something from an empty instance
-// - Fix two small memory leaks in filedatabase
-//
-// Revision 3.4.2.4  2004/10/27 05:58:10  taurel
-// - Some minor changes to compile on all our supported platforms
-//
-// Revision 3.4.2.3  2004/10/22 11:23:16  taurel
-// Added warning alarm
-// Change attribute config. It now includes alarm and event parameters
-// Array attribute property now supported
-// subscribe_event throws exception for change event if they are not correctly configured
-// Change in the polling thread: The event heartbeat has its own work in the work list
-// Also add some event_unregister
-// Fix order in which classes are destructed
-// Fix bug in asynchronous mode (PUSH_CALLBACK). The callback thread ate all the CPU
-// Change in the CORBA info call for the device type
-//
-// Revision 3.4.2.2  2004/09/27 09:07:48  taurel
-// - Changes to allow reading state and/or status as attributes
-//
-// Revision 3.4.2.1  2004/09/15 06:44:43  taurel
-// - Added four new types for attributes (boolean, float, unsigned short and unsigned char)
-// - It is also possible to read state and status as attributes
-// - Fix bug in Database::get_class_property() method (missing ends insertion)
-// - Fix bug in admin device DevRestart command (device name case problem)
-//
-// Revision 3.4  2004/07/07 08:39:55  taurel
-//
-// - Fisrt commit after merge between Trunk and release 4 branch
-// - Add EventData copy ctor, asiignement operator and dtor
-// - Add Database and DeviceProxy::get_alias() method
-// - Add AttributeProxy ctor from "device_alias/attribute_name"
-// - Exception thrown when subscribing two times for exactly yhe same event
-//
-// Revision 3.3  2003/08/21 07:21:24  taurel
-// - End of the implementation of the new way to transfer data for read and
-//   write attributes (better use of exception)
-// - Added Attribute::set_date() and Attribute::set_value_date_quality() methods
-// - Added DeviceAttribute ctors from "const char *"
-// - Enable writing of spectrum and image attributes
-// - Many new DeviceAttribute ctors/inserters to enable easy image and spectrums
-//   attribute writing
-// - Attribute date automatically set in case of attribute quality factor set to INVALID
-// - Change in the polling thread discarding element algo. to support case of polling
-//   several cmd/atts at the same polling period with cmd/attr having a long response time
-// - Take cmd/attr execution time into account in the "Data not updated since" polling
-//   status string
-// - Split "str().c_str()" code in two lines of code. It was the reason of some problem
-//   on Windows device server
-// - Add the possibility to set a cmd/attr polling as "externally triggered". Add method
-//   to send trigger to the polling thread
-//
-// Revision 3.2.2.7  2004/04/07 11:20:16  taurel
-// - Add some import/export declaration for Windows DLL
-//
-// Revision 3.2.2.6  2004/04/02 14:53:17  taurel
-// - Changes for ApiUtil::cleanup() method
-//
-// Revision 3.2.2.5  2004/03/19 15:21:32  taurel
-// - Work on the ApiUtil destructor method which was not adapted to event.
-//   I don't think it is fully operational as it is commited now
-//
-// Revision 3.2.2.4  2004/02/27 16:48:06  taurel
-// - Updated DeviceImpl and Util classes sizes for compatibility
-//
-// Revision 3.2.2.3  2004/01/20 08:30:07  taurel
-// -First commit after merge with the event branch and work on the AttributeProxy class
-// - Fix bug in the stream "clear()" method usage when used with gcc 3.3
-//
-// Revision 3.2.2.2  2003/10/16 11:58:17  taurel
-// - Fix some memory leaks in DeviceProxy::is_polled() and in
-// Database::get_device_exported() methods
-// - Add some bug fixes in Database::get_device_attribute_property(),
-// Database::put_class_attribute_property()
-//
-// Revision 3.2.2.1  2003/09/18 14:07:41  taurel
-// Fixes some bugs:
-//  - Bug fix in DeviceProxy copy constructor and assignement operator
-//  - Change the way how DeviceProxy::write_attribute() is coded
-//  - Added DeviceAttribute ctors from "const char *"
-//  - Split "str().c_str()" in two lines of code. It was the reason of some
-//    problems using Windows VC6
-//
-// Revision 3.2  2003/05/28 14:42:55  taurel
-// Add (conditionaly) autoconf generated include file
-//
-// Revision 3.1  2003/04/02 12:22:07  taurel
-// Miscellaneous changes to :
-//  - Modify TANGO_HOST env. variable syntax to be able to have several db servers
-//  - Asynchronous calls are now done on device_2 or device depending on the device IDL version
-//  - Timeout are bcks (omniORB 4.0.1)
-//  - Fix bug when killing a device server via the kill command of the admin device
-//    (Solaris only)
-//  - Cleanup device server code to have only one ORB and one db connection within a server
-// Revision 3.0.2.3  2003/04/16 16:26:44  andy_gotz
-// fixed some bugs in detect_and_push() for events with zero value; switched off KeepALive thread for demo on SuSE 8.1
-//
-// Revision 3.0.2.2  2003/04/15 19:01:52  andy_gotz
-// added heartbeat on client and server side; cleaned up cout's
-//
-// Revision 3.0.2.1  2003/04/08 13:12:36  andy_gotz
-// first version of TANGO events
-//
-// Revision 3.0  2003/03/25 16:30:40  taurel
-// Change revision number to 3.0 before release 3.0.0 of Tango lib
-//
-// Revision 2.5  2003/03/20 08:54:53  taurel
-// Updated to support asynchronous calls
-//
-// Revision 2.4  2003/01/09 12:00:33  taurel
-// - Ported to gcc 3.2
-// - Added ApiUtil::cleanup() and ApiUtil::~ApiUtil() methods
-// - Replace some ORB * by ORB_ptr
-// - Use CORBA::ORB::is_nil() instead of comparing to NULL
-//
-// Revision 2.3  2002/12/16 11:58:36  taurel
-// - Change the underlying ORB fom ORBacus to omniORB
-// - New method get_device_list() in Util class
-// - Util::get_class_list() takes DServer device into account
-// - Util::get_device_by_name() takes DSErver device into account
-// - Util::get_device_list_by_class() takes DServer device into account
-// - New parameter to the attribute::set_value() method to ebnable CORBA to frre memory allocated for the attribute
-//
-// Revision 2.2  2002/10/14 09:32:43  taurel
-// Fix bugs in devapi_base.cpp file :
-// - In read_attribute and read_attributes method of the DeviceProxy class
-//   Do not create sequence the same way if the call is local or remote.
-// - Add reconnection in the Connection::set_timeout_millis method
-// - Add flags to the Connection::set_timeout_millis method
-// - Fix bug in the DeviceProxy constructor when device is not marked as exported
-//   in the database. The constructor was not stateless in this case.
-//
-// Revision 2.1  2002/08/12 12:43:23  taurel
-// Fix bug in DeviceProxy::write_attributes method when writing several
-// attributes in one call. (File devapi_base.cpp)
-//
-// Revision 2.0  2002/06/28 13:43:07  taurel
-// Lot of changes since last releases :
-// 	- Database object managed as a singleton per control system
-// 	- Support all tango device naming syntax (using TANGO_HOST env.
-//  	  variable, without env variable and non database device)
-// 	- No more copy during read_attribute and command_inout
-// 	- Added some missing methods
-// 	- Build an exception class hierarchy
-// 	- Added correct management of device time-out
-// 	- Support all Tango device interface release 2 features
-// 	  (data/attribute comming from polling buffer, polling related methods,
-// 	   command/attribute result history)
-//
-//
-//
+//-----------------------------------------------------------------------------
 
 #if HAVE_CONFIG_H
 #include <ac_config.h>
 #endif
 
 #include <tango.h>
+
+#ifndef _TG_WINDOWS_
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <netdb.h>
+
+// There is a NO_DATA defined in netdb.h
+
+#ifdef NO_DATA
+#undef NO_DATA
+#endif
+#endif
 
 #ifdef WIN32_VC8
 #include <process.h>
@@ -1672,6 +1418,159 @@ int ApiUtil::get_env_var(const char *env_var_name,string &env_var)
 	return d.get_env_var(env_var_name,env_var);
 }
 
+//-----------------------------------------------------------------------------
+//
+// method : 		ApiUtil::get_ip_from_if()
+//
+// description : Get host IP address from its network interface
+//
+// argin(s) : out : - ip_adr_list : Host IP address
+//
+//-----------------------------------------------------------------------------
+
+void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
+{
+#ifndef _TG_WINDOWS_
+    int sock = socket(AF_INET,SOCK_STREAM,0);
+
+    int lastlen = 0;
+    int len = 100 * sizeof(struct ifreq);
+    struct ifconf ifc;
+
+//
+// There is no way to know for sure the buffer is big enough to get
+// the info for all the interfaces. We work around this by calling
+// the ioctl 2 times and increases the buffer size in the 2nd call.
+// If both calls return the info with the same size, we know we have
+// got all the interfaces.
+//
+
+    while ( 1 )
+    {
+        char* buf = (char*) malloc(len);
+        ifc.ifc_len = len;
+        ifc.ifc_buf = buf;
+
+        if (ioctl(sock,SIOCGIFCONF,&ifc) < 0)
+        {
+            if (errno != EINVAL || lastlen != 0)
+            {
+                cerr << "Warning: ioctl SIOCGICONF failed" << endl;
+                cerr << "Unable to obtain the list of all interface addresses." << endl;
+
+                Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                               (const char *)"Can't retrieve list of all interfaces addresses (ioctl - SIOCGICONF)!",
+                                               (const char *)"ApiUtil::get_ip_from_if()");
+            }
+        }
+        else
+        {
+            if (ifc.ifc_len == lastlen)
+                break; // Success, len has not changed.
+            lastlen = ifc.ifc_len;
+        }
+        len += 10 * sizeof(struct ifreq);
+        free(buf);
+    }
+
+    close(sock);
+
+//
+// Convert IP addresses to string
+//
+
+    int total = ifc.ifc_len / sizeof(struct ifreq);
+    struct ifreq* ifr = ifc.ifc_req;
+
+    for (int i = 0; i < total; i++)
+    {
+        if ( ifr[i].ifr_addr.sa_family == AF_INET )
+        {
+            struct sockaddr_in *iaddr = (struct sockaddr_in *)&ifr[i].ifr_addr;
+            struct sockaddr *addr = (struct sockaddr *)&ifr[i].ifr_addr;
+
+            if ( iaddr->sin_addr.s_addr != 0 )
+            {
+                char dest[80];
+                socklen_t addrlen = sizeof(sockaddr);
+
+                int result = getnameinfo(addr, addrlen, dest, sizeof(dest),0,0,NI_NUMERICHOST);
+                if (result != 0)
+                {
+                    cerr << "Warning: getnameinfo failed" << endl;
+                    cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
+
+                    Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                               (const char *)"Can't convert IP address to string (getnameinfo)!",
+                                               (const char *)"ApiUtil::get_ip_from_if()");
+                }
+                string tmp_str(dest);
+                ip_adr_list.push_back(tmp_str);
+            }
+        }
+    }
+
+    free(ifc.ifc_buf);
+#else
+
+//
+// Get address from intrerfaces
+//
+
+    int sock = socket(AF_INET,SOCK_STREAM,0);
+
+    INTERFACE_INFO info[64];  // Assume max 64 interfaces
+    DWORD retlen;
+
+    if ( WSAIoctl(sock, SIO_GET_INTERFACE_LIST, NULL,0,(LPVOID)&info, sizeof(info), (LPDWORD)&retlen,NULL,NULL) == SOCKET_ERROR )
+    {
+        int err = WSAGetLastError();
+        cerr << "Warning: WSAIoctl failed" << endl;
+        cerr << "Unable to obtain the list of all interface addresses. Error = " << err << endl;
+
+        TangoSys_OMemStream desc;
+        desc << "Can't retrieve list of all interfaces addresses (WSAIoctl)! Error = " << err << ends;
+
+        Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                       (const char *)desc.str(),
+                                       (const char *)"ApiUtil::get_ip_from_if()");
+    }
+    CLOSESOCKET(sock);
+
+//
+// Convers addresses to string
+// Only for running interfaces
+//
+
+    int numAddresses = retlen / sizeof(INTERFACE_INFO);
+    for (int i = 0; i < numAddresses; i++)
+    {
+        if (info[i].iiFlags & IFF_UP)
+        {
+            if (info[i].iiAddress.Address.sa_family == INETSOCKET)
+            {
+                struct sockaddr* addr = (struct sockaddr*)&info[i].iiAddress.AddressIn;
+                char dest[80];
+                socklen_t addrlen = sizeof(sockaddr);
+
+                int result = getnameinfo(addr, addrlen, dest, sizeof(dest),0,0,NI_NUMERICHOST);
+                if (result != 0)
+                {
+                    cerr << "Warning: getnameinfo failed" << endl;
+                    cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
+
+                    Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                               (const char *)"Can't convert IP address to string (getnameinfo)!",
+                                               (const char *)"ApiUtil::get_ip_from_if()");
+                }
+                string tmp_str(dest);
+                if (tmp_str != "0.0.0.0")
+                    ip_adr_list.push_back(tmp_str);
+            }
+        }
+    }
+#endif
+}
 
 //+-------------------------------------------------------------------------
 //

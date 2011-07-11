@@ -358,10 +358,6 @@ public:
 	vector<Database *> &get_db_vect() {return db_vect;}
 	bool in_server() {return in_serv;}
 	void in_server(bool serv) {in_serv = serv;}
-	AsynReq	*get_pasyn_table() {return asyn_p_table;}
-
-	void create_event_consumer();
-	EventConsumer *get_event_consumer();
 
 	TangoSys_Pid get_client_pid() {return ext->cl_pid;}
 	void clean_locking_threads(bool clean=true);
@@ -372,22 +368,28 @@ public:
 	bool need_reset_already_flag() {return reset_already_executed_flag;}
 	void need_reset_already_flag(bool in) {reset_already_executed_flag = in;}
 
-	size_t pending_asynch_call(asyn_req_type ty)
-	{if (ty==POLLING)return asyn_p_table->get_request_nb();
-	 else if (ty==CALL_BACK)return asyn_p_table->get_cb_request_nb();
-	 else return (asyn_p_table->get_request_nb()+asyn_p_table->get_cb_request_nb());}
-
 	TANGO_IMP_EXP static inline void cleanup()
 	{if (_instance != NULL){delete _instance;_instance=NULL;}}
 
 	TANGO_IMP_EXP static inline bool _is_instance_null()
 	{return _instance == NULL;}
 
+//
+// Utilities methods
+//
+
 	TANGO_IMP_EXP static int get_env_var(const char *,string &);
+	int get_user_connect_timeout() {return ext->user_connect_timeout;}
+
+	void get_ip_from_if(vector<string> &);
+
+//
+// EventConsumer related methods
+//
 
 	bool is_event_consumer_created() {return ext->event_consumer != NULL;}
-
-	int get_user_connect_timeout() {return ext->user_connect_timeout;}
+	void create_event_consumer();
+	EventConsumer *get_event_consumer();
 
 //
 // Asynchronous methods
@@ -395,9 +397,20 @@ public:
 
 	void get_asynch_replies();
 	void get_asynch_replies(long);
+	AsynReq	*get_pasyn_table() {return asyn_p_table;}
 
 	void set_asynch_cb_sub_model(cb_sub_model);
 	cb_sub_model get_asynch_cb_sub_model() {return auto_cb;}
+
+	size_t pending_asynch_call(asyn_req_type ty)
+	{if (ty==POLLING)return asyn_p_table->get_request_nb();
+	 else if (ty==CALL_BACK)return asyn_p_table->get_cb_request_nb();
+	 else return (asyn_p_table->get_request_nb()+asyn_p_table->get_cb_request_nb());}
+
+//
+// Conv, between AttributeValuexxx and DeviceAttribute
+//
+
 	static void attr_to_device(const AttributeValue *,const AttributeValue_3 *,long,DeviceAttribute *);
 	static void attr_to_device(const AttributeValue_4 *,long,DeviceAttribute *);
 
