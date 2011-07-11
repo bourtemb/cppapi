@@ -1535,10 +1535,10 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
         desc << "Can't retrieve list of all interfaces addresses (WSAIoctl)! Error = " << err << ends;
 
         Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
-                                       (const char *)desc.str(),
+                                       (const char *)desc.str().c_str(),
                                        (const char *)"ApiUtil::get_ip_from_if()");
     }
-    CLOSESOCKET(sock);
+    closesocket(sock);
 
 //
 // Convers addresses to string

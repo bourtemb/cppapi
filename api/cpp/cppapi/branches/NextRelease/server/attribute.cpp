@@ -1712,7 +1712,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 
 	TangoSys_MemStream str;
 	string old_min_value_str = min_value_str;
-	Attr_CheckVal old_min_value;
+	Attr_CheckVal old_min_value = min_value;
 	bool old_check_min_value = check_min_value;
 
 	min_value_str = conf.min_value;
@@ -1814,7 +1814,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	}
 
 	string old_max_value_str = max_value_str;
-	Attr_CheckVal old_max_value;
+	Attr_CheckVal old_max_value = max_value;
 	bool old_check_max_value = check_max_value;
 
     max_value_str = conf.max_value;
