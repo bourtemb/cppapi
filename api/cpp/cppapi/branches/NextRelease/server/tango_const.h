@@ -929,6 +929,7 @@ typedef struct _OptAttrProp
  * API_CantGetClientIdent
  * API_DeviceLocked
  * API_CannotCheckAccessControl
+ * API_SystemCallFailed
 
  * API_DeviceNotLocked
  * API_DeviceUnlocked
