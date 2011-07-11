@@ -2101,6 +2101,13 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 {
 
 //
+// Check if the caller try to change "hard coded" properties
+// Throw exception in case of
+//
+
+    check_hard_coded_properties(conf);
+
+//
 // First, do all the job done by old set_property(ies)
 //
 
@@ -8071,6 +8078,99 @@ void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 	ext->attr_serial_model=ser_model;
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::check_hard_coded_properties()
+//
+// description : 	Check if the user tries to change attribute
+//                  properties considered as hard coded
+//                  Throw exception in case of
+//
+// in :	user_conf : The attribute configuration sent by the user
+//
+//--------------------------------------------------------------------------
+
+void Attribute::check_hard_coded_properties(const AttributeConfig_3 &user_conf)
+{
+//
+// Check attribute name
+//
+
+    string user_att_name(user_conf.name.in());
+    transform(user_att_name.begin(),user_att_name.end(),user_att_name.begin(),::tolower);
+    if (user_att_name != get_name_lower())
+    {
+        throw_hard_coded_prop("name");
+    }
+
+//
+// Check data type
+//
+
+    if (user_conf.data_type != data_type)
+    {
+        throw_hard_coded_prop("data_type");
+    }
+
+//
+// Check data format
+//
+
+    if (user_conf.data_format != data_format)
+    {
+        throw_hard_coded_prop("data_format");
+    }
+
+//
+// Check writable
+//
+
+    if (user_conf.writable != writable)
+    {
+        throw_hard_coded_prop("writable");
+    }
+
+//
+// Check max_dim_x
+//
+
+    if (user_conf.max_dim_x != max_x)
+    {
+        throw_hard_coded_prop("max_dim_x");
+    }
+
+//
+// Check max_dim_y
+//
+
+    if (user_conf.max_dim_y != max_y)
+    {
+        throw_hard_coded_prop("max_dim_y");
+    }
+
+//
+// Check writable_attr_name
+//
+
+    string local_w_name(writable_attr_name);
+    transform(local_w_name.begin(),local_w_name.end(),local_w_name.begin(),::tolower);
+    string user_w_name(user_conf.writable_attr_name.in());
+    transform(user_w_name.begin(),user_w_name.end(),user_w_name.begin(),::tolower);
+
+    if (user_w_name != local_w_name)
+    {
+        throw_hard_coded_prop("writable_attr_name");
+    }
+
+//
+// Check level
+//
+
+    if (user_conf.level != get_disp_level())
+    {
+        throw_hard_coded_prop("level");
+    }
+}
 
 //+-------------------------------------------------------------------------
 //

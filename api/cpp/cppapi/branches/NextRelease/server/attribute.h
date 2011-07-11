@@ -1915,6 +1915,9 @@ protected:
 	bool check_warn_alarm();
 	void upd_att_prop_db(Tango::Attr_CheckVal &,const char *);
 
+    void check_hard_coded_properties(const AttributeConfig_3 &);
+    void throw_hard_coded_prop(const char *);
+
 /**@name Class data members */
 //@{
 /**
@@ -2106,6 +2109,19 @@ protected:
 
 	vector<AttrProperty>::iterator pos_end;
 };
+
+//
+// Some inline methods
+//
+
+inline void Attribute::throw_hard_coded_prop(const char *prop_name)
+{
+    TangoSys_OMemStream desc;
+    desc << "Attribute property " << prop_name << " is not changeable at run time" << ends;
+
+    Except::throw_exception((const char *)"API_AttrNotAllowed",desc.str(),
+				      	  (const char *)"Attribute::check_hard_coded_properties");
+}
 
 //
 // Macro to help coding
