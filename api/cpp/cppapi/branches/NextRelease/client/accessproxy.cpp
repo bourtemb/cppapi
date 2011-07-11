@@ -42,12 +42,6 @@
 
 #ifndef _TG_WINDOWS_
 #include <pwd.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#else
-#include <ws2tcpip.h>
 #endif
 
 namespace Tango

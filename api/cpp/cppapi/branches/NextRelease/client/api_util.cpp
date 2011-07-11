@@ -50,6 +50,9 @@ static const char *RcsId = "$Id$\n$Name$";
 #ifdef NO_DATA
 #undef NO_DATA
 #endif
+
+#else
+#include <ws2tcpip.h>
 #endif
 
 #ifdef WIN32_VC8
@@ -1547,7 +1550,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
     {
         if (info[i].iiFlags & IFF_UP)
         {
-            if (info[i].iiAddress.Address.sa_family == INETSOCKET)
+            if (info[i].iiAddress.Address.sa_family == AF_INET)
             {
                 struct sockaddr* addr = (struct sockaddr*)&info[i].iiAddress.AddressIn;
                 char dest[80];
