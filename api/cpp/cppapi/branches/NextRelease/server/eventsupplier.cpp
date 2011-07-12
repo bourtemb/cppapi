@@ -805,6 +805,7 @@ void EventSupplier::reconnect_notifd()
 //
 //--------------------------------------------------------------------------
 
+/*
 void EventSupplier::detect_and_push_events_3(DeviceImpl *device_impl,
 				    Tango::AttributeValue_3 *attr_value,
 				    Tango::AttributeValue_4 *attr_value_4,
@@ -844,7 +845,7 @@ void EventSupplier::detect_and_push_events_3(DeviceImpl *device_impl,
 	}
 	else
 		attr.ext->event_archive_client_3 = false;
-}
+}*/
 
 bool EventSupplier::detect_change_3(Attribute &attr,
 				  AttributeValue_3 *curr_attr_value,
@@ -2657,13 +2658,17 @@ void EventSupplier::push_att_data_ready_event(DeviceImpl *device_impl,const stri
 	dat_ready.data_type = (int)data_type;
 	dat_ready.ctr = ctr;
 
+    AttributeData<AttDataReady> ad;
+    ::memset(&ad,0,sizeof(ad));
+    ad.attr_misc = &dat_ready;
+
 	push_event(device_impl,
 		   ev_type,
 		   filterable_names,
 		   filterable_data,
 		   filterable_names_lg,
 		   filterable_data_lg,
-	       dat_ready,
+	       ad,
 		   const_cast<string &>(attr_name),
 		   NULL);
 }

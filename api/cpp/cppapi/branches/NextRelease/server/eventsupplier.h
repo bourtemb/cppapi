@@ -145,9 +145,6 @@ private :
 	omni_mutex		detect_mutex;
 
 public :
-	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
-	void detect_and_push_events_3(DeviceImpl *,AttributeValue_3 *,AttributeValue_4 *,DevFailed *,string &,struct timeval *);
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -170,9 +167,17 @@ public :
 //
 //--------------------------------------------------------------------------
 
+    template <typename T>
+    struct AttributeData
+    {
+        AttributeValue      *attr_val;
+        AttributeValue_3    *attr_val_3;
+        AttributeValue_4    *attr_val_4;
+        T                   *attr_misc;
+    };
 
 	template <typename T>
-	void detect_and_push_events(DeviceImpl *device_impl,T &attr_value,DevFailed *except,string &attr_name);
+	void detect_and_push_events(DeviceImpl *,struct AttributeData<T> &,DevFailed *,string &,struct timeval *);
 
 //------------------ Change event ---------------------------
 
@@ -180,8 +185,7 @@ public :
 				  double &delta_change_rel,double &delta_change_abs,DevFailed *except,bool &force_change,DeviceImpl *dev);
 
 	template <typename T>
-	bool detect_change(Attribute &attr,T &curr_attr_value,bool archive,double &delta_change_rel,double &delta_change_abs,
-				  DevFailed *except,bool &force_change,DeviceImpl *dev);
+	bool detect_change(Attribute &,struct AttributeData<T> &,bool,double &,double &,DevFailed *,bool &,DeviceImpl *);
 
 //------------------ Detect, push change event --------------
 
@@ -189,7 +193,7 @@ public :
 						 Attribute &attr,string &attr_name,DevFailed *except,bool user_push = false);
 
 	template <typename T>
-	void detect_and_push_change_event(DeviceImpl *device_impl,T &attr_value,Attribute &attr,string &attr_name,DevFailed *except);
+	void detect_and_push_change_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,bool user_push = false);
 
 //------------------ Detect, push archive event --------------
 
@@ -197,7 +201,7 @@ public :
 						  Attribute &attr,string &attr_name,DevFailed *except,struct timeval *,bool user_push = false);
 
 	template <typename T>
-	void detect_and_push_archive_event(DeviceImpl *device_impl,T &attr_value,Attribute &attr,string &attr_name,DevFailed *except);
+	void detect_and_push_archive_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
 
 //------------------ Detect, push periodic event -------------
 
@@ -205,22 +209,19 @@ public :
 					    Attribute &attr,string &attr_name,DevFailed *except,struct timeval *);
 
 	template <typename T>
-	void detect_and_push_periodic_event(DeviceImpl *device_impl,T &attr_value,Attribute &attr,string &attr_name,DevFailed *except);
+	void detect_and_push_periodic_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,struct timeval *);
 
 //------------------ Push event -------------------------------
-
-	template <typename T>
-	void push_event(DeviceImpl *device_impl,string event_type,vector<string> &filterable_names,vector<double> &filterable_data,
-		       	vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,T &attr_value,string &attr_name,DevFailed *except);
-
 	void push_event_3(DeviceImpl *device_impl,string event_type,vector<string> &filterable_names,vector<double> &filterable_data,
 		       	vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,AttributeValue_3 *attr_value,AttributeValue_4 *attr_value_4,
 		       	string &attr_name,DevFailed *except);
 
+	template <typename T>
+	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData<T> &,string &,DevFailed *);
+
 //------------------- Miscellaneous event ---------------------
 
-	template <typename T>
-	void detect_and_push_quality_change_event(DeviceImpl *device_impl,T &attr_value,Attribute &attr,string &attr_name,DevFailed *except);
+	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
 
 	template <typename T>
 	void push_att_conf_events(DeviceImpl *device_impl,T &attr_conf,DevFailed *except,string &attr_name);
