@@ -7182,7 +7182,9 @@ void Attribute::fire_change_event(DevFailed *except)
 				      	  (const char *)"Attribute::fire_change_event");
 		}
 
-// don`t try to access the attribute data when an exception was indicated
+//
+// Don`t try to access the attribute data when an exception was indicated
+//
 
 		if ( except == NULL )
 		{
@@ -7193,14 +7195,26 @@ void Attribute::fire_change_event(DevFailed *except)
 		}
 
 //
+// Create the structure used to send data to event system
+//
+
+        EventSupplier::AttributeData<AttributeConfig> ad;
+        ::memset(&ad,0,sizeof(ad));
+
+//
 // Fire event
 //
 
 		if ( is_check_change_criteria() == true )
 		{
-			event_supplier->detect_and_push_change_event_3(ext->dev,
-						 		send_attr,
-						 		send_attr_4,
+
+            if (send_attr != NULL)
+                ad.attr_val_3 = send_attr;
+            else
+                ad.attr_val_4 = send_attr_4;
+
+			event_supplier->detect_and_push_change_event(ext->dev,
+						 		ad,
 								*this,
 								name,
 								except,
@@ -7277,14 +7291,18 @@ void Attribute::fire_change_event(DevFailed *except)
 			else
 				filterable_data.push_back((double)0.0);
 
-			event_supplier->push_event_3(ext->dev,
+            if (send_attr != NULL)
+                ad.attr_val_3 = send_attr;
+            else
+                ad.attr_val_4 = send_attr_4;
+
+			event_supplier->push_event(ext->dev,
 						"change",
 						filterable_names,
 						filterable_data,
 						filterable_names_lg,
 						filterable_data_lg,
-						send_attr,
-						send_attr_4,
+						ad,
 						name,
 						except);
 		}
@@ -7298,7 +7316,9 @@ void Attribute::fire_change_event(DevFailed *except)
 		else
 			delete send_attr_4;
 
-// delete the data values allocated in the attribute
+//
+// Delete the data values allocated in the attribute
+//
 
 		if ( (name_lower != "state") && (name_lower != "status") )
 		{
@@ -7368,61 +7388,76 @@ void Attribute::fire_archive_event(DevFailed *except)
 	{
 		time_t now;
 		int archive_subscription;
-		//string &name_lower = get_name_lower();
 
 		now = time(NULL);
 		archive_subscription = (int)now - ext->event_archive_subscription;
 
 		if (archive_subscription > EVENT_RESUBSCRIBE_PERIOD)
-			{
+        {
 			if ( (name_lower != "state") && (name_lower != "status") )
-				{
-				// delete the data values allocated in the attribute
+            {
+
+//
+// Delete the data values allocated in the attribute
+//
+
 				bool data_flag = get_value_flag();
 				if ( data_flag == true )
-					{
-					// For writable scalar attributes the sequence for the
-					// attribute data is not yet allcoated. This will happen
-					// only when adding the set point!
+                {
+
+//
+// For writable scalar attributes the sequence for the
+// attribute data is not yet allcoated. This will happen
+// only when adding the set point!
+//
+
 					if ( !check_scalar_wattribute() )
 					{
 						if (quality != Tango::ATTR_INVALID)
 							delete_seq();
 						set_value_flag (false);
 					}
-					}
-				}
+                }
+            }
 			return;
-			}
+        }
 
-	//
-	// Get the event supplier, and simply return if not created
-	//
+//
+// Get the event supplier, and simply return if not created
+//
 
 		EventSupplier *event_supplier;
 		Tango::Util *tg = Util::instance();
 		event_supplier = tg->get_event_supplier();
 		if (event_supplier == NULL)
-			{
+        {
 			if ( name_lower != "state" )
-				{
-				// delete the data values allocated in the attribute
-				bool data_flag = get_value_flag();
+            {
+
+//
+// Delete the data values allocated in the attribute
+//
+
+                bool data_flag = get_value_flag();
 				if ( data_flag == true )
-					{
-					// For writable scalar attributes the sequence for the
-					// attribute data is not yet allcoated. This will happen
-					// only when adding the set point!
+                {
+
+//
+// For writable scalar attributes the sequence for the
+// attribute data is not yet allcoated. This will happen
+// only when adding the set point!
+//
+
 					if ( !check_scalar_wattribute() )
 					{
 						if (quality != Tango::ATTR_INVALID)
 							delete_seq();
 						set_value_flag (false);
 					}
-					}
-				}
+                }
+            }
 			return;
-			}
+        }
 
 //
 // Retrieve device object if not already done
@@ -7433,9 +7468,11 @@ void Attribute::fire_archive_event(DevFailed *except)
 
 		if ( except == NULL )
 		{
+
 //
 // Check that the attribute value has been set
 //
+
 			if ((name_lower != "state") && (name_lower != "status"))
 			{
 				if (quality != Tango::ATTR_INVALID)
@@ -7479,7 +7516,9 @@ void Attribute::fire_archive_event(DevFailed *except)
 				      	  (const char *)"Attribute::fire_archive_event");
 		}
 
-// don`t try to access the attribute data when an exception was indicated
+//
+// Don`t try to access the attribute data when an exception was indicated
+//
 
 		if ( except == NULL )
 		{
@@ -7488,6 +7527,18 @@ void Attribute::fire_archive_event(DevFailed *except)
 			else
 				Attribute_2_AttributeValue(send_attr_4,ext->dev);
 		}
+
+//
+// Create the structure used to send data to event system
+//
+
+        EventSupplier::AttributeData<AttributeConfig> ad;
+        ::memset(&ad,0,sizeof(ad));
+
+        if (send_attr != NULL)
+            ad.attr_val_3 = send_attr;
+        else
+            ad.attr_val_4 = send_attr_4;
 
 //
 // Fire event
@@ -7508,9 +7559,8 @@ void Attribute::fire_archive_event(DevFailed *except)
 			gettimeofday(&now_timeval,NULL);
 #endif
 
-			event_supplier->detect_and_push_archive_event_3(ext->dev,
-						 			send_attr,
-						 			send_attr_4,
+			event_supplier->detect_and_push_archive_event(ext->dev,
+						 			ad,
 									*this,
 									name,
 									except,
@@ -7520,6 +7570,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 		else
 		{
 
+//
 // Execute detect_change only to calculate the delta_change_rel and
 // delta_change_abs and force_change !
 //
@@ -7529,7 +7580,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 			double delta_change_rel = 0.0;
 			double delta_change_abs = 0.0;
 
-			event_supplier->detect_change_3 (*this, send_attr, send_attr_4,true,
+			event_supplier->detect_change(*this, ad,true,
 							delta_change_rel,
 							delta_change_abs,
 							except,
@@ -7592,14 +7643,13 @@ void Attribute::fire_archive_event(DevFailed *except)
 			filterable_names.push_back("delta_change_abs");
 			filterable_data.push_back(delta_change_abs);
 
-			event_supplier->push_event_3(ext->dev,
+			event_supplier->push_event(ext->dev,
 							"archive",
 							filterable_names,
 							filterable_data,
 							filterable_names_lg,
 							filterable_data_lg,
-							send_attr,
-							send_attr_4,
+							ad,
 							name,
 							except);
 		}
@@ -7609,7 +7659,10 @@ void Attribute::fire_archive_event(DevFailed *except)
 		else
 			delete send_attr_4;
 
-		// delete the data values allocated in the attribute
+//
+// Delete the data values allocated in the attribute
+//
+
 		if ((name_lower != "state") && (name_lower != "status"))
 			{
 			bool data_flag = get_value_flag();
@@ -7628,7 +7681,10 @@ void Attribute::fire_archive_event(DevFailed *except)
 		else
 			delete send_attr_4;
 
-		// delete the data values allocated in the attribute
+//
+// Delete the data values allocated in the attribute
+//
+
 		if ((name_lower != "state") && (name_lower != "status"))
 		{
 			bool data_flag = get_value_flag();
@@ -7687,13 +7743,21 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 		{
 			if (name_lower != "state")
 			{
-				// delete the data values allocated in the attribute
+
+//
+// Delete the data values allocated in the attribute
+//
+
 				bool data_flag = get_value_flag();
 				if ( data_flag == true )
 				{
-					// For writable scalar attributes the sequence for the
-					// attribute data is not yet allcoated. This will happen
-					// only when adding the set point!
+
+//
+// For writable scalar attributes the sequence for the
+// attribute data is not yet allcoated. This will happen
+// only when adding the set point!
+//
+
 					if ( !check_scalar_wattribute() )
 					{
 						if (quality != Tango::ATTR_INVALID)
@@ -7775,20 +7839,31 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 		}
 
 //
+// Create the structure used to send data to event system
+//
+
+        EventSupplier::AttributeData<AttributeConfig> ad;
+        ::memset(&ad,0,sizeof(ad));
+
+        if (send_attr != NULL)
+            ad.attr_val_3 = send_attr;
+        else
+            ad.attr_val_4 = send_attr_4;
+
+//
 // Fire event
 //
 
 		vector<string> filterable_names_lg;
 		vector<long> filterable_data_lg;
 
-		event_supplier->push_event_3(ext->dev,
+		event_supplier->push_event(ext->dev,
 					   "user_event",
 					   filt_names,
 					   filt_vals,
 					   filterable_names_lg,
 					   filterable_data_lg,
-					   send_attr,
-					   send_attr_4,
+					   ad,
 					   name,
 					   except);
 

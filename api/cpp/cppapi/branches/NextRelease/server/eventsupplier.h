@@ -129,43 +129,24 @@ private :
 	TANGO_IMP_EXP static void connect_to_notifd(NotifService &,CORBA::ORB_var &,string &,Database *,string &,Util *);
 
 	// Added a mutex to synchronize the access to
-	//	detect_and_push_change_event_3	and
-	// detect_and_push_archive_event_3 which are used
+	//	detect_and_push_change_event	and
+	// detect_and_push_archive_event which are used
 	// from different threads
 	omni_mutex		event_mutex;
 
 	// Added a mutex to synchronize the access to
-	//	push_event_3 which is used
+	//	push_event which is used
 	// from different threads
 	omni_mutex		push_mutex;
 
 	// Added a mutex to synchronize the access to
-	//	detect_event_3 which is used
+	//	detect_event which is used
 	// from different threads
 	omni_mutex		detect_mutex;
 
 public :
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//			WARNING
-//			-------
-//
-////////////////////////////////////////////////////////////////////////////
-
-// Unfortunately, with Suse 9.3 with gcc 3.3.4 and binutils 2.15.94,
-// it was not possible to generate the shared libs of Tango
-// (linker error messages).
-// To solve this problem, it was necessary to duplicate these methods
-// instead of simply using a template method. This generates a code
-// duplicate but...... (all methods finishing with xxxx_3)
-//
-// Test with gcc 3.4.5 with binutils 2.16.1 did not solve the problems
-// We need to check with gcc 4.x.x if we could remove this code duplicate
-// The other methods are in eventsupplier.cpp
-//
-//
-//--------------------------------------------------------------------------
+	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
 
     template <typename T>
     struct AttributeData
@@ -181,47 +162,30 @@ public :
 
 //------------------ Change event ---------------------------
 
-	bool detect_change_3(Attribute &attr,AttributeValue_3 *curr_attr_value,AttributeValue_4 *curr_attr_value_4,bool archive,
-				  double &delta_change_rel,double &delta_change_abs,DevFailed *except,bool &force_change,DeviceImpl *dev);
-
 	template <typename T>
 	bool detect_change(Attribute &,struct AttributeData<T> &,bool,double &,double &,DevFailed *,bool &,DeviceImpl *);
 
 //------------------ Detect, push change event --------------
-
-	void detect_and_push_change_event_3(DeviceImpl *device_impl,AttributeValue_3 *attr_value,AttributeValue_4 *attr_value_4,
-						 Attribute &attr,string &attr_name,DevFailed *except,bool user_push = false);
 
 	template <typename T>
 	void detect_and_push_change_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,bool user_push = false);
 
 //------------------ Detect, push archive event --------------
 
-	void detect_and_push_archive_event_3(DeviceImpl *device_impl,AttributeValue_3 *attr_value,AttributeValue_4 *attr_value_4,
-						  Attribute &attr,string &attr_name,DevFailed *except,struct timeval *,bool user_push = false);
-
 	template <typename T>
 	void detect_and_push_archive_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
 
 //------------------ Detect, push periodic event -------------
 
-	void detect_and_push_periodic_event_3(DeviceImpl *device_impl,AttributeValue_3 *attr_value,AttributeValue_4 *attr_value_4,
-					    Attribute &attr,string &attr_name,DevFailed *except,struct timeval *);
-
 	template <typename T>
 	void detect_and_push_periodic_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,struct timeval *);
 
 //------------------ Push event -------------------------------
-	void push_event_3(DeviceImpl *device_impl,string event_type,vector<string> &filterable_names,vector<double> &filterable_data,
-		       	vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,AttributeValue_3 *attr_value,AttributeValue_4 *attr_value_4,
-		       	string &attr_name,DevFailed *except);
 
 	template <typename T>
 	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData<T> &,string &,DevFailed *);
 
 //------------------- Miscellaneous event ---------------------
-
-	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
 
 	template <typename T>
 	void push_att_conf_events(DeviceImpl *device_impl,T &attr_conf,DevFailed *except,string &attr_name);

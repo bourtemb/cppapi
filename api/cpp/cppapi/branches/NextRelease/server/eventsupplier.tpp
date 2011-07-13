@@ -42,26 +42,21 @@
 namespace Tango
 {
 
-/////////////////////////////////////////////////////////////////////////////
+//+----------------------------------------------------------------------------
 //
-//			WARNING
-//			-------
+// method : 		EventSupplier::detect_and_push_events()
 //
-////////////////////////////////////////////////////////////////////////////
-
-// Unfortunately, with Suse 9.3 with gcc 3.3.4 and binutils 2.15.94,
-// it was not possible to generate the shared libs of Tango
-// (linker error messages).
-// To solve this problem, it was necessary to duplicate these methods
-// instead of simply using a template method. This generates a code
-// duplicate but...... (all methods finishing with xxxx_3)
+// description : 	Method to detect if there it is necessary
+//			        to push an event
 //
-// Test with gcc 3.4.5 with binutils 2.16.1 did not solve the problems
-// We need to check with gcc 4.x.x if we could remove this code duplicate
-// The other methods are in eventsupplier.cpp
+// argument : in :	device_impl : The device
+//			        attr_value : The attribute value
+//			        except : The exception thrown during the last
+//				            attribute reading. NULL if no exception
+//			        attr_name : The attribute name
+//                  time_bef_attr : Exact date when the attribute has been read
 //
-//
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 template <typename T>
 void EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct AttributeData<T> &attr_value,DevFailed *except,
