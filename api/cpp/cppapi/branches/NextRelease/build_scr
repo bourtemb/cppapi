@@ -166,6 +166,7 @@ then
 		/bin/mkdir -p $INSTALL_DIR/win32/include/idl
 		/bin/cp client/*.h $INSTALL_DIR/win32/include
 		/bin/cp server/*.h $INSTALL_DIR/win32/include
+		/bin/cp server/*.tpp $INSTALL_DIR/win32/include
 		/bin/cp server/idl/*.h $INSTALL_DIR/win32/include/idl
 	fi
 fi
