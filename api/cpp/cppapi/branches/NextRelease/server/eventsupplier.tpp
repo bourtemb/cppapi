@@ -348,7 +348,7 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 	omni_mutex_lock l(event_mutex);
 
 //
-// Do not get time now. This metthod is executed after the attribute has been read.
+// Do not get time now. This method is executed after the attribute has been read.
 // For some device, reading one attribute could be long and even worse could have an
 // unstable reading time. If we takes time now, it will also be unstable.
 // Use the time taken in the polling thread before the attribute was read. This one is much
@@ -423,11 +423,11 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 		else
 		{
            if (attr_value.attr_val_4 != NULL)
-                attr.ext->prev_change_event.value_4 = attr_value.attr_val_4->value;
+                attr.ext->prev_archive_event.value_4 = attr_value.attr_val_4->value;
             else if (attr_value.attr_val_3 != NULL)
-                attr.ext->prev_change_event.value = attr_value.attr_val_3->value;
+                attr.ext->prev_archive_event.value = attr_value.attr_val_3->value;
             else
-                attr.ext->prev_change_event.value = attr_value.attr_val->value;
+                attr.ext->prev_archive_event.value = attr_value.attr_val->value;
 
 			attr.ext->prev_archive_event.quality = the_quality;
 			attr.ext->prev_archive_event.err = false;
@@ -480,11 +480,11 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 		else
 		{
            if (attr_value.attr_val_4 != NULL)
-                attr.ext->prev_change_event.value_4 = attr_value.attr_val_4->value;
+                attr.ext->prev_archive_event.value_4 = attr_value.attr_val_4->value;
             else if (attr_value.attr_val_3 != NULL)
-                attr.ext->prev_change_event.value   = attr_value.attr_val_3->value;
+                attr.ext->prev_archive_event.value   = attr_value.attr_val_3->value;
             else
-                attr.ext->prev_change_event.value   = attr_value.attr_val->value;
+                attr.ext->prev_archive_event.value   = attr_value.attr_val->value;
 			attr.ext->prev_archive_event.quality = the_quality;
 			attr.ext->prev_archive_event.err     = false;
 		}
@@ -674,7 +674,7 @@ void EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struc
 // using an AttributeValue_3 data type
 //
 
-       if ((attr.ext->event_periodic_client_3 == true) && (attr_value.attr_val_3 == NULL))
+        if ((attr.ext->event_periodic_client_3 == true) && (attr_value.attr_val_3 == NULL))
         {
             attr_value.attr_val_3 = new AttributeValue_3();
             attr.AttributeValue_4_2_AttributeValue_3(attr_value.attr_val_4,attr_value.attr_val_3);
@@ -703,7 +703,7 @@ void EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struc
 			   attr_name,
 			   except);
 
-       if (need_free == true)
+        if (need_free == true)
         {
            if (attr_value.attr_val_4 != NULL)
                 delete attr_value.attr_val_4;
