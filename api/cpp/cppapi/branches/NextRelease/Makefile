@@ -313,6 +313,7 @@ CLIENT_INCLUDE =	apiexcept.h \
 
 SERVER_INCLUDE =	attrdesc.h \
 			attribute.h \
+            attribute.tpp \
 			attrmanip.h \
 			auto_tango_monitor.h \
 			basiccommand.h \
@@ -332,6 +333,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			event.h \
 			eventcmds.h \
 			eventsupplier.h \
+			eventsupplier.tpp \
 			except.h \
 			log4tango.h \
 			logcmds.h \
