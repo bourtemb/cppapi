@@ -1915,7 +1915,9 @@ protected:
 	bool check_warn_alarm();
 	void upd_att_prop_db(Tango::Attr_CheckVal &,const char *);
 
-    void check_hard_coded_properties(const AttributeConfig_3 &);
+	template <typename T>
+    void check_hard_coded_properties(const T &);
+
     void throw_hard_coded_prop(const char *);
 
 /**@name Class data members */
@@ -2401,5 +2403,9 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 		(void)0
 
 } // End of Tango namespace
+
+// Add template methods definitions
+
+#include <attribute.tpp>
 
 #endif // _ATTRIBUTE_H
