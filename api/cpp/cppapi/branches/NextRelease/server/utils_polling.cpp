@@ -168,6 +168,7 @@ void Util::polling_configure()
 				s << poll_cmd_list[k + 1];
 				s >> upd;
 				s.str("");
+				s.clear();
 				send->lvalue[0] = upd;
 
 				if (first_loop == true)
@@ -206,6 +207,7 @@ void Util::polling_configure()
 				s << poll_attr_list[k + 1];
 				s >> upd;
 				s.str("");
+				s.clear();
 				send->lvalue[0] = upd;
 
 				if (first_loop == true)
