@@ -2396,7 +2396,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 //
 
 	Tango::Util *tg = Tango::Util::instance();
-	EventSupplier *ev_supply = tg->get_event_supplier();
+	NotifdEventSupplier *ev_supply = tg->get_notifd_event_supplier();
 
 //
 // Update attribute config first locally then in database
@@ -2404,6 +2404,9 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 	long nb_attr = new_conf.length();
 	long i;
+
+    EventSupplier::AttributeData ad;
+    ::memset(&ad,0,sizeof(ad));
 
 	try
 	{
@@ -2440,7 +2443,8 @@ throw (Tango::DevFailed, CORBA::SystemException)
 			if (ev_supply != NULL)
 			{
 				string tmp_name(new_conf[i].name);
-				ev_supply->push_att_conf_events(this,new_conf[i],(Tango::DevFailed *)NULL,tmp_name);
+				ad.attr_conf_3 = &(new_conf[i]);
+				ev_supply->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
 			}
 		}
 

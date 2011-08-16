@@ -376,6 +376,7 @@ void *PollThread::run_undetached(TANGO_UNUSED(void *ptr))
 // Declare a work item to check the for new sub devices
 // regularly.
 //
+
 	if ( send_heartbeat == true )
 	{
 		WorkItem wo;
@@ -1015,6 +1016,7 @@ void PollThread::one_more_poll()
 		case Tango::EVENT_HEARTBEAT:
 			eve_heartbeat();
 			break;
+
 		case Tango::STORE_SUBDEV:
 			store_subdev();
 			break;
@@ -1420,8 +1422,8 @@ void PollThread::compute_sleep_time()
 void PollThread::err_out_of_sync(WorkItem &to_do)
 {
 
-	EventSupplier *event_supplier;
-	event_supplier = Util::instance()->get_event_supplier();
+	NotifdEventSupplier *event_supplier;
+	event_supplier = Util::instance()->get_notifd_event_supplier();
 	if (event_supplier != NULL)
 	{
 		Tango::DevErrorList errs;
@@ -1435,7 +1437,7 @@ void PollThread::err_out_of_sync(WorkItem &to_do)
 		Tango::DevFailed except(errs);
 		long idl_vers = to_do.dev->get_dev_idl_version();
 
-        struct EventSupplier::AttributeData<AttributeConfig> ad;
+        struct EventSupplier::AttributeData ad;
         ::memset(&ad,0,sizeof(ad));
 
         if (idl_vers > 3)
@@ -1732,13 +1734,13 @@ void PollThread::poll_attr(WorkItem &to_do)
 // and if there is an event (on_change, on_alarm or periodic)
 //
 
-	EventSupplier *event_supplier;
-	event_supplier = Util::instance()->get_event_supplier();
+	NotifdEventSupplier *event_supplier;
+	event_supplier = Util::instance()->get_notifd_event_supplier();
 	if (event_supplier != NULL)
 	{
 		if (attr_failed == true)
 		{
-		    struct EventSupplier::AttributeData<AttributeConfig> ad;
+		    struct EventSupplier::AttributeData ad;
 		    ::memset(&ad,0,sizeof(ad));
 
 		    if (idl_vers > 3)
@@ -1756,7 +1758,7 @@ void PollThread::poll_attr(WorkItem &to_do)
 		}
 		else
 		{
-		    struct EventSupplier::AttributeData<AttributeConfig> ad;
+		    struct EventSupplier::AttributeData ad;
 		    ::memset(&ad,0,sizeof(ad));
 
 		    if (idl_vers > 3)
@@ -1838,15 +1840,20 @@ void PollThread::eve_heartbeat()
 	      << setw(6) << setfill('0') << now.tv_usec
 	      << " Sending event heartbeat" << endl;
 
+cout << "Pushing heartbeat event" << endl;
 	EventSupplier *event_supplier;
-	event_supplier = Util::instance()->get_event_supplier();
+	event_supplier = Util::instance()->get_zmq_event_supplier();
 	if ((event_supplier != NULL) && (send_heartbeat == true))
 	{
 		event_supplier->push_heartbeat_event();
 	}
 
+	event_supplier = Util::instance()->get_notifd_event_supplier();
+	if ((event_supplier != NULL) && (send_heartbeat == true))
+	{
+		event_supplier->push_heartbeat_event();
+	}
 }
-
 
 //+-------------------------------------------------------------------------
 //

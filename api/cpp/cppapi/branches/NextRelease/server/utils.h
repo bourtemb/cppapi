@@ -77,7 +77,8 @@ class DeviceClass;
 class DServer;
 class AutoTangoMonitor;
 class Util;
-class EventSupplier;
+class NotifdEventSupplier;
+class ZmqEventSupplier;
 class PyLock;
 class CreatePyLock;
 class DbServerCache;
@@ -143,7 +144,8 @@ public:
 	UtilExt():poll_mon("utils_poll"),ser_model(BY_DEVICE),only_one("process"),
 	 	  py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
 		  svr_starting(true),svr_stopping(false),db_svr_version(0),poll_pool_size(ULONG_MAX),
-		  conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false)
+		  conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
+		  endpoint_specified(false)
 	{shared_data.cmd_pending=false;shared_data.trigger=false;
 	cr_py_lock = new CreatePyLock();}
 
@@ -156,7 +158,7 @@ public:
 	bool						poll_on;				// Polling on flag
 	SerialModel					ser_model;				// The serialization model
 	TangoMonitor				only_one;				// Serialization monitor
-	EventSupplier				*event_supplier;		// The event supplier object
+	NotifdEventSupplier			*nd_event_supplier;	    // The notifd event supplier object
 
 	void						*py_interp;				// The Python interpreter
 	bool						py_ds;					// The Python DS flag
@@ -188,6 +190,10 @@ public:
 	bool						_dummy_thread;			// The main DS thread is not the process main thread
 
 	string						svr_port_num;			// Server port when using file as database
+
+	ZmqEventSupplier            *zmq_event_supplier;    // The zmq event supplier object
+	bool                        endpoint_specified;     // Endpoint specified on cmd line
+	string                      specified_ip;           // IP address specified in the endpoint
 };
 
 /**
@@ -447,11 +453,17 @@ public:
  */
 	SerialModel get_serial_model() {return ext->ser_model;}
 /**
- * Get a reference to the TANGO EventSupplier object
+ * Get a reference to the notifd TANGO EventSupplier object
  *
- * @return The EventSupplier object
+ * @return The notifd EventSupplier object
  */
-	EventSupplier *get_event_supplier() {return ext->event_supplier;}
+	NotifdEventSupplier *get_notifd_event_supplier() {return ext->nd_event_supplier;}
+/**
+ * Get a reference to the ZMQ TANGO EventSupplier object
+ *
+ * @return The zmq EventSupplier object
+ */
+	ZmqEventSupplier *get_zmq_event_supplier() {return ext->zmq_event_supplier;}
 //@}
 
 /**@Miscellaneous methods */
@@ -493,7 +505,8 @@ public:
 	void stop_heartbeat_thread();
 	string &get_svr_port_num() {return ext->svr_port_num;}
 
-	void create_event_supplier();
+	void create_notifd_event_supplier();
+	void create_zmq_event_supplier();
 
 	void *get_py_interp() {return ext->py_interp;}
 	void set_py_interp(void *ptr) {ext->py_interp = ptr;}
@@ -548,6 +561,12 @@ public:
 	void shutdown_server();
 
 	SubDevDiag &get_sub_dev_diag() {return ext->sub_dev_diag;}
+
+	bool get_endpoint_specified() {return ext->endpoint_specified;}
+	void set_endpoint_specified(bool val) {ext->endpoint_specified = val;}
+
+	string &get_specified_ip() {return ext->specified_ip;}
+	void set_specified_ip(string &val) {ext->specified_ip = val;}
 
 /**@name Database related methods */
 //@{

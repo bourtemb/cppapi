@@ -1884,13 +1884,13 @@ public:
 
 	void Attribute_2_AttributeValue(Tango::AttributeValue_3 *,DeviceImpl *);
 	void Attribute_2_AttributeValue(Tango::AttributeValue_4 *,DeviceImpl *);
-	void AttributeValue_4_2_AttributeValue_3(Tango::AttributeValue_4 *,Tango::AttributeValue_3 *);
+	void AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_4 *,Tango::AttributeValue_3 *);
 
 #ifndef TANGO_HAS_LOG4TANGO
 	friend ostream &operator<<(ostream &,Attribute &);
 #endif // TANGO_HAS_LOG4TANGO
 	friend class EventSupplier;
-	friend class EventSubscriptionChangeCmd;
+	friend class DServer;
 
 private:
 	void set_data_size();

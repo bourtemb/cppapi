@@ -86,6 +86,9 @@ public :
 	void re_lock_devices(const Tango::DevVarStringArray *);
 	Tango::DevVarLongStringArray *dev_lock_status(Tango::ConstDevString);
 
+	Tango::DevLong event_subscription_change(const Tango::DevVarStringArray *);
+	Tango::DevVarLongStringArray *zmq_event_subscription_change(const Tango::DevVarStringArray *);
+
 	void delete_devices();
 
 #ifdef TANGO_HAS_LOG4TANGO
@@ -120,7 +123,8 @@ public :
 	TANGO_IMP_EXP static void register_class_factory(ClassFactoryFuncPtr f_ptr) {class_factory_func_ptr = f_ptr;}
 	void _add_class(DeviceClass *dc) {this->add_class(dc);}
 
-	friend class EventSupplier;
+	friend class NotifdEventSupplier;
+	friend class ZmqEventSupplier;
 
 protected :
 	string							process_name;
@@ -148,6 +152,7 @@ private:
 	void add_class(DeviceClass *);
 	void create_cpp_class(const char *,const char *);
 	void get_dev_prop(Tango::Util *);
+    DeviceImpl *event_subscription(string &,string &,string &,string &,string &);
 
 	bool			from_constructor;
 };

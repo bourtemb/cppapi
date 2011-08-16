@@ -33,181 +33,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // $Revision$
 //
-// $Log$
-// Revision 3.73  2011/01/10 13:13:32  taurel
-// - getnameinfo() on sun does not return FQDN......
-//
-// Revision 3.72  2011/01/10 13:09:02  taurel
-// - No retry on command to get data for cache during DS startup
-// - Only three reties during DbDevExport
-// - Device are deleted by omniORB even if not exported into Tango database
-//
-// Revision 3.71  2010/12/09 07:56:10  taurel
-// - Default gcc on debian 30 also doesn't like getaddrinfo() AI_ADDRCONFIG
-// flag
-//
-// Revision 3.70  2010/12/08 16:28:28  taurel
-// - Compile with getnameinfo() and getaddrinfo() on Windows
-//
-// Revision 3.69  2010/12/08 09:58:28  taurel
-// - Replace gethostbyname() and gethostbyaddr() by getaddrinfo() and
-// getnameinfo()
-//
-// Revision 3.68  2010/09/09 13:46:45  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.67  2010/09/08 08:20:44  taurel
-// = Change the way the ORB is initialised to better manage several network
-// interface host case
-//
-// Revision 3.66  2010/09/07 15:32:21  taurel
-// - Fix some re-connection problems with Windows
-// - Publish all endPoints in case of multiple network interface
-//
-// Revision 3.65  2010/05/26 09:15:36  taurel
-// - Another commit after merge with the bug fixes branch
-//
-// Revision 3.64  2010/01/20 08:00:47  taurel
-// - Fix compilation problem introduced by the previous merge
-// Revision 3.61.2.3  2010/05/18 08:27:23  taurel
-// - Events from device in a DS started with a file as database are now
-// back into operation
-//
-// Revision 3.63  2010/01/20 07:53:02  taurel
-// - Commit after merge with the Release_7_1_1-bugfixes branch
-//
-// Revision 3.62  2009/12/18 14:52:37  taurel
-// - Safety commit before christmas holydays
-// - Many changes to make the DeviceProxy, Database and AttributeProxy
-// classes thread safe (good help from the helgrind tool from valgrind)
-// Revision 3.61.2.2  2009/12/18 14:49:02  taurel
-// - If the DS main thread is not created using omnithread, it is also
-// necessary to call omnithread::release_dummy() before the thread exit
-//
-// Revision 3.61.2.1  2009/12/18 14:07:34  taurel
-// - Add omni_thread call in case the main DS thread is not the process
-// main thread.
-//
-// Revision 3.61  2009/10/26 13:49:54  taurel
-// - Add an exception case in the Util::get_device_list_by_class() method
-//
-// Revision 3.60  2009/09/03 15:26:32  taurel
-// - Wrongly spell _TG_WINDOWS_ !!
-//
-// Revision 3.59  2009/06/17 08:44:45  taurel
-// - Unix servers are now listenning also on a UNIX domain socket for
-// looback communication
-//
-// Revision 3.58  2009/03/18 10:23:12  taurel
-// - Fix bug for Windows in GUI mode
-//
-// Revision 3.57  2009/03/17 08:10:42  taurel
-// - Remove the endPoint specification before the ORB_init() method call
-// - Still some Windows warnings fixes
-//
-// Revision 3.56  2009/03/04 08:26:55  taurel
-// - Windows DS: Add a console handler for DS to survive a Log-off
-//
-// Revision 3.55  2009/02/26 07:48:21  taurel
-// - The attribute data format is now transferred within the AttributeValue_4 structure
-//
-// Revision 3.54  2009/02/16 12:07:19  taurel
-// - Fix bug in Util::get_device_by_name() for admin device
-//
-// Revision 3.53  2009/02/03 15:18:51  jensmeyer
-// Extract sub device properties from the db_cache when the cache
-// is available.
-//
-// Revision 3.52  2009/01/29 16:23:49  taurel
-// - Commit after merge with branch Release_6_1_1-bugfixes
-//
-// Revision 3.51  2009/01/23 13:58:18  taurel
-// - Print out wrong option from the command line before aborting
-//
-// Revision 3.50  2009/01/21 12:49:03  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.49  2009/01/15 13:57:20  taurel
-// - Fix bugs found by Jens
-//
-// Revision 3.48  2008/10/13 14:59:38  taurel
-// - Set the ORB verifyObjectExistsAndType option to false when creating the ORB
-//
-// Revision 3.47  2008/10/06 15:01:36  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.46  2008/10/03 06:53:09  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.45  2008/10/02 12:24:43  taurel
-// - The user now has the possibility to install its own event loop
-//
-// Revision 3.44  2008/10/02 09:09:47  taurel
-// - First implementation of multiple polling thread(s)
-//
-// Revision 3.43  2008/09/23 14:59:35  taurel
-// - Commit after the end of DevEncoded data type implementation
-// - The new test suite is also now running fine
-//
-// Revision 3.42  2008/06/10 07:52:15  taurel
-// - Add code for the DevEncoded attribute data type
-// Revision 3.40.2.2  2009/01/29 15:17:01  taurel
-// - Add some bug fixes for server used with the -f option (database as
-// file)
-//
-// Revision 3.41  2008/05/20 12:44:20  taurel
-// - Commit after merge with release 7 branch
-// Revision 3.40.2.1  2008/05/22 12:10:53  taurel
-// - Fix bug for server started without database (the db server itself for instance)
-//
-// Revision 3.40  2008/03/26 16:51:12  taurel
-// - Change the printed message when a DS starts (on cout instead of cerr)
-// Revision 3.32.2.3  2008/05/20 06:17:46  taurel
-// - Last commit before merge with trunk
-// (start the implementation of the new DevEncoded data type)
-//
-// Revision 3.39  2008/03/25 14:59:01  taurel
-// - Fix bug in the previous change
-// Revision 3.32.2.2  2008/02/07 15:58:15  taurel
-// - First implementation of the Controlled Access done
-//
-// Revision 3.38  2008/03/25 13:32:25  taurel
-// - Change when the RootPOA CORBA object is created. This allows DS to
-// start on windows in daemon mode even if the PC is not connected to the
-// network at boot time
-//
-// Revision 3.37  2008/03/14 11:56:03  taurel
-// - Fix some gcc 4.2 warnings
-//
-// Revision 3.36  2008/02/29 12:53:08  taurel
-// - Increase timeout for DB get data cache command
-// - Add a method to unvalidate the cache
-//
-// Revision 3.35  2008/01/25 15:44:51  taurel
-// - Some changes in the Db cache
-// - A lighter system to shutdown DS in case of dynamic attribute
-//
-// Revision 3.34  2008/01/15 12:29:55  taurel
-// - Change db timeout when getting data for the db cache
-// Revision 3.32.2.1  2007/12/19 15:54:48  taurel
-// - Still some work going on for the locking feature
-//
-// Revision 3.33  2007/12/12 10:17:18  taurel
-// - Db calls during DS startup has a separate timeout and some retries
-//
-// Revision 3.32  2007/11/08 12:03:45  taurel
-// - Start implementing user interceptors
-// - Fix bug in poll thread pproperty management when removing polling object
-// - Set a database timeout to 6 sec
-//
-// Revision 3.31  2007/10/26 11:27:43  taurel
-// - Add some print-out for test purposes
-//
-// Revision 3.30  2007/10/16 08:24:14  taurel
-// - Add management of the TC connection establishment timeout for DB access
-// - Add DB server cache in DS used during DS startup sequence
-// - Comment out the sleep time during DS startup sequence
-//
 //-=============================================================================
 
 #if HAVE_CONFIG_H
@@ -401,24 +226,49 @@ void Util::effective_job(int argc,char *argv[])
 //
 // Check if the user specified a endPoint on the command line or using one
 // env. variable
+// If true, extract the IP address from the end point and store it
+// for future use in the ZMQ publiher(s)
 //
 
-		bool endpoint_specified = false;
 		for (int i = 2;i < argc;i++)
 		{
 			if (::strcmp("-ORBendPoint",argv[i]) == 0)
 			{
-				endpoint_specified = true;
+				set_endpoint_specified(true);
+
+                string endPoint(argv[i + 1]);
+                string::size_type start,stop;
+                start = endPoint.find(':');
+                ++start;
+                start = endPoint.find(':',start);
+                stop = endPoint.find(':',start + 1);
+                ++start;
+                string ip = endPoint.substr(start,stop - start);
+
+                set_specified_ip(ip);
 				break;
 			}
+
 		}
 
-		if (endpoint_specified == false)
+		if (get_endpoint_specified() == false)
 		{
 			DummyDeviceProxy d;
 			string env_var;
 			if (d.get_env_var("ORBendPoint",env_var) == 0)
-				endpoint_specified = true;
+			{
+				set_endpoint_specified(true);
+
+                string::size_type start,stop;
+                start = env_var.find(':');
+                ++start;
+                start = env_var.find(':',start);
+                stop = env_var.find(':',start + 1);
+                ++start;
+                string ip = env_var.substr(start,stop - start);
+
+                set_specified_ip(ip);
+			}
 		}
 
 //
@@ -431,7 +281,7 @@ void Util::effective_job(int argc,char *argv[])
 		WSAStartup(rel,&dat);
 #endif
 
-		if (endpoint_specified == true)
+		if (get_endpoint_specified() == true)
 		{
 			const char *options[][2] = {
 				{"clientCallTimeOutPeriod",CLNT_TIMEOUT_STR},
@@ -550,13 +400,14 @@ void Util::effective_job(int argc,char *argv[])
 		misc_init();
 
 //
-// Automatically create the EventSupplier object
+// Automatically create the EventSupplier objects
 //
 // In the future this could be created only when the
 // first event is fired ...
 //
 
-		create_event_supplier();
+		create_notifd_event_supplier();
+		create_zmq_event_supplier();
 
 //
 // Create the heartbeat thread and start it
@@ -1478,39 +1329,82 @@ void Util::init_host_name()
 
 //+----------------------------------------------------------------------------
 //
-// method : 		Util::create_event_supplier()
+// method : 		Util::create_notifd_event_supplier()
 //
-// description : 	This method create the event_supplier if possible
+// description : 	This method create the notifd event_supplier if possible
 //
 //-----------------------------------------------------------------------------
 
-void Util::create_event_supplier()
+void Util::create_notifd_event_supplier()
 {
 	if (_UseDb == true)
 	{
 		try
 		{
-			ext->event_supplier = EventSupplier::create(orb,ds_name,db,hostname,this);
-			ext->event_supplier->connect();
+			ext->nd_event_supplier = NotifdEventSupplier::create(orb,ds_name,db,hostname,this);
+			ext->nd_event_supplier->connect();
 		}
 		catch (Tango::DevFailed &e)
 		{
-			ext->event_supplier = NULL;
+			ext->nd_event_supplier = NULL;
 			if (_FileDb == true)
 			{
 				Tango::Except::print_exception(e);
-				cerr << "Can't create event supplier. Event not available" << endl;
+				cerr << "Can't create notifd event supplier. Event not available" << endl;
 			}
 		}
 		catch (...)
 		{
-			ext->event_supplier = NULL;
+			ext->nd_event_supplier = NULL;
 			if (_FileDb == true)
-				cerr << "Can't create event supplier. Event not available" << endl;
+				cerr << "Can't create notifd event supplier. Event not available" << endl;
 		}
 	}
 	else
-		ext->event_supplier = NULL;
+	{
+		ext->nd_event_supplier = NULL;
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		Util::create_zmq_event_supplier()
+//
+// description : 	This method create the zmq event_supplier if possible
+//
+//-----------------------------------------------------------------------------
+
+void Util::create_zmq_event_supplier()
+{
+	if (_UseDb == true)
+	{
+		try
+		{
+		    string specified_ip;
+		    if (get_endpoint_specified() == true)
+                specified_ip = get_specified_ip();
+			ext->zmq_event_supplier = ZmqEventSupplier::create(db,hostname,specified_ip);
+		}
+		catch (Tango::DevFailed &e)
+		{
+			ext->zmq_event_supplier = NULL;
+			if (_FileDb == true)
+			{
+				Tango::Except::print_exception(e);
+				cerr << "Can't create zmq event supplier. Event not available" << endl;
+			}
+		}
+		catch (...)
+		{
+			ext->zmq_event_supplier = NULL;
+			if (_FileDb == true)
+				cerr << "Can't create zmq event supplier. Event not available" << endl;
+		}
+	}
+	else
+	{
+		ext->zmq_event_supplier = NULL;
+	}
 }
 
 

@@ -1950,11 +1950,11 @@ void DeviceImpl::push_data_ready_event (const string &attr_name, Tango::DevLong 
 {
 
 	Tango::Util *tg = Tango::Util::instance();
-	EventSupplier *ev_supply = tg->get_event_supplier();
+	NotifdEventSupplier *ev_supply = tg->get_notifd_event_supplier();
 	if (ev_supply == NULL)
-		tg->create_event_supplier();
+		tg->create_notifd_event_supplier();
 
-	// get the tango synchroisation monitor
+	// get the tango synchronisation monitor
 	Tango::AutoTangoMonitor synch(this);
 
 	// search the attribute from the attribute list to check that it exist

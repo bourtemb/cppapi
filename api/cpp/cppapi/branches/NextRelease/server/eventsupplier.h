@@ -3,7 +3,7 @@
 ///  file       eventsupplier.h
 ///
 /// 	        C++ include file for implementing the TANGO event server and
-///		client singleton classes - EventSupplier and EventConsumer.
+///		        client singleton classes - EventSupplier and EventConsumer.
 ///             These classes are used to send events from the server
 ///             to the notification service and to receive events from
 ///             the notification service.
@@ -53,6 +53,8 @@
 #include <COS/CosNotifyChannelAdmin.hh>
 #include <COS/CosNotifyComm.hh>
 
+//#include <zmq.hpp>
+
 #if defined (_TG_WINDOWS_) && defined (_USRDLL) && !defined(_TANGO_LIB)
 #undef USE_stub_in_nt_dll
 #endif
@@ -79,12 +81,94 @@ typedef struct _NotifService
 	string													ec_ior;
 } NotifService;
 
+//---------------------------------------------------------------------
+//
+//              EventSupplier base class
+//
+//---------------------------------------------------------------------
 
-class EventSupplier : public POA_CosNotifyComm::StructuredPushSupplier
+class EventSupplier
+{
+public :
+    EventSupplier(Database*,string &);
+
+    void set_svr_port_num(string &);
+
+	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
+
+    struct AttributeData
+    {
+        const AttributeValue      *attr_val;
+        const AttributeValue_3    *attr_val_3;
+        const AttributeValue_4    *attr_val_4;
+        const AttributeConfig_2   *attr_conf_2;
+        const AttributeConfig_3   *attr_conf_3;
+        const AttDataReady        *attr_dat_ready;
+    };
+
+	void detect_and_push_events(DeviceImpl *,struct AttributeData &,DevFailed *,string &,struct timeval *);
+
+//------------------ Change event ---------------------------
+
+	bool detect_change(Attribute &,struct AttributeData &,bool,double &,double &,DevFailed *,bool &,DeviceImpl *);
+
+//------------------ Detect, push change event --------------
+
+	void detect_and_push_change_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,bool user_push = false);
+
+//------------------ Detect, push archive event --------------
+
+	void detect_and_push_archive_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
+
+//------------------ Detect, push periodic event -------------
+
+	void detect_and_push_periodic_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *);
+
+//------------------ Push event -------------------------------
+
+	virtual void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *) = 0;
+	virtual void push_heartbeat_event() = 0;
+
+//------------------- Attribute conf change event ---------------------
+
+	void push_att_conf_events(DeviceImpl *device_impl,AttributeData &,DevFailed *,string &);
+
+protected :
+	inline int timeval_diff(TimeVal before, TimeVal after)
+	{
+		return ((after.tv_sec-before.tv_sec)*1000000 + after.tv_usec - before.tv_usec);
+	}
+
+	static string 		    fqdn_prefix;
+
+	// Added a mutex to synchronize the access to
+	//	detect_and_push_change_event	and
+	// detect_and_push_archive_event which are used
+	// from different threads
+	static omni_mutex		event_mutex;
+
+	// Added a mutex to synchronize the access to
+	//	push_event which is used
+	// from different threads
+	static omni_mutex		push_mutex;
+
+	// Added a mutex to synchronize the access to
+	//	detect_event which is used
+	// from different threads
+	static omni_mutex		detect_mutex;
+};
+
+//---------------------------------------------------------------------
+//
+//              NotifdEventSupplier class
+//
+//---------------------------------------------------------------------
+
+class NotifdEventSupplier : public EventSupplier, public POA_CosNotifyComm::StructuredPushSupplier
 {
 public :
 
-	TANGO_IMP_EXP static EventSupplier *create(CORBA::ORB_var,string,Database*,string &,Util *);
+	TANGO_IMP_EXP static NotifdEventSupplier *create(CORBA::ORB_var,string,Database*,string &,Util *);
 	void connect();
 	void disconnect_structured_push_supplier();
 	void disconnect_from_notifd();
@@ -92,21 +176,26 @@ public :
 
 	void push_heartbeat_event();
 	string &get_event_channel_ior() {return event_channel_ior;}
-	void set_svr_port_num(string &);
+
+//------------------ Push event -------------------------------
+
+	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *);
 
 protected :
 
-	EventSupplier(CORBA::ORB_var,
+	NotifdEventSupplier(CORBA::ORB_var,
 		CosNotifyChannelAdmin::SupplierAdmin_var,
 		CosNotifyChannelAdmin::ProxyID,
 		CosNotifyChannelAdmin::ProxyConsumer_var,
 		CosNotifyChannelAdmin::StructuredProxyPushConsumer_var,
 		CosNotifyChannelAdmin::EventChannelFactory_var,
 		CosNotifyChannelAdmin::EventChannel_var,
+		string &,
+		Database *,
 		string &);
 
 private :
-	static EventSupplier 									*_instance;
+	static NotifdEventSupplier 								*_instance;
 	CosNotifyChannelAdmin::EventChannel_var 				eventChannel;
 	CosNotifyChannelAdmin::SupplierAdmin_var 				supplierAdmin;
 	CosNotifyChannelAdmin::ProxyID 							proxyId;
@@ -115,88 +204,46 @@ private :
 	CosNotifyChannelAdmin::EventChannelFactory_var 			eventChannelFactory;
 	CORBA::ORB_var 											orb_;
 
-	inline int timeval_diff(TimeVal before, TimeVal after)
-	{
-		return ((after.tv_sec-before.tv_sec)*1000000 + after.tv_usec - before.tv_usec);
-	}
-	int 		heartbeat_period;
-	int 		subscription_timeout;
 	string 		event_channel_ior;
-	string 		fqdn_prefix;
 
-	void get_attribute_value(AttributeValue attr_value, LastAttrValue &curr_attr_value);
 	void reconnect_notifd();
 	TANGO_IMP_EXP static void connect_to_notifd(NotifService &,CORBA::ORB_var &,string &,Database *,string &,Util *);
+};
 
-	// Added a mutex to synchronize the access to
-	//	detect_and_push_change_event	and
-	// detect_and_push_archive_event which are used
-	// from different threads
-	omni_mutex		event_mutex;
 
-	// Added a mutex to synchronize the access to
-	//	push_event which is used
-	// from different threads
-	omni_mutex		push_mutex;
+//---------------------------------------------------------------------
+//
+//              ZmqEventSupplier class
+//
+//---------------------------------------------------------------------
 
-	// Added a mutex to synchronize the access to
-	//	detect_event which is used
-	// from different threads
-	omni_mutex		detect_mutex;
-
+class ZmqEventSupplier : public EventSupplier
+{
 public :
-
-	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
-
-    template <typename T>
-    struct AttributeData
-    {
-        AttributeValue      *attr_val;
-        AttributeValue_3    *attr_val_3;
-        AttributeValue_4    *attr_val_4;
-        T                   *attr_misc;
-    };
-
-	template <typename T>
-	void detect_and_push_events(DeviceImpl *,struct AttributeData<T> &,DevFailed *,string &,struct timeval *);
-
-//------------------ Change event ---------------------------
-
-	template <typename T>
-	bool detect_change(Attribute &,struct AttributeData<T> &,bool,double &,double &,DevFailed *,bool &,DeviceImpl *);
-
-//------------------ Detect, push change event --------------
-
-	template <typename T>
-	void detect_and_push_change_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,bool user_push = false);
-
-//------------------ Detect, push archive event --------------
-
-	template <typename T>
-	void detect_and_push_archive_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
-
-//------------------ Detect, push periodic event -------------
-
-	template <typename T>
-	void detect_and_push_periodic_event(DeviceImpl *,struct AttributeData<T> &,Attribute &,string &,DevFailed *,struct timeval *);
+	TANGO_IMP_EXP static ZmqEventSupplier *create(Database *,string &,string &);
 
 //------------------ Push event -------------------------------
 
-	template <typename T>
-	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData<T> &,string &,DevFailed *);
+	void push_heartbeat_event();
+	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *);
 
-//------------------- Miscellaneous event ---------------------
+	string &get_heartbeat_endpoint() {return heartbeat_endpoint;}
 
-	template <typename T>
-	void push_att_conf_events(DeviceImpl *device_impl,T &attr_conf,DevFailed *except,string &attr_name);
+protected :
+	ZmqEventSupplier(Database *,string &,string &);
 
+private :
+	static ZmqEventSupplier 	*_instance;
+
+//	zmq::context_t              zmq_context;            // ZMQ context
+//	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
+//	zmq::message_t              *heartbeat_mess;        // heartbeat message
+	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
+
+//	void tango_bind(zmq::socket_t *,string &);
 };
 
 } // End of namespace
-
-// Add template methods definitions
-
-#include <eventsupplier.tpp>
 
 #endif // _EVENT_SUPPLIER_API_H
 

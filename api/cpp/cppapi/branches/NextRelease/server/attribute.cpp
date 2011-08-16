@@ -6935,7 +6935,7 @@ void Attribute::Attribute_2_AttributeValue(Tango::AttributeValue_4 *ptr_4,Tango:
 //--------------------------------------------------------------------------
 
 
-void Attribute::AttributeValue_4_2_AttributeValue_3(Tango::AttributeValue_4 *ptr_4,Tango::AttributeValue_3 *ptr_3)
+void Attribute::AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_4 *ptr_4,Tango::AttributeValue_3 *ptr_3)
 {
 
 //
@@ -7125,9 +7125,9 @@ void Attribute::fire_change_event(DevFailed *except)
 // Get the event supplier, and simply return if not created
 //
 
-		EventSupplier *event_supplier;
+		NotifdEventSupplier *event_supplier;
 		Tango::Util *tg = Util::instance();
-		event_supplier = tg->get_event_supplier();
+		event_supplier = tg->get_notifd_event_supplier();
 		if (event_supplier == NULL)
 		{
 			if ( name_lower != "state" )
@@ -7222,7 +7222,7 @@ void Attribute::fire_change_event(DevFailed *except)
 // Create the structure used to send data to event system
 //
 
-        EventSupplier::AttributeData<AttributeConfig> ad;
+        EventSupplier::AttributeData ad;
         ::memset(&ad,0,sizeof(ad));
 
 //
@@ -7450,9 +7450,9 @@ void Attribute::fire_archive_event(DevFailed *except)
 // Get the event supplier, and simply return if not created
 //
 
-		EventSupplier *event_supplier;
+		NotifdEventSupplier *event_supplier;
 		Tango::Util *tg = Util::instance();
-		event_supplier = tg->get_event_supplier();
+		event_supplier = tg->get_notifd_event_supplier();
 		if (event_supplier == NULL)
         {
 			if ( name_lower != "state" )
@@ -7556,7 +7556,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 // Create the structure used to send data to event system
 //
 
-        EventSupplier::AttributeData<AttributeConfig> ad;
+        EventSupplier::AttributeData ad;
         ::memset(&ad,0,sizeof(ad));
 
         if (send_attr != NULL)
@@ -7760,9 +7760,9 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 // Get the event supplier, and simply return if not created
 //
 
-		EventSupplier *event_supplier;
+		NotifdEventSupplier *event_supplier;
 		Tango::Util *tg = Util::instance();
-		event_supplier = tg->get_event_supplier();
+		event_supplier = tg->get_notifd_event_supplier();
 		if (event_supplier == NULL)
 		{
 			if (name_lower != "state")
@@ -7866,7 +7866,7 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 // Create the structure used to send data to event system
 //
 
-        EventSupplier::AttributeData<AttributeConfig> ad;
+        EventSupplier::AttributeData ad;
         ::memset(&ad,0,sizeof(ad));
 
         if (send_attr != NULL)
