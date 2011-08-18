@@ -1,6 +1,6 @@
 static const char *RcsId = "$Id$\n$Name$";
 //
-// attr_proxy.cpp 	- C++ source code file for TANGO attribute proxy api 
+// attr_proxy.cpp 	- C++ source code file for TANGO attribute proxy api
 //
 // programmer(s)	- Andy Gotz (goetz@esrf.fr)
 //
@@ -17,12 +17,12 @@ static const char *RcsId = "$Id$\n$Name$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -45,7 +45,7 @@ static const char *RcsId = "$Id$\n$Name$";
 #include <signal.h>
 
 #include <algorithm>
-                                                    
+
 using namespace CORBA;
 
 namespace Tango
@@ -53,7 +53,7 @@ namespace Tango
 
 //-----------------------------------------------------------------------------
 //
-// AttributeProxy::AttributeProxy() - constructor for attribute proxy object 
+// AttributeProxy::AttributeProxy() - constructor for attribute proxy object
 //
 //-----------------------------------------------------------------------------
 
@@ -81,11 +81,11 @@ void AttributeProxy::real_constructor (string &name)
 //
 // Create the associated DeviceProxy object
 //
-		
+
 	if (dbase_used == true)
 	{
 		if (from_env_var == true)
-		{	
+		{
 			ApiUtil *ui = ApiUtil::instance();
 			dev_proxy = new DeviceProxy(device_name);
 			if (ui->in_server() == true)
@@ -108,7 +108,7 @@ void AttributeProxy::real_constructor (string &name)
 	else
 	{
 		db_attr = NULL;
-		
+
 		string::size_type stop;
 		stop = name.rfind(DEVICE_SEP);
 		string nodb_dev_name  = name.substr(0,stop);
@@ -131,18 +131,18 @@ void AttributeProxy::real_constructor (string &name)
 	{
 		delete db_attr;
 		delete dev_proxy;
-		
+
 		if (strcmp(dfe.errors[0].reason.in(),"API_AttrNotFound") == 0)
 		{
 			TangoSys_OMemStream desc;
 			desc << "Attribute " << attr_name << " is not supported by device " << device_name << ends;
-			
+
 			ApiWrongNameExcept::throw_exception((const char*)"API_UnsupportedAttribute",
 						desc.str(),
 						(const char*)"AttributeProxy::real_constructor()");
 		}
 	}
-	
+
 }
 
 
@@ -159,7 +159,7 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 //
 // Init local data members from device proxy object
 //
-	
+
 	dbase_used = dev_proxy->dbase_used;
 	from_env_var = dev_proxy->from_env_var;
 	host = dev_proxy->host;
@@ -168,19 +168,19 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 	db_host = dev_proxy->db_host;
 	db_port = dev_proxy->db_port;
 	db_port_num = dev_proxy->db_port_num;
-	
+
 	attr_name = att_name;
 
 //
 // Now AttributeProxy members
 //
-	
+
 	device_name = dev_proxy->device_name;
-			
+
 	if (dbase_used == true)
 	{
 		if (from_env_var == true)
-		{	
+		{
 			ApiUtil *ui = ApiUtil::instance();
 			if (ui->in_server() == true)
 			{
@@ -196,9 +196,9 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 			db_attr = new DbAttribute(attr_name,device_name,db_host,db_port);
 		}
 	}
-	
+
 	ext = new AttributeProxyExt();
-	
+
 //
 // Check that the device support this attribute
 //
@@ -214,12 +214,12 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 		delete db_attr;
 		delete ext;
 		delete dev_proxy;
-		
+
 		if (strcmp(dfe.errors[0].reason.in(),"API_AttrNotFound") == 0)
 		{
 			TangoSys_OMemStream desc;
 			desc << "Attribute " << attr_name << " is not supported by device " << device_name << ends;
-			
+
 			ApiWrongNameExcept::throw_exception((const char*)"API_UnsupportedAttribute",
 						desc.str(),
 						(const char*)"AttributeProxy::ctor_from_dp()");
@@ -259,17 +259,17 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 	db_host = prev.db_host;
 	db_port = prev.db_port;
 	db_port_num = prev.db_port_num;
-	
+
 //
 // Now AttributeProxy members
 //
-	
+
 	device_name = prev.device_name;
-			
+
 	if (dbase_used == true)
 	{
 		if (from_env_var == true)
-		{	
+		{
 			ApiUtil *ui = ApiUtil::instance();
 			if (ui->in_server() == true)
 			{
@@ -290,7 +290,7 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 			dev_proxy = new DeviceProxy(device_name);
 		}
 	}
-	
+
 	if (prev.ext != NULL)
 	{
 		ext = new AttributeProxyExt();
@@ -298,12 +298,12 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 	}
 	else
 		ext = NULL;
-		
+
 }
 
 //-----------------------------------------------------------------------------
 //
-// AttributeProxy::AttributeProxy() - assignment operator 
+// AttributeProxy::AttributeProxy() - assignment operator
 //
 //-----------------------------------------------------------------------------
 
@@ -323,18 +323,18 @@ AttributeProxy &AttributeProxy::operator=(const AttributeProxy &rval)
 	db_host = rval.db_host;
 	db_port = rval.db_port;
 	db_port_num = rval.db_port_num;
-	
+
 //
 // Now AttributeProxy members
 //
-	
+
 	attr_name = rval.attr_name;
 	device_name = rval.device_name;
-			
+
 	if (dbase_used == true)
 	{
 		if (from_env_var == true)
-		{	
+		{
 			ApiUtil *ui = ApiUtil::instance();
 			if (ui->in_server() == true)
 			{
@@ -363,7 +363,7 @@ AttributeProxy &AttributeProxy::operator=(const AttributeProxy &rval)
 	}
 	else
 		ext = NULL;
-			
+
 	return *this;
 }
 
@@ -385,9 +385,9 @@ void AttributeProxy::parse_name(string &full_name)
 // Attribute name in lower case letters
 //
 
-	string cased_name = full_name;	
+	string cased_name = full_name;
 	transform(full_name.begin(),full_name.end(),full_name.begin(),::tolower);
-		
+
 //
 // Try to find protocol specification in attribute name and analyse it
 //
@@ -412,9 +412,9 @@ void AttributeProxy::parse_name(string &full_name)
 		if (protocol == TANGO_PROTOCOL)
 		{
 			name_wo_prot = full_name.substr(pos + 3);
-		}		
+		}
 		else if (protocol == TACO_PROTOCOL)
-		{		
+		{
 			TangoSys_OMemStream desc;
 			desc << "Taco protocol is not supported" << ends;
 			ApiWrongNameExcept::throw_exception((const char*)"API_UnsupportedProtocol",
@@ -422,14 +422,14 @@ void AttributeProxy::parse_name(string &full_name)
 						(const char*)"AttributeProxy::parse_name()");			exit(0);
 		}
 		else
-		{		
+		{
 			TangoSys_OMemStream desc;
 			desc << protocol;
 			desc << " protocol is an unsupported protocol" << ends;
 			ApiWrongNameExcept::throw_exception((const char*)"API_UnsupportedProtocol",
 						desc.str(),
 						(const char*)"AttributeProxy::parse_name()");
-		}			
+		}
 	}
 
 //
@@ -440,11 +440,11 @@ void AttributeProxy::parse_name(string &full_name)
 	if (pos != string::npos)
 	{
 		string mod = name_wo_prot.substr(pos + 1);
-		
+
 		if (mod == DBASE_YES)
 		{
 			string::size_type len = name_wo_prot.size();
-			name_wo_db_mod = name_wo_prot.substr(0,len - (len - pos)); 
+			name_wo_db_mod = name_wo_prot.substr(0,len - (len - pos));
 			dbase_used = true;
 		}
 		else if (mod == DBASE_NO)
@@ -473,7 +473,7 @@ void AttributeProxy::parse_name(string &full_name)
 
 	if (dbase_used == false)
 	{
-	
+
 //
 // Extract host name and port number
 //
@@ -487,7 +487,7 @@ void AttributeProxy::parse_name(string &full_name)
 						(const char*)"Host and port not correctly defined in device name",
 						(const char*)"AttributeProxy::parse_name()");
 		}
-		
+
 		host = name_wo_db_mod.substr(0,pos);
 		string::size_type tmp = name_wo_db_mod.find(PORT_SEP);
 		if (tmp == string::npos)
@@ -503,14 +503,14 @@ void AttributeProxy::parse_name(string &full_name)
 		s << port << ends;
 		s >> port_num;
 		device_name = name_wo_db_mod.substr(tmp + 1);
-		
+
 		db_host = db_port = NOT_USED;
 		db_port_num = 0;
-				 
+
 	}
 	else
 	{
-	
+
 //
 // Search if host and port are specified
 //
@@ -560,10 +560,10 @@ void AttributeProxy::parse_name(string &full_name)
 	int n_sep = 0;
 	string device_name_tmp(device_name);
 	string::size_type device_name_end_pos=0;
-	do 
+	do
 	{
 		pos = device_name_tmp.find(DEVICE_SEP);
-		if (pos != string::npos) 
+		if (pos != string::npos)
 		{
 			if (pos == 0)
 			{
@@ -581,11 +581,11 @@ void AttributeProxy::parse_name(string &full_name)
 
 				ApiWrongNameExcept::throw_exception((const char*)"API_WrongAttributeNameSyntax",
 				(const char*)"Attribute name must have four fields separated by /'s or no /'s at all if it is an alias (e.g. my/device/name/an_attr or myalias)",
-				(const char*)"AttributeProxy::parse_name()");			
+				(const char*)"AttributeProxy::parse_name()");
 			}
 			device_name_end_pos += pos+1;
 		}
-	} 
+	}
 	while (pos != string::npos);
 
 	if ((n_sep > 1) && (n_sep != 3))
@@ -601,14 +601,14 @@ void AttributeProxy::parse_name(string &full_name)
 // if this is an alias (no slashes in name) then get the device and attribute
 // name from the database
 //
-	
+
 	if (n_sep == 0)
 	{
 		if (dbase_used == false)
 		{
 			cerr << "Wrong attribute name syntax (domain/family/member/attr_name) in " << cased_name << endl;
 			cerr << "Rem: Alias are forbidden when not using database" << endl;
-			
+
 			ApiWrongNameExcept::throw_exception((const char *)"API_WrongAttributeNameSyntax",
 						(const char *)"Attribute alias is not supported when not using database",
 						(const char *)"AttributeProxy::parse_name()");
@@ -637,7 +637,7 @@ void AttributeProxy::parse_name(string &full_name)
 			(const char *)"Wrong alias name (-> not allowed in alias name)",
 			(const char *)"DeviceProxy::parse_name()");
 		}
-					
+
 //
 // Get full attribute name from database but connect to database first if it is not done already
 //
@@ -645,7 +645,7 @@ void AttributeProxy::parse_name(string &full_name)
 		ApiUtil *ui = ApiUtil::instance();
 		string db_attr_name;
 		if (from_env_var == true)
-		{	
+		{
 			if (ui->in_server() == true)
 			{
 				try
@@ -695,7 +695,7 @@ void AttributeProxy::parse_name(string &full_name)
 			int ind = ui->get_db_ind(db_host,db_port_num);
 			try
 			{
-				(ui->get_db_vect())[ind]->get_attribute_alias(device_name,db_attr_name);	
+				(ui->get_db_vect())[ind]->get_attribute_alias(device_name,db_attr_name);
 			}
 			catch (DevFailed &dfe)
 			{
@@ -711,23 +711,23 @@ void AttributeProxy::parse_name(string &full_name)
 				else
 					throw;
 			}
-		}		
+		}
 
 //
 // A fast syntax check on the full attribute name returned from the database
 //
 
 		string attr_name_tmp = db_attr_name;
-		do 
+		do
 		{
 			pos = attr_name_tmp.find(DEVICE_SEP);
-			if (pos != string::npos) 
+			if (pos != string::npos)
 			{
 				n_sep++;
 				attr_name_tmp = attr_name_tmp.substr(pos+1);
 				device_name_end_pos += pos+1;
 			}
-		} 
+		}
 		while (pos != string::npos);
 
 		if (n_sep != 3)
@@ -741,7 +741,7 @@ void AttributeProxy::parse_name(string &full_name)
 		device_name = db_attr_name.substr(0,device_name_end_pos - 1);
 	}
 
-	
+
 //
 // attribute name has four fields, separate them into device and attribute names
 // but keep attr_name as a case sentitive name
@@ -765,15 +765,15 @@ void AttributeProxy::parse_name(string &full_name)
 					(const char*)"AttributeProxy::parse_name()");
 
 			}
-			
+
 			if (from_env_var == false)
 			{
 				pos = name_wo_db_mod.rfind(DEVICE_SEP);
 				device_name = name_wo_db_mod.substr(0,pos);
 			}
 		}
-		
-		
+
+
 		pos = cased_name.rfind(DEVICE_SEP);
 		string::size_type pos_mod = cased_name.rfind(MODIFIER);
 		if (pos_mod != string::npos)
@@ -781,8 +781,8 @@ void AttributeProxy::parse_name(string &full_name)
 		else
 			attr_name = cased_name.substr(pos + 1);
 	}
-		
-		
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -798,7 +798,7 @@ AttributeProxy::~AttributeProxy()
 	if (dev_proxy != NULL)
 		delete dev_proxy;
 	if (ext != NULL)
-		delete ext;		
+		delete ext;
 }
 
 //-----------------------------------------------------------------------------
@@ -850,7 +850,7 @@ void AttributeProxy::set_transparency_reconnection(bool val)
 
 //-----------------------------------------------------------------------------
 //
-// AttributeProxy::get_transparency_reconnection() - Get underlying device 
+// AttributeProxy::get_transparency_reconnection() - Get underlying device
 // transparency reconnection flag
 //
 //-----------------------------------------------------------------------------
@@ -865,8 +865,8 @@ bool AttributeProxy::get_transparency_reconnection()
 // AttributeProxy::get_property() - get a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::get_property(string &property_name, DbData &user_data) 
+
+void AttributeProxy::get_property(string &property_name, DbData &user_data)
 {
 	if (dbase_used == false)
 	{
@@ -874,7 +874,7 @@ void AttributeProxy::get_property(string &property_name, DbData &user_data)
 		desc << "Method not available for attribute belonging to ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::get_property");
@@ -886,7 +886,7 @@ void AttributeProxy::get_property(string &property_name, DbData &user_data)
 		db_data[0] = DbDatum(attr_name);
 
 		db_attr->get_property(db_data);
-		
+
 		long nb_prop = db_data.size();
 		int i;
 		for (i = 1;i < nb_prop;i++)
@@ -898,7 +898,7 @@ void AttributeProxy::get_property(string &property_name, DbData &user_data)
 				break;
 			}
 		}
-		
+
 		if (i == nb_prop)
 		{
 			user_data.resize(0);
@@ -907,7 +907,7 @@ void AttributeProxy::get_property(string &property_name, DbData &user_data)
 			no_data.value_string.resize(0);
 			user_data.push_back(no_data);
 		}
-		
+
 	}
 
 	return;
@@ -918,8 +918,8 @@ void AttributeProxy::get_property(string &property_name, DbData &user_data)
 // AttributeProxy::get_property() - get a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::get_property(vector<string> &property_names, DbData &user_data) 
+
+void AttributeProxy::get_property(vector<string> &property_names, DbData &user_data)
 {
 	if (dbase_used == false)
 	{
@@ -927,7 +927,7 @@ void AttributeProxy::get_property(vector<string> &property_names, DbData &user_d
 		desc << "Method not available for attribute belonging to device ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::get_property");
@@ -939,10 +939,10 @@ void AttributeProxy::get_property(vector<string> &property_names, DbData &user_d
 		db_data.resize(1);
 		db_data[0] = DbDatum(attr_name);
 
-		db_attr->get_property(db_data);	
-	
+		db_attr->get_property(db_data);
+
 		int i,j;
-		user_data.resize(0);		
+		user_data.resize(0);
 		long nb_recev_prop = db_data.size();
 		for (i = 0;i < nb_prop;i++)
 		{
@@ -954,7 +954,7 @@ void AttributeProxy::get_property(vector<string> &property_names, DbData &user_d
 					break;
 				}
 			}
-		
+
 			if (j == nb_recev_prop)
 			{
 				DbDatum no_data;
@@ -962,7 +962,7 @@ void AttributeProxy::get_property(vector<string> &property_names, DbData &user_d
 				no_data.value_string.resize(0);
 				user_data.push_back(no_data);
 			}
-		}	
+		}
 	}
 
 	return;
@@ -973,8 +973,8 @@ void AttributeProxy::get_property(vector<string> &property_names, DbData &user_d
 // AttributeProxy::get_property() - get a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::get_property(DbData &user_data) 
+
+void AttributeProxy::get_property(DbData &user_data)
 {
 	if (dbase_used == false)
 	{
@@ -982,7 +982,7 @@ void AttributeProxy::get_property(DbData &user_data)
 		desc << "Method not available for attribute belonging to device ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::get_property");
@@ -994,7 +994,7 @@ void AttributeProxy::get_property(DbData &user_data)
 		db_data.resize(1);
 		db_data[0] = DbDatum(attr_name);
 
-		db_attr->get_property(db_data);	
+		db_attr->get_property(db_data);
 
 		int i,j;
 		long nb_recev_prop = db_data.size();
@@ -1008,12 +1008,12 @@ void AttributeProxy::get_property(DbData &user_data)
 					break;
 				}
 			}
-		
+
 			if (j == nb_recev_prop)
 			{
 				user_data[i].value_string.resize(0);
 			}
-		}			
+		}
 	}
 
 	return;
@@ -1024,8 +1024,8 @@ void AttributeProxy::get_property(DbData &user_data)
 // AttributeProxy::put_property() - put a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::put_property(DbData &user_data) 
+
+void AttributeProxy::put_property(DbData &user_data)
 {
 	if (dbase_used == false)
 	{
@@ -1033,7 +1033,7 @@ void AttributeProxy::put_property(DbData &user_data)
 		desc << "Method not available for attribute belonging to device ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::put_property");
@@ -1047,7 +1047,7 @@ void AttributeProxy::put_property(DbData &user_data)
 		db_data.push_back(att_name);
 		for (int i = 0;i < nb_prop;i++)
 			db_data.push_back(user_data[i]);
-		
+
 		db_attr->put_property(db_data);
 	}
 
@@ -1059,8 +1059,8 @@ void AttributeProxy::put_property(DbData &user_data)
 // AttributeProxy::delete_property() - delete a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::delete_property(string &property_name) 
+
+void AttributeProxy::delete_property(string &property_name)
 {
 	if (dbase_used == false)
 	{
@@ -1068,7 +1068,7 @@ void AttributeProxy::delete_property(string &property_name)
 		desc << "Method not available for attribute belonging to device ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::delete_property");
@@ -1092,8 +1092,8 @@ void AttributeProxy::delete_property(string &property_name)
 // AttributeProxy::delete_property() - delete a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::delete_property(vector<string> &property_names) 
+
+void AttributeProxy::delete_property(vector<string> &property_names)
 {
 	if (dbase_used == false)
 	{
@@ -1101,7 +1101,7 @@ void AttributeProxy::delete_property(vector<string> &property_names)
 		desc << "Method not available for attribute belonging to device ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::delete_property");
@@ -1116,7 +1116,7 @@ void AttributeProxy::delete_property(vector<string> &property_names)
 		{
 			db_data.push_back(DbDatum(property_names[i]));
 		}
-		
+
 		db_attr->delete_property(db_data);
 	}
 
@@ -1128,8 +1128,8 @@ void AttributeProxy::delete_property(vector<string> &property_names)
 // AttributeProxy::delete_property() - delete a property from the database
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::delete_property(DbData &user_data) 
+
+void AttributeProxy::delete_property(DbData &user_data)
 {
 	if (dbase_used == false)
 	{
@@ -1137,7 +1137,7 @@ void AttributeProxy::delete_property(DbData &user_data)
 		desc << "Method not available for attribute belonging to device ";
 		desc << device_name;
 		desc << " which is a non database device";
-		
+
 		ApiNonDbExcept::throw_exception((const char *)"API_NonDatabaseDevice",
 					desc.str(),
 					(const char *)"AttributeProxy::delete_property");
@@ -1152,7 +1152,7 @@ void AttributeProxy::delete_property(DbData &user_data)
 		{
 			db_data[i] = user_data[i];
 		}
-		
+
 		db_attr->delete_property(db_data);
 	}
 
@@ -1164,8 +1164,8 @@ void AttributeProxy::delete_property(DbData &user_data)
 // AttributeProxy::get_config() - return attribute config
 //
 //-----------------------------------------------------------------------------
- 
-AttributeInfoEx AttributeProxy::get_config() 
+
+AttributeInfoEx AttributeProxy::get_config()
 {
 	return (dev_proxy->get_attribute_config(attr_name));
 }
@@ -1175,13 +1175,13 @@ AttributeInfoEx AttributeProxy::get_config()
 // AttributeProxy::set_attribute_config() - set config for attribute
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::set_config(AttributeInfo &dev_attr_info) 
+
+void AttributeProxy::set_config(AttributeInfo &dev_attr_info)
 {
 	AttributeInfoList attr_info_list;
 
 	attr_info_list.push_back(dev_attr_info);
-	try 
+	try
 	{
 		dev_proxy->set_attribute_config(attr_info_list);
 
@@ -1197,12 +1197,12 @@ void AttributeProxy::set_config(AttributeInfo &dev_attr_info)
 	}
 }
 
-void AttributeProxy::set_config(AttributeInfoEx &dev_attr_info) 
+void AttributeProxy::set_config(AttributeInfoEx &dev_attr_info)
 {
 	AttributeInfoListEx attr_info_list;
 
 	attr_info_list.push_back(dev_attr_info);
-	try 
+	try
 	{
 		dev_proxy->set_attribute_config(attr_info_list);
 
@@ -1219,12 +1219,12 @@ void AttributeProxy::set_config(AttributeInfoEx &dev_attr_info)
 }
 //-----------------------------------------------------------------------------
 //
-// AttributeProxy::read() - read attribute 
+// AttributeProxy::read() - read attribute
 //
 //-----------------------------------------------------------------------------
- 
 
-DeviceAttribute AttributeProxy::read() 
+
+DeviceAttribute AttributeProxy::read()
 {
 	return(dev_proxy->read_attribute(attr_name));
 }
@@ -1234,8 +1234,8 @@ DeviceAttribute AttributeProxy::read()
 // AttributeProxy::write() - write attribute
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::write(DeviceAttribute& attr_value) 
+
+void AttributeProxy::write(DeviceAttribute& attr_value)
 {
 	attr_value.set_name(attr_name);
 	dev_proxy->write_attribute(attr_value);
@@ -1246,8 +1246,8 @@ void AttributeProxy::write(DeviceAttribute& attr_value)
 // AttributeProxy::write_read() - write then read attribute
 //
 //-----------------------------------------------------------------------------
- 
-DeviceAttribute AttributeProxy::write_read(DeviceAttribute& attr_value) 
+
+DeviceAttribute AttributeProxy::write_read(DeviceAttribute& attr_value)
 {
 	attr_value.set_name(attr_name);
 	return dev_proxy->write_read_attribute(attr_value);
@@ -1259,8 +1259,8 @@ DeviceAttribute AttributeProxy::write_read(DeviceAttribute& attr_value)
 //				      (only for polled attribute)
 //
 //-----------------------------------------------------------------------------
- 
-vector<DeviceAttributeHistory> *AttributeProxy::history(int depth) 
+
+vector<DeviceAttributeHistory> *AttributeProxy::history(int depth)
 {
 
 	return(dev_proxy->attribute_history(attr_name, depth));
@@ -1273,8 +1273,8 @@ vector<DeviceAttributeHistory> *AttributeProxy::history(int depth)
 //					    (in mS)
 //
 //-----------------------------------------------------------------------------
- 
-int AttributeProxy::get_poll_period() 
+
+int AttributeProxy::get_poll_period()
 {
 	return(dev_proxy->get_attribute_poll_period(attr_name));
 }
@@ -1286,8 +1286,8 @@ int AttributeProxy::get_poll_period()
 //			    it to the list of polled objects
 //
 //-----------------------------------------------------------------------------
- 
-void AttributeProxy::poll(int period) 
+
+void AttributeProxy::poll(int period)
 {
 	dev_proxy->poll_attribute(attr_name, period);
 }
@@ -1322,7 +1322,7 @@ void AttributeProxy::stop_poll()
 //
 //-----------------------------------------------------------------------------
 
-int AttributeProxy::subscribe_event (EventType event, CallBack *callback, 
+int AttributeProxy::subscribe_event (EventType event, CallBack *callback,
                                     const vector<string> &filters)
 {
 	return subscribe_event (event, callback, filters, false);
@@ -1337,19 +1337,38 @@ int AttributeProxy::subscribe_event (EventType event, CallBack *callback,
 //
 //-----------------------------------------------------------------------------
 
-int AttributeProxy::subscribe_event (EventType event, CallBack *callback, 
+int AttributeProxy::subscribe_event (EventType event, CallBack *callback,
                                     const vector<string> &filters, bool stateless)
 {
-  	if (ApiUtil::instance()->get_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+    if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
-		ApiUtil::instance()->create_event_consumer();
+		api_ptr->create_zmq_event_consumer();
 	}
 
-	//ApiUtil::instance()->get_event_consumer()->connect(dev_proxy);
 
-	
-	return ApiUtil::instance()->get_event_consumer()->subscribe_event(dev_proxy, 
-	                           attr_name, event, callback, filters, stateless);
+	int ret;
+	try
+	{
+        ret = api_ptr->get_zmq_event_consumer()->subscribe_event(dev_proxy,attr_name, event, callback, filters, stateless);
+	}
+	catch (DevFailed &e)
+	{
+	    string reason(e.errors[0].reason.in());
+	    if (reason == "API_CommandNotFound")
+	    {
+            if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+            {
+                ApiUtil::instance()->create_notifd_event_consumer();
+            }
+
+            ret = api_ptr->get_notifd_event_consumer()->subscribe_event(dev_proxy,attr_name, event, callback, filters, stateless);
+	    }
+	    else
+            throw;
+	}
+
+	return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -1360,16 +1379,35 @@ int AttributeProxy::subscribe_event (EventType event, CallBack *callback,
 //
 //-----------------------------------------------------------------------------
 
-int AttributeProxy::subscribe_event (EventType event, int event_queue_size, 
+int AttributeProxy::subscribe_event (EventType event, int event_queue_size,
                                     const vector<string> &filters, bool stateless)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
-		ApiUtil::instance()->create_event_consumer();
+		api_ptr->create_zmq_event_consumer();
 	}
-	
-	return ApiUtil::instance()->get_event_consumer()->subscribe_event(dev_proxy, 
-	                           attr_name, event, event_queue_size, filters, stateless);
+
+    int ret;
+    try
+    {
+        ret = api_ptr->get_zmq_event_consumer()->subscribe_event(dev_proxy,attr_name, event, event_queue_size, filters, stateless);
+    }
+    catch (DevFailed &e)
+    {
+        string reason(e.errors[0].reason.in());
+        if (reason == "API_CommandNotFound")
+        {
+            if (api_ptr->get_notifd_event_consumer() == NULL)
+            {
+                api_ptr->create_notifd_event_consumer();
+            }
+            ret = api_ptr->get_notifd_event_consumer()->subscribe_event(dev_proxy,attr_name, event, event_queue_size, filters, stateless);
+        }
+        else
+            throw;
+    }
+	return ret;
 }
 
 

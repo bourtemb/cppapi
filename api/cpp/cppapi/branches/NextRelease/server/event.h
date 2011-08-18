@@ -361,38 +361,58 @@ typedef struct event_subscribe
 	int								id;
 } EventSubscribeStruct;
 
-typedef struct event_callback
+//------------------------ Event Callback related info --------------------------------------
+
+typedef struct event_callback_base
 {
-	DeviceProxy 					*device;
+ 	DeviceProxy 					*device;
 	string 							attr_name;
 	string 							event_name;
 	string 							channel_name;
-	string 							filter_constraint;
 	time_t 							last_subscribed;
-	CosNotifyFilter::FilterID 		filter_id;
-	bool 							filter_ok;
 	TangoMonitor					*callback_monitor;
 	vector<EventSubscribeStruct>	callback_list;
+} EventCallBackBase;
+
+typedef struct event_callback: public EventCallBackBase
+{
+	string 							filter_constraint;
+	CosNotifyFilter::FilterID 		filter_id;
+	bool 							filter_ok;
 } EventCallBackStruct;
 
-typedef struct channel_struct
+//------------------------ Event Channel related info --------------------------------------
+
+typedef enum cha_type
 {
-	CosNotifyChannelAdmin::EventChannel_var eventChannel;
-	CosNotifyChannelAdmin::StructuredProxyPushSupplier_var structuredProxyPushSupplier;
-	DeviceProxy 					*adm_device_proxy;
+    ZMQ = 0,
+    NOTIFD
+}ChannelType;
+
+typedef struct event_channel_base
+{
+ 	DeviceProxy 					*adm_device_proxy;
 	string 							full_adm_name;
 	time_t 							last_subscribed;
 	time_t 							last_heartbeat;
 	bool 							heartbeat_skipped;
+	TangoMonitor					*channel_monitor;
+	ChannelType                     channel_type;
+} EventChannelBase;
+
+typedef struct channel_struct: public EventChannelBase
+{
+	CosNotifyChannelAdmin::EventChannel_var eventChannel;
+	CosNotifyChannelAdmin::StructuredProxyPushSupplier_var structuredProxyPushSupplier;
 	CosNotifyFilter::FilterID 		heartbeat_filter_id;
 	string 							notifyd_host;
 	bool 							notifd_failed;
 	long 							has_notifd_closed_the_connection;
-	TangoMonitor					*channel_monitor;
 } EventChannelStruct;
 
 typedef std::map<std::string,EventChannelStruct>::iterator EvChanIte;
 typedef std::map<std::string,EventCallBackStruct>::iterator EvCbIte;
+
 
 /********************************************************************************
  * 																				*
@@ -401,29 +421,26 @@ typedef std::map<std::string,EventCallBackStruct>::iterator EvCbIte;
  *******************************************************************************/
 
 
-class EventConsumer : public POA_CosNotifyComm::StructuredPushConsumer ,
-	      	      	  public omni_thread
+class EventConsumer
 {
 
 	typedef void    (*EventCallbackFunction)(string event_name,string event_type,Tango::DeviceAttribute *attr_value);
 
 public :
-    EventConsumer(const EventConsumer&);
-	static EventConsumer *create();
-    void operator=(const EventConsumer&);
-	virtual void push_structured_event(const CosNotification::StructuredEvent&);
-	void connect(DeviceProxy* device_proxy);
-	void disconnect_structured_push_consumer();
-	void disconnect_from_notifd();
-	void offer_change(const CosNotification::EventTypeSeq& added,
-                      const CosNotification::EventTypeSeq& deled);
+	EventConsumer(ApiUtil *ptr);
+
+	int connect_event(DeviceProxy *,const string &,EventType,CallBack *,EventQueue *,const vector<string> &,string &,int event_id = 0);
+	void connect(DeviceProxy *,string &);
+
+	void shutdown();
+	void shutdown_keep_alive_thread();
+    ChannelType get_event_system_for_event_id(int);
+	virtual void cleanup_EventChannel_map() = 0;
+
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
 	                   CallBack *callback, const vector<string> &filters, bool stateless = false);
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
 	                   int event_queue_size, const vector<string> &filters, bool stateless = false);
-	int connect_event  (DeviceProxy *device, const string &attribute, EventType event,
-	                   CallBack *callback, EventQueue *ev_queue, const vector<string> &filters,
-	                   string &event_name, int event_id = 0);
 	void unsubscribe_event(int event_id);
 
 	// methods to access data in event queues
@@ -437,13 +454,8 @@ public :
 	bool is_event_queue_empty(int event_id);
 
 
-	void cleanup_EventChannel_map();
-	TANGO_IMP_EXP static void cleanup()
-	{if (_instance != NULL){_instance=NULL;}}
-
-	CORBA::ORB_var 					orb_;
-	KeepAliveThCmd					cmd;
-	EventConsumerKeepAliveThread 	*keep_alive_thread;
+	static KeepAliveThCmd                   cmd;
+	static EventConsumerKeepAliveThread 	*keep_alive_thread;
 
 protected :
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
@@ -454,11 +466,63 @@ protected :
 	void attr_to_device(const AttributeValue_4 *,DeviceAttribute *);
 	void conf_to_info(AttributeConfig_2 &,AttributeInfoEx **);
 
-	EventConsumer(ApiUtil *ptr);
+	static map<std::string,std::string> 					device_channel_map;     // key - device_name, value - channel name
+	static map<std::string,EventChannelStruct> 				channel_map;            // key - channel_name, value - Event Channel info
+	static map<std::string,EventCallBackStruct> 			event_callback_map;     // key - callback_key, value - Event CallBack info
+	static ReadersWritersLock 								map_modification_lock;
+
+	static vector<EventNotConnected> 						event_not_connected;
+	static int 												subscribe_event_id; 	// unique event id
+	static vector<string> 									env_var_fqdn_prefix;
+
+	static omni_mutex										ev_consumer_inst_mutex;
+
+	string													device_name;
+	string 													att_name_lower;
+	string													callback_key;
+
+	int add_new_callback(EvCbIte &,CallBack *,EventQueue *,int);
+	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &,EventCallBackStruct &);
+
+	virtual void connect_event_channel(string &,Database *,bool) = 0;
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &) = 0;
+    virtual void get_subcription_command_name(string &) = 0;
+    virtual void set_channel_type(EventChannelStruct &) = 0;
+};
+
+/********************************************************************************
+ * 																				*
+ * 						NotifdEventConsumer class								*
+ * 																				*
+ *******************************************************************************/
+
+
+class NotifdEventConsumer : public POA_CosNotifyComm::StructuredPushConsumer ,
+                            public EventConsumer ,
+                            public omni_thread
+{
+public :
+	static NotifdEventConsumer *create();
+    TANGO_IMP_EXP static void cleanup() {if (_instance != NULL){_instance=NULL;}}
+
+	virtual void push_structured_event(const CosNotification::StructuredEvent&);
+	virtual void cleanup_EventChannel_map();
+
+	void disconnect_structured_push_consumer();
+	void offer_change(const CosNotification::EventTypeSeq &,const CosNotification::EventTypeSeq &);
+
+	CORBA::ORB_var 					orb_;
+
+protected :
+	NotifdEventConsumer(ApiUtil *ptr);
+	virtual void connect_event_channel(string &,Database *,bool);
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &);
+    virtual void get_subcription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
+    virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = NOTIFD;}
 
 private :
 
-	TANGO_IMP static EventConsumer 							*_instance;
+	TANGO_IMP static NotifdEventConsumer 					*_instance;
 
 	CosNotifyChannelAdmin::EventChannel_var 				eventChannel;
 	CosNotifyChannelAdmin::ConsumerAdmin_var 				consumerAdmin;
@@ -467,25 +531,38 @@ private :
 	CosNotifyChannelAdmin::StructuredProxyPushSupplier_var	structuredProxyPushSupplier;
 	CosNotifyChannelAdmin::EventChannelFactory_var 			eventChannelFactory;
 
-	map<std::string,std::string> 							device_channel_map;     // key - device_name, value - channel name
-	map<std::string,EventCallBackStruct> 					event_callback_map;     // key - callback_key, value - Event CallBack info
-	map<std::string,EventChannelStruct> 					channel_map;            // key - channel_name, value - Event Channel info
-	ReadersWritersLock 										map_modification_lock;
+	void *run_undetached(void *arg);
+};
 
-	vector<EventNotConnected> 								event_not_connected;
-	int 													subscribe_event_id; 		// unique event id
-	vector<string> 											env_var_fqdn_prefix;
 
-	static omni_mutex										inst_mutex;
+/********************************************************************************
+ * 																				*
+ * 						ZmqEventConsumer class  								*
+ * 																				*
+ *******************************************************************************/
 
-	string													device_name;
-	string 													att_name_lower;
-	string													callback_key;
+
+class ZmqEventConsumer : public EventConsumer ,
+                         public omni_thread
+{
+public :
+	static ZmqEventConsumer *create();
+    TANGO_IMP_EXP static void cleanup() {if (_instance != NULL){_instance=NULL;}}
+
+	virtual void cleanup_EventChannel_map();
+
+protected :
+	ZmqEventConsumer(ApiUtil *ptr);
+	virtual void connect_event_channel(string &,Database *,bool);
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &);
+    virtual void get_subcription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
+    virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
+
+private :
+
+	TANGO_IMP static ZmqEventConsumer 					   *_instance;
 
 	void *run_undetached(void *arg);
-	void connect_event_channel(string &channel_name,Database *,bool);
-	int add_new_callback(EvCbIte &,CallBack *,EventQueue *,int);
-	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &,EventCallBackStruct &);
 };
 
 /********************************************************************************
@@ -511,7 +588,7 @@ private :
 	bool reconnect_to_channel(EvChanIte &,EventConsumer *);
 	void reconnect_to_event(EvChanIte &,EventConsumer *);
 	void re_subscribe_event(EvCbIte &,EvChanIte &);
-
+    void stateless_subscription_failed(vector<EventNotConnected>::iterator &,DevFailed &,time_t &);
 };
 
 /********************************************************************************

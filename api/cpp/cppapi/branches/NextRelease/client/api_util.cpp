@@ -171,11 +171,11 @@ ApiUtil::~ApiUtil()
 	bool event_was_used = false;
 	if (ext != NULL)
 	{
-		if (ext->event_consumer != NULL)
+		if (ext->notifd_event_consumer != NULL)
 		{
 			event_was_used = true;
 			leavefunc();
-			EventConsumer::cleanup();
+			NotifdEventConsumer::cleanup();
 		}
 		delete ext;
 	}
@@ -643,24 +643,34 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 
 //-----------------------------------------------------------------------------
 //
-// method : 		ApiUtil::create_event_consumer()
+// method : 		ApiUtil::create_xxx_event_consumer()
 //
 // description : 	Create the event consumer. This will automatically
-//			start a new thread which is waiting in a CORBA::run()
-//			indefintely for events. It will then trigger the events.
+//			        start a new thread which is waiting in a CORBA::run()
+//			        indefintely for events. It will then trigger the events.
 //
 // argin(s) :		none
 //
 //-----------------------------------------------------------------------------
 
-void ApiUtil::create_event_consumer()
+void ApiUtil::create_notifd_event_consumer()
 {
-	ext->event_consumer = EventConsumer::create();
+    ext->notifd_event_consumer = NotifdEventConsumer::create();
 }
 
-EventConsumer *ApiUtil::get_event_consumer()
+void ApiUtil::create_zmq_event_consumer()
 {
-	return ext->event_consumer;
+    ext->zmq_event_consumer = ZmqEventConsumer::create();
+}
+
+NotifdEventConsumer *ApiUtil::get_notifd_event_consumer()
+{
+	return ext->notifd_event_consumer;
+}
+
+ZmqEventConsumer *ApiUtil::get_zmq_event_consumer()
+{
+	return ext->zmq_event_consumer;
 }
 
 //+----------------------------------------------------------------------------

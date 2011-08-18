@@ -54,7 +54,8 @@ class DbDatum;
 class DbDevImportInfo;
 class Database;
 class AsynReq;
-class EventConsumer;
+class NotifdEventConsumer;
+class ZmqEventConsumer;
 class CallBack;
 class AttributeProxy;
 
@@ -123,11 +124,12 @@ public:
 class ApiUtilExt
 {
 public:
-	ApiUtilExt():event_consumer(NULL),cl_pid(0),user_connect_timeout(-1) {};
+	ApiUtilExt():notifd_event_consumer(NULL),cl_pid(0),user_connect_timeout(-1),zmq_event_consumer(NULL) {};
 
-	EventConsumer 		*event_consumer;
+	NotifdEventConsumer *notifd_event_consumer;
 	TangoSys_Pid		cl_pid;
 	int					user_connect_timeout;
+	ZmqEventConsumer    *zmq_event_consumer;
 };
 
 
@@ -387,9 +389,14 @@ public:
 // EventConsumer related methods
 //
 
-	bool is_event_consumer_created() {return ext->event_consumer != NULL;}
-	void create_event_consumer();
-	EventConsumer *get_event_consumer();
+	void create_notifd_event_consumer();
+	void create_zmq_event_consumer();
+
+	bool is_notifd_event_consumer_created() {return ext->notifd_event_consumer != NULL;}
+	NotifdEventConsumer *get_notifd_event_consumer();
+
+	bool is_zmq_event_consumer_created() {return ext->zmq_event_consumer != NULL;}
+	ZmqEventConsumer *get_zmq_event_consumer();
 
 //
 // Asynchronous methods

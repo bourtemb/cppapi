@@ -172,7 +172,9 @@ SERVER_OBJS = 	$(OBJS_DIR)/device.o \
 		$(OBJS_DIR)/event.o \
 		$(OBJS_DIR)/eventsupplier.o \
         $(OBJS_DIR)/notifdeventsupplier.o \
+        $(OBJS_DIR)/notifdeventconsumer.o \
         $(OBJS_DIR)/zmqeventsupplier.o \
+        $(OBJS_DIR)/zmqeventconsumer.o \
 		$(OBJS_DIR)/eventcmds.o \
 		$(OBJS_DIR)/eventqueue.o \
 		$(OBJS_DIR)/eventkeepalive.o \
@@ -257,7 +259,9 @@ SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
 		$(OBJS_DIR_SL)/event.so.o \
 		$(OBJS_DIR_SL)/eventsupplier.so.o \
         $(OBJS_DIR_SL)/notifdeventsupplier.so.o \
+        $(OBJS_DIR_SL)/notifdeventconsumer.so.o \
         $(OBJS_DIR_SL)/zmqeventsupplier.so.o \
+        $(OBJS_DIR_SL)/zmqeventconsumer.so.o \
 		$(OBJS_DIR_SL)/eventcmds.so.o \
 		$(OBJS_DIR_SL)/eventqueue.so.o \
 		$(OBJS_DIR_SL)/eventkeepalive.so.o \
@@ -337,7 +341,6 @@ SERVER_INCLUDE =	attrdesc.h \
 			dserversignal.h \
 			event.h \
 			eventsupplier.h \
-			eventsupplier.tpp \
 			except.h \
 			log4tango.h \
 			logcmds.h \

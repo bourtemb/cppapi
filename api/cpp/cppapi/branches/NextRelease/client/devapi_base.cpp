@@ -6401,15 +6401,41 @@ int DeviceProxy::subscribe_event (const string &attr_name, EventType event,
 
 int DeviceProxy::subscribe_event (const string &attr_name, EventType event,
                                  CallBack *callback, const vector<string> &filters,
-											bool stateless)
+                                    bool stateless)
 {
-  	if (ApiUtil::instance()->get_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+  	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
-		ApiUtil::instance()->create_event_consumer();
+		api_ptr->create_zmq_event_consumer();
 	}
 
-	return ApiUtil::instance()->get_event_consumer()->subscribe_event(this, attr_name,
-	                          event, callback, filters, stateless);
+//
+// First, try using zmq. If it fails with the error "Command Not Found",
+// try using notifd
+//
+
+    int ret;
+	try
+	{
+        ret = api_ptr->get_zmq_event_consumer()->subscribe_event(this, attr_name,event, callback, filters, stateless);
+	}
+	catch (DevFailed &e)
+	{
+	    string reason(e.errors[0].reason.in());
+	    if (reason == "API_CommandNotFound")
+	    {
+            if (api_ptr->get_notifd_event_consumer() == NULL)
+            {
+                api_ptr->create_notifd_event_consumer();
+            }
+
+            ret = api_ptr->get_notifd_event_consumer()->subscribe_event(this, attr_name,event, callback, filters, stateless);
+	    }
+	    else
+            throw;
+	}
+
+	return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -6426,13 +6452,39 @@ int DeviceProxy::subscribe_event (const string &attr_name, EventType event,
                                  int event_queue_size, const vector<string> &filters,
                                  bool stateless)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
-		ApiUtil::instance()->create_event_consumer();
+		api_ptr->create_zmq_event_consumer();
 	}
 
-	return ApiUtil::instance()->get_event_consumer()->subscribe_event(this, attr_name,
-	                          event, event_queue_size, filters, stateless);
+//
+// First, try using zmq. If it fails with the error "Command Not Found",
+// try using notifd
+//
+
+    int ret;
+	try
+	{
+        ret = api_ptr->get_zmq_event_consumer()->subscribe_event(this, attr_name,event, event_queue_size, filters, stateless);
+	}
+	catch (DevFailed &e)
+	{
+	    string reason(e.errors[0].reason.in());
+	    if (reason == "API_CommandNotFound")
+	    {
+            if (api_ptr->get_notifd_event_consumer() == NULL)
+            {
+                api_ptr->create_notifd_event_consumer();
+            }
+
+            ret = api_ptr->get_notifd_event_consumer()->subscribe_event(this, attr_name,event, event_queue_size, filters, stateless);
+	    }
+	    else
+            throw;
+	}
+
+	return ret;
 }
 
 
@@ -6444,15 +6496,25 @@ int DeviceProxy::subscribe_event (const string &attr_name, EventType event,
 
 void DeviceProxy::unsubscribe_event (int event_id)
 {
-  	if (ApiUtil::instance()->get_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+  	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		return;
 	}
 
-	ApiUtil::instance()->get_event_consumer()->unsubscribe_event(event_id);
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        api_ptr->get_zmq_event_consumer()->unsubscribe_event(event_id);
+    }
+	else
+	{
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            return;
+        }
+        api_ptr->get_notifd_event_consumer()->unsubscribe_event(event_id);
+	}
 }
-
-
 
 //-----------------------------------------------------------------------------
 //
@@ -6469,7 +6531,7 @@ void DeviceProxy::unsubscribe_event (int event_id)
 //-----------------------------------------------------------------------------
 void DeviceProxy::get_events (int event_id, EventDataList &event_list)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6481,7 +6543,7 @@ void DeviceProxy::get_events (int event_id, EventDataList &event_list)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_event_consumer()->get_events(event_id, event_list);
+	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, event_list);
 }
 
 
@@ -6501,7 +6563,7 @@ void DeviceProxy::get_events (int event_id, EventDataList &event_list)
 //-----------------------------------------------------------------------------
 void DeviceProxy::get_events (int event_id, AttrConfEventDataList &event_list)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6513,12 +6575,12 @@ void DeviceProxy::get_events (int event_id, AttrConfEventDataList &event_list)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_event_consumer()->get_events(event_id, event_list);
+	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, event_list);
 }
 
 void DeviceProxy::get_events (int event_id, DataReadyEventDataList &event_list)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6530,7 +6592,7 @@ void DeviceProxy::get_events (int event_id, DataReadyEventDataList &event_list)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_event_consumer()->get_events(event_id, event_list);
+	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, event_list);
 }
 
 //-----------------------------------------------------------------------------
@@ -6549,7 +6611,7 @@ void DeviceProxy::get_events (int event_id, DataReadyEventDataList &event_list)
 //-----------------------------------------------------------------------------
 void DeviceProxy::get_events (int event_id, CallBack *cb)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6561,7 +6623,7 @@ void DeviceProxy::get_events (int event_id, CallBack *cb)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_event_consumer()->get_events(event_id, cb);
+	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, cb);
 }
 
 
@@ -6578,7 +6640,7 @@ void DeviceProxy::get_events (int event_id, CallBack *cb)
 //-----------------------------------------------------------------------------
 int  DeviceProxy::event_queue_size(int event_id)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6590,7 +6652,7 @@ int  DeviceProxy::event_queue_size(int event_id)
 						(const char*)"DeviceProxy::event_queue_size()");
 	}
 
-	return (ApiUtil::instance()->get_event_consumer()->event_queue_size(event_id));
+	return (ApiUtil::instance()->get_notifd_event_consumer()->event_queue_size(event_id));
 }
 
 //+----------------------------------------------------------------------------
@@ -6604,7 +6666,7 @@ int  DeviceProxy::event_queue_size(int event_id)
 //-----------------------------------------------------------------------------
 bool DeviceProxy::is_event_queue_empty(int event_id)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6616,7 +6678,7 @@ bool DeviceProxy::is_event_queue_empty(int event_id)
 						(const char*)"DeviceProxy::is_event_queue_empty()");
 	}
 
-	return (ApiUtil::instance()->get_event_consumer()->is_event_queue_empty(event_id));
+	return (ApiUtil::instance()->get_notifd_event_consumer()->is_event_queue_empty(event_id));
 }
 
 //+----------------------------------------------------------------------------
@@ -6630,7 +6692,7 @@ bool DeviceProxy::is_event_queue_empty(int event_id)
 //-----------------------------------------------------------------------------
 TimeVal DeviceProxy::get_last_event_date(int event_id)
 {
-	if (ApiUtil::instance()->get_event_consumer() == NULL)
+	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6642,7 +6704,7 @@ TimeVal DeviceProxy::get_last_event_date(int event_id)
 						(const char*)"DeviceProxy::get_last_event_date()");
 	}
 
-	return (ApiUtil::instance()->get_event_consumer()->get_last_event_date(event_id));
+	return (ApiUtil::instance()->get_notifd_event_consumer()->get_last_event_date(event_id));
 }
 
 

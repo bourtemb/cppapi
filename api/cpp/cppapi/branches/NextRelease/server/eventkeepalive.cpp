@@ -315,7 +315,8 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 {
 	int time_to_sleep;
 	time_t now;
-	EventConsumer *event_consumer;
+	ZmqEventConsumer *event_consumer;
+	NotifdEventConsumer *notifd_event_consumer;
 
 //
 // first sleep 2 seconds to give the event system time to startup
@@ -331,7 +332,10 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 #endif /* _TG_WINDOWS_ */
 
 	bool exit_th = false;
-	event_consumer = ApiUtil::instance()->get_event_consumer();
+
+	event_consumer = ApiUtil::instance()->get_zmq_event_consumer();
+	notifd_event_consumer = ApiUtil::instance()->get_notifd_event_consumer();
+
 	while (exit_th == false)
 	{
 		time_to_sleep = EVENT_HEARTBEAT_PERIOD;
@@ -359,6 +363,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 			if (shared_cmd.cmd_pending == true)
 			{
 				exit_th = true;
+cout << "Returning from KeepAlive thread" << endl;
 				return (void *)NULL;
 			}
 		}
@@ -374,6 +379,8 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 //
 // check the list of not yet connected events and try to subscribe
+// Try first with ZMQ event consumer. If ZMQ is not used (API_CommandNotFound exception),
+// use notifd.
 //
 
 		if ( !event_consumer->event_not_connected.empty() )
@@ -405,122 +412,30 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 					catch (Tango::DevFailed &e)
 					{
-						// subscribe has not worked, try again in the next hearbeat period
-						vpos->last_heartbeat = now;
+					    string reason(e.errors[0].reason.in());
+					    if (reason == "API_CommandNotFound")
+					    {
+                            try
+                            {
+                                notifd_event_consumer->connect_event(vpos->device,vpos->attribute,vpos->event_type,
+																					vpos->callback,
+																					vpos->ev_queue,
+																					vpos->filters,
+																					vpos->event_name,
+																					vpos->event_id);
 
-						// The event can still not be connected.
-						// Send the return error message as event to the client application.
-						//
-						// push an event with the error message!
-
-						DevErrorList err;
-						err.length(0);
-						string domain_name = vpos->device->dev_name() + "/" + vpos->attribute;
-						err = e.errors;
-
-						//
-						// For attribute data event
-						//
-
-						if ((vpos->event_name == "change") ||
-	    					(vpos->event_name == "quality") ||
-	    					(vpos->event_name == "archive") ||
-	    					(vpos->event_name == "user_event"))
-						{
-							//DeviceAttribute da;
-							DeviceAttribute *da = NULL;
-							EventData *event_data = new EventData(vpos->device,
-													      			domain_name,
-													      			vpos->event_name,
-													      			da,
-													      			err);
-
-							// if a callback method was specified, call it!
-							if (vpos->callback != NULL )
-							{
-								try
-								{
-									vpos->callback->push_event(event_data);
-								}
-								catch (...)
-								{
-									cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
-								}
-
-								//event_data->attr_value = NULL;
-								delete event_data;
-							}
-
-							// no callback method, the event has to be instered
-							// into the event queue
-							else
-							{
-								vpos->ev_queue->insert_event(event_data);
-							}
-						}
-
-//
-// For attribute configuration event
-//
-
-						else if (vpos->event_name == CONF_TYPE_EVENT)
-						{
-							//AttributeInfoEx aie;
-							AttributeInfoEx *aie = NULL;
-							AttrConfEventData *event_data = new AttrConfEventData(vpos->device,
-													      			domain_name,
-													      			vpos->event_name,
-													      			aie,
-													      			err);
-
-							// if a callback method was specified, call it!
-							if (vpos->callback != NULL )
-							{
-								try
-								{
-									vpos->callback->push_event(event_data);
-								}
-								catch (...)
-								{
-									cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
-								}
-
-								//event_data->attr_conf = NULL;
-								delete event_data;
-							}
-
-							// no calback method, the event has to be inserted
-							// into the event queue
-							else
-							{
-								vpos->ev_queue->insert_event(event_data);
-							}
-						}
-						else if (vpos->event_name == DATA_READY_TYPE_EVENT)
-						{
-							DataReadyEventData *event_data = new DataReadyEventData(vpos->device,NULL,vpos->event_name,err);
-
-							// if a callback method was specified, call it!
-							if (vpos->callback != NULL )
-							{
-								try
-								{
-									vpos->callback->push_event(event_data);
-								}
-								catch (...)
-								{
-									cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
-								}
-								delete event_data;
-							}
-
-							// no calback method, the event has to be inserted
-							// into the event queue
-							else
-								vpos->ev_queue->insert_event(event_data);
-						}
+                                // delete element from vector when subscribe worked
+                                vpos = event_consumer->event_not_connected.erase(vpos);
+                                inc_vpos = false;
+                            }
+                            catch (Tango::DevFailed &e)
+                            {
+                                stateless_subscription_failed(vpos,e,now);
+                            }
+					    }
+					    else
+                            stateless_subscription_failed(vpos,e,now);
 					}
-
 					catch (...)
 					{
 						// subscribe has not worked, try again in the next hearbeat period
@@ -572,7 +487,10 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 									subscriber_info.push_back("subscribe");
 									subscriber_info.push_back(epos->second.event_name);
 									subscriber_in << subscriber_info;
-									ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
+									if (ipos->second.channel_type == ZMQ)
+                                        ipos->second.adm_device_proxy->command_inout("ZmqEventSubsriptionChange",subscriber_in);
+									else
+                                        ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
 
 									ipos->second.last_subscribed = time(NULL);
         							epos->second.last_subscribed = time(NULL);
@@ -582,7 +500,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 								catch (...)
 								{
 									epos->second.callback_monitor->rel_monitor();
-								};
+								}
 							}
 						}
 					}
@@ -603,53 +521,58 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 					{
 						ipos->second.heartbeat_skipped = true;
 
+                        if (ipos->second.channel_type == NOTIFD)
+                        {
+
 //
 // Check notifd by trying to read an attribute of the event channel
 //
 
-						try
-						{
+                            try
+                            {
 //
 //  Check if the device server is now running on a different host.
 //  In this case we have to reconnect to another notification daemon.
 //
-							DeviceInfo info;
-							try
-							{
-								info = ipos->second.adm_device_proxy->info();
-							}
-							catch (Tango::DevFailed &)
-							{
-								// in case of failure, just stay connected to the actual notifd
-								info.server_host = ipos->second.notifyd_host;
-							}
+                                DeviceInfo info;
+                                try
+                                {
+                                    info = ipos->second.adm_device_proxy->info();
+                                }
+                                catch (Tango::DevFailed &)
+                                {
+                                    // in case of failure, just stay connected to the actual notifd
+                                    info.server_host = ipos->second.notifyd_host;
+                                }
 
-							if ( ipos->second.notifyd_host != info.server_host )
-							{
-								ipos->second.notifd_failed = true;
-							}
-							else
-							{
-								CosNotifyChannelAdmin::EventChannelFactory_var ecf = ipos->second.eventChannel->MyFactory();
-								if (ipos->second.full_adm_name.find(MODIFIER_DBASE_NO) != string::npos)
-									ipos->second.notifd_failed = true;
-							}
-						}
-						catch (...)
-						{
-							ipos->second.notifd_failed = true;
-							cout3 << "Notifd is dead !!!" << endl;
-						}
+                                if ( ipos->second.notifyd_host != info.server_host )
+                                {
+                                    ipos->second.notifd_failed = true;
+                                }
+                                else
+                                {
+                                    CosNotifyChannelAdmin::EventChannelFactory_var ecf = ipos->second.eventChannel->MyFactory();
+                                    if (ipos->second.full_adm_name.find(MODIFIER_DBASE_NO) != string::npos)
+                                        ipos->second.notifd_failed = true;
+                                }
+                            }
+                            catch (...)
+                            {
+                                ipos->second.notifd_failed = true;
+                                cout3 << "Notifd is dead !!!" << endl;
+                            }
 
+//
 // if the connection to the notify daemon is marked as ok, the device server is working fine but
 // the heartbeat is still not coming back since three periods:
 // The notify deamon might have closed the connection, try to reconnect!
+//
 
-						if ( ipos->second.notifd_failed == false &&
-						     ipos->second.has_notifd_closed_the_connection >= 3 )
-						{
-							ipos->second.notifd_failed = true;
-						}
+                            if ( ipos->second.notifd_failed == false &&
+                                 ipos->second.has_notifd_closed_the_connection >= 3 )
+                            {
+                                ipos->second.notifd_failed = true;
+                            }
 
 //
 // Re-build connection to the event channel
@@ -658,19 +581,20 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // callbacks to this new event channel
 //
 
-						if ( ipos->second.notifd_failed == true )
-						{
-							bool notifd_reco = reconnect_to_channel(ipos,event_consumer);
-							if ( notifd_reco )
-								ipos->second.notifd_failed = false;
-							else
-								ipos->second.notifd_failed = true;
+                            if ( ipos->second.notifd_failed == true )
+                            {
+                                bool notifd_reco = reconnect_to_channel(ipos,notifd_event_consumer);
+                                if ( notifd_reco )
+                                    ipos->second.notifd_failed = false;
+                                else
+                                    ipos->second.notifd_failed = true;
 
-							if ( ipos->second.notifd_failed == false )
-							{
-								reconnect_to_event(ipos,event_consumer);
-							}
-						}
+                                if ( ipos->second.notifd_failed == false )
+                                {
+                                    reconnect_to_event(ipos,notifd_event_consumer);
+                                }
+                            }
+                        }
 
 						Tango::DevErrorList errors(1);
 
@@ -686,7 +610,6 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 						{
 							if (epos->second.channel_name == ipos->first)
 							{
-
 								bool need_reconnect = false;
 								vector<EventSubscribeStruct>:: iterator esspos;
 								for (esspos = epos->second.callback_list.begin(); esspos != epos->second.callback_list.end(); ++esspos)
@@ -705,7 +628,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 									if (need_reconnect == true)
 									{
-										if (epos->second.filter_ok == false)
+										if ((ipos->second.channel_type == NOTIFD) && (epos->second.filter_ok == false))
 										{
 											try
 											{
@@ -841,7 +764,10 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 										try
 										{
-											ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
+										    if (ipos->second.channel_type == ZMQ)
+                                                ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
+										    else
+                                                ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
 											ipos->second.heartbeat_skipped = false;
         									ipos->second.last_subscribed = time(NULL);
 										}
@@ -880,9 +806,12 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 													da = new DeviceAttribute();
 													*da = epos->second.device->read_attribute(epos->second.attr_name.c_str());
 
+//
 // The reconnection worked fine. The heartbeat should come back now,
 // when the notifd has not closed the connection.
 // Increase the counter to detect when the heartbeat is not coming back.
+//
+
 													ipos->second.has_notifd_closed_the_connection++;
 												}
 												catch (DevFailed &e)
@@ -966,9 +895,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 													aie = new AttributeInfoEx();
 													*aie = epos->second.device->get_attribute_config(epos->second.attr_name);
 
+//
 // The reconnection worked fine. The heartbeat should come back now,
 // when the notifd has not closed the connection.
 // Increase the counter to detect when the heartbeat is not coming back.
+//
 
 													ipos->second.has_notifd_closed_the_connection++;
 												}
@@ -1045,7 +976,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 					}
 					else
 					{
-						// When the heartbeat has worked, mark the connection to the notifd a OK
+						// When the heartbeat has worked, mark the connection to the notifd as OK
 						ipos->second.has_notifd_closed_the_connection = 0;
 					}
 
@@ -1067,6 +998,153 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 	return (void *)NULL;
 
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		EventConsumerKeepAliveThread::stateless_subscription_failed
+//
+// description :
+//
+// argument : in :	ipos : An iterator to the EventChannel structure to
+//			       reconnect to in the Event Channel map
+//			event_consumer : Pointer to the EventConsumer
+//					 singleton
+//
+// This method returns true if the reconnection succeeds. Otherwise, returns
+// false
+//
+//-----------------------------------------------------------------------------
+
+void EventConsumerKeepAliveThread::stateless_subscription_failed(vector<EventNotConnected>::iterator &vpos,DevFailed &e,time_t &now)
+{
+//
+// subscribe has not worked, try again in the next hearbeat period
+//
+
+    vpos->last_heartbeat = now;
+
+//
+// The event can still not be connected.
+// Send the return error message as event to the client application.
+//
+// push an event with the error message!
+//
+
+    DevErrorList err;
+    err.length(0);
+    string domain_name = vpos->device->dev_name() + "/" + vpos->attribute;
+    err = e.errors;
+
+//
+// For attribute data event
+//
+
+    if ((vpos->event_name == "change") ||
+        (vpos->event_name == "quality") ||
+        (vpos->event_name == "archive") ||
+        (vpos->event_name == "user_event"))
+    {
+
+        DeviceAttribute *da = NULL;
+        EventData *event_data = new EventData(vpos->device,
+                                                domain_name,
+                                                vpos->event_name,
+                                                da,
+                                                err);
+
+// if a callback method was specified, call it!
+
+        if (vpos->callback != NULL )
+        {
+            try
+            {
+                vpos->callback->push_event(event_data);
+            }
+            catch (...)
+            {
+                cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
+            }
+
+            delete event_data;
+        }
+
+//
+// no callback method, the event has to be instered
+// into the event queue
+//
+        else
+        {
+            vpos->ev_queue->insert_event(event_data);
+        }
+    }
+
+//
+// For attribute configuration event
+//
+
+    else if (vpos->event_name == CONF_TYPE_EVENT)
+    {
+        AttributeInfoEx *aie = NULL;
+        AttrConfEventData *event_data = new AttrConfEventData(vpos->device,
+                                                domain_name,
+                                                vpos->event_name,
+                                                aie,
+                                                err);
+
+// if a callback method was specified, call it!
+
+        if (vpos->callback != NULL )
+        {
+            try
+            {
+                vpos->callback->push_event(event_data);
+            }
+            catch (...)
+            {
+                cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
+            }
+
+            //event_data->attr_conf = NULL;
+            delete event_data;
+        }
+
+//
+// no calback method, the event has to be inserted
+// into the event queue
+//
+
+        else
+        {
+            vpos->ev_queue->insert_event(event_data);
+        }
+    }
+    else if (vpos->event_name == DATA_READY_TYPE_EVENT)
+    {
+        DataReadyEventData *event_data = new DataReadyEventData(vpos->device,NULL,vpos->event_name,err);
+
+// if a callback method was specified, call it!
+
+        if (vpos->callback != NULL )
+        {
+            try
+            {
+                vpos->callback->push_event(event_data);
+            }
+            catch (...)
+            {
+                cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
+            }
+            delete event_data;
+        }
+
+//
+// no calback method, the event has to be inserted
+// into the event queue
+//
+        else
+            vpos->ev_queue->insert_event(event_data);
+    }
 }
 
 } /* End of Tango namespace */
