@@ -2505,6 +2505,9 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 //
 // argument : in : - event_id : The event id
 //
+// This methods returns which is the evenet system type used by the
+// event with the specified event id
+//
 //-----------------------------------------------------------------------------
 
 ChannelType EventConsumer::get_event_system_for_event_id(int event_id)

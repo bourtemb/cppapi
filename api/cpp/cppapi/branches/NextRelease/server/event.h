@@ -428,6 +428,7 @@ class EventConsumer
 
 public :
 	EventConsumer(ApiUtil *ptr);
+	virtual ~EventConsumer() {}
 
 	int connect_event(DeviceProxy *,const string &,EventType,CallBack *,EventQueue *,const vector<string> &,string &,int event_id = 0);
 	void connect(DeviceProxy *,string &);
