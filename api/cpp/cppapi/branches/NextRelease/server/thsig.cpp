@@ -128,11 +128,14 @@ void *DServerSignal::ThSig::run_undetached(TANGO_UNUSED(void *ptr))
 			omni_mutex_lock sy(*ds);
 			if (signo == SIGINT)
             {
+                bool job_done = false;
+
                 if (ds->sig_to_install == true)
                 {
                     ds->sig_to_install = false;
                     sigaddset(&sigs_to_catch,ds->inst_sig);
                     cout4 << "signal " << ds->inst_sig << " installed" << endl;
+                    job_done = true;
                 }
 
 //
@@ -144,10 +147,14 @@ void *DServerSignal::ThSig::run_undetached(TANGO_UNUSED(void *ptr))
                     ds->sig_to_remove = false;
                     sigdelset(&sigs_to_catch,ds->rem_sig);
                     cout4 << "signal " << ds->rem_sig << " removed" << endl;
+                    job_done = true;
                 }
 
-                ds->signal();
-                continue;
+                if (job_done == true)
+                {
+                    ds->signal();
+                    continue;
+                }
             }
 		}
 #endif
