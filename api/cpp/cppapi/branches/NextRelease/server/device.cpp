@@ -1374,26 +1374,23 @@ Tango::DevState DeviceImpl::dev_state()
 					throw;
 				}
 			}
-		}
 
 //
 // Check alarm level
 //
 
-		if (dev_attr->check_alarm() == true)
-		{
-			set_alrm = true;
-			device_state = Tango::ALARM;
-		}
-		else
-			device_state = Tango::ON;
+            if (dev_attr->check_alarm() == true)
+            {
+                set_alrm = true;
+                device_state = Tango::ALARM;
+            }
+            else
+                device_state = Tango::ON;
 
 //
 // Free the sequence created to store the attribute value
 //
 
-		if (nb_wanted_attr != 0)
-		{
 			for (long i = 0;i < nb_wanted_attr;i++)
 			{
 				long idx;
