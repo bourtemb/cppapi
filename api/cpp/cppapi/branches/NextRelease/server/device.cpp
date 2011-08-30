@@ -1366,9 +1366,12 @@ Tango::DevState DeviceImpl::dev_state()
 						else
 							idx = attr_list[j];
 						Tango::Attribute &tmp_att = dev_attr->get_attr_by_ind(idx);
-						tmp_att.wanted_date(true);
-						if (tmp_att.get_quality() != Tango::ATTR_INVALID)
-							tmp_att.delete_seq();
+						if (att.get_wanted_date() == false)
+						{
+							if (tmp_att.get_quality() != Tango::ATTR_INVALID)
+								tmp_att.delete_seq();
+							tmp_att.wanted_date(true);
+						}
 					}
 					att.wanted_date(true);
 					throw;
@@ -1399,10 +1402,12 @@ Tango::DevState DeviceImpl::dev_state()
 				else
 					idx = attr_list[i];
 				Tango::Attribute &att = dev_attr->get_attr_by_ind(idx);
-
-                att.wanted_date(true);
-                if (att.get_quality() != Tango::ATTR_INVALID)
-                    att.delete_seq();
+				if (att.get_wanted_date() == false)
+				{
+					if (att.get_quality() != Tango::ATTR_INVALID)
+						att.delete_seq();
+					att.wanted_date(true);
+				}
 			}
 		}
 
