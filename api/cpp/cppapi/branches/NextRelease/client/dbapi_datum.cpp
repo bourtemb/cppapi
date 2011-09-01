@@ -17,12 +17,12 @@ static const char *RcsId = "$Id$\n$Name$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -217,7 +217,7 @@ static const char *RcsId = "$Id$\n$Name$";
 #else
 #include <iomanip>
 #endif
-                                                      
+
 using namespace CORBA;
 
 namespace Tango
@@ -268,7 +268,7 @@ DbDatum::~DbDatum()
 //
 //-----------------------------------------------------------------------------
 
-DbDatum::DbDatum(const DbDatum &source) 
+DbDatum::DbDatum(const DbDatum &source)
 {
 	name = source.name;
 	value_string = source.value_string;
@@ -357,8 +357,8 @@ void DbDatum::operator << (bool datum)
 bool DbDatum::operator >> (bool &datum)
 {
 	bool ret;
-	
-	if (value_string.size() == 0) 
+
+	if (value_string.size() == 0)
 	{
 		if (exceptions_flags.test(isempty_flag))
 		{
@@ -375,7 +375,7 @@ bool DbDatum::operator >> (bool &datum)
 			  value_string[0].end(),
 			  value_string[0].begin(),
 			  ::tolower);
-			  
+
 #ifdef STRSTREAM
 		ret = true;
 		if (value_string[0] == "true")
@@ -409,7 +409,7 @@ bool DbDatum::operator >> (bool &datum)
 			ret = true;
 #endif /* STRSTREAM */
 	}
-	
+
 	return ret;
 }
 
@@ -449,8 +449,8 @@ void DbDatum::operator << (short datum)
 bool DbDatum::operator >> (short &datum)
 {
 	bool ret;
-	
-	if (value_string.size() == 0) 
+
+	if (value_string.size() == 0)
 	{
 		if (exceptions_flags.test(isempty_flag))
 		{
@@ -482,7 +482,7 @@ bool DbDatum::operator >> (short &datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -521,13 +521,13 @@ void DbDatum::operator << (unsigned char datum)
 bool DbDatum::operator >> (unsigned char& datum)
 {
 	bool ret;
-	if (value_string.size() == 0) 
+	if (value_string.size() == 0)
 	{
 		if (exceptions_flags.test(isempty_flag))
 		{
 			ApiDataExcept::throw_exception((const char*)"API_EmptyDbDatum",
 					     (const char*)"cannot extract unsigned short, no data in DbDatum object ",
-					     (const char*)"DbDatum::operator >>(unsigned short)");
+					     (const char*)"DbDatum::operator >>(unsigned char)");
 		}
 		ret = false;
 	}
@@ -552,7 +552,7 @@ bool DbDatum::operator >> (unsigned char& datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -591,7 +591,7 @@ void DbDatum::operator << (unsigned short datum)
 bool DbDatum::operator >> (unsigned short& datum)
 {
 	bool ret;
-	if (value_string.size() == 0) 
+	if (value_string.size() == 0)
 	{
 		if (exceptions_flags.test(isempty_flag))
 		{
@@ -622,7 +622,7 @@ bool DbDatum::operator >> (unsigned short& datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -692,7 +692,7 @@ bool DbDatum::operator >> (DevLong& datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -762,7 +762,7 @@ bool DbDatum::operator >> (DevULong& datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -832,7 +832,7 @@ bool DbDatum::operator >> (DevLong64 &datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -902,7 +902,7 @@ bool DbDatum::operator >> (DevULong64 &datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -972,7 +972,7 @@ bool DbDatum::operator >> (float& datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -993,7 +993,7 @@ void DbDatum::operator << (double datum)
 	ostream << std::setprecision(15) << datum;
 #ifdef STRSTREAM
 	ostream << ends;
-#endif /* STRSTREAM */ 
+#endif /* STRSTREAM */
 #else
 	ostream << setprecision(15) << datum;
 #ifdef STRSTREAM
@@ -1049,7 +1049,7 @@ bool DbDatum::operator >> (double& datum)
 		else
 			ret = true;
 	}
-	
+
 	return ret;
 
 }
@@ -1092,7 +1092,7 @@ bool DbDatum::operator >> (string& datum)
 		datum = value_string[0];
 		ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -1164,7 +1164,7 @@ bool DbDatum::operator >> (const char*& datum)
 		datum = value_string[0].c_str();
 		ret = true;
 	}
-	
+
 	return ret;
 }
 
@@ -1230,7 +1230,7 @@ bool DbDatum::operator >> (vector<short>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1250,7 +1250,7 @@ bool DbDatum::operator >> (vector<short>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1316,7 +1316,7 @@ bool DbDatum::operator >> (vector<unsigned short>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1336,7 +1336,7 @@ bool DbDatum::operator >> (vector<unsigned short>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1402,7 +1402,7 @@ bool DbDatum::operator >> (vector<DevLong>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1422,7 +1422,7 @@ bool DbDatum::operator >> (vector<DevLong>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1488,7 +1488,7 @@ bool DbDatum::operator >> (vector<DevULong>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1508,7 +1508,7 @@ bool DbDatum::operator >> (vector<DevULong>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1574,7 +1574,7 @@ bool DbDatum::operator >> (vector<DevLong64>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1594,7 +1594,7 @@ bool DbDatum::operator >> (vector<DevLong64>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1660,7 +1660,7 @@ bool DbDatum::operator >> (vector<DevULong64>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1680,7 +1680,7 @@ bool DbDatum::operator >> (vector<DevULong64>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1746,7 +1746,7 @@ bool DbDatum::operator >> (vector<float>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> datum[i];
 			if (!iostream)
@@ -1766,7 +1766,7 @@ bool DbDatum::operator >> (vector<float>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1790,7 +1790,7 @@ void DbDatum::operator << (vector<double>& datum)
 #ifdef STRSTREAM
 		ostream << ends;
 #endif
-		
+
 		value_string[i] = ostream.str();
 #ifdef STRSTREAM
 		ostream.rdbuf()->freeze(false);
@@ -1833,7 +1833,7 @@ bool DbDatum::operator >> (vector<double>& datum)
 		datum.resize(value_string.size());
 		for (unsigned int i=0; i<value_string.size(); i++)
 		{
-			iostream.seekp (0); iostream.seekg(0); iostream.clear(); 
+			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
 			iostream >> std::setprecision(15) >> datum[i];
 			if (!iostream)
@@ -1853,7 +1853,7 @@ bool DbDatum::operator >> (vector<double>& datum)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1902,7 +1902,7 @@ bool DbDatum::operator >> (vector<string>& datum)
 			datum[i] = value_string[i];
 		}
 	}
-	
+
 	return ret;
 }
 
