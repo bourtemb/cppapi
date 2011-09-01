@@ -3962,6 +3962,12 @@ void WAttribute::set_max_value(Tango::DevDouble &new_val)
 	}
 
 //
+// Set the max_value flag
+//
+
+    check_max_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4015,6 +4021,12 @@ void WAttribute::set_max_value(Tango::DevShort &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the max_value flag
+//
+
+    check_max_value = true;
 
 //
 // Store new value as a string
@@ -4072,6 +4084,12 @@ void WAttribute::set_max_value(Tango::DevLong &new_val)
 	}
 
 //
+// Set the max_value flag
+//
+
+    check_max_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4125,6 +4143,12 @@ void WAttribute::set_max_value(Tango::DevLong64 &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the max_value flag
+//
+
+    check_max_value = true;
 
 //
 // Store new value as a string
@@ -4183,6 +4207,12 @@ void WAttribute::set_max_value(Tango::DevFloat &new_val)
 	}
 
 //
+// Set the max_value flag
+//
+
+    check_max_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4236,6 +4266,12 @@ void WAttribute::set_max_value(Tango::DevUShort &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the max_value flag
+//
+
+    check_max_value = true;
 
 //
 // Store new value as a string
@@ -4294,6 +4330,12 @@ void WAttribute::set_max_value(Tango::DevUChar &new_val)
 	}
 
 //
+// Set the max_value flag
+//
+
+    check_max_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4349,6 +4391,12 @@ void WAttribute::set_max_value(Tango::DevULong &new_val)
 	}
 
 //
+// Set the max_value flag
+//
+
+    check_max_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4402,6 +4450,12 @@ void WAttribute::set_max_value(Tango::DevULong64 &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the max_value flag
+//
+
+    check_max_value = true;
 
 //
 // Store new value as a string
@@ -4467,6 +4521,12 @@ void WAttribute::set_min_value(Tango::DevDouble &new_val)
 	}
 
 //
+// Set the min_value flag
+//
+
+    check_min_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4520,6 +4580,12 @@ void WAttribute::set_min_value(Tango::DevShort &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the min_value flag
+//
+
+    check_min_value = true;
 
 //
 // Store new value as a string
@@ -4577,6 +4643,12 @@ void WAttribute::set_min_value(Tango::DevLong &new_val)
 	}
 
 //
+// Set the min_value flag
+//
+
+    check_min_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4630,6 +4702,12 @@ void WAttribute::set_min_value(Tango::DevLong64 &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the min_value flag
+//
+
+    check_min_value = true;
 
 //
 // Store new value as a string
@@ -4687,6 +4765,12 @@ void WAttribute::set_min_value(Tango::DevFloat &new_val)
 	}
 
 //
+// Set the min_value flag
+//
+
+    check_min_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4740,6 +4824,12 @@ void WAttribute::set_min_value(Tango::DevUShort &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the min_value flag
+//
+
+    check_min_value = true;
 
 //
 // Store new value as a string
@@ -4798,6 +4888,12 @@ void WAttribute::set_min_value(Tango::DevUChar &new_val)
 	}
 
 //
+// Set the min_value flag
+//
+
+    check_min_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4853,6 +4949,12 @@ void WAttribute::set_min_value(Tango::DevULong &new_val)
 	}
 
 //
+// Set the min_value flag
+//
+
+    check_min_value = true;
+
+//
 // Store new value as a string
 //
 
@@ -4906,6 +5008,12 @@ void WAttribute::set_min_value(Tango::DevULong64 &new_val)
 			throw;
 		}
 	}
+
+//
+// Set the min_value flag
+//
+
+    check_min_value = true;
 
 //
 // Store new value as a string
