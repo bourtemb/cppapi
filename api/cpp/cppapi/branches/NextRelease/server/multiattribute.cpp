@@ -109,6 +109,8 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 // before we reach this code.
 //
 
+    cout4 << nb_attr << " attribute(s)" << endl;
+
 	if (nb_attr != 0)
 	{
 		Tango::Util *tg = Tango::Util::instance();
@@ -119,12 +121,18 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 			for (i = 0;i < nb_attr;i++)
 				db_list.push_back(DbDatum(tmp_attr_list[i]->get_name()));
 
+            int old_db_timeout = tg->get_database()->get_timeout_millis();
 			try
 			{
+			    tg->get_database()->set_timeout_millis(5000);
 				tg->get_database()->get_device_attribute_property(dev_name,db_list,tg->get_db_cache());
+				tg->get_database()->set_timeout_millis(old_db_timeout);
 			}
 			catch (Tango::DevFailed &)
 			{
+			    cout4 << "Exception while accessing database" << endl;
+
+				tg->get_database()->set_timeout_millis(old_db_timeout);
 				TangoSys_OMemStream o;
 				o << "Can't get device attribute properties for device " << dev_name << ends;
 
