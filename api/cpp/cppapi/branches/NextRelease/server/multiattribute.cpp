@@ -124,7 +124,7 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
             int old_db_timeout = tg->get_database()->get_timeout_millis();
 			try
 			{
-			    tg->get_database()->set_timeout_millis(5000);
+			    tg->get_database()->set_timeout_millis(10000);
 				tg->get_database()->get_device_attribute_property(dev_name,db_list,tg->get_db_cache());
 				tg->get_database()->set_timeout_millis(old_db_timeout);
 			}
