@@ -939,6 +939,8 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 	{
 		try
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "Before check_and_reconnect in command_inout" << endl;
 			check_and_reconnect(local_source,local_act);
 
 //
@@ -949,6 +951,8 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 
 			if (local_act == ACCESS_READ)
 			{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "local_act = ACCESS_READ" << endl;
 				int db_num;
 				ApiUtil *au = ApiUtil::instance();
 
@@ -1012,6 +1016,8 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 // Now, try to execute the command
 //
 
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "Going to do the command" << endl;
 			CORBA::Any *received;
 			if (version >= 4)
 			{
@@ -1028,6 +1034,8 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 
 			ctr = 2;
 			data_out.any = received;
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "Command is a sucess!!" << endl;
 		}
 		catch (Tango::ConnectionFailed &e)
 		{
@@ -1125,6 +1133,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 	{
 		try
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Going to call check_and_reconnect" << endl;
 			check_and_reconnect(local_source,local_act);
 
 //
@@ -1135,6 +1145,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 
 			if (local_act == ACCESS_READ)
 			{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) local_act = ACCESS_READ" << endl;
 				int db_num;
 				ApiUtil *au = ApiUtil::instance();
 
@@ -1193,7 +1205,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 				}
 			}
 
-
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Going to call db" << endl;
 			if (version >= 4)
 			{
 				ClntIdent ci;
@@ -1210,6 +1223,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 		}
 		catch (Tango::ConnectionFailed &e)
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Exception1" << endl;
 			TangoSys_OMemStream desc;
 			desc << "Failed to execute command_inout on device " << dev_name();
 			desc << ", command " << command << ends;
@@ -1218,6 +1233,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 		}
 		catch (Tango::DevFailed &e)
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Exception2" << endl;
 			TangoSys_OMemStream desc;
 			desc << "Failed to execute command_inout on device " << dev_name();
 			desc << ", command " << command << ends;
@@ -1231,10 +1248,14 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 		}
 		catch (CORBA::TRANSIENT &trans)
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Exception3" << endl;
 			TRANSIENT_NOT_EXIST_EXCEPT_CMD(trans);
 		}
 		catch (CORBA::OBJECT_NOT_EXIST &one)
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Exception4" << endl;
 			if (one.minor() == omni::OBJECT_NOT_EXIST_NoMatch)
 			{
 				TRANSIENT_NOT_EXIST_EXCEPT_CMD(one);
@@ -1253,6 +1274,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 		}
 		catch (CORBA::COMM_FAILURE &comm)
 		{
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Exception5" << endl;
 			if (comm.minor() == omni::COMM_FAILURE_WaitingForReply)
 			{
 				TRANSIENT_NOT_EXIST_EXCEPT_CMD(comm);
@@ -1271,6 +1294,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 		}
         catch (CORBA::SystemException &ce)
         {
+if (command == "DbGetDeviceAttributeProperty2")
+	cout4 << "(Any) Exception6" << endl;
 			set_connection_state(CONNECTION_NOTOK);
 
 			TangoSys_OMemStream desc;
