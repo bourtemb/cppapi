@@ -1365,7 +1365,7 @@ cout4 << "Returned from check_access_and_get" << endl;
 		{
 			try
 			{
-cout4 << "Going to call DB server" << endl;
+cout4 << "Going to call DB server with version = " << serv_version << endl;
 				if (serv_version >= 230)
 				{
 					CALL_DB_SERVER("DbGetDeviceAttributeProperty2",send,received);
