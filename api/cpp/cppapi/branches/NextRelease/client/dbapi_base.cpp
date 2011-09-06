@@ -1333,9 +1333,7 @@ void Database::get_device_attribute_property(string dev, DbData &db_data, DbServ
 	Any_var received;
 	const DevVarStringArray *property_values;
 
-cout4 << "Going to call check_access_and_get" << endl;
 	check_access_and_get();
-cout4 << "Returned from check_access_and_get" << endl;
 
 	DevVarStringArray *property_names = new DevVarStringArray;
 	property_names->length(db_data.size()+1);
@@ -1365,18 +1363,15 @@ cout4 << "Returned from check_access_and_get" << endl;
 		{
 			try
 			{
-cout4 << "Going to call DB server with version = " << serv_version << endl;
 				if (serv_version >= 230)
 				{
 					CALL_DB_SERVER("DbGetDeviceAttributeProperty2",send,received);
 				}
 				else
 					CALL_DB_SERVER("DbGetDeviceAttributeProperty",send,received);
-cout4 << "After DB server call" << endl;
 			}
 			catch (Tango::DevFailed &)
 			{
-cout4 << "DB server call failed" << endl;
 				throw;
 			}
 		}
