@@ -121,10 +121,16 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 			for (i = 0;i < nb_attr;i++)
 				db_list.push_back(DbDatum(tmp_attr_list[i]->get_name()));
 
+//
+// On some small and old computers, this request could take time if at the same time
+// some other processes also access the device attribute properties table.
+// This has been experimented at ESRF. Increase timeout to cover this case
+//
+
             int old_db_timeout = tg->get_database()->get_timeout_millis();
 			try
 			{
-			    tg->get_database()->set_timeout_millis(10000);
+			    tg->get_database()->set_timeout_millis(5000);
 				tg->get_database()->get_device_attribute_property(dev_name,db_list,tg->get_db_cache());
 				tg->get_database()->set_timeout_millis(old_db_timeout);
 			}
