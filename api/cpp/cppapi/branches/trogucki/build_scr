@@ -1,7 +1,7 @@
 #!/bin/bash
 
-UX_INSTALL_DIR="/tmp/ci"
-WIN_INSTALL_DIR="C:\tango_src\ci"
+UX_INSTALL_DIR="/tmp/ci/trogucki"
+WIN_INSTALL_DIR="C:\tango_src\ci\trogucki"
 
 #
 # Is clean required ?
@@ -140,12 +140,14 @@ then
 	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 	echo $PATH
 	export PREFIX=$INSTALL_DIR
-	cd NextRelease/win32/tango_vc9
+# branch dependent path:
+	cd trogucki/win32/tango_vc9
 	/bin/rm -f $OUTFILE
 else
 	MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $CLEAN $LIBNAME install_include install_link"
 
-	cd NextRelease
+# branch dependent path:
+	cd trogucki
 fi
 
 echo $MAKE_CMD
