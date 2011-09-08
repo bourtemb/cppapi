@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
-				AdditionalIncludeDirectories="..\..\..\server;..\..\..\client;..\..\..\server\jpeg;..\..\resources;&quot;$(OMNI_BASE)\win32_dll\include&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\include&quot;"
+				AdditionalIncludeDirectories="..\..\..\server;..\..\..\client;..\..\..\server\jpeg;..\..\resources;&quot;$(OMNI_BASE)\win32_dll\include&quot;;&quot;$(ZMQ_BASE)\win32\include\vc9&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;LOG4TANGO_HAS_DLL;_TANGO_LIB;_CRT_SECURE_NO_DEPRECATE;JPG_USE_ASM;"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -77,12 +77,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="log4tango.lib omniorb415_rt.lib omnidynamic415_rt.lib omnithread34_rt.lib COS415_rt.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="log4tango.lib omniorb415_rt.lib omnidynamic415_rt.lib omnithread34_rt.lib COS415_rt.lib zmq.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
 				OutputFile="$(PREFIX)\win32\lib\vc9_dll\tango727.dll"
 				Version="7.2.7"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(OMNI_BASE)\win32_dll\lib&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(OMNI_BASE)\win32_dll\lib&quot;;&quot;$(ZMQ_BASE)\win32\lib\vc9_dll&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\lib&quot;"
 				ModuleDefinitionFile="tango.def"
 				ProgramDatabaseFile=".\Release/tango726.pdb"
 				RandomizedBaseAddress="1"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;..\..\..\server;..\..\..\client;..\..\..\server\jpeg;..\..\resources;&quot;$(OMNI_BASE)\win32_dll\include&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\include&quot;"
+				AdditionalIncludeDirectories="..;..\..\..\server;..\..\..\client;..\..\..\server\jpeg;..\..\resources;&quot;$(OMNI_BASE)\win32_dll\include&quot;;&quot;$(ZMQ_BASE)\win32\include\vc9&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_TANGO_LIB;LOG4TANGO_HAS_DLL;JPG_USE_ASM;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -177,12 +177,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="log4tangod.lib omniORB415_rtd.lib omniDynamic415_rtd.lib COS415_rtd.lib omnithread34_rtd.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="log4tangod.lib omniORB415_rtd.lib omniDynamic415_rtd.lib COS415_rtd.lib omnithread34_rtd.lib zmqd.lib ws2_32.lib mswsock.lib comctl32.lib odbc32.lib odbccp32.lib"
 				ShowProgress="2"
 				OutputFile="$(PREFIX)\win32\lib\vc9_dll\tango727d.dll"
 				Version="7.2.7"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OMNI_BASE)\win32_dll\lib&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(ZMQ_BASE)\win32\lib\vc9_dll&quot;;&quot;$(OMNI_BASE)\win32_dll\lib&quot;;&quot;$(LOG4TANGO_BASE)\win32_dll\lib&quot;"
 				ModuleDefinitionFile="tango.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/tango727d.pdb"
@@ -2011,11 +2011,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\idl\tango.h"
+				RelativePath="..\..\..\server\tango.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\tango.h"
+				RelativePath="..\..\..\server\idl\tango.h"
 				>
 			</File>
 			<File
