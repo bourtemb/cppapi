@@ -1734,8 +1734,10 @@ void PollThread::poll_attr(WorkItem &to_do)
 // and if there is an event (on_change, on_alarm or periodic)
 //
 
-	NotifdEventSupplier *event_supplier;
-	event_supplier = Util::instance()->get_notifd_event_supplier();
+	EventSupplier *event_supplier;
+//	event_supplier = Util::instance()->get_notifd_event_supplier();
+	event_supplier = Util::instance()->get_zmq_event_supplier();
+	
 	if (event_supplier != NULL)
 	{
 		if (attr_failed == true)
@@ -1750,6 +1752,7 @@ void PollThread::poll_attr(WorkItem &to_do)
             else
                 ad.attr_val = &dummy_att;
 
+cout << "CAlling detect_and_push() error" << endl;
             event_supplier->detect_and_push_events(to_do.dev,
 						       	       ad,
 						               save_except,
@@ -1768,6 +1771,7 @@ void PollThread::poll_attr(WorkItem &to_do)
             else
                 ad.attr_val = &((*argout)[0]);
 
+cout << "CAlling detect_and_push()" << endl;
             event_supplier->detect_and_push_events(to_do.dev,
 						       	               ad,
 						                       save_except,

@@ -3038,7 +3038,7 @@ void rel_attr_mutex() {if (mut_ptr != NULL){mut_ptr->unlock();mut_ptr=NULL;}}
     DevErrorList err_list;
 
 // Added by ET for LockedAttributeValue_4 class
-omni_mutex *mut_ptr;   
+omni_mutex *mut_ptr;    
 
     void operator>>= (cdrStream &) const;
     void operator<<= (cdrStream &);
@@ -5014,8 +5014,8 @@ omni_mutex *mut_ptr;
     DevAttrHistoryList_3_out& operator=(const DevAttrHistoryList_3_var&);
   };
 
-  struct ZmqObjectInfo {
-    typedef _CORBA_ConstrType_Variable_Var<ZmqObjectInfo> _var_type;
+  struct ZmqCallInfo {
+    typedef _CORBA_ConstrType_Variable_Var<ZmqCallInfo> _var_type;
 
     
     ::CORBA::Long version;
@@ -5024,17 +5024,19 @@ omni_mutex *mut_ptr;
 
     DevVarCharArray oid;
 
+    ::CORBA::Boolean call_is_except;
+
   
 
     void operator>>= (cdrStream &) const;
     void operator<<= (cdrStream &);
   };
 
-  typedef ZmqObjectInfo::_var_type ZmqObjectInfo_var;
+  typedef ZmqCallInfo::_var_type ZmqCallInfo_var;
 
-  typedef _CORBA_ConstrType_Variable_OUT_arg< ZmqObjectInfo,ZmqObjectInfo_var > ZmqObjectInfo_out;
+  typedef _CORBA_ConstrType_Variable_OUT_arg< ZmqCallInfo,ZmqCallInfo_var > ZmqCallInfo_out;
 
-  _CORBA_MODULE_VAR _dyn_attr const ::CORBA::TypeCode_ptr _tc_ZmqObjectInfo;
+  _CORBA_MODULE_VAR _dyn_attr const ::CORBA::TypeCode_ptr _tc_ZmqCallInfo;
 
 #ifndef __Tango_mDevice__
 #define __Tango_mDevice__
@@ -6099,10 +6101,10 @@ void operator<<=(::CORBA::Any& _a, Tango::DevAttrHistoryList_3* _sp);
 _CORBA_Boolean operator>>=(const ::CORBA::Any& _a, Tango::DevAttrHistoryList_3*& _sp);
 _CORBA_Boolean operator>>=(const ::CORBA::Any& _a, const Tango::DevAttrHistoryList_3*& _sp);
 
-extern void operator<<=(::CORBA::Any& _a, const Tango::ZmqObjectInfo& _s);
-extern void operator<<=(::CORBA::Any& _a, Tango::ZmqObjectInfo* _sp);
-extern _CORBA_Boolean operator>>=(const ::CORBA::Any& _a, Tango::ZmqObjectInfo*& _sp);
-extern _CORBA_Boolean operator>>=(const ::CORBA::Any& _a, const Tango::ZmqObjectInfo*& _sp);
+extern void operator<<=(::CORBA::Any& _a, const Tango::ZmqCallInfo& _s);
+extern void operator<<=(::CORBA::Any& _a, Tango::ZmqCallInfo* _sp);
+extern _CORBA_Boolean operator>>=(const ::CORBA::Any& _a, Tango::ZmqCallInfo*& _sp);
+extern _CORBA_Boolean operator>>=(const ::CORBA::Any& _a, const Tango::ZmqCallInfo*& _sp);
 
 void operator<<=(::CORBA::Any& _a, Tango::Device_ptr _s);
 void operator<<=(::CORBA::Any& _a, Tango::Device_ptr* _s);

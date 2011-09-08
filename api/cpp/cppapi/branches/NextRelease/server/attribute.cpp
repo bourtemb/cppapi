@@ -8022,7 +8022,6 @@ void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 
 	}
 
-	prop << new_value.db;
 	db_data.push_back(att);
 	db_data.push_back(prop);
 

@@ -110,7 +110,7 @@ CORBA::Any *DevRestartCmd::execute(DeviceImpl *device, const CORBA::Any &in_any)
 // return to the caller
 //
 
-	CORBA::Any *ret = return_empty_any("DevKillCmd");
+	CORBA::Any *ret = return_empty_any("DevRestartCmd");
 	return ret;
 }
 

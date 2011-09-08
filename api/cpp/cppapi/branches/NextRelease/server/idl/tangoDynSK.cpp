@@ -1691,24 +1691,25 @@ namespace Tango {
 const ::CORBA::TypeCode_ptr Tango::_tc_DevAttrHistoryList_3 = _0RL_tc_Tango_mDevAttrHistoryList__3;
 #endif
 
-static CORBA::PR_structMember _0RL_structmember_Tango_mZmqObjectInfo[] = {
+static CORBA::PR_structMember _0RL_structmember_Tango_mZmqCallInfo[] = {
   {"version", CORBA::TypeCode::PR_long_tc()},
   {"method_name", CORBA::TypeCode::PR_string_tc(0, &_0RL_tcTrack)},
-  {"oid", _0RL_tc_Tango_mDevVarCharArray}
+  {"oid", _0RL_tc_Tango_mDevVarCharArray},
+  {"call_is_except", CORBA::TypeCode::PR_boolean_tc()}
 };
 
-#ifdef _0RL_tc_Tango_mZmqObjectInfo
-#  undef _0RL_tc_Tango_mZmqObjectInfo
+#ifdef _0RL_tc_Tango_mZmqCallInfo
+#  undef _0RL_tc_Tango_mZmqCallInfo
 #endif
-static CORBA::TypeCode_ptr _0RL_tc_Tango_mZmqObjectInfo = CORBA::TypeCode::PR_struct_tc("IDL:Tango/ZmqObjectInfo:1.0", "ZmqObjectInfo", _0RL_structmember_Tango_mZmqObjectInfo, 3, &_0RL_tcTrack);
+static CORBA::TypeCode_ptr _0RL_tc_Tango_mZmqCallInfo = CORBA::TypeCode::PR_struct_tc("IDL:Tango/ZmqCallInfo:1.0", "ZmqCallInfo", _0RL_structmember_Tango_mZmqCallInfo, 4, &_0RL_tcTrack);
 
 #if defined(HAS_Cplusplus_Namespace) && defined(_MSC_VER)
 // MSVC++ does not give the constant external linkage otherwise.
 namespace Tango { 
-  const ::CORBA::TypeCode_ptr _tc_ZmqObjectInfo = _0RL_tc_Tango_mZmqObjectInfo;
+  const ::CORBA::TypeCode_ptr _tc_ZmqCallInfo = _0RL_tc_Tango_mZmqCallInfo;
 } 
 #else
-const ::CORBA::TypeCode_ptr Tango::_tc_ZmqObjectInfo = _0RL_tc_Tango_mZmqObjectInfo;
+const ::CORBA::TypeCode_ptr Tango::_tc_ZmqCallInfo = _0RL_tc_Tango_mZmqCallInfo;
 #endif
 
 
@@ -5375,52 +5376,52 @@ void operator<<=(::CORBA::Any& _a, Tango::DevAttrHistoryList_3* _sp)
   return 0;
 }
 
-static void _0RL_Tango_mZmqObjectInfo_marshal_fn(cdrStream& _s, void* _v)
+static void _0RL_Tango_mZmqCallInfo_marshal_fn(cdrStream& _s, void* _v)
 {
-  Tango::ZmqObjectInfo* _p = (Tango::ZmqObjectInfo*)_v;
+  Tango::ZmqCallInfo* _p = (Tango::ZmqCallInfo*)_v;
   *_p >>= _s;
 }
-static void _0RL_Tango_mZmqObjectInfo_unmarshal_fn(cdrStream& _s, void*& _v)
+static void _0RL_Tango_mZmqCallInfo_unmarshal_fn(cdrStream& _s, void*& _v)
 {
-  Tango::ZmqObjectInfo* _p = new Tango::ZmqObjectInfo;
+  Tango::ZmqCallInfo* _p = new Tango::ZmqCallInfo;
   *_p <<= _s;
   _v = _p;
 }
-static void _0RL_Tango_mZmqObjectInfo_destructor_fn(void* _v)
+static void _0RL_Tango_mZmqCallInfo_destructor_fn(void* _v)
 {
-  Tango::ZmqObjectInfo* _p = (Tango::ZmqObjectInfo*)_v;
+  Tango::ZmqCallInfo* _p = (Tango::ZmqCallInfo*)_v;
   delete _p;
 }
 
-void operator<<=(::CORBA::Any& _a, const Tango::ZmqObjectInfo& _s)
+void operator<<=(::CORBA::Any& _a, const Tango::ZmqCallInfo& _s)
 {
-  Tango::ZmqObjectInfo* _p = new Tango::ZmqObjectInfo(_s);
-  _a.PR_insert(_0RL_tc_Tango_mZmqObjectInfo,
-               _0RL_Tango_mZmqObjectInfo_marshal_fn,
-               _0RL_Tango_mZmqObjectInfo_destructor_fn,
+  Tango::ZmqCallInfo* _p = new Tango::ZmqCallInfo(_s);
+  _a.PR_insert(_0RL_tc_Tango_mZmqCallInfo,
+               _0RL_Tango_mZmqCallInfo_marshal_fn,
+               _0RL_Tango_mZmqCallInfo_destructor_fn,
                _p);
 }
-void operator<<=(::CORBA::Any& _a, Tango::ZmqObjectInfo* _sp)
+void operator<<=(::CORBA::Any& _a, Tango::ZmqCallInfo* _sp)
 {
-  _a.PR_insert(_0RL_tc_Tango_mZmqObjectInfo,
-               _0RL_Tango_mZmqObjectInfo_marshal_fn,
-               _0RL_Tango_mZmqObjectInfo_destructor_fn,
+  _a.PR_insert(_0RL_tc_Tango_mZmqCallInfo,
+               _0RL_Tango_mZmqCallInfo_marshal_fn,
+               _0RL_Tango_mZmqCallInfo_destructor_fn,
                _sp);
 }
 
-::CORBA::Boolean operator>>=(const ::CORBA::Any& _a, Tango::ZmqObjectInfo*& _sp)
+::CORBA::Boolean operator>>=(const ::CORBA::Any& _a, Tango::ZmqCallInfo*& _sp)
 {
-  return _a >>= (const Tango::ZmqObjectInfo*&) _sp;
+  return _a >>= (const Tango::ZmqCallInfo*&) _sp;
 }
-::CORBA::Boolean operator>>=(const ::CORBA::Any& _a, const Tango::ZmqObjectInfo*& _sp)
+::CORBA::Boolean operator>>=(const ::CORBA::Any& _a, const Tango::ZmqCallInfo*& _sp)
 {
   void* _v;
-  if (_a.PR_extract(_0RL_tc_Tango_mZmqObjectInfo,
-                    _0RL_Tango_mZmqObjectInfo_unmarshal_fn,
-                    _0RL_Tango_mZmqObjectInfo_marshal_fn,
-                    _0RL_Tango_mZmqObjectInfo_destructor_fn,
+  if (_a.PR_extract(_0RL_tc_Tango_mZmqCallInfo,
+                    _0RL_Tango_mZmqCallInfo_unmarshal_fn,
+                    _0RL_Tango_mZmqCallInfo_marshal_fn,
+                    _0RL_Tango_mZmqCallInfo_destructor_fn,
                     _v)) {
-    _sp = (const Tango::ZmqObjectInfo*)_v;
+    _sp = (const Tango::ZmqCallInfo*)_v;
     return 1;
   }
   return 0;

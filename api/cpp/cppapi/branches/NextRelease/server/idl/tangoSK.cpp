@@ -1045,20 +1045,22 @@ Tango::DevCmdHistory_4::operator<<= (cdrStream &_n)
 }
 
 void
-Tango::ZmqObjectInfo::operator>>= (cdrStream &_n) const
+Tango::ZmqCallInfo::operator>>= (cdrStream &_n) const
 {
   version >>= _n;
   _n.marshalString(method_name,0);
   (const DevVarCharArray&) oid >>= _n;
+  _n.marshalBoolean(call_is_except);
 
 }
 
 void
-Tango::ZmqObjectInfo::operator<<= (cdrStream &_n)
+Tango::ZmqCallInfo::operator<<= (cdrStream &_n)
 {
   (::CORBA::Long&)version <<= _n;
   method_name = _n.unmarshalString(0);
   (DevVarCharArray&)oid <<= _n;
+  call_is_except = _n.unmarshalBoolean();
 
 }
 

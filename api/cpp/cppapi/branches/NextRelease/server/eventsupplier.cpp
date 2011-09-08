@@ -294,6 +294,7 @@ void EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct 
         else
             filterable_data.push_back((double)0.0);
 
+cout << "Calling push_event !!!!!!!!!!!" << endl;
         push_event(device_impl,
                "change",
                filterable_names,

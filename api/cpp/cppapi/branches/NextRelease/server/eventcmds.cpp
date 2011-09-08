@@ -442,6 +442,12 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
     DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower);
 
 //
+// Create the event publisher socket (if not already done)
+//
+
+    ev->create_event_socket();
+
+//
 // Init data returned by command
 //
 
@@ -452,9 +458,10 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
 	ret_data->lvalue[1] = dev->get_dev_idl_version();
 
-    string &heart_ep = ev->get_heartbeat_endpoint();
-	ret_data->svalue[0] = CORBA::string_dup(heart_ep.c_str());
-	ret_data->svalue[1] = CORBA::string_dup("Bonjour");
+    string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
+	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
+	string &event_endpoint = ev->get_event_endpoint();
+	ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
 
 	return ret_data;
 }

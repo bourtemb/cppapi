@@ -54,6 +54,8 @@
 
 #include <readers_writers_lock.h>
 
+#include <zmq.hpp>
+
 
 namespace Tango
 {
@@ -369,12 +371,18 @@ typedef struct event_callback_base
 	string 							attr_name;
 	string 							event_name;
 	string 							channel_name;
+	string                          fully_qualified_event_name;
 	time_t 							last_subscribed;
 	TangoMonitor					*callback_monitor;
 	vector<EventSubscribeStruct>	callback_list;
 } EventCallBackBase;
 
-typedef struct event_callback: public EventCallBackBase
+typedef struct event_callback_zmq
+{
+    DevLong                         device_idl;
+}EventCallBackZmq;
+
+typedef struct event_callback: public EventCallBackBase, public EventCallBackZmq
 {
 	string 							filter_constraint;
 	CosNotifyFilter::FilterID 		filter_id;
@@ -431,7 +439,7 @@ public :
 	virtual ~EventConsumer() {}
 
 	int connect_event(DeviceProxy *,const string &,EventType,CallBack *,EventQueue *,const vector<string> &,string &,int event_id = 0);
-	void connect(DeviceProxy *,string &);
+	void connect(DeviceProxy *,string &,DeviceData &,string &);
 
 	void shutdown();
 	void shutdown_keep_alive_thread();
@@ -455,8 +463,8 @@ public :
 	bool is_event_queue_empty(int event_id);
 
 
-	static KeepAliveThCmd                   cmd;
-	static EventConsumerKeepAliveThread 	*keep_alive_thread;
+	static KeepAliveThCmd                                   cmd;
+	static EventConsumerKeepAliveThread 	                *keep_alive_thread;
 
 protected :
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
@@ -485,8 +493,11 @@ protected :
 	int add_new_callback(EvCbIte &,CallBack *,EventQueue *,int);
 	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &,EventCallBackStruct &);
 
-	virtual void connect_event_channel(string &,Database *,bool) = 0;
-    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &) = 0;
+	virtual void connect_event_channel(string &,Database *,bool,DeviceData &) = 0;
+    virtual void disconnect_event_channel(string &channel_name) {}
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &) = 0;
+    virtual void disconnect_event(string &) {}
+
     virtual void get_subcription_command_name(string &) = 0;
     virtual void set_channel_type(EventChannelStruct &) = 0;
 };
@@ -506,7 +517,7 @@ public :
 	static NotifdEventConsumer *create();
     TANGO_IMP_EXP static void cleanup() {if (_instance != NULL){_instance=NULL;}}
 
-	virtual void push_structured_event(const CosNotification::StructuredEvent&);
+	void push_structured_event(const CosNotification::StructuredEvent&);
 	virtual void cleanup_EventChannel_map();
 
 	void disconnect_structured_push_consumer();
@@ -516,8 +527,9 @@ public :
 
 protected :
 	NotifdEventConsumer(ApiUtil *ptr);
-	virtual void connect_event_channel(string &,Database *,bool);
-    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &);
+	virtual void connect_event_channel(string &,Database *,bool,DeviceData &);
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
+
     virtual void get_subcription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = NOTIFD;}
 
@@ -552,18 +564,44 @@ public :
 
 	virtual void cleanup_EventChannel_map();
 
+	enum UserDataEventType
+	{
+	    ATT_CONF = 0,
+	    ATT_READY,
+	    ATT_VALUE
+	};
+
 protected :
 	ZmqEventConsumer(ApiUtil *ptr);
-	virtual void connect_event_channel(string &,Database *,bool);
-    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &);
+	virtual void connect_event_channel(string &,Database *,bool,DeviceData &);
+    virtual void disconnect_event_channel(string &channel_name);
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
+    virtual void disconnect_event(string &);
+
     virtual void get_subcription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
 
 private :
+	TANGO_IMP static ZmqEventConsumer       *_instance;
+	zmq::context_t                          zmq_context;            // ZMQ context
+	zmq::socket_t                           *heartbeat_sub_sock;    // heartbeat subscriber socket
+	zmq::socket_t                           *control_sock;          // control socket
+	zmq::socket_t                           *event_sub_sock;        // event subscriber socket
 
-	TANGO_IMP static ZmqEventConsumer 					   *_instance;
+    AttributeValue_var                      av;
+    AttributeValue_3_var                    av3;
+    AttributeValue_4_var                    av4;
+    AttributeConfig_2_var                   ac2;
+    AttributeConfig_3_var                   ac3;
+    AttDataReady_var                        adr;
+    DevErrorList_var                        del;
 
 	void *run_undetached(void *arg);
+	void push_heartbeat_event(string &);
+    void push_zmq_event(string &,unsigned char,zmq::message_t &,bool);
+    bool process_ctrl(zmq::message_t &);
+    void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
+    void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);
 };
 
 /********************************************************************************
