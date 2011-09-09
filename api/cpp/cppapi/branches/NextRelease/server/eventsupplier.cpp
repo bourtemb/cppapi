@@ -92,11 +92,12 @@ cout << "Initializing fqdn_prefix" << endl;
 //
 //-----------------------------------------------------------------------------
 
-void EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct AttributeData &attr_value,DevFailed *except,
+SendEventType EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct AttributeData &attr_value,DevFailed *except,
                                            string &attr_name,struct timeval *time_bef_attr)
 {
     string event, domain_name;
     time_t now, change_subscription, periodic_subscription, archive_subscription;
+    SendEventType ret;
     cout3 << "EventSupplier::detect_and_push_events(): called for attribute " << attr_name << endl;
 
     Attribute &attr = device_impl->dev_attr->get_attr_by_name(attr_name.c_str());
@@ -112,9 +113,11 @@ void EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct Attrib
 // For change event
 //
 
+    ret.change = false;
     if (change_subscription < EVENT_RESUBSCRIBE_PERIOD)
     {
-        detect_and_push_change_event(device_impl,attr_value,attr,attr_name,except);
+        if (detect_and_push_change_event(device_impl,attr_value,attr,attr_name,except) == true)
+            ret.change = true;
     }
 	else
 		attr.ext->event_change_client_3 = false;
@@ -123,9 +126,11 @@ void EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct Attrib
 // For periodic event
 //
 
+    ret.periodic = false;
     if (periodic_subscription < EVENT_RESUBSCRIBE_PERIOD)
     {
-        detect_and_push_periodic_event(device_impl,attr_value,attr,attr_name,except,time_bef_attr);
+        if (detect_and_push_periodic_event(device_impl,attr_value,attr,attr_name,except,time_bef_attr) == true)
+            ret.periodic = true;
     }
 	else
 		attr.ext->event_periodic_client_3 = false;
@@ -134,12 +139,16 @@ void EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct Attrib
 // For archive event
 //
 
+    ret.archive = false;
     if (archive_subscription < EVENT_RESUBSCRIBE_PERIOD)
     {
-        detect_and_push_archive_event(device_impl,attr_value,attr,attr_name,except,time_bef_attr);
+        if (detect_and_push_archive_event(device_impl,attr_value,attr,attr_name,except,time_bef_attr) == true)
+            ret.archive = true;
     }
 	else
 		attr.ext->event_archive_client_3 = false;
+
+    return ret;
 }
 
 //+----------------------------------------------------------------------------
@@ -159,7 +168,7 @@ void EventSupplier::detect_and_push_events(DeviceImpl *device_impl,struct Attrib
 //
 //-----------------------------------------------------------------------------
 
-void EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct AttributeData &attr_value,
+bool EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct AttributeData &attr_value,
                      Attribute &attr,string &attr_name,DevFailed *except,bool user_push)
 {
     string event, domain_name;
@@ -168,6 +177,7 @@ void EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct 
     bool is_change      = false;
     bool force_change   = false;
     bool quality_change = false;
+    bool ret = false;
 
     cout3 << "EventSupplier::detect_and_push_change_event(): called for attribute " << attr_name << endl;
 
@@ -230,8 +240,7 @@ void EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct 
 // Fire event on a quality change.
 //
 
-    if ( except == NULL &&
-        attr.ext->prev_change_event.quality != the_quality )
+    if ((except == NULL) && (attr.ext->prev_change_event.quality != the_quality ))
     {
         is_change = true;
         quality_change = true;
@@ -304,6 +313,7 @@ cout << "Calling push_event !!!!!!!!!!!" << endl;
                attr_value,
                attr_name,
                except);
+        ret = true;
 
         if (need_free == true)
         {
@@ -315,7 +325,9 @@ cout << "Calling push_event !!!!!!!!!!!" << endl;
                 delete attr_value.attr_val;
         }
     }
+
     cout3 << "EventSupplier::detect_and_push_change_event(): leaving for attribute " << attr_name << endl;
+    return ret;
 }
 
 //+----------------------------------------------------------------------------
@@ -334,7 +346,7 @@ cout << "Calling push_event !!!!!!!!!!!" << endl;
 //
 //-----------------------------------------------------------------------------
 
-void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,AttributeData &attr_value,
+bool EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,AttributeData &attr_value,
                     Attribute &attr,string &attr_name,DevFailed *except,struct timeval *time_bef_attr,
                     bool user_push)
 {
@@ -345,6 +357,7 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 	bool force_change = false;
 	bool period_change = false;
 	bool quality_change = false;
+	bool ret = false;
 
 	cout3 << "EventSupplier::detect_and_push_archive_event(): called for attribute " << attr_name << endl;
 
@@ -577,8 +590,9 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 			   attr_value,
 			   attr_name,
 			   except);
+        ret = true;
 
-       if (need_free == true)
+        if (need_free == true)
         {
            if (attr_value.attr_val_4 != NULL)
                 delete attr_value.attr_val_4;
@@ -588,6 +602,8 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
                 delete attr_value.attr_val;
         }
 	}
+
+	return ret;
 }
 
 //+----------------------------------------------------------------------------
@@ -606,11 +622,12 @@ void EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 //
 //-----------------------------------------------------------------------------
 
-void EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struct AttributeData &attr_value,
+bool EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struct AttributeData &attr_value,
                     Attribute &attr,string &attr_name,DevFailed *except,struct timeval *time_bef_attr)
 {
 	string event, domain_name;
 	double now_ms, ms_since_last_periodic;
+	bool ret = false;
 
 	struct timeval now;
 	if (time_bef_attr == NULL)
@@ -734,6 +751,7 @@ void EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struc
 			   attr_value,
 			   attr_name,
 			   except);
+        ret = true;
 
         if (need_free == true)
         {
@@ -745,6 +763,8 @@ void EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struc
                 delete attr_value.attr_val;
         }
 	}
+
+	return ret;
 }
 
 

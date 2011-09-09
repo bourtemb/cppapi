@@ -769,6 +769,7 @@ void DServer::restart(string &d_name)
 //
 // clean the sub-device list for this device
 //
+
 	Tango::Util *tg = Tango::Util::instance();
 	tg->get_sub_dev_diag().remove_sub_devices (dev_to_del->get_name());
 	tg->get_sub_dev_diag().set_associated_device(dev_to_del->get_name());
@@ -946,6 +947,10 @@ void DServer::restart(string &d_name)
 			att.set_archive_event_sub();
 		if (eve[i].user == true)
 			att.set_user_event_sub();
+        if (eve[i].notifd == true)
+            att.set_use_notifd_event();
+        if (eve[i].zmq == true)
+            att.set_use_zmq_event();
 	}
 
 //

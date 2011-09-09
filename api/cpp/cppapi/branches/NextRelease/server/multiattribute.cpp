@@ -1096,10 +1096,10 @@ void MultiAttribute::read_alarm(string &status)
 // method : 		MultiAttribute::get_event_param
 //
 // description : 	Return event info for each attribute with events
-//			subscribed
+//			        subscribed
 //
 // in :			eve : One structure in this vector for each attribute
-//			with events subscribed
+//			          with events subscribed
 //
 //--------------------------------------------------------------------------
 
@@ -1149,6 +1149,17 @@ void MultiAttribute::get_event_param(vector<EventPar> &eve)
 		if (once_more == true)
 		{
 			EventPar ep;
+
+			if (attr_list[i]->use_notifd_event() == true)
+                ep.notifd = true;
+            else
+                ep.notifd = false;
+
+            if (attr_list[i]->use_zmq_event() == true)
+                ep.zmq = true;
+            else
+                ep.zmq = false;
+
 			ep.attr_id = i;
 			ep.change = ch;
 			ep.quality = qu;

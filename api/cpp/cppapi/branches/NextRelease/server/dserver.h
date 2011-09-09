@@ -152,7 +152,7 @@ private:
 	void add_class(DeviceClass *);
 	void create_cpp_class(const char *,const char *);
 	void get_dev_prop(Tango::Util *);
-    DeviceImpl *event_subscription(string &,string &,string &,string &,string &);
+    DeviceImpl *event_subscription(string &,string &,string &,string &,string &,ChannelType);
 
 	bool			from_constructor;
 };

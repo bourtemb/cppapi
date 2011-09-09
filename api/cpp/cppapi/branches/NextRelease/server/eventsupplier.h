@@ -106,7 +106,7 @@ public :
         const AttDataReady        *attr_dat_ready;
     };
 
-	void detect_and_push_events(DeviceImpl *,struct AttributeData &,DevFailed *,string &,struct timeval *);
+	SendEventType detect_and_push_events(DeviceImpl *,struct AttributeData &,DevFailed *,string &,struct timeval *);
 
 //------------------ Change event ---------------------------
 
@@ -114,15 +114,15 @@ public :
 
 //------------------ Detect, push change event --------------
 
-	void detect_and_push_change_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,bool user_push = false);
+	bool detect_and_push_change_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,bool user_push = false);
 
 //------------------ Detect, push archive event --------------
 
-	void detect_and_push_archive_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
+	bool detect_and_push_archive_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
 
 //------------------ Detect, push periodic event -------------
 
-	void detect_and_push_periodic_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *);
+	bool detect_and_push_periodic_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *);
 
 //------------------ Push event -------------------------------
 

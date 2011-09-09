@@ -872,6 +872,19 @@ enum MinMaxValueCheck
     MAX
 };
 
+enum ChannelType
+{
+    ZMQ = 0,
+    NOTIFD
+};
+
+typedef struct _SendEventType
+{
+	bool change;
+	bool archive;
+	bool periodic;
+}SendEventType;
+
 //
 // The optional attribute properties
 //

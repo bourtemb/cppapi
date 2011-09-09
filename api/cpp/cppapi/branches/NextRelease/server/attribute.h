@@ -189,6 +189,8 @@ public:
 	AttrSerialModel		attr_serial_model;				// Flag for attribute serialization model
 	bool				dr_event_implmented;			// Flag true if fire data ready event is implemented
 	bool				scalar_str_attr_release;		// Need memory freeing (scalar string attr, R/W att)
+	bool                notifd_event;                   // Set to true if event required using notifd
+	bool                zmq_event;                      // Set to true if event required using ZMQ
 };
 
 /**
@@ -1876,11 +1878,16 @@ public:
 	bool quality_event_subscribed() {if (ext->event_quality_subscription != 0)return true;else return false;}
 	bool user_event_subscribed() {if (ext->event_user_subscription != 0)return true;else return false;}
 
+	bool use_notifd_event() {return ext->notifd_event;}
+	bool use_zmq_event() {return ext->zmq_event;}
+
 	void set_change_event_sub() {ext->event_change_subscription=time(NULL);}
 	void set_periodic_event_sub() {ext->event_periodic_subscription=time(NULL);}
 	void set_archive_event_sub() {ext->event_archive_subscription=time(NULL);}
 	void set_quality_event_sub() {ext->event_quality_subscription=time(NULL);}
 	void set_user_event_sub() {ext->event_user_subscription=time(NULL);}
+	void set_use_notifd_event() {ext->notifd_event = true;}
+	void set_use_zmq_event() {ext->zmq_event = true;}
 
 	long get_attr_idx() {return ext->idx_in_attr;}
 	void set_attr_idx(long new_idx) {ext->idx_in_attr=new_idx;}

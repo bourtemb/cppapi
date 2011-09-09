@@ -391,12 +391,6 @@ typedef struct event_callback: public EventCallBackBase, public EventCallBackZmq
 
 //------------------------ Event Channel related info --------------------------------------
 
-typedef enum cha_type
-{
-    ZMQ = 0,
-    NOTIFD
-}ChannelType;
-
 typedef struct event_channel_base
 {
  	DeviceProxy 					*adm_device_proxy;

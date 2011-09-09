@@ -1732,13 +1732,21 @@ void PollThread::poll_attr(WorkItem &to_do)
 // Events - for each event call the detect_and_push() method
 // this method will fire events if there are clients registered
 // and if there is an event (on_change, on_alarm or periodic)
+// We also have to retrieve which kind of clients made the
+// subscription (zmq or notifd) and send the event accordingly
 //
 
-	EventSupplier *event_supplier;
-//	event_supplier = Util::instance()->get_notifd_event_supplier();
-	event_supplier = Util::instance()->get_zmq_event_supplier();
-	
-	if (event_supplier != NULL)
+	EventSupplier *event_supplier_nd = NULL;
+	EventSupplier *event_supplier_zmq = NULL;
+
+	Attribute &att = to_do.dev->get_device_attr()->get_attr_by_name(to_do.name.c_str());
+
+    if (att.use_notifd_event() == true)
+        event_supplier_nd = Util::instance()->get_notifd_event_supplier();
+    if (att.use_zmq_event() == true)
+        event_supplier_zmq = Util::instance()->get_zmq_event_supplier();
+
+	if ((event_supplier_nd != NULL) || (event_supplier_zmq != NULL))
 	{
 		if (attr_failed == true)
 		{
@@ -1752,12 +1760,36 @@ void PollThread::poll_attr(WorkItem &to_do)
             else
                 ad.attr_val = &dummy_att;
 
+//
+// Eventually push the event (if detected)
+// When we have both notifd and zmq event supplier, do not detect the event
+// two times. The detect_and_push_events() method returns true if the event
+// is detected.
+//
+
 cout << "CAlling detect_and_push() error" << endl;
-            event_supplier->detect_and_push_events(to_do.dev,
-						       	       ad,
-						               save_except,
-						               to_do.name,
-									   &before_cmd);
+            SendEventType send_event;
+            if (event_supplier_nd != NULL)
+                send_event = event_supplier_nd->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
+            if (event_supplier_zmq != NULL)
+            {
+                if (event_supplier_nd != NULL)
+                {
+                    vector<string> f_names;
+                    vector<double> f_data;
+                    vector<string> f_names_lg;
+                    vector<long> f_data_lg;
+
+                    if (send_event.change == true)
+                        event_supplier_zmq->push_event(to_do.dev,"change",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,save_except);
+                    if (send_event.archive == true)
+                        event_supplier_zmq->push_event(to_do.dev,"archive",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,save_except);
+                    if (send_event.periodic == true)
+                        event_supplier_zmq->push_event(to_do.dev,"periodic",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,save_except);
+                }
+                else
+                    event_supplier_zmq->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
+            }
 		}
 		else
 		{
@@ -1771,12 +1803,36 @@ cout << "CAlling detect_and_push() error" << endl;
             else
                 ad.attr_val = &((*argout)[0]);
 
+//
+// Eventually push the event (if detected)
+// When we have both notifd and zmq event supplier, do not detect the event
+// two times. The detect_and_push_events() method returns true if the event
+// is detected.
+//
+
 cout << "CAlling detect_and_push()" << endl;
-            event_supplier->detect_and_push_events(to_do.dev,
-						       	               ad,
-						                       save_except,
-						                       to_do.name,
-											   &before_cmd);
+            SendEventType send_event;
+            if (event_supplier_nd != NULL)
+                send_event = event_supplier_nd->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
+            if (event_supplier_zmq != NULL)
+            {
+                if (event_supplier_nd != NULL)
+                {
+                    vector<string> f_names;
+                    vector<double> f_data;
+                    vector<string> f_names_lg;
+                    vector<long> f_data_lg;
+
+                    if (send_event.change == true)
+                        event_supplier_zmq->push_event(to_do.dev,"change",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,save_except);
+                    if (send_event.periodic == true)
+                        event_supplier_zmq->push_event(to_do.dev,"periodic",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,save_except);
+                    if (send_event.archive == true)
+                        event_supplier_zmq->push_event(to_do.dev,"archive",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,save_except);
+                }
+                else
+                    event_supplier_zmq->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
+            }
 		}
 
 //
@@ -1784,7 +1840,13 @@ cout << "CAlling detect_and_push()" << endl;
 //
 
 		if (send_heartbeat == true)
-			event_supplier->push_heartbeat_event();
+		{
+		    if (event_supplier_nd != NULL)
+                event_supplier_nd->push_heartbeat_event();
+            if (event_supplier_zmq != NULL)
+                event_supplier_zmq->push_heartbeat_event();
+		}
+
 	}
 
 
