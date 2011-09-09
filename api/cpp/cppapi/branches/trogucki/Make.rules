@@ -5,7 +5,7 @@
 
 ##############################################################################
 #
-#		PLEASE, Update library version here (for versionning support)
+#		PLEASE, Update library version here (for versioning support)
 #
 ##############################################################################
 
@@ -19,7 +19,11 @@ PATCH_VERS = 7
 #
 ##############################################################################
 
+ifdef prefix
 TANGO_HOME = /segfs/tango
+else
+TANGO_HOME = /home/trogucki/tango/$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS)
+endif
 
 ##############################################################################
 #
@@ -46,7 +50,9 @@ endif
 #
 ##############################################################################
 
+ifdef prefix
 BIN_DIR = $(OS)
+endif
 
 ifdef _solaris
 ifdef gcc
@@ -74,7 +80,7 @@ INSTALL_BASE = $(prefix)/$(BIN_DIR)
 INSTALL_BASE_WIN32 = $(prefix)/win32
 else
 #INSTALL_BASE = /segfs/tango/tmp/install/$(BIN_DIR)
-INSTALL_BASE = /home/taurel/tango/install/$(BIN_DIR)
+INSTALL_BASE = /home/trogucki/tango/$(MAJOR_VERS).$(MINOR_VERS).$(PATCH_VERS)
 INSTALL_BASE_WIN32 = /segfs/tango/install/win32
 endif
 
@@ -84,7 +90,11 @@ endif
 #
 ##############################################################################
 
+ifdef prefix
 OMNI_BASE = $(TANGO_HOME)/ORB/omniORB4.1.5/$(BIN_DIR)
+else
+OMNI_BASE = /usr
+endif
 
 ##############################################################################
 #
@@ -92,7 +102,11 @@ OMNI_BASE = $(TANGO_HOME)/ORB/omniORB4.1.5/$(BIN_DIR)
 #
 ##############################################################################
 
+ifdef prefix
 LOG4TANGO_BASE = $(TANGO_HOME)/tools/log4tango-release/log4tango4.0.4/$(BIN_DIR)
+else
+LOG4TANGO_BASE = /home/trogucki/local
+endif
 
 ##############################################################################
 #
@@ -100,7 +114,11 @@ LOG4TANGO_BASE = $(TANGO_HOME)/tools/log4tango-release/log4tango4.0.4/$(BIN_DIR)
 #
 ##############################################################################
 
+ifdef prefix
 ZMQ_BASE = /home/taurel/bin/zmq
+else
+ZMQ_BASE = /usr
+endif
 
 ##############################################################################
 #
