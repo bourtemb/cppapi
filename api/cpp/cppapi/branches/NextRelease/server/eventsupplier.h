@@ -91,6 +91,7 @@ class EventSupplier
 {
 public :
     EventSupplier(Database*,string &);
+	~EventSupplier() {}
 
     void set_svr_port_num(string &);
 

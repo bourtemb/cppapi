@@ -1231,7 +1231,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         char *data_ptr = (char *)event_data.data();
         size_t data_size = (size_t)event_data.size();
 
-        if (((int)data_ptr & 0x7) != 0)
+        if (((unsigned long)data_ptr & 0x7) != 0)
         {
             data_ptr = data_ptr + sizeof(CORBA::Long);
             data_size = data_size - sizeof(CORBA::Long);

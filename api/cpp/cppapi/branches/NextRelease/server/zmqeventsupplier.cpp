@@ -536,7 +536,7 @@ cout << "event_name = " << event_name << endl;
     }
 
     mess_size = data_call_cdr.bufSize() - sizeof(CORBA::Long);
-    mess_ptr = data_call_cdr.bufPtr() + sizeof(CORBA::Long);
+    mess_ptr = (char *)data_call_cdr.bufPtr() + sizeof(CORBA::Long);
     zmq::message_t data_mess(mess_ptr,mess_size,tg_free);
 
 //
