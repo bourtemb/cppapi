@@ -1414,11 +1414,15 @@ cout << "adm_name returned by device: " << adm_name << endl;
 // to the publisher
 //
 
+#ifndef _TG_WINDOWS_
     struct timespec ts;
     ts.tv_nsec = 20000000;
     ts.tv_sec = 0;
 
     nanosleep(&ts,NULL);
+#else
+	Sleep(20);
+#endif
 
 	return ret_event_id;
 }
