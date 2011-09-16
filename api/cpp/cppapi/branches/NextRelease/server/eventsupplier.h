@@ -133,6 +133,8 @@ public :
 
 	void push_att_conf_events(DeviceImpl *device_impl,AttributeData &,DevFailed *,string &);
 
+	omni_mutex &get_push_mutex() {return push_mutex;}
+
 protected :
 	inline int timeval_diff(TimeVal before, TimeVal after)
 	{
@@ -251,6 +253,8 @@ private :
     cdrMemoryStream             heartbeat_call_cdr;     //
     cdrMemoryStream             event_call_ok_cdr;      //
     cdrMemoryStream             event_call_nok_cdr;     //
+    cdrMemoryStream             data_call_cdr;
+    string                      event_name;
 
 	unsigned char               host_endian;            // the host endianess
 	bool                        heartbeat_name_init;

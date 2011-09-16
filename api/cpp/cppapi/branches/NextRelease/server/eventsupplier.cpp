@@ -261,7 +261,10 @@ bool EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct 
         else
         {
             if (attr_value.attr_val_4 != NULL)
+            {
                 attr.ext->prev_change_event.value_4 = attr_value.attr_val_4->value;
+cout << "Before pushing event, data_format = " << attr_value.attr_val_4->data_format << endl;
+            }
             else if (attr_value.attr_val_3 != NULL)
                 attr.ext->prev_change_event.value   = attr_value.attr_val_3->value;
             else

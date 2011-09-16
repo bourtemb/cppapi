@@ -1950,20 +1950,34 @@ void DeviceImpl::push_data_ready_event (const string &attr_name, Tango::DevLong 
 {
 
 	Tango::Util *tg = Tango::Util::instance();
-	NotifdEventSupplier *ev_supply = tg->get_notifd_event_supplier();
-	if (ev_supply == NULL)
-		tg->create_notifd_event_supplier();
 
-	// get the tango synchronisation monitor
+// get the tango synchronisation monitor
+
 	Tango::AutoTangoMonitor synch(this);
 
-	// search the attribute from the attribute list to check that it exist
-	Tango::MultiAttribute *attr_list = get_device_attr();
-	Tango::Attribute &attr = attr_list->get_attr_by_name (attr_name.c_str());
+// search the attribute from the attribute list to check that it exist
 
-	// push the event
-	ev_supply->push_att_data_ready_event(this,attr_name,attr.get_data_type(),ctr);
+    Tango::MultiAttribute *attr_list = get_device_attr();
+    Tango::Attribute &attr = attr_list->get_attr_by_name (attr_name.c_str());
 
+    EventSupplier *event_supplier_nd = NULL;
+    EventSupplier *event_supplier_zmq = NULL;
+
+//
+// Push the event
+//
+
+    if (attr.use_notifd_event() == true)
+    {
+        event_supplier_nd = tg->get_notifd_event_supplier();
+        event_supplier_nd->push_att_data_ready_event(this,attr_name,attr.get_data_type(),ctr);
+    }
+
+    if (attr.use_zmq_event() == true)
+    {
+        event_supplier_zmq = tg->get_zmq_event_supplier();
+        event_supplier_zmq->push_att_data_ready_event(this,attr_name,attr.get_data_type(),ctr);
+    }
 }
 
 

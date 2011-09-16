@@ -1421,10 +1421,21 @@ void PollThread::compute_sleep_time()
 
 void PollThread::err_out_of_sync(WorkItem &to_do)
 {
+	EventSupplier *event_supplier_nd = NULL;
+	EventSupplier *event_supplier_zmq = NULL;
 
-	NotifdEventSupplier *event_supplier;
-	event_supplier = Util::instance()->get_notifd_event_supplier();
-	if (event_supplier != NULL)
+//
+// Retrieve the event supplier(s) for this attribute
+//
+
+	Attribute &att = to_do.dev->get_device_attr()->get_attr_by_name(to_do.name.c_str());
+
+    if (att.use_notifd_event() == true)
+        event_supplier_nd = Util::instance()->get_notifd_event_supplier();
+    if (att.use_zmq_event() == true)
+        event_supplier_zmq = Util::instance()->get_zmq_event_supplier();
+
+	if ((event_supplier_nd != NULL) || (event_supplier_zmq != NULL))
 	{
 		Tango::DevErrorList errs;
 		errs.length(1);
@@ -1447,11 +1458,14 @@ void PollThread::err_out_of_sync(WorkItem &to_do)
         else
             ad.attr_val = &dummy_att;
 
-        event_supplier->detect_and_push_events(to_do.dev,
-						       ad,
-						       &except,
-						       to_do.name,
-							   (struct timeval *)NULL);
+//
+// Fire event
+//
+
+        if (event_supplier_nd != NULL)
+            event_supplier_nd->detect_and_push_events(to_do.dev,ad,&except,to_do.name,(struct timeval *)NULL);
+        if (event_supplier_zmq != NULL)
+            event_supplier_zmq->detect_and_push_events(to_do.dev,ad,&except,to_do.name,(struct timeval *)NULL);
 	}
 }
 
@@ -1767,7 +1781,7 @@ void PollThread::poll_attr(WorkItem &to_do)
 // is detected.
 //
 
-cout << "CAlling detect_and_push() error" << endl;
+cout << "CAlling detect_and_push() error, event_supplier_nd = " << hex << event_supplier_nd << ", event_supplier_zmq = " << event_supplier_zmq << endl;
             SendEventType send_event;
             if (event_supplier_nd != NULL)
                 send_event = event_supplier_nd->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
@@ -1810,7 +1824,7 @@ cout << "CAlling detect_and_push() error" << endl;
 // is detected.
 //
 
-cout << "CAlling detect_and_push()" << endl;
+cout << "CAlling detect_and_push(), " << "event_supplier_nd = " << hex << event_supplier_nd << ", event_supplier_zmq = " << event_supplier_zmq << endl;
             SendEventType send_event;
             if (event_supplier_nd != NULL)
                 send_event = event_supplier_nd->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);

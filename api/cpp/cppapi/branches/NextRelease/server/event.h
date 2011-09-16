@@ -582,6 +582,9 @@ private :
 	zmq::socket_t                           *control_sock;          // control socket
 	zmq::socket_t                           *event_sub_sock;        // event subscriber socket
 
+	vector<string>                          connected_pub;          //
+	vector<string>                          connected_heartbeat;    //
+
     AttributeValue_var                      av;
     AttributeValue_3_var                    av3;
     AttributeValue_4_var                    av4;

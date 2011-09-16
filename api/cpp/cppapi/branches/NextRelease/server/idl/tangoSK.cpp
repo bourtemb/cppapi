@@ -69,7 +69,7 @@ Tango::JavaClntIdent::operator>>= (cdrStream &_n) const
   if (! _n.marshal_byte_swap()) {
     _n.put_octet_array((_CORBA_Octet*)(uuid),16,omni::ALIGN_8);
   }
-  else 
+  else
   {
     _n.declareArrayLength(omni::ALIGN_8, 16);
     for (_CORBA_ULong _0i0 = 0; _0i0 < 2; _0i0++){
@@ -101,7 +101,7 @@ Tango::ClntIdent::operator>>= (cdrStream& _n) const
       break;
     default: break;
 
-  
+
   }
 
 
@@ -286,7 +286,7 @@ const char* Tango::DevFailed::_NP_repoId(int* _size) const {
   *_size = sizeof("IDL:Tango/DevFailed:1.0");
   return _PD_repoId;
 }
- 
+
 void Tango::DevFailed::_NP_marshal(cdrStream& _s) const {
   *this >>= _s;
 }
@@ -359,7 +359,7 @@ const char* Tango::MultiDevFailed::_NP_repoId(int* _size) const {
   *_size = sizeof("IDL:Tango/MultiDevFailed:1.0");
   return _PD_repoId;
 }
- 
+
 void Tango::MultiDevFailed::_NP_marshal(cdrStream& _s) const {
   *this >>= _s;
 }
@@ -595,7 +595,7 @@ Tango::AttrValUnion::operator>>= (cdrStream& _n) const
       break;
     default: break;
 
-  
+
   }
 
 
@@ -1137,14 +1137,14 @@ const char* Tango::Device::_PD_repoId = "IDL:Tango/Device:1.0";
 
 
 Tango::_objref_Device::~_objref_Device() {
-  
+
 }
 
 
 Tango::_objref_Device::_objref_Device(omniIOR* ior, omniIdentity* id) :
    omniObjRef(::Tango::Device::_PD_repoId, ior, id, 1)
-   
-   
+
+
 {
   _PR_setobj(this);
 }
@@ -1154,13 +1154,13 @@ Tango::_objref_Device::_ptrToObjRef(const char* id)
 {
   if( id == ::Tango::Device::_PD_repoId )
     return (::Tango::Device_ptr) this;
-  
+
   if( id == ::CORBA::Object::_PD_repoId )
     return (::CORBA::Object_ptr) this;
 
   if( omni::strMatch(id, ::Tango::Device::_PD_repoId) )
     return (::Tango::Device_ptr) this;
-  
+
   if( omni::strMatch(id, ::CORBA::Object::_PD_repoId) )
     return (::CORBA::Object_ptr) this;
 
@@ -1176,15 +1176,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_00000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1292,15 +1292,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_20000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1402,13 +1402,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_40000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
-    
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1496,15 +1496,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_60000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1606,13 +1606,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_80000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
-    
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1700,15 +1700,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_a0000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
-  
-    
+
+
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
-  
+
 };
 
 const char* const _0RL_cd_6fe2f94a21a10053_a0000000::_user_exns[] = {
@@ -1736,7 +1736,7 @@ void _0RL_cd_6fe2f94a21a10053_a0000000::userException(cdrStream& s, _OMNI_NS(IOP
 static void
 _0RL_lcfn_6fe2f94a21a10053_b0000000(omniCallDescriptor* cd, omniServant* svnt)
 {
-  
+
   Tango::_impl_Device* impl = (Tango::_impl_Device*) svnt->_ptrToInterface(Tango::Device::_PD_repoId);
 #ifdef HAS_Cplusplus_catch_exception_by_base
   impl->ping();
@@ -1777,15 +1777,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_c0000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1884,13 +1884,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_e0000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
-  
+
+
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -1976,13 +1976,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_01000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
-  
+
+
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -2068,15 +2068,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_21000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -2177,14 +2177,14 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_41000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 0, upcall)
   {
-    
+
   }
-  
-  
+
+
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
-  
+
+
   static const char* const _user_exns[];
 
   ::CORBA::String_var result;
@@ -2257,14 +2257,14 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_71000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 0, upcall)
   {
-    
+
   }
-  
-  
+
+
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
-  
+
+
   static const char* const _user_exns[];
 
   Tango::DevState result;
@@ -2364,7 +2364,7 @@ Tango::_pof_Device::is_a(const char* id) const
 {
   if( omni::ptrStrMatch(id, ::Tango::Device::_PD_repoId) )
     return 1;
-  
+
   return 0;
 }
 
@@ -2381,7 +2381,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_inout") ) {
 
     _0RL_cd_6fe2f94a21a10053_00000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_10000000, "command_inout", 14, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2389,7 +2389,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "get_attribute_config") ) {
 
     _0RL_cd_6fe2f94a21a10053_20000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_30000000, "get_attribute_config", 21, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2397,7 +2397,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "set_attribute_config") ) {
 
     _0RL_cd_6fe2f94a21a10053_40000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_50000000, "set_attribute_config", 21, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2405,7 +2405,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attributes") ) {
 
     _0RL_cd_6fe2f94a21a10053_60000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_70000000, "read_attributes", 16, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2413,7 +2413,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "write_attributes") ) {
 
     _0RL_cd_6fe2f94a21a10053_80000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_90000000, "write_attributes", 17, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2421,7 +2421,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "ping") ) {
 
     _0RL_cd_6fe2f94a21a10053_a0000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_b0000000, "ping", 5, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2429,7 +2429,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "black_box") ) {
 
     _0RL_cd_6fe2f94a21a10053_c0000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_d0000000, "black_box", 10, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2437,7 +2437,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "info") ) {
 
     _0RL_cd_6fe2f94a21a10053_e0000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_f0000000, "info", 5, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2445,7 +2445,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_list_query") ) {
 
     _0RL_cd_6fe2f94a21a10053_01000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_11000000, "command_list_query", 19, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2453,7 +2453,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_query") ) {
 
     _0RL_cd_6fe2f94a21a10053_21000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_31000000, "command_query", 14, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2461,7 +2461,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "_get_name") ) {
 
     _0RL_cd_6fe2f94a21a10053_41000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_51000000, "_get_name", 10, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2469,7 +2469,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "_get_description") ) {
 
     _0RL_cd_6fe2f94a21a10053_41000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_61000000, "_get_description", 17, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2477,7 +2477,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "_get_state") ) {
 
     _0RL_cd_6fe2f94a21a10053_71000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_81000000, "_get_state", 11, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2485,7 +2485,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "_get_status") ) {
 
     _0RL_cd_6fe2f94a21a10053_41000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_91000000, "_get_status", 12, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2493,7 +2493,7 @@ Tango::_impl_Device::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "_get_adm_name") ) {
 
     _0RL_cd_6fe2f94a21a10053_41000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_a1000000, "_get_adm_name", 14, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -2507,13 +2507,13 @@ Tango::_impl_Device::_ptrToInterface(const char* id)
 {
   if( id == ::Tango::Device::_PD_repoId )
     return (::Tango::_impl_Device*) this;
-  
+
   if( id == ::CORBA::Object::_PD_repoId )
     return (void*) 1;
 
   if( omni::strMatch(id, ::Tango::Device::_PD_repoId) )
     return (::Tango::_impl_Device*) this;
-  
+
   if( omni::strMatch(id, ::CORBA::Object::_PD_repoId) )
     return (void*) 1;
   return 0;
@@ -2598,14 +2598,14 @@ const char* Tango::Device_2::_PD_repoId = "IDL:Tango/Device_2:1.0";
 
 
 Tango::_objref_Device_2::~_objref_Device_2() {
-  
+
 }
 
 
 Tango::_objref_Device_2::_objref_Device_2(omniIOR* ior, omniIdentity* id) :
    omniObjRef(::Tango::Device_2::_PD_repoId, ior, id, 1),
    _objref_Device(ior, id)
-   
+
 {
   _PR_setobj(this);
 }
@@ -2643,15 +2643,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_b1000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -2763,15 +2763,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_d1000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -2877,15 +2877,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_f1000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -2987,13 +2987,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_12000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
-  
+
+
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3079,15 +3079,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_32000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3188,15 +3188,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_52000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3301,15 +3301,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_72000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3440,7 +3440,7 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_inout_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_b1000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_c1000000, "command_inout_2", 16, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -3448,7 +3448,7 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attributes_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_d1000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_e1000000, "read_attributes_2", 18, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -3456,7 +3456,7 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "get_attribute_config_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_f1000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_02000000, "get_attribute_config_2", 23, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -3464,7 +3464,7 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_list_query_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_12000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_22000000, "command_list_query_2", 21, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -3472,7 +3472,7 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_query_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_32000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_42000000, "command_query_2", 16, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -3480,7 +3480,7 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_inout_history_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_52000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_62000000, "command_inout_history_2", 24, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -3488,12 +3488,12 @@ Tango::_impl_Device_2::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attribute_history_2") ) {
 
     _0RL_cd_6fe2f94a21a10053_72000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_82000000, "read_attribute_history_2", 25, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
 
-  
+
 #ifndef _MSC_VER
   if( _impl_Device::_dispatch(_handle) ) {
     return 1;
@@ -3612,14 +3612,14 @@ const char* Tango::Device_3::_PD_repoId = "IDL:Tango/Device_3:1.0";
 
 
 Tango::_objref_Device_3::~_objref_Device_3() {
-  
+
 }
 
 
 Tango::_objref_Device_3::_objref_Device_3(omniIOR* ior, omniIdentity* id) :
    omniObjRef(::Tango::Device_3::_PD_repoId, ior, id, 1),
    _objref_Device_2(ior, id)
-   
+
 {
   _PR_setobj(this);
 }
@@ -3663,15 +3663,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_92000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3777,13 +3777,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_b2000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 2, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
-    
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3883,15 +3883,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_d2000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -3996,13 +3996,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_f2000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
-  
+
+
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -4088,15 +4088,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_13000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -4198,13 +4198,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_33000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
-    
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -4321,7 +4321,7 @@ Tango::_impl_Device_3::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attributes_3") ) {
 
     _0RL_cd_6fe2f94a21a10053_92000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_a2000000, "read_attributes_3", 18, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -4329,7 +4329,7 @@ Tango::_impl_Device_3::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "write_attributes_3") ) {
 
     _0RL_cd_6fe2f94a21a10053_b2000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_c2000000, "write_attributes_3", 19, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -4337,7 +4337,7 @@ Tango::_impl_Device_3::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attribute_history_3") ) {
 
     _0RL_cd_6fe2f94a21a10053_d2000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_e2000000, "read_attribute_history_3", 25, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -4345,7 +4345,7 @@ Tango::_impl_Device_3::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "info_3") ) {
 
     _0RL_cd_6fe2f94a21a10053_f2000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_03000000, "info_3", 7, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -4353,7 +4353,7 @@ Tango::_impl_Device_3::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "get_attribute_config_3") ) {
 
     _0RL_cd_6fe2f94a21a10053_13000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_23000000, "get_attribute_config_3", 23, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -4361,12 +4361,12 @@ Tango::_impl_Device_3::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "set_attribute_config_3") ) {
 
     _0RL_cd_6fe2f94a21a10053_33000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_43000000, "set_attribute_config_3", 23, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
 
-  
+
 #ifndef _MSC_VER
   if( _impl_Device_2::_dispatch(_handle) ) {
     return 1;
@@ -4491,14 +4491,14 @@ const char* Tango::Device_4::_PD_repoId = "IDL:Tango/Device_4:1.0";
 
 
 Tango::_objref_Device_4::~_objref_Device_4() {
-  
+
 }
 
 
 Tango::_objref_Device_4::_objref_Device_4(omniIOR* ior, omniIdentity* id) :
    omniObjRef(::Tango::Device_4::_PD_repoId, ior, id, 1),
    _objref_Device_3(ior, id)
-   
+
 {
   _PR_setobj(this);
 }
@@ -4548,15 +4548,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_53000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -4661,15 +4661,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_73000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -4774,15 +4774,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_93000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -4901,15 +4901,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_b3000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -5022,13 +5022,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_d3000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 2, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
-    
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -5135,13 +5135,13 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_f3000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 1, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
-    
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -5236,15 +5236,15 @@ public:
   inline _0RL_cd_6fe2f94a21a10053_14000000(LocalCallFn lcfn,const char* op_,size_t oplen,_CORBA_Boolean upcall=0):
      omniCallDescriptor(lcfn, op_, oplen, 0, _user_exns, 2, upcall)
   {
-    
+
   }
-  
+
   void marshalArguments(cdrStream&);
   void unmarshalArguments(cdrStream&);
 
   void unmarshalReturnedValues(cdrStream&);
   void marshalReturnedValues(cdrStream&);
-  
+
   void userException(cdrStream&,_OMNI_NS(IOP_C)*,const char*);
   static const char* const _user_exns[];
 
@@ -5397,7 +5397,7 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attribute_history_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_53000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_63000000, "read_attribute_history_4", 25, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -5405,7 +5405,7 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_inout_history_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_73000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_83000000, "command_inout_history_4", 24, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -5413,7 +5413,7 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "command_inout_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_93000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_a3000000, "command_inout_4", 16, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -5421,7 +5421,7 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "read_attributes_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_b3000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_c3000000, "read_attributes_4", 18, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -5429,7 +5429,7 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "write_attributes_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_d3000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_e3000000, "write_attributes_4", 19, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -5437,7 +5437,7 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "set_attribute_config_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_f3000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_04000000, "set_attribute_config_4", 23, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
@@ -5445,12 +5445,12 @@ Tango::_impl_Device_4::_dispatch(omniCallHandle& _handle)
   if( omni::strMatch(op, "write_read_attributes_4") ) {
 
     _0RL_cd_6fe2f94a21a10053_14000000 _call_desc(_0RL_lcfn_6fe2f94a21a10053_24000000, "write_read_attributes_4", 24, 1);
-    
+
     _handle.upcall(this,_call_desc);
     return 1;
   }
 
-  
+
 #ifndef _MSC_VER
   if( _impl_Device_3::_dispatch(_handle) ) {
     return 1;

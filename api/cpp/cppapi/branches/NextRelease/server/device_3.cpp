@@ -1070,7 +1070,7 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					      Tango::AttributeValueList_3 *&back,Tango::AttributeValueList_4 *&back4)
 {
 	unsigned long nb_names = names.length();
-	cout4 << "Reading " << nb_names << " attr in read_attributes_from_cache()" << endl;
+    cout4 << "Reading " << nb_names << " attr in read_attributes_from_cache()" << endl;
 
 //
 // Check that device supports the wanted attribute and that the attribute
@@ -1128,7 +1128,6 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 // polled, start to poll them
 //
 
-//	bool found;
 	vector<long> poll_period;
 	unsigned long not_polled_attr = 0;
 
@@ -1196,66 +1195,6 @@ if (Tango::Util::_UseDb == false)
 				not_polled_attr++;
 				continue;
 			}
-/*			else
-			{
-				found = false;
-				vector<string> &napa = get_non_auto_polled_attr();
-				for (j = 0;j < napa.size();j++)
-				{
-#ifdef _TG_WINDOWS_
-					if (_stricmp(napa[j].c_str(),names[non_polled[i]]) == 0)
-#else
-					if (strcasecmp(napa[j].c_str(),names[non_polled[i]]) == 0)
-#endif
-						found = true;
-				}
-
-				if (found == true)
-				{
-					TangoSys_OMemStream o;
-					o << "Attribute " << att.get_name() << " not polled" << ends;
-
-					if (back != NULL)
-					{
-						(*back)[non_polled[i]].err_list.length(1);
-						(*back)[non_polled[i]].err_list[0].severity = Tango::ERR;
-						(*back)[non_polled[i]].err_list[0].reason = CORBA::string_dup("API_AttrNotPolled");
-						(*back)[non_polled[i]].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-						string s = o.str();
-						(*back)[non_polled[i]].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-						char *tmp_str = o.str();
-						(*back)[non_polled[i]].err_list[0].desc = CORBA::string_dup(tmp_str);
-						delete[]tmp_str;
-#endif
-						(*back)[non_polled[i]].quality = Tango::ATTR_INVALID;
-						(*back)[non_polled[i]].name = CORBA::string_dup(att.get_name().c_str());
-						clear_att_dim((*back)[i]);
-					}
-					else
-					{
-						(*back4)[non_polled[i]].err_list.length(1);
-						(*back4)[non_polled[i]].err_list[0].severity = Tango::ERR;
-						(*back4)[non_polled[i]].err_list[0].reason = CORBA::string_dup("API_AttrNotPolled");
-						(*back4)[non_polled[i]].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-						string s = o.str();
-						(*back4)[non_polled[i]].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-						char *tmp_str = o.str();
-						(*back)[non_polled[i]].err_list[0].desc = CORBA::string_dup(tmp_str);
-						delete[]tmp_str;
-#endif
-						(*back4)[non_polled[i]].quality = Tango::ATTR_INVALID;
-						(*back4)[non_polled[i]].name = CORBA::string_dup(att.get_name().c_str());
-						clear_att_dim((*back4)[i]);
-					}
-					not_polled_attr++;
-
-					continue;
-				}
-			}*/
 		}
 
 //
@@ -1265,94 +1204,12 @@ if (Tango::Util::_UseDb == false)
 
 		if (not_polled_attr == nb_names)
 			return;
-
-//
-// Start polling
-//
-
-/*		Tango::Util *tg = Tango::Util::instance();
-		DServer *adm_dev = tg->get_dserver_device();
-
-		DevVarLongStringArray *send = new DevVarLongStringArray();
-		send->lvalue.length(1);
-		send->svalue.length(3);
-		send->svalue[0] = device_name.c_str();
-		send->svalue[1] = CORBA::string_dup("attribute");
-
-		long start_polling_nb = 0;
-		for (i = 0;i < non_polled.size();i++)
-		{
-			if (back != NULL)
-			{
-				if ((*back)[non_polled[i]].err_list.length() != 0)
-					continue;
-			}
-			else
-			{
-				if ((*back4)[non_polled[i]].err_list.length() != 0)
-					continue;
-			}
-
-			send->lvalue[0] = poll_period[i];
-			send->svalue[2] = names[non_polled[i]];
-
-			try
-			{
-				get_poll_monitor().rel_monitor();
-				adm_dev->add_obj_polling(send,false);
-				get_poll_monitor().get_monitor();
-				start_polling_nb++;
-			}
-			catch (DevFailed &e)
-			{
-				get_poll_monitor().get_monitor();
-				if (back != NULL)
-				{
-					(*back)[non_polled[i]].err_list = e.errors;
-					(*back)[non_polled[i]].quality = Tango::ATTR_INVALID;
-					(*back)[non_polled[i]].name = CORBA::string_dup(names[non_polled[i]]);
-					clear_att_dim((*back)[i]);
-				}
-				else
-				{
-					(*back4)[non_polled[i]].err_list = e.errors;
-					(*back4)[non_polled[i]].quality = Tango::ATTR_INVALID;
-					(*back4)[non_polled[i]].name = CORBA::string_dup(names[non_polled[i]]);
-					clear_att_dim((*back4)[i]);
-				}
-				continue;
-			}
-		}
-
-		delete send;
-
-//
-// Wait for first polling
-//
-
-		if (start_polling_nb != 0)
-		{
-#ifdef _TG_WINDOWS_
-			get_poll_monitor().rel_monitor();
-			Sleep((DWORD)500);
-			get_poll_monitor().get_monitor();
-#else
-			struct timespec to_wait,inter;
-			to_wait.tv_sec = 0;
-			to_wait.tv_nsec = 500000000;
-			get_poll_monitor().rel_monitor();
-			nanosleep(&to_wait,&inter);
-			get_poll_monitor().get_monitor();
-#endif
-		}*/
-
 	}
 
 //
 // For each attribute, check that some data are available in cache and that they
 // are not too old
 //
-
 
 	for (i = 0;i < nb_names;i++)
 	{
@@ -2395,8 +2252,10 @@ throw (Tango::DevFailed, CORBA::SystemException)
 // Get some event related data
 //
 
+	EventSupplier *event_supplier_nd = NULL;
+	EventSupplier *event_supplier_zmq = NULL;
+
 	Tango::Util *tg = Tango::Util::instance();
-	NotifdEventSupplier *ev_supply = tg->get_notifd_event_supplier();
 
 //
 // Update attribute config first locally then in database
@@ -2440,11 +2299,24 @@ throw (Tango::DevFailed, CORBA::SystemException)
 // Send the event
 //
 
-			if (ev_supply != NULL)
+            if (attr.use_notifd_event() == true)
+                event_supplier_nd = tg->get_notifd_event_supplier();
+            else
+                event_supplier_nd = NULL;
+
+            if (attr.use_zmq_event() == true)
+                event_supplier_zmq = tg->get_zmq_event_supplier();
+            else
+                event_supplier_zmq = NULL;
+
+			if ((event_supplier_nd != NULL) || (event_supplier_zmq != NULL))
 			{
 				string tmp_name(new_conf[i].name);
 				ad.attr_conf_3 = &(new_conf[i]);
-				ev_supply->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
+				if (event_supplier_nd != NULL)
+                    event_supplier_nd->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
+                if (event_supplier_zmq != NULL)
+                    event_supplier_zmq->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
 			}
 		}
 

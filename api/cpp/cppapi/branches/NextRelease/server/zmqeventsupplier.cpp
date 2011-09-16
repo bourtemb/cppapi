@@ -310,6 +310,10 @@ cout << "Event publisher socket binded to " << event_endpoint << endl;
 //
 //-----------------------------------------------------------------------------
 
+void tg_free(void *data,void *hint)
+{
+}
+
 void ZmqEventSupplier::push_heartbeat_event()
 {
 cout << "Entering ZmqEventSupplier::push_heartbeat_event" << endl;
@@ -349,17 +353,12 @@ cout << "Entering ZmqEventSupplier::push_heartbeat_event" << endl;
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): delta _time " << delta_time << endl;
 
 //
-// Create zmq messages
+// Create zmq messages using zero copy messages
 //
 
-        zmq::message_t name_mess(heartbeat_event_name.size());
-        ::memcpy(name_mess.data(),heartbeat_event_name.c_str(),heartbeat_event_name.size());
-
-        zmq::message_t endian_mess(1);
-        memcpy(endian_mess.data(),&host_endian,1);
-
-        zmq::message_t call_mess(heartbeat_call_cdr.bufSize());
-        ::memcpy(call_mess.data(),heartbeat_call_cdr.bufPtr(),heartbeat_call_cdr.bufSize());
+        zmq::message_t name_mess((void *)heartbeat_event_name.data(),heartbeat_event_name.size(),tg_free);
+        zmq::message_t endian_mess(&host_endian,1,tg_free);
+        zmq::message_t call_mess(heartbeat_call_cdr.bufPtr(),heartbeat_call_cdr.bufSize(),tg_free);
 
 		bool fail = false;
 		try
@@ -441,6 +440,14 @@ cout << "Pushing heartbeat for " << heartbeat_event_name << endl;
 //
 //-----------------------------------------------------------------------------
 
+void tg_unlock(void *data,void *hint)
+{
+    EventSupplier *ev = (EventSupplier *)hint;
+    omni_mutex &the_mutex = ev->get_push_mutex();
+    the_mutex.unlock();
+cout << "Unlock.................." << endl;
+}
+
 void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             vector<string> &filterable_names,vector<double> &filterable_data,vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,
             struct AttributeData &attr_value,string &attr_name,DevFailed *except)
@@ -451,7 +458,9 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // Get the mutex to synchronize the sending of events
 //
 
-	omni_mutex_lock l(push_mutex);
+//	omni_mutex_lock l(push_mutex);
+    cout << "Lock............" << endl;
+    push_mutex.lock();
 
 //
 // Create full event name
@@ -459,30 +468,40 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 	string loc_attr_name(attr_name);
 	transform(loc_attr_name.begin(),loc_attr_name.end(),loc_attr_name.begin(),::tolower);
-	string event_name = fqdn_prefix + device_impl->get_name_lower() + "/" + loc_attr_name + "." + event_type;
+	event_name = fqdn_prefix + device_impl->get_name_lower() + "/" + loc_attr_name + "." + event_type;
 cout << "event_name = " << event_name << endl;
 
 //
 // Create zmq messages
 //
 
-    zmq::message_t name_mess(event_name.size());
-    ::memcpy(name_mess.data(),event_name.c_str(),event_name.size());
+    zmq::message_t name_mess((void *)event_name.data(),event_name.size(),tg_free);
+    zmq::message_t endian_mess(&host_endian,1,tg_free);
 
-    zmq::message_t endian_mess(1);
-    memcpy(endian_mess.data(),&host_endian,1);
-
-    zmq::message_t call_mess(event_call_ok_cdr.bufSize());
+    size_t mess_size;
+    void *mess_ptr;
     if (except == NULL)
-        ::memcpy(call_mess.data(),event_call_ok_cdr.bufPtr(),event_call_ok_cdr.bufSize());
+    {
+        mess_size = event_call_ok_cdr.bufSize();
+        mess_ptr = event_call_ok_cdr.bufPtr();
+    }
     else
-        ::memcpy(call_mess.data(),event_call_nok_cdr.bufPtr(),event_call_nok_cdr.bufSize());
+    {
+        mess_size = event_call_nok_cdr.bufSize();
+        mess_ptr = event_call_nok_cdr.bufPtr();
+    }
+
+    zmq::message_t call_mess(mess_ptr,mess_size,tg_unlock,(void *)this);
 
 //
 // Marshall the event data
 //
 
-	cdrMemoryStream data_call_cdr;
+//	cdrMemoryStream data_call_cdr;
+	CORBA::Long padding = 0XDEC0DEC0;
+	data_call_cdr.rewindPtrs();
+	padding >>= data_call_cdr;
+	padding >>= data_call_cdr;
 
     if (except == NULL)
     {
@@ -516,8 +535,9 @@ cout << "event_name = " << event_name << endl;
         except->errors >>= data_call_cdr;
     }
 
-    zmq::message_t data_mess(data_call_cdr.bufSize());
-    ::memcpy(data_mess.data(),data_call_cdr.bufPtr(),data_call_cdr.bufSize());
+    mess_size = data_call_cdr.bufSize() - sizeof(CORBA::Long);
+    mess_ptr = data_call_cdr.bufPtr() + sizeof(CORBA::Long);
+    zmq::message_t data_mess(mess_ptr,mess_size,tg_free);
 
 //
 // Send the data
@@ -576,6 +596,8 @@ cout << "Pushing event for " << event_name << endl;
     catch(...)
     {
         cout3 << "ZmqEventSupplier::push_event() failed !\n";
+        push_mutex.unlock();
+cout <<"Unlock in catch block.........." << endl;
         fail = true;
     }
 }

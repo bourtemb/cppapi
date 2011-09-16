@@ -391,6 +391,8 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //-----------------------------------------------------------------------------
 DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVarStringArray *argin)
 {
+cout << "Entering ZmqEventSubscriptionChange command" << endl;
+cout << "ZMQSupplier = " << Util::instance()->get_zmq_event_supplier() << ", notifdSupplier = " << Util::instance()->get_notifd_event_supplier() << endl;
     if (argin->length() < 4)
     {
 		TangoSys_OMemStream o;

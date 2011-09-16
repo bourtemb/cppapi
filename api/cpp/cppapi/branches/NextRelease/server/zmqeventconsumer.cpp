@@ -39,6 +39,7 @@ static const char *RcsId = "$Id$";
 #include <tango.h>
 
 #include <stdio.h>
+#include <assert.h>
 
 #include <omniORB4/internal/giopStream.h>
 
@@ -476,7 +477,24 @@ cout << "ZMQ_CONNECT_HEARTBEAT command" << endl;
 // Connect the heartbeat socket to the new publisher
 //
 
-            heartbeat_sub_sock->connect(endpoint);
+            bool connect_heart = false;
+
+            if (connected_heartbeat.empty() == false)
+            {
+                vector<string>::iterator pos;
+                pos = find(connected_heartbeat.begin(),connected_heartbeat.end(),endpoint);
+                if (pos == connected_heartbeat.end())
+                    connect_heart = true;
+            }
+            else
+                connect_heart = true;
+
+            if (connect_heart == true)
+            {
+                heartbeat_sub_sock->connect(endpoint);
+                connected_heartbeat.push_back(endpoint);
+            }
+
 
 //
 // Subscribe to the new heartbeat event
@@ -515,15 +533,33 @@ cout << "ZMQ_CONNECT_EVENT command" << endl;
             const char *event_name = &(tmp_ptr[start]);
 
 //
-// Connect the heartbeat socket to the new publisher
+// Connect the socket to the publisher
 //
 
-            event_sub_sock->connect(endpoint);
+            bool connect_pub = false;
+
+            if (connected_pub.empty() == false)
+            {
+                vector<string>::iterator pos;
+                pos = find(connected_pub.begin(),connected_pub.end(),endpoint);
+                if (pos == connected_pub.end())
+                    connect_pub = true;
+            }
+            else
+                connect_pub = true;
+
+            if (connect_pub == true)
+            {
+                event_sub_sock->connect(endpoint);
+                connected_pub.push_back(endpoint);
+            }
+
 
 //
-// Subscribe to the new heartbeat event
+// Subscribe to the new event
 //
 
+cout << "Subscribing with string: " << event_name << endl;
             event_sub_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
         }
         break;
@@ -538,7 +574,7 @@ cout << "ZMQ_DISCONNECT_EVENT command" << endl;
             const char *event_name = &(tmp_ptr[1]);
 
 //
-// Unsubscribe this event from the heartbeat socket
+// Unsubscribe this event from the socket
 //
 
             event_sub_sock->setsockopt(ZMQ_UNSUBSCRIBE,event_name,::strlen(event_name));
@@ -1175,8 +1211,64 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         long vers;
         DeviceAttribute *dev_attr = NULL;
 
-        cdrMemoryStream event_data_cdr((char *)event_data.data(),(size_t)event_data.size());
+//
+// Check if the buffer returned by ZMQ is aligned on a 8 bytes boundary.
+// This is mandatory for omniORB unmarshalling in case of 64 bits
+// data transfer
+// If it is not the case, shift the buffer starting point
+// from the padding CORBA long sent by the event supplier
+//
+// When transfering 64 bits data, omniORB marshalling/unmarshalling
+// layer requires the 64 bits data to be aligned on a 8 bytes
+// boundary. The transferred data starts with the union
+// descriminator (4 bytes) followed by the sequence element number
+// (4 bytes). ZMQ returns a buffer which could be aligned on a 4 bytes
+// boudary. In such a case, the first 64 bits data with not be aligned
+// in a 8 bytes boundary (4 + 4 + 4 = 12).
+//
+
+        bool aligned = true;
+        char *data_ptr = (char *)event_data.data();
+        size_t data_size = (size_t)event_data.size();
+
+        if (((int)data_ptr & 0x7) != 0)
+        {
+            data_ptr = data_ptr + sizeof(CORBA::Long);
+            data_size = data_size - sizeof(CORBA::Long);
+            aligned = false;
+        }
+
+        cdrMemoryStream event_data_cdr(data_ptr,data_size);
         event_data_cdr.setByteSwapFlag(endian);
+
+cout << "Event_data.data = " << hex << event_data.data() << endl;
+cout << "event_data_cdr.bufPtr = " << hex << event_data_cdr.bufPtr() << dec << endl;
+
+//
+// Unmarshal the data
+//
+// In case the buffer starting point has not been changed due to alignemnt,
+// don't forget to extract the padding CORBA long
+// At the moment, abort the process in case it happenss
+// (never detected during all the development and testing phase)
+//
+// TODO: In case, it happens, and if the attribute data type is
+// DevLong64, DevULong64 or DevDouble, allocate buffer aligned
+// on a 8 bytes boundary and copy the buffer into this memory
+// but not the first 4 bytes
+//
+
+        if (aligned == true)
+        {
+            CORBA::Long dummy;
+            (CORBA::Long &)dummy <<= event_data_cdr;
+
+            assert(false);
+        }
+
+//
+// Unmarshall the data
+//
 
         if (error == true)
         {
@@ -1196,6 +1288,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     vers = 2;
                     attr_info_ex = new AttributeInfoEx();
                     *attr_info_ex = const_cast<AttributeConfig_2 *>(attr_conf_2);
+                    ev_attr_conf = true;
                 }
                 else if (evt_cb.device_idl > 2)
                 {
@@ -1204,12 +1297,14 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     vers = 3;
                     attr_info_ex = new AttributeInfoEx();
                     *attr_info_ex = const_cast<AttributeConfig_3 *>(attr_conf_3);
+                    ev_attr_conf = true;
                 }
                 break;
 
                 case ATT_READY:
                 (AttDataReady &)adr <<= event_data_cdr;
                 att_ready = &adr.in();
+                ev_attr_ready = true;
                 break;
 
                 case ATT_VALUE:

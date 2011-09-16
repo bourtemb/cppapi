@@ -303,21 +303,6 @@ cout << "Entering shutdown_keep_alive_thread: keep_alive_thread ptr = "  << hex 
 
 void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name,DeviceData &dd,string &adm_name)
 {
-//	string adm_name;
-//	try
-//	{
-//		adm_name = device_proxy->adm_name();
-//	}
-//	catch(...)
-//	{
-//		TangoSys_OMemStream o;
-//		o << "Can't subscribe to event for device " << d_name << "\n";
-//		o << "Check that device server is running..." << ends;
-//		Except::throw_exception((const char *)"API_BadConfigurationProperty",
-//				        o.str(),
-//				        (const char *)"EventConsumer::connect()");
-//	}
-
 	string channel_name = adm_name;
 	if (device_proxy->get_from_env_var() == true)
 	{
@@ -339,51 +324,13 @@ cout << "connect: channel name from adm_name = " << channel_name << endl;
 		ipos = channel_map.find(channel_name);
 	}
 
-//	EventChannelStruct &evt_ch = ipos->second;
-//	try
-//	{
-//		if (adm_name.find("tango://",0) == string::npos)
-//		{
-//			if (device_proxy->get_from_env_var() == false)
-//			{
-//				if (device_proxy->get_db_host() != NOT_USED )
-//				{
-//					string added_str = device_proxy->get_db_host();
-//					added_str = added_str + ':' + device_proxy->get_db_port() + '/';
-//					adm_name.insert(0,added_str);
-//				}
-//				else
-//				{
-//					string added_str = device_proxy->get_dev_host();
-//					added_str = added_str + ':' + device_proxy->get_dev_port() + '/';
-//					adm_name.insert(0,added_str);
-//				}
-//			}
-//		}
 
-//		{
-//			AutoTangoMonitor _mon(evt_ch.channel_monitor);
-//			delete evt_ch.adm_device_proxy;
-//cout << "connect: adm_name in DP creation = " << adm_name << endl;
-//			evt_ch.adm_device_proxy = new DeviceProxy(adm_name);
-//		}
-
-		if (device_proxy->get_from_env_var() == true)
-		{
+    if (device_proxy->get_from_env_var() == true)
+    {
 cout << "connect: insert env_var_fqdn_prefix !!!!, before = " << adm_name << endl;
-			adm_name.insert(0,env_var_fqdn_prefix[0]);
+        adm_name.insert(0,env_var_fqdn_prefix[0]);
 cout << "connect: after " << adm_name << endl;
-		}
-//	}
-//	catch (Tango::DevFailed &)
-//	{
-//		TangoSys_OMemStream o;
-//		o << "Can't subscribe to event for device " << d_name << "\n";
-//		o << "Cannot contact the DS admin dev for your device" << ends;
-//		Except::throw_exception((const char *)"API_BadConfigurationProperty",
-//			      	o.str(),
-//			       (const char *)"EventConsumer::connect()");
-//	}
+    }
 
 //
 // Init adm device name in channel map entry
@@ -1259,27 +1206,6 @@ int EventConsumer::connect_event(DeviceProxy *device,
 		{
 			adm_name = device->adm_name();
 cout << "adm_name returned by device: " << adm_name << endl;
-
-//			transform(adm_name.begin(),adm_name.end(),adm_name.begin(),::tolower);
-//			if (adm_name.find("tango://",0) == string::npos)
-//			{
-//				if (device->get_from_env_var() == false)
-//				{
-//					if (device->get_db_host() != NOT_USED)
-//					{
-//						string added_str = device->get_db_host();
-//						added_str = added_str + ':' + device->get_db_port() + '/';
-//						adm_name.insert(0,added_str);
-//					}
-//					else
-//					{
-//						string added_str = device->get_dev_host();
-//						added_str = added_str + ':' + device->get_dev_port() + '/';
-//						adm_name.insert(0,added_str);
-//					}
-//				}
-//			}
-cout << "adm_name used for DP creation: " << adm_name << endl;
 			adm_dev = new DeviceProxy(adm_name);
 			allocated = true;
 		}
@@ -1483,6 +1409,17 @@ cout << "adm_name used for DP creation: " << adm_name << endl;
 
 	get_fire_sync_event(device,callback,ev_queue,event,event_name,attribute,iter->second);
 
+//
+// Sleep for some mS (20) in order to give to ZMQ some times to propagate the subscription
+// to the publisher
+//
+
+    struct timespec ts;
+    ts.tv_nsec = 20000000;
+    ts.tv_sec = 0;
+
+    nanosleep(&ts,NULL);
+
 	return ret_event_id;
 }
 
@@ -1498,7 +1435,6 @@ cout << "adm_name used for DP creation: " << adm_name << endl;
 
 void EventConsumer::unsubscribe_event(int event_id)
 {
-
 	if (event_id == 0)
 	{
 		EventSystemExcept::throw_exception((const char*)"API_EventNotFound",
@@ -1560,7 +1496,10 @@ void EventConsumer::unsubscribe_event(int event_id)
 			{
 //				cout << "Tango::EventConsumer::unsubscribe_event() - found event id " << event_id << " going to remove_filter()\n";
 
-				// delete the event queue when used
+//
+// delete the event queue when used
+//
+
 				if (esspos->ev_queue != NULL)
 					delete esspos->ev_queue;
 
@@ -2551,7 +2490,7 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 //
 // argument : in : - event_id : The event id
 //
-// This methods returns which is the evenet system type used by the
+// This methods returns which is the event system type used by the
 // event with the specified event id
 //
 //-----------------------------------------------------------------------------
@@ -2569,6 +2508,7 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
 			(const char*)"EventConsumer::get_event_system_for_event_id()");
 	}
 
+    bool found = false;
     ReaderLock r(map_modification_lock);
     for (epos = event_callback_map.begin(); epos != event_callback_map.end(); ++epos)
     {
@@ -2577,6 +2517,7 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
         {
             if(esspos->id == event_id)
             {
+                found = true;
                 EvChanIte evt_it = channel_map.find(ecs.channel_name);
                 if (evt_it == channel_map.end())
                 {
@@ -2591,6 +2532,17 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
                 ret = evt_ch.channel_type;
             }
         }
+    }
+
+//
+// Throw exception if the event_id has not been found in maps
+//
+
+    if (found == false)
+    {
+        EventSystemExcept::throw_exception((const char*)"API_EventNotFound",
+			(const char*)"Failed to unsubscribe event, the event id specified does not correspond with any known one",
+			(const char*)"EventConsumer::get_event_system_for_event_id()");
     }
 
     return ret;
