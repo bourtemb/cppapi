@@ -1503,7 +1503,7 @@ void Database::get_device_attribute_property(string dev, DbData &db_data, DbServ
 		}
 	}
 
-cout4 << "Leaving get_device_attribute_property" << endl;
+    cout4 << "Leaving get_device_attribute_property" << endl;
 	return;
 }
 

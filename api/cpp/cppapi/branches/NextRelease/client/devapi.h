@@ -1576,7 +1576,9 @@ public :
 	                    const vector<string> &filters, bool stateless = false);
 	virtual void unsubscribe_event (int ev_id) {dev_proxy->unsubscribe_event(ev_id);}
 
-	// methods to access data in event queues
+//
+// Methods to access data in event queues
+//
 
 	virtual void get_events (int event_id, EventDataList &event_list)
 	               {dev_proxy->get_events (event_id, event_list);}
