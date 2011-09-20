@@ -115,7 +115,7 @@ endif
 ##############################################################################
 
 ifdef prefix
-ZMQ_BASE = /home/taurel/bin/zmq
+ZMQ_BASE = $(TANGO_HOME)/transport/zmq/$(BIN_DIR)
 else
 ZMQ_BASE = /usr
 endif

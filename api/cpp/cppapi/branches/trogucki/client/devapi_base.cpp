@@ -1193,7 +1193,6 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 				}
 			}
 
-
 			if (version >= 4)
 			{
 				ClntIdent ci;
@@ -1282,6 +1281,7 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 						   (const char*)"Connection::command_inout()");
 		}
 	}
+
 //
 // Just to make VC++ quiet (will never reach this code !)
 //
@@ -6499,7 +6499,14 @@ void DeviceProxy::unsubscribe_event (int event_id)
     ApiUtil *api_ptr = ApiUtil::instance();
   	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
-		return;
+		TangoSys_OMemStream desc;
+		desc << "Could not find event consumer object, \n";
+		desc << "probably no event subscription was done before!";
+		desc << ends;
+		Tango::Except::throw_exception(
+						(const char*)"API_EventConsumer",
+						desc.str(),
+						(const char*)"DeviceProxy::unsubscribe_event()");
 	}
 
     if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
@@ -6510,7 +6517,14 @@ void DeviceProxy::unsubscribe_event (int event_id)
 	{
         if (api_ptr->get_notifd_event_consumer() == NULL)
         {
-            return;
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::unsubscribe_event()");
         }
         api_ptr->get_notifd_event_consumer()->unsubscribe_event(event_id);
 	}
@@ -6531,7 +6545,8 @@ void DeviceProxy::unsubscribe_event (int event_id)
 //-----------------------------------------------------------------------------
 void DeviceProxy::get_events (int event_id, EventDataList &event_list)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6543,7 +6558,25 @@ void DeviceProxy::get_events (int event_id, EventDataList &event_list)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, event_list);
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        api_ptr->get_zmq_event_consumer()->get_events(event_id, event_list);
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::get_events()");
+        }
+        api_ptr->get_notifd_event_consumer()->get_events(event_id,event_list);
+    }
 }
 
 
@@ -6563,7 +6596,8 @@ void DeviceProxy::get_events (int event_id, EventDataList &event_list)
 //-----------------------------------------------------------------------------
 void DeviceProxy::get_events (int event_id, AttrConfEventDataList &event_list)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6575,12 +6609,31 @@ void DeviceProxy::get_events (int event_id, AttrConfEventDataList &event_list)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, event_list);
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        api_ptr->get_zmq_event_consumer()->get_events(event_id, event_list);
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::get_events()");
+        }
+        api_ptr->get_notifd_event_consumer()->get_events(event_id,event_list);
+    }
 }
 
 void DeviceProxy::get_events (int event_id, DataReadyEventDataList &event_list)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6592,7 +6645,25 @@ void DeviceProxy::get_events (int event_id, DataReadyEventDataList &event_list)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, event_list);
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        api_ptr->get_zmq_event_consumer()->get_events(event_id, event_list);
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::get_events()");
+        }
+        api_ptr->get_notifd_event_consumer()->get_events(event_id,event_list);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -6607,11 +6678,12 @@ void DeviceProxy::get_events (int event_id, DataReadyEventDataList &event_list)
 //                emptied!
 //
 // argument : in  : event_id   : The event identifier
-// argument : out : event_list : A reference to an event data list to be filled
+// argument : out : cb : The callback object pointer
 //-----------------------------------------------------------------------------
 void DeviceProxy::get_events (int event_id, CallBack *cb)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6623,11 +6695,26 @@ void DeviceProxy::get_events (int event_id, CallBack *cb)
 						(const char*)"DeviceProxy::get_events()");
 	}
 
-	ApiUtil::instance()->get_notifd_event_consumer()->get_events(event_id, cb);
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        api_ptr->get_zmq_event_consumer()->get_events(event_id, cb);
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::get_events()");
+        }
+        api_ptr->get_notifd_event_consumer()->get_events(event_id,cb);
+    }
 }
-
-
-
 
 //+----------------------------------------------------------------------------
 //
@@ -6640,7 +6727,8 @@ void DeviceProxy::get_events (int event_id, CallBack *cb)
 //-----------------------------------------------------------------------------
 int  DeviceProxy::event_queue_size(int event_id)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6652,7 +6740,29 @@ int  DeviceProxy::event_queue_size(int event_id)
 						(const char*)"DeviceProxy::event_queue_size()");
 	}
 
-	return (ApiUtil::instance()->get_notifd_event_consumer()->event_queue_size(event_id));
+    EventConsumer *ev;
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        ev = api_ptr->get_zmq_event_consumer();
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::event_queue_size()");
+        }
+        else
+            ev = api_ptr->get_notifd_event_consumer();
+    }
+
+    return ev->event_queue_size(event_id);
 }
 
 //+----------------------------------------------------------------------------
@@ -6666,7 +6776,8 @@ int  DeviceProxy::event_queue_size(int event_id)
 //-----------------------------------------------------------------------------
 bool DeviceProxy::is_event_queue_empty(int event_id)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6678,7 +6789,29 @@ bool DeviceProxy::is_event_queue_empty(int event_id)
 						(const char*)"DeviceProxy::is_event_queue_empty()");
 	}
 
-	return (ApiUtil::instance()->get_notifd_event_consumer()->is_event_queue_empty(event_id));
+    EventConsumer *ev;
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        ev = api_ptr->get_zmq_event_consumer();
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::is_event_queue_empty()");
+        }
+        else
+            ev = api_ptr->get_notifd_event_consumer();
+    }
+
+    return (ev->is_event_queue_empty(event_id));
 }
 
 //+----------------------------------------------------------------------------
@@ -6692,7 +6825,8 @@ bool DeviceProxy::is_event_queue_empty(int event_id)
 //-----------------------------------------------------------------------------
 TimeVal DeviceProxy::get_last_event_date(int event_id)
 {
-	if (ApiUtil::instance()->get_notifd_event_consumer() == NULL)
+    ApiUtil *api_ptr = ApiUtil::instance();
+	if (api_ptr->get_zmq_event_consumer() == NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Could not find event consumer object, \n";
@@ -6704,7 +6838,29 @@ TimeVal DeviceProxy::get_last_event_date(int event_id)
 						(const char*)"DeviceProxy::get_last_event_date()");
 	}
 
-	return (ApiUtil::instance()->get_notifd_event_consumer()->get_last_event_date(event_id));
+    EventConsumer *ev;
+    if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
+    {
+        ev = api_ptr->get_zmq_event_consumer();
+    }
+    else
+    {
+        if (api_ptr->get_notifd_event_consumer() == NULL)
+        {
+            TangoSys_OMemStream desc;
+            desc << "Could not find event consumer object, \n";
+            desc << "probably no event subscription was done before!";
+            desc << ends;
+            Tango::Except::throw_exception(
+                            (const char*)"API_EventConsumer",
+                            desc.str(),
+                            (const char*)"DeviceProxy::get_last_event_date()");
+        }
+        else
+            ev = api_ptr->get_notifd_event_consumer();
+    }
+
+    return (ev->get_last_event_date(event_id));
 }
 
 

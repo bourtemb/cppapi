@@ -109,6 +109,8 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 // before we reach this code.
 //
 
+    cout4 << nb_attr << " attribute(s)" << endl;
+
 	if (nb_attr != 0)
 	{
 		Tango::Util *tg = Tango::Util::instance();
@@ -119,12 +121,24 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 			for (i = 0;i < nb_attr;i++)
 				db_list.push_back(DbDatum(tmp_attr_list[i]->get_name()));
 
+//
+// On some small and old computers, this request could take time if at the same time
+// some other processes also access the device attribute properties table.
+// This has been experimented at ESRF. Increase timeout to cover this case
+//
+
+            int old_db_timeout = tg->get_database()->get_timeout_millis();
 			try
 			{
+			    tg->get_database()->set_timeout_millis(6000);
 				tg->get_database()->get_device_attribute_property(dev_name,db_list,tg->get_db_cache());
+				tg->get_database()->set_timeout_millis(old_db_timeout);
 			}
 			catch (Tango::DevFailed &)
 			{
+			    cout4 << "Exception while accessing database" << endl;
+
+				tg->get_database()->set_timeout_millis(old_db_timeout);
 				TangoSys_OMemStream o;
 				o << "Can't get device attribute properties for device " << dev_name << ends;
 
@@ -1082,10 +1096,10 @@ void MultiAttribute::read_alarm(string &status)
 // method : 		MultiAttribute::get_event_param
 //
 // description : 	Return event info for each attribute with events
-//			subscribed
+//			        subscribed
 //
 // in :			eve : One structure in this vector for each attribute
-//			with events subscribed
+//			          with events subscribed
 //
 //--------------------------------------------------------------------------
 
@@ -1135,6 +1149,17 @@ void MultiAttribute::get_event_param(vector<EventPar> &eve)
 		if (once_more == true)
 		{
 			EventPar ep;
+
+			if (attr_list[i]->use_notifd_event() == true)
+                ep.notifd = true;
+            else
+                ep.notifd = false;
+
+            if (attr_list[i]->use_zmq_event() == true)
+                ep.zmq = true;
+            else
+                ep.zmq = false;
+
 			ep.attr_id = i;
 			ep.change = ch;
 			ep.quality = qu;

@@ -127,6 +127,8 @@ struct EventPar
 	bool		quality;
 	bool		periodic;
 	bool		user;
+	bool        notifd;
+	bool        zmq;
 };
 
 class MultiAttributeExt

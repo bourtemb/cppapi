@@ -117,10 +117,11 @@ bool EventConsumerKeepAliveThread::reconnect_to_channel(EvChanIte &ipos,EventCon
 			{
 				try
 				{
+				    DeviceData dummy;
 					string adm_name = ipos->second.full_adm_name;
 					event_consumer->connect_event_channel(adm_name,
 									      epos->second.device->get_device_db(),
-									      true);
+									      true,dummy);
 
 					if (ipos->second.adm_device_proxy != NULL)
 						delete ipos->second.adm_device_proxy;
@@ -371,7 +372,7 @@ cout << "Returning from KeepAlive thread" << endl;
 //
 // Re-subscribe
 //
-
+cout << "One more loop in keep alive thread" << endl;
 		// lock the maps only for reading
 		event_consumer->map_modification_lock.writerIn();
 

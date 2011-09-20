@@ -2352,7 +2352,9 @@ throw (Tango::DevFailed, CORBA::SystemException)
 //
 
 	Tango::Util *tg = Tango::Util::instance();
-	NotifdEventSupplier *ev_supply = tg->get_notifd_event_supplier();
+
+	EventSupplier *event_supplier_nd = NULL;
+	EventSupplier *event_supplier_zmq = NULL;
 
 //
 // Update attribute config first in database, then locally
@@ -2394,7 +2396,17 @@ throw (Tango::DevFailed, CORBA::SystemException)
 // Send the event
 //
 
-			if (ev_supply != NULL)
+            if (attr.use_notifd_event() == true)
+                event_supplier_nd = tg->get_notifd_event_supplier();
+            else
+                event_supplier_nd = NULL;
+
+            if (attr.use_zmq_event() == true)
+                event_supplier_zmq = tg->get_zmq_event_supplier();
+            else
+                event_supplier_zmq = NULL;
+
+			if ((event_supplier_nd != NULL) || (event_supplier_zmq != NULL))
 			{
 				string tmp_name(new_conf[i].name);
 
@@ -2406,14 +2418,20 @@ throw (Tango::DevFailed, CORBA::SystemException)
 					Tango::AttributeConfig_2 attr_conf_2;
 					attr.get_properties_2(attr_conf_2);
 					ad.attr_conf_2 = &attr_conf_2;
-					ev_supply->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
+					if (event_supplier_nd != NULL)
+                        event_supplier_nd->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
+                    if (event_supplier_zmq != NULL)
+                        event_supplier_zmq->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
 				}
 				else
 				{
 					Tango::AttributeConfig_3 attr_conf_3;
 					attr.get_properties_3(attr_conf_3);
 					ad.attr_conf_3 = &attr_conf_3;
-					ev_supply->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
+					if (event_supplier_nd != NULL)
+                        event_supplier_nd->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
+					if (event_supplier_zmq != NULL)
+                        event_supplier_zmq->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,tmp_name);
 				}
 			}
 		}
@@ -3943,10 +3961,17 @@ void DeviceImpl::init_attr_poll_period()
 
 void DeviceImpl::push_att_conf_event(Attribute *attr)
 {
-	Tango::Util *tg = Tango::Util::instance();
-	NotifdEventSupplier *ev_supply = tg->get_notifd_event_supplier();
+    EventSupplier *event_supplier_nd = NULL;
+    EventSupplier *event_supplier_zmq = NULL;
 
-	if (ev_supply != NULL)
+	Tango::Util *tg = Tango::Util::instance();
+
+    if (attr->use_notifd_event() == true)
+        event_supplier_nd = tg->get_notifd_event_supplier();
+    if (attr->use_zmq_event() == true)
+        event_supplier_zmq = tg->get_zmq_event_supplier();
+
+	if ((event_supplier_nd != NULL) || (event_supplier_zmq != NULL))
 	{
 	    EventSupplier::AttributeData ad;
 	    ::memset(&ad,0,sizeof(ad));
@@ -3956,14 +3981,20 @@ void DeviceImpl::push_att_conf_event(Attribute *attr)
 			Tango::AttributeConfig_2 attr_conf_2;
 			attr->get_properties_2(attr_conf_2);
 			ad.attr_conf_2 = &attr_conf_2;
-			ev_supply->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,attr->get_name());
+			if (event_supplier_nd != NULL)
+                event_supplier_nd->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,attr->get_name());
+            if (event_supplier_zmq != NULL)
+                event_supplier_zmq->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,attr->get_name());
 		}
 		else
 		{
 			Tango::AttributeConfig_3 attr_conf_3;
 			attr->get_properties_3(attr_conf_3);
             ad.attr_conf_3 = &attr_conf_3;
-			ev_supply->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,attr->get_name());
+            if (event_supplier_nd != NULL)
+                event_supplier_nd->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,attr->get_name());
+            if (event_supplier_zmq != NULL)
+                event_supplier_zmq->push_att_conf_events(this,ad,(Tango::DevFailed *)NULL,attr->get_name());
 		}
 	}
 }

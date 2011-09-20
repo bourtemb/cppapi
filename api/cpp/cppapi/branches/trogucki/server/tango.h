@@ -2,7 +2,7 @@
 //
 // file :               Tango.h
 //
-// description :        Main include for Tango device server  
+// description :        Main include for Tango device server
 //
 // project :            TANGO
 //
@@ -19,12 +19,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -218,7 +218,7 @@
 //
 
 #if ((defined WIN32) || (defined WIN64))
-	#if (_MSC_VER >= 1400)       // VC8+ 
+	#if (_MSC_VER >= 1400)       // VC8+
 		#define WIN32_VC8
 	#elif (_MSC_VER >= 1500)
 		#define WIN32_VC9
@@ -307,7 +307,7 @@
 #include <seqvec.h>
 
 #if !defined(TANGO_CLIENT) && defined TANGO_HAS_LOG4TANGO
-	#include <log4tango.h>	
+	#include <log4tango.h>
 #endif
 
 //
@@ -345,5 +345,5 @@
 using namespace std;
 
 
-	
+
 #endif /* TANGO_H */

@@ -814,6 +814,7 @@ void NotifdEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             vector<string> &filterable_names,vector<double> &filterable_data,vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,
             struct AttributeData &attr_value,string &attr_name,DevFailed *except)
 {
+cout << "Entering NotifdEventSupplier::push_event() method" << endl;
 	CosNotification::StructuredEvent struct_event;
 	string domain_name;
 

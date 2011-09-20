@@ -223,15 +223,24 @@ void NotifdEventConsumer::cleanup_EventChannel_map()
 //
 // method : 		EventConsumer::connect_event_system()
 //
-// description :
+// description :    Connect to the real event (archive, change, periodic,...)
 //
-// argument : in :	device_name : The device fqdn (lower case)
+// argument : in :	- device_name : The device fqdn (lower case)
+//                  - att_name : The attribute name
+//                  - event_name : The event name
+//                  - filters : The event filters given by the user
+//                  - evt_it : Iterator pointing to the event channel entry
+//                             in channel_map map
+//                  - new_event_callback : Structure used for the event callback
+//                                         entry in the event_callback_map
+//                  - dd : The data returned by the DS admin device
+//                         xxxSubscriptionChange command
 //
 //-----------------------------------------------------------------------------
 
 void NotifdEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,
                                               const vector<string> &filters,EvChanIte &evt_it,
-                                              EventCallBackStruct &new_event_callback)
+                                              EventCallBackStruct &new_event_callback,DeviceData &dd)
 {
 //
 // Build a filter using the CORBA Notify constraint Language
@@ -354,11 +363,19 @@ void NotifdEventConsumer::connect_event_system(string &device_name,string &att_n
 //
 // method : 		NotifdEventConsumer::connect_event_channel()
 //
-// description :
+// description :    Connect to the event channel
+//                  This means connect to the heartbeat event
+//
+// Args in : - channel name : The event channel name (DS admin name)
+//           - db : Database object
+//           - reconnect: Flag set to true in case this method is called for
+//                        event reconnection purpose
+//           - dd : The DS admin device command returned data
+//                  (ZmqEventSubscriptionChange command)
 //
 //-----------------------------------------------------------------------------
 
-void NotifdEventConsumer::connect_event_channel(string &channel_name,Database *db,bool reconnect)
+void NotifdEventConsumer::connect_event_channel(string &channel_name,Database *db,bool reconnect,DeviceData &dd)
 {
 	CORBA::Any_var received;
 	const DevVarLongStringArray *dev_import_list;

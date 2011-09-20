@@ -45,7 +45,7 @@ namespace Tango
 //
 // method : 		DServer::event_subscription_change()
 //
-// description : 	method to execute the command EvnetSubscriptionChange command.
+// description : 	method to execute the command EventSubscriptionChange command.
 //
 // in : - argin : The command input argument
 //
@@ -112,7 +112,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 		ev->set_svr_port_num(p_num);
 	}
 
-    event_subscription(dev_name,attr_name,action,event,attr_name_lower);
+    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD);
 
 	Tango::DevLong ret_val = (Tango::DevLong)tg->get_tango_lib_release();
 	return ret_val;
@@ -131,10 +131,11 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 //      - action : What the user want to do
 //      - event : The event type
 //      - attr_name_lower : The attribute name in lower case letters
+//      - ct : The channel type (notifd or zmq)
 //
 //-----------------------------------------------------------------------------
 
-DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower)
+DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct)
 {
     Tango::Util *tg = Tango::Util::instance();
 
@@ -339,6 +340,15 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 		}
 
 //
+// Set channel type in attribute object
+//
+
+        if (ct == ZMQ)
+            attribute.set_use_zmq_event();
+        else
+            attribute.set_use_notifd_event();
+
+//
 // Start polling for attribute in question. I suppose I should
 // check to see if the attribute is polled already. For the
 // moment I will simply ignore the exception. Why not rather
@@ -381,6 +391,8 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //-----------------------------------------------------------------------------
 DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVarStringArray *argin)
 {
+cout << "Entering ZmqEventSubscriptionChange command" << endl;
+cout << "ZMQSupplier = " << Util::instance()->get_zmq_event_supplier() << ", notifdSupplier = " << Util::instance()->get_notifd_event_supplier() << endl;
     if (argin->length() < 4)
     {
 		TangoSys_OMemStream o;
@@ -439,7 +451,13 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 		ev->set_svr_port_num(p_num);
 	}
 
-    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower);
+    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ);
+
+//
+// Create the event publisher socket (if not already done)
+//
+
+    ev->create_event_socket();
 
 //
 // Init data returned by command
@@ -452,9 +470,10 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
 	ret_data->lvalue[1] = dev->get_dev_idl_version();
 
-    string &heart_ep = ev->get_heartbeat_endpoint();
-	ret_data->svalue[0] = CORBA::string_dup(heart_ep.c_str());
-	ret_data->svalue[1] = CORBA::string_dup("Bonjour");
+    string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
+	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
+	string &event_endpoint = ev->get_event_endpoint();
+	ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
 
 	return ret_data;
 }

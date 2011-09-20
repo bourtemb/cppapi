@@ -104,6 +104,24 @@ namespace Tango
 #define		HEARTBEAT					"Event heartbeat"
 
 //
+// ZMQ event system related define
+//
+
+#define     EPHEMERAL_PORT_BEGIN        49152
+#define     EPHEMERAL_PORT_END          65535
+#define     ZMQ_EVENT_PROT_VERSION      1
+#define     HEARTBEAT_METHOD_NAME       "push_heartbeat_event"
+#define     EVENT_METHOD_NAME           "push_zmq_event"
+#define     HEARTBEAT_EVENT_NAME        "heartbeat"
+#define     CTRL_SOCK_ENDPOINT          "inproc://control"
+
+#define     ZMQ_END                     0
+#define     ZMQ_CONNECT_HEARTBEAT       1
+#define     ZMQ_DISCONNECT_HEARTBEAT    2
+#define     ZMQ_CONNECT_EVENT           3
+#define     ZMQ_DISCONNECT_EVENT        4
+
+//
 // Event when using a file as database stuff
 //
 
@@ -854,6 +872,19 @@ enum MinMaxValueCheck
     MAX
 };
 
+enum ChannelType
+{
+    ZMQ = 0,
+    NOTIFD
+};
+
+typedef struct _SendEventType
+{
+	bool change;
+	bool archive;
+	bool periodic;
+}SendEventType;
+
 //
 // The optional attribute properties
 //
@@ -945,6 +976,8 @@ typedef struct _OptAttrProp
  * API_PollingThreadNotFound
  * API_PolledDeviceNotInPoolConf
  * API_PolledDeviceNotInPoolMap
+ *
+ * API_ZmqInitFailed
  */
 
 } // End of Tango namespace

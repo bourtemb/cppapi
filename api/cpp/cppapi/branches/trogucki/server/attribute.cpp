@@ -210,6 +210,9 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list)
 	ext->archive_abs_change[0] = INT_MAX;		// default for archive change is none
 	ext->archive_abs_change[1] = INT_MAX;		// default for archive change is none
 
+    ext->notifd_event = false;
+	ext->zmq_event = false;
+
 //
 // Init min and max relative change for change event
 //
@@ -7125,10 +7128,16 @@ void Attribute::fire_change_event(DevFailed *except)
 // Get the event supplier, and simply return if not created
 //
 
-		NotifdEventSupplier *event_supplier;
+		EventSupplier *event_supplier_nd = NULL;
+		EventSupplier *event_supplier_zmq = NULL;
+
 		Tango::Util *tg = Util::instance();
-		event_supplier = tg->get_notifd_event_supplier();
-		if (event_supplier == NULL)
+		if (use_notifd_event() == true)
+            event_supplier_nd = tg->get_notifd_event_supplier();
+        if (use_zmq_event() == true)
+            event_supplier_zmq = tg->get_zmq_event_supplier();
+
+		if ((event_supplier_nd == NULL) && (event_supplier_zmq == NULL))
 		{
 			if ( name_lower != "state" )
 			{
@@ -7237,12 +7246,30 @@ void Attribute::fire_change_event(DevFailed *except)
             else
                 ad.attr_val_4 = send_attr_4;
 
-			event_supplier->detect_and_push_change_event(ext->dev,
-						 		ad,
-								*this,
-								name,
-								except,
-								true);
+//
+// Eventually push the event (if detected)
+// When we have both notifd and zmq event supplier, do not detect the event
+// two times. The detect_and_push_events() method returns true if the event
+// is detected.
+//
+
+            bool send_event = false;
+            if (event_supplier_nd != NULL)
+                send_event = event_supplier_nd->detect_and_push_change_event(ext->dev,ad,*this,name,except,true);
+            if (event_supplier_zmq != NULL)
+            {
+                if (send_event == true)
+                {
+                    vector<string> f_names;
+                    vector<double> f_data;
+                    vector<string> f_names_lg;
+                    vector<long> f_data_lg;
+
+                    event_supplier_zmq->push_event(ext->dev,"change",f_names,f_data,f_names_lg,f_data_lg,ad,name,except);
+                }
+            }
+            else
+                event_supplier_zmq->detect_and_push_change_event(ext->dev,ad,*this,name,except,true);
 		}
 		else
 		{
@@ -7320,15 +7347,30 @@ void Attribute::fire_change_event(DevFailed *except)
             else
                 ad.attr_val_4 = send_attr_4;
 
-			event_supplier->push_event(ext->dev,
-						"change",
-						filterable_names,
-						filterable_data,
-						filterable_names_lg,
-						filterable_data_lg,
-						ad,
-						name,
-						except);
+//
+// Finally push the event(s)
+//
+
+            if (event_supplier_nd != NULL)
+                event_supplier_nd->push_event(ext->dev,
+                                        "change",
+                                        filterable_names,
+                                        filterable_data,
+                                        filterable_names_lg,
+                                        filterable_data_lg,
+                                        ad,
+                                        name,
+                                        except);
+            if (event_supplier_zmq != NULL)
+                event_supplier_zmq->push_event(ext->dev,
+                                        "change",
+                                        filterable_names,
+                                        filterable_data,
+                                        filterable_names_lg,
+                                        filterable_data_lg,
+                                        ad,
+                                        name,
+                                        except);
 		}
 
 //
@@ -7450,10 +7492,16 @@ void Attribute::fire_archive_event(DevFailed *except)
 // Get the event supplier, and simply return if not created
 //
 
-		NotifdEventSupplier *event_supplier;
+		EventSupplier *event_supplier_nd = NULL;
+		EventSupplier *event_supplier_zmq = NULL;
+
 		Tango::Util *tg = Util::instance();
-		event_supplier = tg->get_notifd_event_supplier();
-		if (event_supplier == NULL)
+		if (use_notifd_event() == true)
+            event_supplier_nd = tg->get_notifd_event_supplier();
+        if (use_zmq_event() == true)
+            event_supplier_zmq = tg->get_zmq_event_supplier();
+
+		if ((event_supplier_nd == NULL) && (event_supplier_zmq == NULL))
         {
 			if ( name_lower != "state" )
             {
@@ -7583,13 +7631,32 @@ void Attribute::fire_archive_event(DevFailed *except)
 			gettimeofday(&now_timeval,NULL);
 #endif
 
-			event_supplier->detect_and_push_archive_event(ext->dev,
-						 			ad,
-									*this,
-									name,
-									except,
-									&now_timeval,
-									true);
+//
+// Eventually push the event (if detected)
+// When we have both notifd and zmq event supplier, do not detect the event
+// two times. The detect_and_push_events() method returns true if the event
+// is detected.
+//
+
+            bool send_event;
+            if (event_supplier_nd != NULL)
+                send_event = event_supplier_nd->detect_and_push_archive_event(ext->dev,ad,*this,name,except,&now_timeval,true);
+            if (event_supplier_zmq != NULL)
+            {
+                if (event_supplier_nd != NULL)
+                {
+                    if (send_event == true)
+                    {
+                        vector<string> f_names;
+                        vector<double> f_data;
+                        vector<string> f_names_lg;
+                        vector<long> f_data_lg;
+
+                        event_supplier_zmq->push_event(ext->dev,"archive",f_names,f_data,f_names_lg,f_data_lg,ad,name,except);
+                    }
+                }
+                event_supplier_zmq->detect_and_push_archive_event(ext->dev,ad,*this,name,except,&now_timeval,true);
+            }
 		}
 		else
 		{
@@ -7604,7 +7671,15 @@ void Attribute::fire_archive_event(DevFailed *except)
 			double delta_change_rel = 0.0;
 			double delta_change_abs = 0.0;
 
-			event_supplier->detect_change(*this, ad,true,
+            if (event_supplier_nd != NULL)
+                event_supplier_nd->detect_change(*this, ad,true,
+							delta_change_rel,
+							delta_change_abs,
+							except,
+							force_change,
+							ext->dev);
+            else if (event_supplier_zmq != NULL)
+                event_supplier_zmq->detect_change(*this, ad,true,
 							delta_change_rel,
 							delta_change_abs,
 							except,
@@ -7667,7 +7742,18 @@ void Attribute::fire_archive_event(DevFailed *except)
 			filterable_names.push_back("delta_change_abs");
 			filterable_data.push_back(delta_change_abs);
 
-			event_supplier->push_event(ext->dev,
+            if (event_supplier_nd != NULL)
+                event_supplier_nd->push_event(ext->dev,
+							"archive",
+							filterable_names,
+							filterable_data,
+							filterable_names_lg,
+							filterable_data_lg,
+							ad,
+							name,
+							except);
+            if (event_supplier_zmq != NULL)
+                event_supplier_zmq->push_event(ext->dev,
 							"archive",
 							filterable_names,
 							filterable_data,
@@ -7760,10 +7846,16 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 // Get the event supplier, and simply return if not created
 //
 
-		NotifdEventSupplier *event_supplier;
+		EventSupplier *event_supplier_nd = NULL;
+		EventSupplier *event_supplier_zmq = NULL;
+
 		Tango::Util *tg = Util::instance();
-		event_supplier = tg->get_notifd_event_supplier();
-		if (event_supplier == NULL)
+		if (use_notifd_event() == true)
+            event_supplier_nd = tg->get_notifd_event_supplier();
+        if (use_zmq_event() == true)
+            event_supplier_zmq = tg->get_zmq_event_supplier();
+
+		if ((event_supplier_nd == NULL) && (event_supplier_zmq == NULL))
 		{
 			if (name_lower != "state")
 			{
@@ -7881,7 +7973,8 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 		vector<string> filterable_names_lg;
 		vector<long> filterable_data_lg;
 
-		event_supplier->push_event(ext->dev,
+        if (event_supplier_nd != NULL)
+            event_supplier_nd->push_event(ext->dev,
 					   "user_event",
 					   filt_names,
 					   filt_vals,
@@ -7890,6 +7983,17 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 					   ad,
 					   name,
 					   except);
+        if (event_supplier_zmq != NULL)
+            event_supplier_zmq->push_event(ext->dev,
+					   "user_event",
+					   filt_names,
+					   filt_vals,
+					   filterable_names_lg,
+					   filterable_data_lg,
+					   ad,
+					   name,
+					   except);
+
 
 		if (send_attr != NULL)
 			delete send_attr;
@@ -8022,7 +8126,6 @@ void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 
 	}
 
-	prop << new_value.db;
 	db_data.push_back(att);
 	db_data.push_back(prop);
 

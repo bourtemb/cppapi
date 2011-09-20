@@ -171,11 +171,12 @@ ApiUtil::~ApiUtil()
 	bool event_was_used = false;
 	if (ext != NULL)
 	{
-		if (ext->notifd_event_consumer != NULL)
+		if ((ext->notifd_event_consumer != NULL) || (ext->zmq_event_consumer != NULL))
 		{
 			event_was_used = true;
 			leavefunc();
 			NotifdEventConsumer::cleanup();
+			ZmqEventConsumer::cleanup();
 		}
 		delete ext;
 	}

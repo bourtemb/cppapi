@@ -228,7 +228,7 @@ cout << "Creating KeepAliveThread" << endl;
 
 //+----------------------------------------------------------------------------
 //
-// method : 		NotifdEventConsumer::shutdown()
+// method : 		EventConsumer::shutdown()
 //
 // description : 	Method to stop the keep alive thread and to
 //                  disconnect from all used event channels
@@ -237,7 +237,7 @@ cout << "Creating KeepAliveThread" << endl;
 void EventConsumer::shutdown()
 {
 cout << "Entering EventConsumer::shutdown()" << endl;
-	cout3 << "calling Tango::NotifdEventConsumer::shutdown() \n";
+	cout3 << "calling Tango::EventConsumer::shutdown() \n";
 
 //
 // First, shutdown the keep alive thread
@@ -291,35 +291,24 @@ cout << "Entering shutdown_keep_alive_thread: keep_alive_thread ptr = "  << hex 
 //
 // method : 		EventConsumer::connect()
 //
-// description :
+// description :    This method is a wrapper around the connection
+//                  to the event channel (heartbeat event)
 //
 // argument : in :  device_proxy : The device handle
-//                  device_name : The FQDN (lower case)
+//                  d_name : The FQDN (lower case)
+//                  dd : The server command result (Used by ZMQ event system only)
+//                  adm_name : The admin device name
 //
 //-----------------------------------------------------------------------------
 
-void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name)
+void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name,DeviceData &dd,string &adm_name)
 {
-	string adm_name;
-	try
-	{
-		adm_name = device_proxy->adm_name();
-	}
-	catch(...)
-	{
-		TangoSys_OMemStream o;
-		o << "Can't subscribe to event for device " << d_name << "\n";
-		o << "Check that device server is running..." << ends;
-		Except::throw_exception((const char *)"API_BadConfigurationProperty",
-				        o.str(),
-				        (const char *)"EventConsumer::connect()");
-	}
-
 	string channel_name = adm_name;
 	if (device_proxy->get_from_env_var() == true)
 	{
 		channel_name.insert(0,env_var_fqdn_prefix[0]);
 	}
+cout << "connect: channel name from adm_name = " << channel_name << endl;
 
 //
 // If no connection exists to this channel then connect to it.
@@ -331,53 +320,29 @@ void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name)
 	std::map<std::string,EventChannelStruct>::iterator ipos = channel_map.find(channel_name);
 	if (ipos == channel_map.end())
 	{
-		connect_event_channel(channel_name,device_proxy->get_device_db(),false);
+		connect_event_channel(channel_name,device_proxy->get_device_db(),false,dd);
 		ipos = channel_map.find(channel_name);
 	}
 
-	EventChannelStruct &evt_ch = ipos->second;
-	try
-	{
-		if (adm_name.find("tango://",0) == string::npos)
-		{
-			if (device_proxy->get_from_env_var() == false)
-			{
-				if (device_proxy->get_db_host() != NOT_USED )
-				{
-					string added_str = device_proxy->get_db_host();
-					added_str = added_str + ':' + device_proxy->get_db_port() + '/';
-					adm_name.insert(0,added_str);
-				}
-				else
-				{
-					string added_str = device_proxy->get_dev_host();
-					added_str = added_str + ':' + device_proxy->get_dev_port() + '/';
-					adm_name.insert(0,added_str);
-				}
-			}
-		}
 
-		{
-			AutoTangoMonitor _mon(evt_ch.channel_monitor);
-			delete evt_ch.adm_device_proxy;
-			evt_ch.adm_device_proxy = new DeviceProxy(adm_name);
-		}
+    if (device_proxy->get_from_env_var() == true)
+    {
+cout << "connect: insert env_var_fqdn_prefix !!!!, before = " << adm_name << endl;
+        adm_name.insert(0,env_var_fqdn_prefix[0]);
+cout << "connect: after " << adm_name << endl;
+    }
 
-		if (device_proxy->get_from_env_var() == true)
-		{
-			adm_name.insert(0,env_var_fqdn_prefix[0]);
-		}
-	}
-	catch (Tango::DevFailed &)
-	{
-		TangoSys_OMemStream o;
-		o << "Can't subscribe to event for device " << d_name << "\n";
-		o << "Cannot contact the DS admin dev for your device" << ends;
-		Except::throw_exception((const char *)"API_BadConfigurationProperty",
-			      	o.str(),
-			       (const char *)"EventConsumer::connect()");
-	}
+//
+// Init adm device name in channel map entry
+//
+
+cout << "connect: channel name  = " << channel_name << ", adm_name in map = " << adm_name << endl;
+
 	channel_map[channel_name].full_adm_name = adm_name;
+
+//
+// Add entry in device_channel_map map
+//
 
 	device_channel_map[d_name] = channel_name;
 }
@@ -1136,9 +1101,7 @@ int EventConsumer::subscribe_event (DeviceProxy *device,
 //
 // method : 		EventConsumer::connect_event()
 //
-// description : 	Method to connect to an event and to
-//                  return an approriate exception if the
-//                  connection fails.
+// description : 	Main nethod called by the subsccribe_event call
 //
 // argument : in :	device : The device handle
 //			        attribute : The name of the attribute
@@ -1235,32 +1198,14 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	map<std::string,std::string>::iterator ipos = device_channel_map.find(device_name);
 	EvChanIte evt_it = channel_map.end();
 
+    string adm_name;
+
 	if (ipos == device_channel_map.end())
 	{
-		string adm_name;
 		try
 		{
 			adm_name = device->adm_name();
-
-			transform(adm_name.begin(),adm_name.end(),adm_name.begin(),::tolower);
-			if (adm_name.find("tango://",0) == string::npos)
-			{
-				if (device->get_from_env_var() == false)
-				{
-					if (device->get_db_host() != NOT_USED)
-					{
-						string added_str = device->get_db_host();
-						added_str = added_str + ':' + device->get_db_port() + '/';
-						adm_name.insert(0,added_str);
-					}
-					else
-					{
-						string added_str = device->get_dev_host();
-						added_str = added_str + ':' + device->get_dev_port() + '/';
-						adm_name.insert(0,added_str);
-					}
-				}
-			}
+cout << "adm_name returned by device: " << adm_name << endl;
 			adm_dev = new DeviceProxy(adm_name);
 			allocated = true;
 		}
@@ -1330,16 +1275,6 @@ int EventConsumer::connect_event(DeviceProxy *device,
 				}
 			}
 		}
-		else
-		{
-			Tango::DevLong vers;
-			const Tango::DevVarLongStringArray *svr_ev_data;
-
-			if (cmd_name[0] == 'Z')
-                dd >> svr_ev_data;
-            else
-                dd >> vers;
-		}
 	}
 	catch (Tango::DevFailed &e)
 	{
@@ -1354,8 +1289,8 @@ int EventConsumer::connect_event(DeviceProxy *device,
                       				(const char*)"EventConsumer::connect_event()");
 	}
 
-	if (allocated == true)
-		delete adm_dev;
+//	if (allocated == true)
+//		delete adm_dev;
 
 //
 // Search (or create) entry for channel map
@@ -1364,11 +1299,23 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	if (ipos == device_channel_map.end())
 	{
 		cout3 << "device " << device_name << " is not connected, going to connect to the event channel !\n";
-		connect(device,device_name);
+		try
+		{
+            connect(device,device_name,dd,adm_name);
+		}
+		catch (Tango::DevFailed &e)
+		{
+		    if (allocated == true)
+                delete adm_dev;
+		    throw;
+		}
 
 		ipos = device_channel_map.find(device_name);
 		if (ipos == device_channel_map.end())
 		{
+		    if (allocated == true)
+                delete adm_dev;
+
 			TangoSys_OMemStream o;
 
 			o << "Failed to connect to event channel for device " << device_name << ends;
@@ -1389,6 +1336,15 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	}
 
 //
+// Init device proxy in channel event map
+//
+
+    {
+        AutoTangoMonitor _mon(evt_it->second.channel_monitor);
+        evt_it->second.adm_device_proxy = adm_dev;
+    }
+
+//
 // Now, connect to the event system
 //
 
@@ -1399,11 +1355,19 @@ int EventConsumer::connect_event(DeviceProxy *device,
     new_event_callback.attr_name = attribute;
     new_event_callback.event_name = event_name;
     new_event_callback.channel_name = evt_it->first;
+    new_event_callback.fully_qualified_event_name = device_name + '/' + att_name_lower + '.' + event_name;
+
+    const DevVarLongStringArray *dvlsa;
+    dd >> dvlsa;
+    if (dvlsa->lvalue.length() == 2)
+        new_event_callback.device_idl = dvlsa->lvalue[1];
+    else
+        new_event_callback.device_idl = 0;
 
     new_ess.callback = callback;
     new_ess.ev_queue = ev_queue;
 
-	connect_event_system(device_name,att_name_lower,event_name,filters,evt_it,new_event_callback);
+	connect_event_system(device_name,att_name_lower,event_name,filters,evt_it,new_event_callback,dd);
 
 //
 // if an event ID was passed to the method, reuse it!
@@ -1445,6 +1409,21 @@ int EventConsumer::connect_event(DeviceProxy *device,
 
 	get_fire_sync_event(device,callback,ev_queue,event,event_name,attribute,iter->second);
 
+//
+// Sleep for some mS (20) in order to give to ZMQ some times to propagate the subscription
+// to the publisher
+//
+
+#ifndef _TG_WINDOWS_
+    struct timespec ts;
+    ts.tv_nsec = 20000000;
+    ts.tv_sec = 0;
+
+    nanosleep(&ts,NULL);
+#else
+	Sleep(20);
+#endif
+
 	return ret_event_id;
 }
 
@@ -1460,7 +1439,6 @@ int EventConsumer::connect_event(DeviceProxy *device,
 
 void EventConsumer::unsubscribe_event(int event_id)
 {
-
 	if (event_id == 0)
 	{
 		EventSystemExcept::throw_exception((const char*)"API_EventNotFound",
@@ -1522,7 +1500,10 @@ void EventConsumer::unsubscribe_event(int event_id)
 			{
 //				cout << "Tango::EventConsumer::unsubscribe_event() - found event id " << event_id << " going to remove_filter()\n";
 
-				// delete the event queue when used
+//
+// delete the event queue when used
+//
+
 				if (esspos->ev_queue != NULL)
 					delete esspos->ev_queue;
 
@@ -1554,6 +1535,10 @@ void EventConsumer::unsubscribe_event(int event_id)
                                 (const char*)"Failed to unsubscribe event, caught exception while calling remove_filter() or destroy() (hint: check the Notification daemon is running ",
                                 (const char*)"EventConsumer::unsubscribe_event()");
                         }
+					}
+					else
+					{
+					    disconnect_event(evt_cb.fully_qualified_event_name);
 					}
 
 					// delete the allocated callback monitor
@@ -1615,6 +1600,10 @@ void EventConsumer::unsubscribe_event(int event_id)
                                                 (const char*)"Failed to unsubscribe event, caught exception while calling remove_filter() or destroy() on the heartbeat filter (hint: check the Notification daemon is running ",
                                                 (const char*)"EventConsumer::unsubscribe_event()");
                                         }
+								    }
+								    else
+								    {
+                                        disconnect_event_channel(deleted_channel_name);
 								    }
 
 									delete evt_ch.adm_device_proxy;
@@ -2505,7 +2494,7 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 //
 // argument : in : - event_id : The event id
 //
-// This methods returns which is the evenet system type used by the
+// This methods returns which is the event system type used by the
 // event with the specified event id
 //
 //-----------------------------------------------------------------------------
@@ -2523,6 +2512,7 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
 			(const char*)"EventConsumer::get_event_system_for_event_id()");
 	}
 
+    bool found = false;
     ReaderLock r(map_modification_lock);
     for (epos = event_callback_map.begin(); epos != event_callback_map.end(); ++epos)
     {
@@ -2531,6 +2521,7 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
         {
             if(esspos->id == event_id)
             {
+                found = true;
                 EvChanIte evt_it = channel_map.find(ecs.channel_name);
                 if (evt_it == channel_map.end())
                 {
@@ -2545,6 +2536,17 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
                 ret = evt_ch.channel_type;
             }
         }
+    }
+
+//
+// Throw exception if the event_id has not been found in maps
+//
+
+    if (found == false)
+    {
+        EventSystemExcept::throw_exception((const char*)"API_EventNotFound",
+			(const char*)"Failed to unsubscribe event, the event id specified does not correspond with any known one",
+			(const char*)"EventConsumer::get_event_system_for_event_id()");
     }
 
     return ret;

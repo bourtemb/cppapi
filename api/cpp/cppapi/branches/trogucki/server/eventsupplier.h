@@ -53,7 +53,7 @@
 #include <COS/CosNotifyChannelAdmin.hh>
 #include <COS/CosNotifyComm.hh>
 
-//#include <zmq.hpp>
+#include <zmq.hpp>
 
 #if defined (_TG_WINDOWS_) && defined (_USRDLL) && !defined(_TANGO_LIB)
 #undef USE_stub_in_nt_dll
@@ -91,6 +91,7 @@ class EventSupplier
 {
 public :
     EventSupplier(Database*,string &);
+	~EventSupplier() {}
 
     void set_svr_port_num(string &);
 
@@ -106,7 +107,7 @@ public :
         const AttDataReady        *attr_dat_ready;
     };
 
-	void detect_and_push_events(DeviceImpl *,struct AttributeData &,DevFailed *,string &,struct timeval *);
+	SendEventType detect_and_push_events(DeviceImpl *,struct AttributeData &,DevFailed *,string &,struct timeval *);
 
 //------------------ Change event ---------------------------
 
@@ -114,15 +115,15 @@ public :
 
 //------------------ Detect, push change event --------------
 
-	void detect_and_push_change_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,bool user_push = false);
+	bool detect_and_push_change_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,bool user_push = false);
 
 //------------------ Detect, push archive event --------------
 
-	void detect_and_push_archive_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
+	bool detect_and_push_archive_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *,bool user_push = false);
 
 //------------------ Detect, push periodic event -------------
 
-	void detect_and_push_periodic_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *);
+	bool detect_and_push_periodic_event(DeviceImpl *,struct AttributeData &,Attribute &,string &,DevFailed *,struct timeval *);
 
 //------------------ Push event -------------------------------
 
@@ -132,6 +133,8 @@ public :
 //------------------- Attribute conf change event ---------------------
 
 	void push_att_conf_events(DeviceImpl *device_impl,AttributeData &,DevFailed *,string &);
+
+	omni_mutex &get_push_mutex() {return push_mutex;}
 
 protected :
 	inline int timeval_diff(TimeVal before, TimeVal after)
@@ -179,7 +182,7 @@ public :
 
 //------------------ Push event -------------------------------
 
-	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *);
+	virtual void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *);
 
 protected :
 
@@ -225,9 +228,12 @@ public :
 //------------------ Push event -------------------------------
 
 	void push_heartbeat_event();
-	void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *);
+	virtual void push_event(DeviceImpl *,string,vector<string> &,vector<double> &,vector<string> &,vector<long> &,struct AttributeData &,string &,DevFailed *);
 
 	string &get_heartbeat_endpoint() {return heartbeat_endpoint;}
+	string &get_event_endpoint() {return event_endpoint;}
+
+    void create_event_socket();
 
 protected :
 	ZmqEventSupplier(Database *,string &,string &);
@@ -235,12 +241,32 @@ protected :
 private :
 	static ZmqEventSupplier 	*_instance;
 
-//	zmq::context_t              zmq_context;            // ZMQ context
-//	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
-//	zmq::message_t              *heartbeat_mess;        // heartbeat message
-	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
+	zmq::context_t              zmq_context;            // ZMQ context
+	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
+	zmq::socket_t               *event_pub_sock;        // events publisher socket
 
-//	void tango_bind(zmq::socket_t *,string &);
+	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
+	string                      host_ip;                // Host IP address
+	string                      heartbeat_event_name;   // The event name used for the heartbeat
+	ZmqCallInfo                 heartbeat_call;         // The heartbeat call info
+	ZmqCallInfo                 event_call_ok;          // The event call info
+	ZmqCallInfo                 event_call_nok;         //
+    cdrMemoryStream             heartbeat_call_cdr;     //
+    cdrMemoryStream             event_call_ok_cdr;      //
+    cdrMemoryStream             event_call_nok_cdr;     //
+    cdrMemoryStream             data_call_cdr;
+    string                      event_name;
+
+	unsigned char               host_endian;            // the host endianess
+	bool                        heartbeat_name_init;
+
+	bool                        ip_specified;           // The user has specified an IP address
+	string                      user_ip;                // The specified IP address
+
+	string                      event_endpoint;         // event publisher endpoint
+
+	void tango_bind(zmq::socket_t *,string &);
+	unsigned char test_endian();
 };
 
 } // End of namespace
