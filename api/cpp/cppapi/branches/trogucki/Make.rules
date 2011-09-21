@@ -117,7 +117,7 @@ endif
 ifdef prefix
 ZMQ_BASE = $(TANGO_HOME)/transport/zmq/$(BIN_DIR)
 else
-ZMQ_BASE = /usr
+ZMQ_BASE = /usr/local
 endif
 
 ##############################################################################

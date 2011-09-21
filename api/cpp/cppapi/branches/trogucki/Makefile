@@ -51,8 +51,13 @@ IDL_SRC    = server/idl
 JPG_SRC    = server/jpeg
 JPG_SRC_MMX	=	server/jpeg_mmx
 
+ifdef prefix
 OBJS_DIR = 	objs/$(BIN_DIR)
 OBJS_DIR_SL = 	objs_sl/$(BIN_DIR)
+else
+OBJS_DIR = 	objs
+OBJS_DIR_SL = 	objs_sl
+endif
 
 
 INCLUDE_DIRS = -I$(CLIENT_SRC) \
