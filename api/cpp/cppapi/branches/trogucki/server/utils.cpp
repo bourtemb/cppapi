@@ -1224,7 +1224,8 @@ void Util::init_host_name()
 //
 // Get the FQDN host name (Fully qualified domain name)
 // If it is not returned by the system call "gethostname",
-// try with the getaddrinfo system call
+// try with the getnameinfo/getaddrinfo system calls providing
+// IP address obtained by calling ApiUtil::get_ip_from_if()
 //
 // All supported OS have the getaddrinfo() call
 //
@@ -1233,6 +1234,8 @@ void Util::init_host_name()
 	if (gethostname(buffer,80) == 0)
 	{
 		hostname = buffer;
+		transform(hostname.begin(), hostname.end(), hostname.begin(), ::tolower);
+
 		string::size_type pos = hostname.find('.');
 
 		if (pos == string::npos)
@@ -1240,47 +1243,84 @@ void Util::init_host_name()
   			struct addrinfo hints;
 
 			memset(&hints,0,sizeof(struct addrinfo));
-#ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
-			hints.ai_falgs	   = AI_ADDRCONFIG;
-#endif
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
-  			hints.ai_flags     = AI_ADDRCONFIG;
-#endif
-#endif
-  			hints.ai_family    = AF_INET;
+  			hints.ai_family    = AF_UNSPEC;		// supports both IPv4 and IPv6
   			hints.ai_socktype  = SOCK_STREAM;
+  			hints.ai_flags = AI_NUMERICHOST;	// inhibits resolution of node parameter if it is not a numeric network address
 
-  			struct addrinfo	*info;
-			struct addrinfo *ptr;
-			char tmp_host[512];
+// Commented out to support IPv6
+//#ifdef _TG_WINDOWS_
+//#ifdef WIN32_VC9
+//			hints.ai_falgs	   = AI_ADDRCONFIG;
+//#endif
+//#else
+//#ifdef GCC_HAS_AI_ADDRCONFIG
+//  			hints.ai_flags     = AI_ADDRCONFIG;
+//#endif
+//#endif
 
-  			int result = getaddrinfo(buffer, NULL, &hints, &info);
+  			struct addrinfo	*info, *ptr;
+			char tmp_host[NI_MAXHOST];
+			bool host_found = false;
 
-  			if (result == 0)
+			// new
+			ApiUtil *au = ApiUtil::instance();
+			vector<string> ip_list;
+			au->get_ip_from_if(ip_list);	// returns a list of numeric network addresses
+
+			for(size_t i = 0; i < ip_list.size() && !host_found; i++)
 			{
-				ptr = info;
-				while (ptr != NULL)
+				if(getaddrinfo(ip_list[i].c_str(),NULL,&hints,&info) == 0)
 				{
-    				if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,512,0,0,0) == 0)
+					ptr = info;
+					while(ptr != NULL)
 					{
-						string myhost(tmp_host);
-						string::size_type pos = myhost.find('.');
-						if (pos != string::npos)
+						if(getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,NI_MAXHOST,NULL,0,0) == 0)
 						{
-							string canon = myhost.substr(0,pos);
-							if (hostname == canon)
+							string myhost(tmp_host);
+							string::size_type pos = myhost.find('.');
+							if (pos != string::npos)
 							{
-								hostname = myhost;
-								break;
+								string canon = myhost.substr(0,pos);
+								if (hostname == canon)
+								{
+									hostname = myhost;
+									host_found = true;
+									break;
+								}
 							}
 						}
-    				}
-					ptr = ptr->ai_next;
+						ptr = ptr->ai_next;
+					}
+					freeaddrinfo(info);
 				}
-				freeaddrinfo(info);
 			}
+			// end new
+
+//  			int result = getaddrinfo(buffer, NULL, &hints, &info);
+//
+//  			if (result == 0)
+//			{
+//				ptr = info;
+//				while (ptr != NULL)
+//				{
+//    				if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,512,0,0,0) == 0)
+//					{
+//						string myhost(tmp_host);
+//						string::size_type pos = myhost.find('.');
+//						if (pos != string::npos)
+//						{
+//							string canon = myhost.substr(0,pos);
+//							if (hostname == canon)
+//							{
+//								hostname = myhost;
+//								break;
+//							}
+//						}
+//    				}
+//					ptr = ptr->ai_next;
+//				}
+//				freeaddrinfo(info);
+//			}
 		}
 #ifdef __sun
 

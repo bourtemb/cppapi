@@ -1725,7 +1725,28 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	Attr_CheckVal old_min_value = min_value;
 	bool old_check_min_value = check_min_value;
 
-	min_value_str = conf.min_value;
+	if ((TG_strcasecmp(conf.min_value,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.min_value,NotANumber) != 0) &&
+		(strlen(conf.min_value) != 0))
+		min_value_str = conf.min_value;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "min_value")
+					break;
+			}
+			if (i == nb_user)
+				min_value_str = NotANumber;
+			else
+				min_value_str = def_user_prop[i].get_value();
+		}
+		else
+			min_value_str = NotANumber;
+	}
 
 	if (min_value_str == NotANumber)
 	{
@@ -1827,7 +1848,28 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	Attr_CheckVal old_max_value = max_value;
 	bool old_check_max_value = check_max_value;
 
-    max_value_str = conf.max_value;
+	if ((TG_strcasecmp(conf.max_value,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.max_value,NotANumber) != 0) &&
+		(strlen(conf.max_value) != 0))
+		max_value_str = conf.max_value;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "max_value")
+					break;
+			}
+			if (i == nb_user)
+				max_value_str = NotANumber;
+			else
+				max_value_str = def_user_prop[i].get_value();
+		}
+		else
+			max_value_str = NotANumber;
+	}
 
 	if (max_value_str == NotANumber)
 	{
@@ -1929,7 +1971,29 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			check_max_value = false;
 	}
 
-	min_alarm_str = conf.min_alarm;
+	if ((TG_strcasecmp(conf.min_alarm,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.min_alarm,NotANumber) != 0) &&
+		(strlen(conf.min_alarm) != 0))
+		min_alarm_str = conf.min_alarm;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "min_alarm")
+					break;
+			}
+			if (i == nb_user)
+				min_alarm_str = NotANumber;
+			else
+				min_alarm_str = def_user_prop[i].get_value();
+		}
+		else
+			min_alarm_str = NotANumber;
+	}
+
 	if (min_alarm_str == NotANumber)
 	{
 		min_alarm_str = AlrmValueNotSpec;
@@ -2013,7 +2077,29 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		}
 	}
 
-	max_alarm_str = conf.max_alarm;
+	if ((TG_strcasecmp(conf.max_alarm,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.max_alarm,NotANumber) != 0) &&
+		(strlen(conf.max_alarm) != 0))
+		max_alarm_str = conf.max_alarm;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "max_alarm")
+					break;
+			}
+			if (i == nb_user)
+				max_alarm_str = NotANumber;
+			else
+				max_alarm_str = def_user_prop[i].get_value();
+		}
+		else
+			max_alarm_str = NotANumber;
+	}
+
 	if (max_alarm_str == NotANumber)
 	{
 		max_alarm_str = AlrmValueNotSpec;
@@ -2151,6 +2237,26 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
         throw_hard_coded_prop("level");
     }
 
+//
+// Copy only a sub-set of the new properties
+// For each "string" property, an empty string means returns to its
+// default value which could be the library default value or the
+// user defined default value
+//
+
+	Tango::DeviceImpl *dev;
+	if (ext->dev != NULL)
+		dev = ext->dev;
+	else
+	{
+		Tango::Util *tg = Tango::Util::instance();
+		dev = tg->get_device_by_name(dev_name);
+	}
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	long nb_user = def_user_prop.size();
 
 //
 // The min_warning case
@@ -2158,7 +2264,29 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	TangoSys_MemStream str;
 
-	min_warning_str = conf.att_alarm.min_warning;
+	if ((TG_strcasecmp(conf.att_alarm.min_warning,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.att_alarm.min_warning,NotANumber) != 0) &&
+		(strlen(conf.att_alarm.min_warning) != 0))
+		min_warning_str = conf.att_alarm.min_warning;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "min_warning")
+					break;
+			}
+			if (i == nb_user)
+				min_warning_str = NotANumber;
+			else
+				min_warning_str = def_user_prop[i].get_value();
+		}
+		else
+			min_warning_str = NotANumber;
+	}
+
 	if (min_warning_str == NotANumber)
 	{
 		min_warning_str = AlrmValueNotSpec;
@@ -2242,7 +2370,29 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // Now, ladies and gentleman, the max warning case
 //
 
-	max_warning_str = conf.att_alarm.max_warning;
+	if ((TG_strcasecmp(conf.att_alarm.max_warning,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.att_alarm.max_warning,NotANumber) != 0) &&
+		(strlen(conf.att_alarm.max_warning) != 0))
+		max_warning_str = conf.att_alarm.max_warning;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "max_warning")
+					break;
+			}
+			if (i == nb_user)
+				max_warning_str = NotANumber;
+			else
+				max_warning_str = def_user_prop[i].get_value();
+		}
+		else
+			max_warning_str = NotANumber;
+	}
+
 	if (max_warning_str == NotANumber)
 	{
 		max_warning_str = AlrmValueNotSpec;
@@ -2330,7 +2480,29 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // Then, the delta_val
 //
 
-	delta_val_str = conf.att_alarm.delta_val;
+	if ((TG_strcasecmp(conf.att_alarm.delta_val,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.att_alarm.delta_val,NotANumber) != 0) &&
+		(strlen(conf.att_alarm.delta_val) != 0))
+		delta_val_str = conf.att_alarm.delta_val;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "delta_val")
+					break;
+			}
+			if (i == nb_user)
+				delta_val_str = NotANumber;
+			else
+				delta_val_str = def_user_prop[i].get_value();
+		}
+		else
+			delta_val_str = NotANumber;
+	}
+
 	if (delta_val_str == NotANumber)
 	{
 		delta_val_str = AlrmValueNotSpec;
@@ -2418,7 +2590,29 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // And the delta_t
 //
 
-	delta_t_str = conf.att_alarm.delta_t;
+	if ((TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) != 0) &&
+	    (TG_strcasecmp(conf.att_alarm.delta_t,NotANumber) != 0) &&
+		(strlen(conf.att_alarm.delta_t) != 0))
+		delta_t_str = conf.att_alarm.delta_t;
+	else
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "delta_t")
+					break;
+			}
+			if (i == nb_user)
+				delta_t_str = NotANumber;
+			else
+				delta_t_str = def_user_prop[i].get_value();
+		}
+		else
+			delta_t_str = NotANumber;
+	}
+
 	if (delta_t_str == NotANumber)
 	{
 		delta_t_str = AlrmValueNotSpec;
@@ -2452,65 +2646,97 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // Now, the 4 changes parameters (for change and archive events)
 //
 
-	SET_EV_PROP(conf.event_prop.ch_event.rel_change,str,rel_change);
-	SET_EV_PROP(conf.event_prop.ch_event.abs_change,str,abs_change);
-	SET_EV_PROP(conf.event_prop.arch_event.rel_change,str,archive_rel_change);
-	SET_EV_PROP(conf.event_prop.arch_event.abs_change,str,archive_abs_change);
+	SET_EV_PROP(conf.event_prop.ch_event.rel_change,str,rel_change,def_user_prop);
+	SET_EV_PROP(conf.event_prop.ch_event.abs_change,str,abs_change,def_user_prop);
+	SET_EV_PROP(conf.event_prop.arch_event.rel_change,str,archive_rel_change,def_user_prop);
+	SET_EV_PROP(conf.event_prop.arch_event.abs_change,str,archive_abs_change,def_user_prop);
 
 //
 // And finally, the last two event periods
 //
+	string event_period_str(conf.event_prop.per_event.period);
+	bool event_period_valid = true;
+	if (strcmp(event_period_str.c_str(),NotANumber) == 0 || strcmp(event_period_str.c_str(),AlrmValueNotSpec) == 0)
+	{
+		if (nb_user != 0)
+		{
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "period")
+					break;
+			}
+			if (i == nb_user)
+				event_period_valid = false;
+			else
+			{
+				event_period_str = def_user_prop[i].get_value();
+				if (strcmp(event_period_str.c_str(),NotANumber) == 0 || strcmp(event_period_str.c_str(),AlrmValueNotSpec) == 0)
+					event_period_valid = false;
+			}
+		}
+		else
+			event_period_valid = false;
+	}
+	if(event_period_valid)
+	{
+		str.seekp(0);
+		str.seekg(0);
+		str.clear();
 
-	if (strcmp(conf.event_prop.per_event.period,NotANumber) == 0)
+		str << event_period_str << ends;
+		int tmp_period;
+		if (!(str >> tmp_period))
+			throw_err_format("event_period",dev_name);
+
+		ext->event_period = tmp_period;
+	}
+	else
 	{
 		ext->event_period = DEFAULT_EVENT_PERIOD;
 //		ext->event_period = INT_MAX;
 	}
-	else
+
+	string archive_period_str(conf.event_prop.arch_event.period);
+	bool archive_period_valid = true;
+	if (strcmp(archive_period_str.c_str(),NotANumber) == 0 || strcmp(archive_period_str.c_str(),AlrmValueNotSpec) == 0)
 	{
-		if (strcmp(conf.event_prop.per_event.period,AlrmValueNotSpec) != 0)
+		if (nb_user != 0)
 		{
-			str.seekp(0);
-			str.seekg(0);
-			str.clear();
-
-			str << conf.event_prop.per_event.period << ends;
-			int tmp_period;
-			if (!(str >> tmp_period))
-				throw_err_format("event_period",dev_name);
-
-			ext->event_period = tmp_period;
+			int i;
+			for (i = 0;i < nb_user;i++)
+			{
+				if (def_user_prop[i].get_name() == "archive_period")
+					break;
+			}
+			if (i == nb_user)
+				archive_period_valid = false;
+			else
+			{
+				archive_period_str = def_user_prop[i].get_value();
+				if (strcmp(archive_period_str.c_str(),NotANumber) == 0 || strcmp(archive_period_str.c_str(),AlrmValueNotSpec) == 0)
+					archive_period_valid = false;
+			}
 		}
 		else
-		{
-			ext->event_period = DEFAULT_EVENT_PERIOD;
-//			ext->event_period = INT_MAX;
-		}
+			archive_period_valid = false;
 	}
+	if(archive_period_valid)
+	{
+		str.seekp(0);
+		str.seekg(0);
+		str.clear();
 
-	if (strcmp(conf.event_prop.arch_event.period,NotANumber) == 0)
+		str << archive_period_str << ends;
+		int tmp_period;
+		if (!(str >> tmp_period))
+			throw_err_format("archive_period",dev_name);
+
+		ext->archive_period = tmp_period;
+	}
+	else
 	{
 		ext->archive_period = INT_MAX;
-	}
-	else
-	{
-		if (strcmp(conf.event_prop.arch_event.period,AlrmValueNotSpec) != 0)
-		{
-			str.seekp(0);
-			str.seekg(0);
-			str.clear();
-
-			str << conf.event_prop.arch_event.period << ends;
-			int tmp_period;
-			if (!(str >> tmp_period))
-				throw_err_format("archive_period",dev_name);
-
-			ext->archive_period = tmp_period;
-		}
-		else
-		{
-			ext->archive_period = INT_MAX;
-		}
 	}
 }
 
