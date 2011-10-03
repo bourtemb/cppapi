@@ -135,6 +135,7 @@ public :
 	void push_att_conf_events(DeviceImpl *device_impl,AttributeData &,DevFailed *,string &);
 
 	omni_mutex &get_push_mutex() {return push_mutex;}
+	string &get_fqdn_prefix() {return fqdn_prefix;}
 
 protected :
 	inline int timeval_diff(TimeVal before, TimeVal after)
@@ -234,6 +235,9 @@ public :
 	string &get_event_endpoint() {return event_endpoint;}
 
     void create_event_socket();
+    void create_mcast_event_socket(string &,string &);
+    bool is_event_mcast(string &);
+    string &get_mcast_event_endpoint(string &);
 
 protected :
 	ZmqEventSupplier(Database *,string &,string &);
@@ -241,9 +245,16 @@ protected :
 private :
 	static ZmqEventSupplier 	*_instance;
 
+    struct McastSocket
+    {
+        string                  endpoint;
+        zmq::socket_t           *pub_socket;
+    };
+
 	zmq::context_t              zmq_context;            // ZMQ context
 	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
 	zmq::socket_t               *event_pub_sock;        // events publisher socket
+	map<string,McastSocket>     event_mcast;            // multicast socket(s)
 
 	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
 	string                      host_ip;                // Host IP address

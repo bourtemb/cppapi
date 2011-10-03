@@ -63,10 +63,8 @@ string      EventSupplier::fqdn_prefix;
 
 EventSupplier::EventSupplier(Database *db,string &host_name)
 {
-cout << "Entering EventSupplier ctor" << endl;
     if (fqdn_prefix.empty() == true)
     {
-cout << "Initializing fqdn_prefix" << endl;
         fqdn_prefix = "tango://";
         if (Util::_FileDb == true)
             fqdn_prefix = fqdn_prefix + host_name + ':';
@@ -263,7 +261,6 @@ bool EventSupplier::detect_and_push_change_event(DeviceImpl *device_impl,struct 
             if (attr_value.attr_val_4 != NULL)
             {
                 attr.ext->prev_change_event.value_4 = attr_value.attr_val_4->value;
-cout << "Before pushing event, data_format = " << attr_value.attr_val_4->data_format << endl;
             }
             else if (attr_value.attr_val_3 != NULL)
                 attr.ext->prev_change_event.value   = attr_value.attr_val_3->value;
@@ -306,7 +303,6 @@ cout << "Before pushing event, data_format = " << attr_value.attr_val_4->data_fo
         else
             filterable_data.push_back((double)0.0);
 
-cout << "Calling push_event !!!!!!!!!!!" << endl;
         push_event(device_impl,
                "change",
                filterable_names,

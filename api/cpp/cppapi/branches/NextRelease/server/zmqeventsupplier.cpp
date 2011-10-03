@@ -62,7 +62,6 @@ ZmqEventSupplier *ZmqEventSupplier::_instance = NULL;
 
 ZmqEventSupplier::ZmqEventSupplier(Database *db,string &host_name,string &specified_ip):EventSupplier(db,host_name),zmq_context(1),event_pub_sock(NULL)
 {
-cout << "Entering ZmqEventSupplier ctor" << endl;
 	_instance = this;
 
 //
@@ -92,7 +91,6 @@ cout << "Entering ZmqEventSupplier ctor" << endl;
 //
 
     tango_bind(heartbeat_pub_sock,heartbeat_endpoint);
-cout << "Heartbeat publisher socket binded to " << heartbeat_endpoint << endl;
 
 //
 // If needed, replace * by host IP address in enpoint string
@@ -211,8 +209,6 @@ void ZmqEventSupplier::tango_bind(zmq::socket_t *sock,string &endpoint)
         ss << port;
         tmp_endpoint = base_endpoint + ss.str();
 
-cout << "Trying to bind to endpoint " << tmp_endpoint << endl;
-
         if (zmq_bind(*sock, tmp_endpoint.c_str()) == 0)
         {
             break;
@@ -287,7 +283,6 @@ void ZmqEventSupplier::create_event_socket()
 //
 
         tango_bind(event_pub_sock,event_endpoint);
-cout << "Event publisher socket binded to " << event_endpoint << endl;
 
 //
 // If needed, replace * by host IP address in enpoint string
@@ -295,11 +290,137 @@ cout << "Event publisher socket binded to " << event_endpoint << endl;
 
         if (ip_specified == false)
         {
-            string::size_type pos = event_endpoint.find('*');
-            event_endpoint.replace(pos,1,host_ip);
+            event_endpoint.replace(6,1,host_ip);
         }
     }
 
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqEventSupplier::create_mcast_event_socket()
+//
+// description : 	Create and bind the publisher socket used to publish the
+//                  real events when multicast transport is required
+//
+// argument : in :	mcast_data : The multicast addr and port (mcast_adr:port)
+//                  ev_name : The event name (dev_name/attr_name.event_type)
+//
+//-----------------------------------------------------------------------------
+
+void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_name)
+{
+
+//
+// Create the Publisher socket for real events and bind it
+// If the user has specified one IP address on the command line,
+// re-use it in the endpoint
+//
+
+    McastSocket ms;
+    ms.pub_socket = new zmq::socket_t(zmq_context,ZMQ_PUB);
+
+    ms.endpoint = "epgm://";
+    if (ip_specified == true)
+    {
+        ms.endpoint = ms.endpoint + user_ip + ';';
+    }
+    else
+    {
+// TODO: Replace eth0 by the interface IP address
+        ms.endpoint = ms.endpoint + "eth0;";
+    }
+    ms.endpoint = ms.endpoint + mcast_data;
+
+//
+// Bind the publisher socket to the specified port
+//
+
+    if (zmq_bind(*(ms.pub_socket),ms.endpoint.c_str()) != 0)
+    {
+        TangoSys_OMemStream o;
+        o << "Can't bind ZMQ socket with endpoint ";
+        o << ms.endpoint;
+        o << "\nZmq error: " << zmq_strerror(zmq_errno()) << ends;
+
+        Except::throw_exception((const char *)"DServer_Events",
+                                    o.str(),
+                                   (const char *)"ZmqEventSupplier::create_mcast_event_socket");
+    }
+
+//
+// Change multicast hops
+//
+
+    int nb_hops = MCAST_HOPS;
+    ms.pub_socket->setsockopt(ZMQ_MULTICAST_HOPS,&nb_hops,sizeof(nb_hops));
+
+//
+// Change PGM rate to 80 Mbits/sec
+//
+
+    int rate = PGM_RATE;
+    ms.pub_socket->setsockopt(ZMQ_RATE,&rate,sizeof(rate));
+
+//
+// The connection string returned to client does not need the host IP at all
+//
+
+    ms.endpoint = "epgm://" + mcast_data;
+
+//
+// Insert element in map
+//
+
+    if (event_mcast.insert(make_pair(ev_name,ms)).second == false)
+    {
+        TangoSys_OMemStream o;
+        o << "Can't insert multicast transport parameter for event ";
+        o << ev_name << " in EventSupplier instance" << ends;
+
+        Except::throw_exception((const char *)"DServer_Events",
+                                    o.str(),
+                                   (const char *)"ZmqEventSupplier::create_mcast_event_socket");
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqEventSupplier::is_event_mcast()
+//
+// description : 	This method checks if the event is already defined
+//                  in the map of multicast event.
+//
+// argument : in :	ev_name : The event name (device/attr.event_type)
+//
+// This method returns true if the event is in the map and false otherwise
+//-----------------------------------------------------------------------------
+
+bool ZmqEventSupplier::is_event_mcast(string &ev_name)
+{
+    bool ret = false;
+
+    if (event_mcast.find(ev_name) != event_mcast.end())
+        ret = true;
+
+    return ret;
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqEventSupplier::get_mcast_event_endpoint()
+//
+// description : 	This method returns the multicast socket endpoint for the
+//                  event passed as parameter
+//
+// argument : in :	event_name : The event name (device/attr.event_type)
+//
+// This method returns a reference to the enpoint string
+//-----------------------------------------------------------------------------
+
+string &ZmqEventSupplier::get_mcast_event_endpoint(string &ev_name)
+{
+    return event_mcast.find(ev_name)->second.endpoint;
 }
 
 //+----------------------------------------------------------------------------
@@ -316,8 +437,6 @@ void tg_free(void *data,void *hint)
 
 void ZmqEventSupplier::push_heartbeat_event()
 {
-cout << "Entering ZmqEventSupplier::push_heartbeat_event" << endl;
-
 	time_t delta_time;
 	time_t now_time;
 
@@ -397,7 +516,6 @@ cout << "Entering ZmqEventSupplier::push_heartbeat_event" << endl;
 // Push the event
 //
 
-cout << "Pushing heartbeat for " << heartbeat_event_name << endl;
             heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
 			heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);
 			heartbeat_pub_sock->send(call_mess,0);
@@ -445,7 +563,6 @@ void tg_unlock(void *data,void *hint)
     EventSupplier *ev = (EventSupplier *)hint;
     omni_mutex &the_mutex = ev->get_push_mutex();
     the_mutex.unlock();
-cout << "Unlock.................." << endl;
 }
 
 void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
@@ -458,8 +575,6 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // Get the mutex to synchronize the sending of events
 //
 
-//	omni_mutex_lock l(push_mutex);
-    cout << "Lock............" << endl;
     push_mutex.lock();
 
 //
@@ -468,8 +583,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 	string loc_attr_name(attr_name);
 	transform(loc_attr_name.begin(),loc_attr_name.end(),loc_attr_name.begin(),::tolower);
-	event_name = fqdn_prefix + device_impl->get_name_lower() + "/" + loc_attr_name + "." + event_type;
-cout << "event_name = " << event_name << endl;
+	event_name = fqdn_prefix + device_impl->get_name_lower() + '/' + loc_attr_name + '.' + event_type;
 
 //
 // Create zmq messages
@@ -497,7 +611,6 @@ cout << "event_name = " << event_name << endl;
 // Marshall the event data
 //
 
-//	cdrMemoryStream data_call_cdr;
 	CORBA::Long padding = 0XDEC0DEC0;
 	data_call_cdr.rewindPtrs();
 	padding >>= data_call_cdr;
@@ -584,20 +697,30 @@ cout << "event_name = " << event_name << endl;
         }
 
 //
+// Get publisher socket (multicast case)
+//
+
+        zmq::socket_t *pub;
+        map<string,McastSocket>::iterator ite;
+
+        if ((ite = event_mcast.find(event_name)) != event_mcast.end())
+            pub = ite->second.pub_socket;
+        else
+            pub = event_pub_sock;
+
+//
 // Push the event
 //
 
-cout << "Pushing event for " << event_name << endl;
-        event_pub_sock->send(name_mess,ZMQ_SNDMORE);
-        event_pub_sock->send(endian_mess,ZMQ_SNDMORE);
-        event_pub_sock->send(call_mess,ZMQ_SNDMORE);
-        event_pub_sock->send(data_mess,0);
+        pub->send(name_mess,ZMQ_SNDMORE);
+        pub->send(endian_mess,ZMQ_SNDMORE);
+        pub->send(call_mess,ZMQ_SNDMORE);
+        pub->send(data_mess,0);
     }
     catch(...)
     {
         cout3 << "ZmqEventSupplier::push_event() failed !\n";
         push_mutex.unlock();
-cout <<"Unlock in catch block.........." << endl;
         fail = true;
     }
 }

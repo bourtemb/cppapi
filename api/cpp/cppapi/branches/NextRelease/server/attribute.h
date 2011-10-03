@@ -191,6 +191,7 @@ public:
 	bool				scalar_str_attr_release;		// Need memory freeing (scalar string attr, R/W att)
 	bool                notifd_event;                   // Set to true if event required using notifd
 	bool                zmq_event;                      // Set to true if event required using ZMQ
+	vector<string>      mcast_event;                    // In case of multicasting used for event transport
 };
 
 /**

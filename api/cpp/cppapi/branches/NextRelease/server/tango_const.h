@@ -114,6 +114,8 @@ namespace Tango
 #define     EVENT_METHOD_NAME           "push_zmq_event"
 #define     HEARTBEAT_EVENT_NAME        "heartbeat"
 #define     CTRL_SOCK_ENDPOINT          "inproc://control"
+#define     MCAST_HOPS                  5
+#define     PGM_RATE                    80 * 1024
 
 #define     ZMQ_END                     0
 #define     ZMQ_CONNECT_HEARTBEAT       1
@@ -845,7 +847,18 @@ enum EventType {
 	ARCHIVE_EVENT,
 	USER_EVENT,
 	ATTR_CONF_EVENT,
-	DATA_READY_EVENT
+	DATA_READY_EVENT,
+	numEventType
+};
+
+const char * const EventName[] = {
+    "change",
+    "quality",
+    "periodic",
+    "archive",
+    "user_event",
+    "attr_conf",
+    "data_ready"
 };
 
 enum AttrSerialModel

@@ -69,8 +69,6 @@ ZmqEventConsumer *ZmqEventConsumer::_instance = NULL;
 
 ZmqEventConsumer::ZmqEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_thread((void *)ptr),zmq_context(1)
 {
-cout << "Entering ZmqEventConsumer ctor" << endl;
-
 	cout3 << "calling Tango::ZmqEventConsumer::ZmqEventConsumer() \n";
 
 	_instance = this;
@@ -169,8 +167,8 @@ void *ZmqEventConsumer::run_undetached(void *arg)
 // Wait for message
 //
 
-cout << "Waiting for message (entering zmq::poll())" << endl;
         zmq::poll(&items[0],3,-1);
+cout << "Awaken !!!!!!!!" << endl;
 
 //
 // Something received by the heartbeat socket ?
@@ -178,6 +176,7 @@ cout << "Waiting for message (entering zmq::poll())" << endl;
 
         if (items [0].revents & ZMQ_POLLIN)
         {
+cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -191,6 +190,7 @@ cout << "Waiting for message (entering zmq::poll())" << endl;
 
         if (items [1].revents & ZMQ_POLLIN)
         {
+cout << "For the control socket" << endl;
             control_sock->recv(&received_ctrl);
 
             string ret_str;
@@ -225,17 +225,17 @@ cout << "Waiting for message (entering zmq::poll())" << endl;
 
         if (items [2].revents & ZMQ_POLLIN)
         {
+cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
-            event_sub_sock->recv(&received_endian);
-            event_sub_sock->recv(&received_call);
-            event_sub_sock->recv(&received_event_data);
+//            event_sub_sock->recv(&received_endian);
+//            event_sub_sock->recv(&received_call);
+//            event_sub_sock->recv(&received_event_data);
 
-            process_event(received_event_name,received_endian,received_call,received_event_data);
+//            process_event(received_event_name,received_endian,received_call,received_event_data);
         }
 
     }
 
-    cout << "Returning from main ZMQ thread" << endl;
 	return (void *)NULL;
 }
 
@@ -255,7 +255,6 @@ cout << "Waiting for message (entering zmq::poll())" << endl;
 
 void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq::message_t &received_endian,zmq::message_t &received_call)
 {
-cout << "Entering process_heartbeat" << endl;
 //
 // For debug and logging purposes
 //
@@ -302,8 +301,6 @@ cout << "Entering process_heartbeat" << endl;
     (ZmqCallInfo &)c_info_var <<= call_info;
     receiv_call = &c_info_var.in();
 
-cout << "Received: " << event_name << ", endian = " << (int)endian << ", method name = " << receiv_call->method_name <<", protocol version = " << receiv_call->version << endl;
-
 //
 // Call the required method
 //
@@ -334,7 +331,6 @@ cout << "Received: " << event_name << ", endian = " << (int)endian << ", method 
 
 void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::message_t &received_endian,zmq::message_t &received_call,zmq::message_t &event_data)
 {
-cout << "Entering process_event" << endl;
 //
 // For debug and logging purposes
 //
@@ -387,8 +383,6 @@ cout << "Entering process_event" << endl;
     (ZmqCallInfo &)c_info_var <<= call_info;
     receiv_call = &c_info_var.in();
 
-cout << "Received: " << event_name << ", endian = " << (int)endian << ", method name = " << receiv_call->method_name <<", protocol version = " << receiv_call->version << endl;
-
 //
 // Call the required method
 //
@@ -419,7 +413,6 @@ cout << "Received: " << event_name << ", endian = " << (int)endian << ", method 
 
 bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
 {
-cout << "Entering process_ctrl" << endl;
     bool ret = false;
 
 //
@@ -457,14 +450,12 @@ cout << "Entering process_ctrl" << endl;
     {
         case ZMQ_END:
         {
-cout << "ZMQ_END command" << endl;
             ret = true;
         }
         break;
 
         case ZMQ_CONNECT_HEARTBEAT:
         {
-cout << "ZMQ_CONNECT_HEARTBEAT command" << endl;
 //
 // First extract the endpoint and the event name from received buffer
 //
@@ -506,7 +497,6 @@ cout << "ZMQ_CONNECT_HEARTBEAT command" << endl;
 
         case ZMQ_DISCONNECT_HEARTBEAT:
         {
-cout << "ZMQ_DISCONNECT_HEARTBEAT command" << endl;
 //
 // Get event name
 //
@@ -523,7 +513,6 @@ cout << "ZMQ_DISCONNECT_HEARTBEAT command" << endl;
 
         case ZMQ_CONNECT_EVENT:
         {
-cout << "ZMQ_CONNECT_EVENT command" << endl;
 //
 // First extract the endpoint and the event name from received buffer
 //
@@ -531,6 +520,7 @@ cout << "ZMQ_CONNECT_EVENT command" << endl;
             const char *endpoint = &(tmp_ptr[1]);
             int start = ::strlen(endpoint) + 2;
             const char *event_name = &(tmp_ptr[start]);
+cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << endl;
 
 //
 // Connect the socket to the publisher
@@ -550,6 +540,7 @@ cout << "ZMQ_CONNECT_EVENT command" << endl;
 
             if (connect_pub == true)
             {
+cout << "Connect socket with endpoint: " << endpoint << endl;
                 event_sub_sock->connect(endpoint);
                 connected_pub.push_back(endpoint);
             }
@@ -559,14 +550,14 @@ cout << "ZMQ_CONNECT_EVENT command" << endl;
 // Subscribe to the new event
 //
 
-cout << "Subscribing with string: " << event_name << endl;
+cout << "Zmq subscribe with string: " << event_name << endl;
             event_sub_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
         }
         break;
 
         case ZMQ_DISCONNECT_EVENT:
         {
-cout << "ZMQ_DISCONNECT_EVENT command" << endl;
+
 //
 // Get event name
 //
@@ -679,7 +670,6 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,Database *db,b
 
     const DevVarLongStringArray *ev_svr_data;
     dd >> ev_svr_data;
-cout << "Heartbeat end point = " << ev_svr_data->svalue[0] << endl;
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -806,7 +796,6 @@ cout << "Heartbeat end point = " << ev_svr_data->svalue[0] << endl;
 
 void ZmqEventConsumer::disconnect_event_channel(string &channel_name)
 {
-cout << "Channel name in unsubscribe: " << channel_name << endl;
     string unsub(channel_name);
     unsub = unsub + '.' + HEARTBEAT_EVENT_NAME;
 
@@ -899,7 +888,6 @@ cout << "Channel name in unsubscribe: " << channel_name << endl;
 
 void ZmqEventConsumer::disconnect_event(string &event_name)
 {
-cout << "Event name in unsubscribe: " << event_name << endl;
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -995,9 +983,6 @@ cout << "Event name in unsubscribe: " << event_name << endl;
 void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,const vector<string> &filters,
                                             EvChanIte &eve_it,EventCallBackStruct &new_event_callback,DeviceData &dd)
 {
-cout << "Entering ZmqEventConsumer::connect_event_system" << endl;
-cout << "device_name = " << device_name << ", att_name = " << att_name << ", event_name = " << event_name << endl;
-
     string full_event_name = device_name + '/' + att_name + '.' + event_name;
 
 //
@@ -1006,8 +991,6 @@ cout << "device_name = " << device_name << ", att_name = " << att_name << ", eve
 
     const DevVarLongStringArray *ev_svr_data;
     dd >> ev_svr_data;
-cout << "Event end point = " << ev_svr_data->svalue[1] << endl;
-
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -1032,8 +1015,13 @@ cout << "Event end point = " << ev_svr_data->svalue[1] << endl;
         buffer[length] = ZMQ_CONNECT_EVENT;
         length++;
 
-        ::strcpy(&(buffer[length]),ev_svr_data->svalue[1].in());
-        length = length + ::strlen(ev_svr_data->svalue[1].in()) + 1;
+        string endpoint(ev_svr_data->svalue[1].in());
+        if (endpoint.find("epgm://") != string::npos)
+        {
+           endpoint.insert(7,"eth0;");
+        }
+        ::strcpy(&(buffer[length]),endpoint.c_str());
+        length = length + endpoint.size() + 1;
 
         ::strcpy(&(buffer[length]),full_event_name.c_str());
         length = length + full_event_name.size() + 1;
@@ -1125,7 +1113,6 @@ void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
         try
         {
             AutoTangoMonitor _mon(evt_ch.channel_monitor);
-cout << "Updating last_heartbeat for " << ev_name << endl;
             evt_ch.last_heartbeat = time(NULL);
         }
         catch (...)
@@ -1241,9 +1228,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         cdrMemoryStream event_data_cdr(data_ptr,data_size);
         event_data_cdr.setByteSwapFlag(endian);
 
-cout << "Event_data.data = " << hex << event_data.data() << endl;
-cout << "event_data_cdr.bufPtr = " << hex << event_data_cdr.bufPtr() << dec << endl;
-
 //
 // Unmarshal the data
 //
@@ -1335,8 +1319,6 @@ cout << "event_data_cdr.bufPtr = " << hex << event_data_cdr.bufPtr() << dec << e
                 break;
             }
         }
-
-cout << "Device IDL = " << ipos->second.device_idl << ", error flag = " << error << endl;
 
         AutoTangoMonitor _mon(evt_cb.callback_monitor);
         try

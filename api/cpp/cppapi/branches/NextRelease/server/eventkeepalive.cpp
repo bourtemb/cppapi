@@ -364,7 +364,6 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 			if (shared_cmd.cmd_pending == true)
 			{
 				exit_th = true;
-cout << "Returning from KeepAlive thread" << endl;
 				return (void *)NULL;
 			}
 		}
@@ -372,7 +371,7 @@ cout << "Returning from KeepAlive thread" << endl;
 //
 // Re-subscribe
 //
-cout << "One more loop in keep alive thread" << endl;
+
 		// lock the maps only for reading
 		event_consumer->map_modification_lock.writerIn();
 
@@ -489,7 +488,7 @@ cout << "One more loop in keep alive thread" << endl;
 									subscriber_info.push_back(epos->second.event_name);
 									subscriber_in << subscriber_info;
 									if (ipos->second.channel_type == ZMQ)
-                                        ipos->second.adm_device_proxy->command_inout("ZmqEventSubsriptionChange",subscriber_in);
+                                        ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
 									else
                                         ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
 

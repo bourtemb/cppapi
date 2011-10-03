@@ -144,7 +144,6 @@ cout << "Entering leavefunc function" << endl;
 
 EventConsumer::EventConsumer(ApiUtil *api_ptr)
 {
-cout << "Entering EventConsumer ctor" << endl;
 //
 // Build and store the fqdn prefix for devices in the TANGO_HOST
 // environment variable (in lower case letters)
@@ -199,7 +198,6 @@ cout << "Entering EventConsumer ctor" << endl;
 	{
 		int res;
 		res = atexit(leavefunc);
-cout << "Installing exit function, retuned value = " << res << endl;
 		api_ptr->set_lock_exit_installed(true);
 	}
 #endif
@@ -220,7 +218,6 @@ cout << "Installing exit function, retuned value = " << res << endl;
 
     if (keep_alive_thread == NULL)
     {
-cout << "Creating KeepAliveThread" << endl;
         keep_alive_thread = new EventConsumerKeepAliveThread(cmd);
         keep_alive_thread->start();
     }
@@ -236,7 +233,6 @@ cout << "Creating KeepAliveThread" << endl;
 //-----------------------------------------------------------------------------
 void EventConsumer::shutdown()
 {
-cout << "Entering EventConsumer::shutdown()" << endl;
 	cout3 << "calling Tango::EventConsumer::shutdown() \n";
 
 //
@@ -264,7 +260,6 @@ cout << "Entering EventConsumer::shutdown()" << endl;
 
 void EventConsumer::shutdown_keep_alive_thread()
 {
-cout << "Entering shutdown_keep_alive_thread: keep_alive_thread ptr = "  << hex << (void *)keep_alive_thread << dec << endl;
 //
 // Shut-down the KeepAliveThread and wait for it to exit
 //
@@ -308,7 +303,6 @@ void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name,DeviceData 
 	{
 		channel_name.insert(0,env_var_fqdn_prefix[0]);
 	}
-cout << "connect: channel name from adm_name = " << channel_name << endl;
 
 //
 // If no connection exists to this channel then connect to it.
@@ -327,16 +321,12 @@ cout << "connect: channel name from adm_name = " << channel_name << endl;
 
     if (device_proxy->get_from_env_var() == true)
     {
-cout << "connect: insert env_var_fqdn_prefix !!!!, before = " << adm_name << endl;
         adm_name.insert(0,env_var_fqdn_prefix[0]);
-cout << "connect: after " << adm_name << endl;
     }
 
 //
 // Init adm device name in channel map entry
 //
-
-cout << "connect: channel name  = " << channel_name << ", adm_name in map = " << adm_name << endl;
 
 	channel_map[channel_name].full_adm_name = adm_name;
 
@@ -1021,33 +1011,14 @@ int EventConsumer::subscribe_event (DeviceProxy *device,
 				   bool stateless)
 {
 	string event_name;
-	switch (event)
+	if (event == QUALITY_EVENT)
 	{
-		case CHANGE_EVENT : event_name = "change";
-				    break;
-
-		case QUALITY_EVENT : event_name = "quality";
-					  EventSystemExcept::throw_exception((const char*)"API_InvalidArgs",
-                       	(const char*)"The quality change event does`nt exist any more. A change event is fired on a qaulity change!",
-                       	(const char*)"EventConsumer::subscribe_event()");
-
-					  break;
-
-		case PERIODIC_EVENT : event_name = "periodic";
-				      break;
-
-		case ARCHIVE_EVENT : event_name = "archive";
-				     break;
-
-		case USER_EVENT : event_name = "user_event";
-				  break;
-
-		case ATTR_CONF_EVENT : event_name = "attr_conf";
-					      break;
-
-		case DATA_READY_EVENT: event_name = "data_ready";
-					break;
+        EventSystemExcept::throw_exception((const char*)"API_InvalidArgs",
+            (const char*)"The quality change event does`nt exist any more. A change event is fired on a qaulity change!",
+            (const char*)"EventConsumer::subscribe_event()");
 	}
+    else
+        event_name = EventName[event];
 
 //
 // Take a writer lock right now and not in the connect_event method
@@ -1205,7 +1176,6 @@ int EventConsumer::connect_event(DeviceProxy *device,
 		try
 		{
 			adm_name = device->adm_name();
-cout << "adm_name returned by device: " << adm_name << endl;
 			adm_dev = new DeviceProxy(adm_name);
 			allocated = true;
 		}

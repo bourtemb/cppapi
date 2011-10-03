@@ -112,7 +112,8 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 		ev->set_svr_port_num(p_num);
 	}
 
-    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD);
+    string mcast;
+    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast);
 
 	Tango::DevLong ret_val = (Tango::DevLong)tg->get_tango_lib_release();
 	return ret_val;
@@ -132,10 +133,11 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 //      - event : The event type
 //      - attr_name_lower : The attribute name in lower case letters
 //      - ct : The channel type (notifd or zmq)
+//      - mcast_data : The multicast transport data
 //
 //-----------------------------------------------------------------------------
 
-DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct)
+DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct,string &mcast_data)
 {
     Tango::Util *tg = Tango::Util::instance();
 
@@ -349,6 +351,36 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
             attribute.set_use_notifd_event();
 
 //
+// Check if multicast has to be used for event transport
+// (only for ZMQ event)
+//
+
+        if (ct == ZMQ)
+        {
+//            vector<string>::iterator ite = find(attribute.ext->mcast_event.begin(),attribute.ext->mcast_event.end(),event);
+//            if (ite != attribute.ext->mcast_event.end())
+//            {
+//                ite++;
+//                if (ite != attribute.ext->mcast_event.end())
+//                    mcast_data = *ite;
+//                else
+//                {
+//                    TangoSys_OMemStream o;
+//                    o << "Event ";
+//                    o << event;
+//                    o << " for attribute ";
+//                    o << attr_name;
+//                    o << " is defined to use multicast transport but can't find multicast address/port" << ends;
+//
+//                    Except::throw_exception((const char *)"API_EventPropertiesNotSet",
+//                                                    o.str(),
+//                                                    (const char *)"DServer::event_subscription");
+//                }
+//            }
+            mcast_data = "226.10.11.12:3456";
+        }
+
+//
 // Start polling for attribute in question. I suppose I should
 // check to see if the attribute is polled already. For the
 // moment I will simply ignore the exception. Why not rather
@@ -391,8 +423,6 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //-----------------------------------------------------------------------------
 DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVarStringArray *argin)
 {
-cout << "Entering ZmqEventSubscriptionChange command" << endl;
-cout << "ZMQSupplier = " << Util::instance()->get_zmq_event_supplier() << ", notifdSupplier = " << Util::instance()->get_notifd_event_supplier() << endl;
     if (argin->length() < 4)
     {
 		TangoSys_OMemStream o;
@@ -451,13 +481,18 @@ cout << "ZMQSupplier = " << Util::instance()->get_zmq_event_supplier() << ", not
 		ev->set_svr_port_num(p_num);
 	}
 
-    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ);
+    string mcast;
+    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast);
 
 //
 // Create the event publisher socket (if not already done)
 //
 
-    ev->create_event_socket();
+    string ev_name = ev->get_fqdn_prefix() + dev->get_name_lower() + '/' + attr_name_lower + '.' +  event;
+    if ((mcast.empty() == false) && (ev->is_event_mcast(ev_name) == false))
+        ev->create_mcast_event_socket(mcast,ev_name);
+    else
+        ev->create_event_socket();
 
 //
 // Init data returned by command
@@ -472,8 +507,16 @@ cout << "ZMQSupplier = " << Util::instance()->get_zmq_event_supplier() << ", not
 
     string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
 	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
-	string &event_endpoint = ev->get_event_endpoint();
-	ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	if (mcast.empty() == true)
+	{
+        string &event_endpoint = ev->get_event_endpoint();
+        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	}
+	else
+	{
+        string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
+        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	}
 
 	return ret_data;
 }
