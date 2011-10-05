@@ -1234,7 +1234,7 @@ void Util::init_host_name()
 	if (gethostname(buffer,80) == 0)
 	{
 		hostname = buffer;
-		transform(hostname.begin(), hostname.end(), hostname.begin(), ::tolower);
+		transform(hostname.begin(), hostname.end(), hostname.begin(), ::tolower);	// to retain consistency with getnameinfo() which always returns lowercase
 
 		string::size_type pos = hostname.find('.');
 
@@ -1247,22 +1247,20 @@ void Util::init_host_name()
   			hints.ai_socktype  = SOCK_STREAM;
   			hints.ai_flags = AI_NUMERICHOST;	// inhibits resolution of node parameter if it is not a numeric network address
 
-// Commented out to support IPv6
-//#ifdef _TG_WINDOWS_
-//#ifdef WIN32_VC9
-//			hints.ai_falgs	   = AI_ADDRCONFIG;
-//#endif
-//#else
-//#ifdef GCC_HAS_AI_ADDRCONFIG
-//  			hints.ai_flags     = AI_ADDRCONFIG;
-//#endif
-//#endif
+#ifdef _TG_WINDOWS_
+#ifdef WIN32_VC9
+			hints.ai_falgs	   |= AI_ADDRCONFIG;
+#endif
+#else
+#ifdef GCC_HAS_AI_ADDRCONFIG
+  			hints.ai_flags     |= AI_ADDRCONFIG;
+#endif
+#endif
 
   			struct addrinfo	*info, *ptr;
 			char tmp_host[NI_MAXHOST];
 			bool host_found = false;
 
-			// new
 			ApiUtil *au = ApiUtil::instance();
 			vector<string> ip_list;
 			au->get_ip_from_if(ip_list);	// returns a list of numeric network addresses
@@ -1294,72 +1292,7 @@ void Util::init_host_name()
 					freeaddrinfo(info);
 				}
 			}
-			// end new
-
-//  			int result = getaddrinfo(buffer, NULL, &hints, &info);
-//
-//  			if (result == 0)
-//			{
-//				ptr = info;
-//				while (ptr != NULL)
-//				{
-//    				if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,512,0,0,0) == 0)
-//					{
-//						string myhost(tmp_host);
-//						string::size_type pos = myhost.find('.');
-//						if (pos != string::npos)
-//						{
-//							string canon = myhost.substr(0,pos);
-//							if (hostname == canon)
-//							{
-//								hostname = myhost;
-//								break;
-//							}
-//						}
-//    				}
-//					ptr = ptr->ai_next;
-//				}
-//				freeaddrinfo(info);
-//			}
 		}
-#ifdef __sun
-
-//
-// Unfortunately, on solaris (at least solaris9), getnameinfo does
-// not return the fqdn....
-// Use the old way of doing
-//
-
-		pos = hostname.find('.');
-
-		if (pos == string::npos)
-		{
-			struct hostent *he;
-			he = gethostbyname(buffer);
-
-			if (he != NULL)
-			{
-				string na(he->h_name);
-				pos = na.find('.');
-				if (pos == string::npos)
-				{
-					char **p;
-					for (p = he->h_aliases;*p != 0;++p)
-					{
-						string al(*p);
-						pos = al.find('.');
-						if (pos != string::npos)
-						{
-							hostname = al;
-							break;
-						}
-					}
-				}
-				else
-					hostname = na;
-			}
-		}
-#endif
 	}
 	else
 	{
