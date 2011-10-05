@@ -333,6 +333,20 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
     ms.endpoint = ms.endpoint + mcast_data;
 
 //
+// Change multicast hops
+//
+
+    int nb_hops = MCAST_HOPS;
+    ms.pub_socket->setsockopt(ZMQ_MULTICAST_HOPS,&nb_hops,sizeof(nb_hops));
+
+//
+// Change PGM rate to 80 Mbits/sec
+//
+
+    int rate = PGM_RATE;
+    ms.pub_socket->setsockopt(ZMQ_RATE,&rate,sizeof(rate));
+
+//
 // Bind the publisher socket to the specified port
 //
 
@@ -347,20 +361,6 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
                                     o.str(),
                                    (const char *)"ZmqEventSupplier::create_mcast_event_socket");
     }
-
-//
-// Change multicast hops
-//
-
-    int nb_hops = MCAST_HOPS;
-    ms.pub_socket->setsockopt(ZMQ_MULTICAST_HOPS,&nb_hops,sizeof(nb_hops));
-
-//
-// Change PGM rate to 80 Mbits/sec
-//
-
-    int rate = PGM_RATE;
-    ms.pub_socket->setsockopt(ZMQ_RATE,&rate,sizeof(rate));
 
 //
 // The connection string returned to client does not need the host IP at all

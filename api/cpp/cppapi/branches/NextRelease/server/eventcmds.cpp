@@ -357,27 +357,26 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
         if (ct == ZMQ)
         {
-//            vector<string>::iterator ite = find(attribute.ext->mcast_event.begin(),attribute.ext->mcast_event.end(),event);
-//            if (ite != attribute.ext->mcast_event.end())
-//            {
-//                ite++;
-//                if (ite != attribute.ext->mcast_event.end())
-//                    mcast_data = *ite;
-//                else
-//                {
-//                    TangoSys_OMemStream o;
-//                    o << "Event ";
-//                    o << event;
-//                    o << " for attribute ";
-//                    o << attr_name;
-//                    o << " is defined to use multicast transport but can't find multicast address/port" << ends;
-//
-//                    Except::throw_exception((const char *)"API_EventPropertiesNotSet",
-//                                                    o.str(),
-//                                                    (const char *)"DServer::event_subscription");
-//                }
-//            }
-            mcast_data = "226.10.11.12:3456";
+            vector<string>::iterator ite = find(attribute.ext->mcast_event.begin(),attribute.ext->mcast_event.end(),event);
+            if (ite != attribute.ext->mcast_event.end())
+            {
+                ite++;
+                if (ite != attribute.ext->mcast_event.end())
+                    mcast_data = *ite;
+                else
+                {
+                    TangoSys_OMemStream o;
+                    o << "Event ";
+                    o << event;
+                    o << " for attribute ";
+                    o << attr_name;
+                    o << " is defined to use multicast transport but can't find multicast address/port" << ends;
+
+                    Except::throw_exception((const char *)"API_EventPropertiesNotSet",
+                                                    o.str(),
+                                                    (const char *)"DServer::event_subscription");
+                }
+            }
         }
 
 //

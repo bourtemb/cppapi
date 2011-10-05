@@ -227,11 +227,11 @@ cout << "For the control socket" << endl;
         {
 cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
-//            event_sub_sock->recv(&received_endian);
-//            event_sub_sock->recv(&received_call);
-//            event_sub_sock->recv(&received_event_data);
+            event_sub_sock->recv(&received_endian);
+            event_sub_sock->recv(&received_call);
+            event_sub_sock->recv(&received_event_data);
 
-//            process_event(received_event_name,received_endian,received_call,received_event_data);
+            process_event(received_event_name,received_endian,received_call,received_event_data);
         }
 
     }
