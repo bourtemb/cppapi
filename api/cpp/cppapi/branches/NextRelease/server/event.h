@@ -492,7 +492,7 @@ protected :
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &) = 0;
     virtual void disconnect_event(string &) {}
 
-    virtual void get_subcription_command_name(string &) = 0;
+    virtual void get_subscription_command_name(string &) = 0;
     virtual void set_channel_type(EventChannelStruct &) = 0;
 };
 
@@ -524,7 +524,7 @@ protected :
 	virtual void connect_event_channel(string &,Database *,bool,DeviceData &);
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
 
-    virtual void get_subcription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
+    virtual void get_subscription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = NOTIFD;}
 
 private :
@@ -572,7 +572,7 @@ protected :
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
     virtual void disconnect_event(string &);
 
-    virtual void get_subcription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
+    virtual void get_subscription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
 
 private :
@@ -582,6 +582,7 @@ private :
 	zmq::socket_t                           *control_sock;          // control socket
 	zmq::socket_t                           *event_sub_sock;        // event subscriber socket
 
+	map<string,zmq::socket_t *>             event_mcast;            // multicast socket(s)
 	vector<string>                          connected_pub;          //
 	vector<string>                          connected_heartbeat;    //
 

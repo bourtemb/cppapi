@@ -235,7 +235,7 @@ public :
 	string &get_event_endpoint() {return event_endpoint;}
 
     void create_event_socket();
-    void create_mcast_event_socket(string &,string &);
+    void create_mcast_event_socket(string &,string &,int);
     bool is_event_mcast(string &);
     string &get_mcast_event_endpoint(string &);
 
@@ -245,7 +245,7 @@ protected :
 private :
 	static ZmqEventSupplier 	*_instance;
 
-    struct McastSocket
+    struct McastSocketPub
     {
         string                  endpoint;
         zmq::socket_t           *pub_socket;
@@ -254,7 +254,7 @@ private :
 	zmq::context_t              zmq_context;            // ZMQ context
 	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
 	zmq::socket_t               *event_pub_sock;        // events publisher socket
-	map<string,McastSocket>     event_mcast;            // multicast socket(s)
+	map<string,McastSocketPub>  event_mcast;            // multicast socket(s)
 
 	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
 	string                      host_ip;                // Host IP address

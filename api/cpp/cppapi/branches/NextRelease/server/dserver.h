@@ -123,6 +123,8 @@ public :
 	TANGO_IMP_EXP static void register_class_factory(ClassFactoryFuncPtr f_ptr) {class_factory_func_ptr = f_ptr;}
 	void _add_class(DeviceClass *dc) {this->add_class(dc);}
 
+	void mcast_event_for_att(string &,string &,vector<string> &);
+
 	friend class NotifdEventSupplier;
 	friend class ZmqEventSupplier;
 
@@ -152,9 +154,13 @@ private:
 	void add_class(DeviceClass *);
 	void create_cpp_class(const char *,const char *);
 	void get_dev_prop(Tango::Util *);
-    DeviceImpl *event_subscription(string &,string &,string &,string &,string &,ChannelType,string &);
+    DeviceImpl *event_subscription(string &,string &,string &,string &,string &,ChannelType,string &,int &,int &);
+	void get_mcast_event_prop(Tango::Util *);
+	bool is_event_name(string &);
+	bool is_ip_address(string &);
 
 	bool			from_constructor;
+	vector<string>	mcast_event_prop;
 };
 
 class KillThread: public omni_thread
@@ -179,6 +185,29 @@ struct Pol
 	long			upd;
 	string 			name;
 };
+
+
+/******************************************************************************
+ *
+ *			Some inline methods
+ *
+ ******************************************************************************/
+
+inline bool DServer::is_event_name(string &str)
+{
+	if (count(str.begin(),str.end(),'/') != 3)
+		return false;
+	if (count(str.begin(),str.end(),'.') != 1)
+		return false;
+	return true;
+}
+
+inline bool DServer::is_ip_address(string &str)
+{
+	if (count(str.begin(),str.end(),'.') != 3)
+		return false;
+	return true;
+}
 
 } // End of namespace Tango
 

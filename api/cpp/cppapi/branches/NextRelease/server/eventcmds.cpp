@@ -113,7 +113,9 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 	}
 
     string mcast;
-    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast);
+    int rate,ivl;
+
+    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast,rate,ivl);
 
 	Tango::DevLong ret_val = (Tango::DevLong)tg->get_tango_lib_release();
 	return ret_val;
@@ -134,10 +136,12 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 //      - attr_name_lower : The attribute name in lower case letters
 //      - ct : The channel type (notifd or zmq)
 //      - mcast_data : The multicast transport data
+//      - rate : PGM rate parameter
+//      - ivl : PGM ivl paramteter
 //
 //-----------------------------------------------------------------------------
 
-DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct,string &mcast_data)
+DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct,string &mcast_data,int &rate,int &ivl)
 {
     Tango::Util *tg = Tango::Util::instance();
 
@@ -353,30 +357,66 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //
 // Check if multicast has to be used for event transport
 // (only for ZMQ event)
+// Don't forget syntax in attribute mcast_event string:
+// event_name:ip_address:port:rate:ivl
+// The last two are not optionals
 //
 
         if (ct == ZMQ)
         {
-            vector<string>::iterator ite = find(attribute.ext->mcast_event.begin(),attribute.ext->mcast_event.end(),event);
-            if (ite != attribute.ext->mcast_event.end())
-            {
-                ite++;
-                if (ite != attribute.ext->mcast_event.end())
-                    mcast_data = *ite;
-                else
+			for(unsigned int i = 0;i != attribute.ext->mcast_event.size();++i)
+			{
+                if (attribute.ext->mcast_event[i].find(event) == 0)
                 {
-                    TangoSys_OMemStream o;
-                    o << "Event ";
-                    o << event;
-                    o << " for attribute ";
-                    o << attr_name;
-                    o << " is defined to use multicast transport but can't find multicast address/port" << ends;
+                    string::size_type start,end;
+                    start = attribute.ext->mcast_event[i].find(':');
+                    start++;
+                    end = attribute.ext->mcast_event[i].find(':',start);
 
-                    Except::throw_exception((const char *)"API_EventPropertiesNotSet",
-                                                    o.str(),
-                                                    (const char *)"DServer::event_subscription");
+                    if ((end = attribute.ext->mcast_event[i].find(':',end + 1)) == string::npos)
+                    {
+                        mcast_data = attribute.ext->mcast_event[i].substr(start);
+                        rate = 0;
+                        ivl = 0;
+                        break;
+                    }
+                    else
+                    {
+                        mcast_data = attribute.ext->mcast_event[i].substr(start,end - start);
+
+//
+// Get rate because one is defined
+//
+
+                        string::size_type start_rate = end + 1;
+                        if ((end = attribute.ext->mcast_event[i].find(':',start_rate)) == string::npos)
+                        {
+                            istringstream iss(attribute.ext->mcast_event[i].substr(start_rate));
+                            iss >> rate;
+                            ivl = 0;
+                            break;
+                        }
+                        else
+                        {
+                            istringstream iss(attribute.ext->mcast_event[i].substr(start_rate,end - start_rate));
+                            iss >> rate;
+
+//
+// Get ivl because one is defined
+//
+
+                            istringstream iss_ivl(attribute.ext->mcast_event[i].substr(end + 1));
+                            iss_ivl >> ivl;
+                            break;
+                        }
+                    }
                 }
-            }
+			}
+        }
+        else
+        {
+            rate = 0;
+            ivl = 0;
         }
 
 //
@@ -481,7 +521,9 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 
     string mcast;
-    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast);
+    int rate,ivl;
+
+    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
 
 //
 // Create the event publisher socket (if not already done)
@@ -489,7 +531,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 
     string ev_name = ev->get_fqdn_prefix() + dev->get_name_lower() + '/' + attr_name_lower + '.' +  event;
     if ((mcast.empty() == false) && (ev->is_event_mcast(ev_name) == false))
-        ev->create_mcast_event_socket(mcast,ev_name);
+        ev->create_mcast_event_socket(mcast,ev_name,rate);
     else
         ev->create_event_socket();
 
@@ -498,11 +540,13 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 //
 
 	Tango::DevVarLongStringArray *ret_data = new Tango::DevVarLongStringArray();
-	ret_data->lvalue.length(2);
+	ret_data->lvalue.length(4);
 	ret_data->svalue.length(2);
 
 	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
 	ret_data->lvalue[1] = dev->get_dev_idl_version();
+	ret_data->lvalue[2] = rate;
+	ret_data->lvalue[3] = ivl;
 
     string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
 	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());

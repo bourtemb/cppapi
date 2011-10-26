@@ -120,6 +120,8 @@ ZmqEventConsumer *ZmqEventConsumer::create()
 void *ZmqEventConsumer::run_undetached(void *arg)
 {
 
+    int linger = 0;
+
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
 // This socket subscribe to everything because dedicated publishers are used to
@@ -127,6 +129,7 @@ void *ZmqEventConsumer::run_undetached(void *arg)
 //
 
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
+    heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
 //
 // Create the subscriber socket used to receive events coming from different DS
@@ -135,12 +138,14 @@ void *ZmqEventConsumer::run_undetached(void *arg)
 //
 
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
+    event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
 //
 
     control_sock = new zmq::socket_t(zmq_context,ZMQ_REP);
+    control_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
     control_sock->bind(CTRL_SOCK_ENDPOINT);
 
 //
@@ -168,7 +173,7 @@ void *ZmqEventConsumer::run_undetached(void *arg)
 //
 
         zmq::poll(&items[0],3,-1);
-cout << "Awaken !!!!!!!!" << endl;
+//cout << "Awaken !!!!!!!!" << endl;
 
 //
 // Something received by the heartbeat socket ?
@@ -176,7 +181,7 @@ cout << "Awaken !!!!!!!!" << endl;
 
         if (items [0].revents & ZMQ_POLLIN)
         {
-cout << "For the heartbeat socket" << endl;
+//cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -190,7 +195,7 @@ cout << "For the heartbeat socket" << endl;
 
         if (items [1].revents & ZMQ_POLLIN)
         {
-cout << "For the control socket" << endl;
+//cout << "For the control socket" << endl;
             control_sock->recv(&received_ctrl);
 
             string ret_str;
@@ -225,7 +230,7 @@ cout << "For the control socket" << endl;
 
         if (items [2].revents & ZMQ_POLLIN)
         {
-cout << "For the event socket" << endl;
+//cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
             event_sub_sock->recv(&received_endian);
             event_sub_sock->recv(&received_call);
@@ -563,12 +568,118 @@ cout << "Zmq subscribe with string: " << event_name << endl;
 //
 
             const char *event_name = &(tmp_ptr[1]);
+            string ev_name(event_name);
+
+//
+// Check if it is a multicast event
+//
+
+            bool mcast = false;
+
+            map<string,zmq::socket_t *>::iterator pos;
+            if (event_mcast.empty() != true)
+            {
+                pos = event_mcast.find(ev_name);
+                if (pos != event_mcast.end())
+                    mcast = true;
+            }
 
 //
 // Unsubscribe this event from the socket
 //
 
-            event_sub_sock->setsockopt(ZMQ_UNSUBSCRIBE,event_name,::strlen(event_name));
+            if (mcast == false)
+                event_sub_sock->setsockopt(ZMQ_UNSUBSCRIBE,event_name,::strlen(event_name));
+            else
+            {
+                delete pos->second;
+                event_mcast.erase(pos);
+            }
+        }
+        break;
+
+        case ZMQ_CONNECT_MCAST_EVENT:
+        {
+//
+// First extract the endpoint and the event name from received buffer
+//
+
+            const char *endpoint = &(tmp_ptr[1]);
+            int start = ::strlen(endpoint) + 2;
+            const char *event_name = &(tmp_ptr[start]);
+            start = start + ::strlen(event_name) + 1;
+            Tango::DevLong rate,ivl;
+            ::memcpy(&rate,&(tmp_ptr[start]),sizeof(Tango::DevLong));
+            start = start + sizeof(Tango::DevLong);
+            ::memcpy(&ivl,&(tmp_ptr[start]),sizeof(Tango::DevLong));
+cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << " with rate = " << rate << " and ivl = " << ivl << endl;
+
+//
+// Connect the socket to the publisher
+//
+
+            bool created_sub = false;
+            string ev_name(event_name);
+            map<string,zmq::socket_t *>::iterator pos;
+
+            if (event_mcast.empty() == false)
+            {
+                pos = event_mcast.find(ev_name);
+                if (pos != event_mcast.end())
+                    created_sub = true;
+            }
+
+            if (created_sub == false)
+            {
+//
+// Create the socket
+//
+
+cout << "Create multicast socket" << endl;
+                zmq::socket_t *tmp_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
+
+//
+// Set socket rate, ivl and linger
+//
+
+                int local_rate = PGM_RATE;
+
+                if (rate != 0)
+                    local_rate = rate * 1024;
+                tmp_sock->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
+
+                int local_ivl = PGM_IVL;
+
+                if (ivl != 0)
+                    local_ivl = ivl * 1000;
+                tmp_sock->setsockopt(ZMQ_RATE,&local_ivl,sizeof(local_ivl));
+
+                int linger = 0;
+                tmp_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+
+//
+// Connect the socket
+//
+
+cout << "Connect multicast socket to endpoint " << endpoint << endl;
+                tmp_sock->connect(endpoint);
+
+//
+// Subscribe to the new event
+//
+
+cout << "Zmq subscribe with string: " << event_name << endl;
+                tmp_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
+
+//
+// Store socket in map
+//
+
+                if (event_mcast.insert(make_pair(ev_name,tmp_sock)).second == false)
+                {
+                    cout << "Error while inserting pair in map !!!!!!!!!!!!!!!" << endl;
+                }
+            }
         }
         break;
 
@@ -991,6 +1102,10 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
     const DevVarLongStringArray *ev_svr_data;
     dd >> ev_svr_data;
+cout << "Long data 0 = " << ev_svr_data->lvalue[0] << endl;
+cout << "Long data 1 = " << ev_svr_data->lvalue[1] << endl;
+cout << "Long data 2 = " << ev_svr_data->lvalue[2] << endl;
+cout << "Long data 3 = " << ev_svr_data->lvalue[3] << endl;
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -1004,6 +1119,34 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
         sender.connect(CTRL_SOCK_ENDPOINT);
 
 //
+// If the transport is multicast, add main IP interface address in endpoint
+//
+
+        bool mcast_transport = false;
+
+        string endpoint(ev_svr_data->svalue[1].in());
+        if (endpoint.find(MCAST_PROT) != string::npos)
+        {
+            mcast_transport = true;
+
+            ApiUtil *au = ApiUtil::instance();
+            vector<string> adrs;
+
+            au->get_ip_from_if(adrs);
+
+            for (unsigned int i = 0;i < adrs.size();++i)
+            {
+                if (adrs[i].find("127.") == 0)
+                    continue;
+                adrs[i] = adrs[i] + ';';
+                string::size_type pos = endpoint.find('/');
+                pos = pos + 2;
+                endpoint.insert(pos,adrs[i]);
+                break;
+            }
+        }
+
+//
 // Build message sent to ZMQ main thread
 // In this case, this is the command code, the publisher endpoint
 // and the event name
@@ -1012,19 +1155,30 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
         char buffer[1024];
         int length = 0;
 
-        buffer[length] = ZMQ_CONNECT_EVENT;
+        if (mcast_transport == true)
+            buffer[length] = ZMQ_CONNECT_MCAST_EVENT;
+        else
+            buffer[length] = ZMQ_CONNECT_EVENT;
         length++;
 
-        string endpoint(ev_svr_data->svalue[1].in());
-        if (endpoint.find("epgm://") != string::npos)
-        {
-           endpoint.insert(7,"eth0;");
-        }
         ::strcpy(&(buffer[length]),endpoint.c_str());
         length = length + endpoint.size() + 1;
 
         ::strcpy(&(buffer[length]),full_event_name.c_str());
         length = length + full_event_name.size() + 1;
+
+//
+// In case of multicasting, add rate and ivl parameters
+//
+
+        if (mcast_transport == true)
+        {
+            ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[2]),sizeof(Tango::DevLong));
+            length = length + sizeof(Tango::DevLong);
+
+           ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[3]),sizeof(Tango::DevLong));
+            length = length + sizeof(Tango::DevLong);
+        }
 
 //
 // Send command to main ZMQ thread

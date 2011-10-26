@@ -1444,12 +1444,14 @@ int ApiUtil::get_env_var(const char *env_var_name,string &env_var)
 
 void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 {
+    if (ext->host_ip_adrs.empty() == true)
+    {
 #ifndef _TG_WINDOWS_
-    int sock = socket(AF_INET,SOCK_STREAM,0);
+        int sock = socket(AF_INET,SOCK_STREAM,0);
 
-    int lastlen = 0;
-    int len = 100 * sizeof(struct ifreq);
-    struct ifconf ifc;
+        int lastlen = 0;
+        int len = 100 * sizeof(struct ifreq);
+        struct ifconf ifc;
 
 //
 // There is no way to know for sure the buffer is big enough to get
@@ -1459,131 +1461,139 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 // got all the interfaces.
 //
 
-    while ( 1 )
-    {
-        char* buf = (char*) malloc(len);
-        ifc.ifc_len = len;
-        ifc.ifc_buf = buf;
-
-        if (ioctl(sock,SIOCGIFCONF,&ifc) < 0)
+        while ( 1 )
         {
-            if (errno != EINVAL || lastlen != 0)
+            char* buf = (char*) malloc(len);
+            ifc.ifc_len = len;
+            ifc.ifc_buf = buf;
+
+            if (ioctl(sock,SIOCGIFCONF,&ifc) < 0)
             {
-                cerr << "Warning: ioctl SIOCGICONF failed" << endl;
-                cerr << "Unable to obtain the list of all interface addresses." << endl;
+                if (errno != EINVAL || lastlen != 0)
+                {
+                    cerr << "Warning: ioctl SIOCGICONF failed" << endl;
+                    cerr << "Unable to obtain the list of all interface addresses." << endl;
 
-                Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
-                                               (const char *)"Can't retrieve list of all interfaces addresses (ioctl - SIOCGICONF)!",
-                                               (const char *)"ApiUtil::get_ip_from_if()");
+                    Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                                   (const char *)"Can't retrieve list of all interfaces addresses (ioctl - SIOCGICONF)!",
+                                                   (const char *)"ApiUtil::get_ip_from_if()");
+                }
             }
+            else
+            {
+                if (ifc.ifc_len == lastlen)
+                    break; // Success, len has not changed.
+                lastlen = ifc.ifc_len;
+            }
+            len += 10 * sizeof(struct ifreq);
+            free(buf);
         }
-        else
-        {
-            if (ifc.ifc_len == lastlen)
-                break; // Success, len has not changed.
-            lastlen = ifc.ifc_len;
-        }
-        len += 10 * sizeof(struct ifreq);
-        free(buf);
-    }
 
-    close(sock);
+        close(sock);
 
 //
 // Convert IP addresses to string
 //
 
-    int total = ifc.ifc_len / sizeof(struct ifreq);
-    struct ifreq* ifr = ifc.ifc_req;
+        int total = ifc.ifc_len / sizeof(struct ifreq);
+        struct ifreq* ifr = ifc.ifc_req;
 
-    for (int i = 0; i < total; i++)
-    {
-        if ( ifr[i].ifr_addr.sa_family == AF_INET )
+        for (int i = 0; i < total; i++)
         {
-            struct sockaddr_in *iaddr = (struct sockaddr_in *)&ifr[i].ifr_addr;
-            struct sockaddr *addr = (struct sockaddr *)&ifr[i].ifr_addr;
-
-            if ( iaddr->sin_addr.s_addr != 0 )
+            if ( ifr[i].ifr_addr.sa_family == AF_INET )
             {
-                char dest[80];
-                socklen_t addrlen = sizeof(sockaddr);
+                struct sockaddr_in *iaddr = (struct sockaddr_in *)&ifr[i].ifr_addr;
+                struct sockaddr *addr = (struct sockaddr *)&ifr[i].ifr_addr;
 
-                int result = getnameinfo(addr, addrlen, dest, sizeof(dest),0,0,NI_NUMERICHOST);
-                if (result != 0)
+                if ( iaddr->sin_addr.s_addr != 0 )
                 {
-                    cerr << "Warning: getnameinfo failed" << endl;
-                    cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
+                    char dest[80];
+                    socklen_t addrlen = sizeof(sockaddr);
 
-                    Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
-                                               (const char *)"Can't convert IP address to string (getnameinfo)!",
-                                               (const char *)"ApiUtil::get_ip_from_if()");
+                    int result = getnameinfo(addr, addrlen, dest, sizeof(dest),0,0,NI_NUMERICHOST);
+                    if (result != 0)
+                    {
+                        cerr << "Warning: getnameinfo failed" << endl;
+                        cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
+
+                        Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                                   (const char *)"Can't convert IP address to string (getnameinfo)!",
+                                                   (const char *)"ApiUtil::get_ip_from_if()");
+                    }
+                    string tmp_str(dest);
+                    ext->host_ip_adrs.push_back(tmp_str);
                 }
-                string tmp_str(dest);
-                ip_adr_list.push_back(tmp_str);
             }
         }
-    }
 
-    free(ifc.ifc_buf);
+        free(ifc.ifc_buf);
 #else
 
 //
 // Get address from intrerfaces
 //
 
-    int sock = socket(AF_INET,SOCK_STREAM,0);
+        int sock = socket(AF_INET,SOCK_STREAM,0);
 
-    INTERFACE_INFO info[64];  // Assume max 64 interfaces
-    DWORD retlen;
+        INTERFACE_INFO info[64];  // Assume max 64 interfaces
+        DWORD retlen;
 
-    if ( WSAIoctl(sock, SIO_GET_INTERFACE_LIST, NULL,0,(LPVOID)&info, sizeof(info), (LPDWORD)&retlen,NULL,NULL) == SOCKET_ERROR )
-    {
-        int err = WSAGetLastError();
-        cerr << "Warning: WSAIoctl failed" << endl;
-        cerr << "Unable to obtain the list of all interface addresses. Error = " << err << endl;
+        if ( WSAIoctl(sock, SIO_GET_INTERFACE_LIST, NULL,0,(LPVOID)&info, sizeof(info), (LPDWORD)&retlen,NULL,NULL) == SOCKET_ERROR )
+        {
+            int err = WSAGetLastError();
+            cerr << "Warning: WSAIoctl failed" << endl;
+            cerr << "Unable to obtain the list of all interface addresses. Error = " << err << endl;
 
-        TangoSys_OMemStream desc;
-        desc << "Can't retrieve list of all interfaces addresses (WSAIoctl)! Error = " << err << ends;
+            TangoSys_OMemStream desc;
+            desc << "Can't retrieve list of all interfaces addresses (WSAIoctl)! Error = " << err << ends;
 
-        Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
-                                       (const char *)desc.str().c_str(),
-                                       (const char *)"ApiUtil::get_ip_from_if()");
-    }
-    closesocket(sock);
+            Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                           (const char *)desc.str().c_str(),
+                                           (const char *)"ApiUtil::get_ip_from_if()");
+        }
+        closesocket(sock);
 
 //
 // Convers addresses to string
 // Only for running interfaces
 //
 
-    int numAddresses = retlen / sizeof(INTERFACE_INFO);
-    for (int i = 0; i < numAddresses; i++)
-    {
-        if (info[i].iiFlags & IFF_UP)
+        int numAddresses = retlen / sizeof(INTERFACE_INFO);
+        for (int i = 0; i < numAddresses; i++)
         {
-            if (info[i].iiAddress.Address.sa_family == AF_INET)
+            if (info[i].iiFlags & IFF_UP)
             {
-                struct sockaddr* addr = (struct sockaddr*)&info[i].iiAddress.AddressIn;
-                char dest[80];
-                socklen_t addrlen = sizeof(sockaddr);
-
-                int result = getnameinfo(addr, addrlen, dest, sizeof(dest),0,0,NI_NUMERICHOST);
-                if (result != 0)
+                if (info[i].iiAddress.Address.sa_family == AF_INET)
                 {
-                    cerr << "Warning: getnameinfo failed" << endl;
-                    cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
+                    struct sockaddr* addr = (struct sockaddr*)&info[i].iiAddress.AddressIn;
+                    char dest[80];
+                    socklen_t addrlen = sizeof(sockaddr);
 
-                    Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
-                                               (const char *)"Can't convert IP address to string (getnameinfo)!",
-                                               (const char *)"ApiUtil::get_ip_from_if()");
+                    int result = getnameinfo(addr, addrlen, dest, sizeof(dest),0,0,NI_NUMERICHOST);
+                    if (result != 0)
+                    {
+                        cerr << "Warning: getnameinfo failed" << endl;
+                        cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
+
+                        Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+                                                   (const char *)"Can't convert IP address to string (getnameinfo)!",
+                                                   (const char *)"ApiUtil::get_ip_from_if()");
+                    }
+                    string tmp_str(dest);
+                    if (tmp_str != "0.0.0.0")
+                        ext->host_ip_adrs.push_back(tmp_str);
                 }
-                string tmp_str(dest);
-                if (tmp_str != "0.0.0.0")
-                    ip_adr_list.push_back(tmp_str);
             }
         }
-    }
 #endif
+    }
+
+//
+// Copy host IP addresses into caller vector
+//
+
+    ip_adr_list.clear();
+    copy(ext->host_ip_adrs.begin(),ext->host_ip_adrs.end(),back_inserter(ip_adr_list));
 }
 
 //+-------------------------------------------------------------------------

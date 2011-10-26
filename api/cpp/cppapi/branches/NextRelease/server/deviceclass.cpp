@@ -192,6 +192,7 @@ static const char *RcsId = "$Id$\n$Name$";
 
 #include <tango.h>
 #include <new>
+#include <iterator>
 
 #include <basiccommand.h>
 #include <blackbox.h>
@@ -1502,5 +1503,36 @@ bool DeviceClass::is_command_allowed(const char *cmd)
 
 	return ret;
 }
+
+
+//+----------------------------------------------------------------------------
+//
+// method : 		DeviceClass::get_mcast_event()
+//
+// description : 	Get for all class devices and for all attributes multicast
+//					event parameters (if any)
+//
+// in :	dserv : Pointer to the DServer device
+//
+//-----------------------------------------------------------------------------
+
+void DeviceClass::get_mcast_event(DServer *dserv)
+{
+	cout4 << "Entering DeviceClass::get_mcast_event() method" << endl;
+	vector<string> m_cast;
+	
+	for (unsigned int i = 0;i < device_list.size();++i)
+	{
+		vector<Attribute *> &att_list = device_list[i]->get_device_attr()->get_attribute_list();
+		for (unsigned int j = 0;j < att_list.size();++j)
+		{
+			dserv->mcast_event_for_att(device_list[i]->get_name_lower(),att_list[j]->get_name_lower(),m_cast);			
+			if (m_cast.size() != 0)
+				att_list[j]->set_mcast_event(m_cast);
+copy(m_cast.begin(),m_cast.end(),ostream_iterator<string>(cout,"\n"));
+		}
+	}
+}
+
 
 } // End of Tango namespace

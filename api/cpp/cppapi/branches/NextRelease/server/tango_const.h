@@ -114,14 +114,17 @@ namespace Tango
 #define     EVENT_METHOD_NAME           "push_zmq_event"
 #define     HEARTBEAT_EVENT_NAME        "heartbeat"
 #define     CTRL_SOCK_ENDPOINT          "inproc://control"
+#define     MCAST_PROT                  "pgm://"
 #define     MCAST_HOPS                  5
 #define     PGM_RATE                    80 * 1024
+#define     PGM_IVL                     20 * 1000
 
 #define     ZMQ_END                     0
 #define     ZMQ_CONNECT_HEARTBEAT       1
 #define     ZMQ_DISCONNECT_HEARTBEAT    2
 #define     ZMQ_CONNECT_EVENT           3
 #define     ZMQ_DISCONNECT_EVENT        4
+#define     ZMQ_CONNECT_MCAST_EVENT     5
 
 //
 // Event when using a file as database stuff

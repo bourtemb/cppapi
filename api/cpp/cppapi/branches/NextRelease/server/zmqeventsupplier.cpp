@@ -93,7 +93,7 @@ ZmqEventSupplier::ZmqEventSupplier(Database *db,string &host_name,string &specif
     tango_bind(heartbeat_pub_sock,heartbeat_endpoint);
 
 //
-// If needed, replace * by host IP address in enpoint string
+// If needed, replace * by host IP address in endpoint string
 //
 
     if (specified_ip.empty() == true)
@@ -292,6 +292,8 @@ void ZmqEventSupplier::create_event_socket()
         {
             event_endpoint.replace(6,1,host_ip);
         }
+
+cout << "Event endpoint = " << event_endpoint << endl;
     }
 
 }
@@ -305,10 +307,11 @@ void ZmqEventSupplier::create_event_socket()
 //
 // argument : in :	mcast_data : The multicast addr and port (mcast_adr:port)
 //                  ev_name : The event name (dev_name/attr_name.event_type)
+//                  rate: The user defined PGM rate (O if undefined)
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_name)
+void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_name,int rate)
 {
 
 //
@@ -317,20 +320,31 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
 // re-use it in the endpoint
 //
 
-    McastSocket ms;
+    McastSocketPub ms;
     ms.pub_socket = new zmq::socket_t(zmq_context,ZMQ_PUB);
 
-    ms.endpoint = "epgm://";
+    ms.endpoint = MCAST_PROT;
     if (ip_specified == true)
     {
         ms.endpoint = ms.endpoint + user_ip + ';';
     }
     else
     {
-// TODO: Replace eth0 by the interface IP address
-        ms.endpoint = ms.endpoint + "eth0;";
+        ApiUtil *au = ApiUtil::instance();
+        vector<string> adrs;
+
+        au->get_ip_from_if(adrs);
+
+        for (unsigned int i = 0;i < adrs.size();++i)
+        {
+            if (adrs[i].find("127.") == 0)
+                continue;
+            ms.endpoint = ms.endpoint + adrs[i] + ';';
+            break;
+        }
     }
     ms.endpoint = ms.endpoint + mcast_data;
+cout << "ms.endpoint = " << ms.endpoint << endl;
 
 //
 // Change multicast hops
@@ -340,11 +354,16 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
     ms.pub_socket->setsockopt(ZMQ_MULTICAST_HOPS,&nb_hops,sizeof(nb_hops));
 
 //
-// Change PGM rate to 80 Mbits/sec
+// Change PGM rate to default value (80 Mbits/sec) or to user defined value
 //
 
-    int rate = PGM_RATE;
-    ms.pub_socket->setsockopt(ZMQ_RATE,&rate,sizeof(rate));
+    int local_rate = PGM_RATE;
+
+    if (rate != 0)
+        local_rate = rate * 1024;
+
+cout << "Set rate to " << local_rate << endl;
+    ms.pub_socket->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
 
 //
 // Bind the publisher socket to the specified port
@@ -366,7 +385,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
 // The connection string returned to client does not need the host IP at all
 //
 
-    ms.endpoint = "epgm://" + mcast_data;
+    ms.endpoint = MCAST_PROT + mcast_data;
 
 //
 // Insert element in map
@@ -701,12 +720,14 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 //
 
         zmq::socket_t *pub;
-        map<string,McastSocket>::iterator ite;
+        pub = event_pub_sock;
+        if (event_mcast.empty() == false)
+        {
+            map<string,McastSocketPub>::iterator ite;
 
-        if ((ite = event_mcast.find(event_name)) != event_mcast.end())
-            pub = ite->second.pub_socket;
-        else
-            pub = event_pub_sock;
+            if ((ite = event_mcast.find(event_name)) != event_mcast.end())
+                pub = ite->second.pub_socket;
+        }
 
 //
 // Push the event

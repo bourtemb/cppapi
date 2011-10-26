@@ -1213,7 +1213,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	try
 	{
 	    string cmd_name;
-	    get_subcription_command_name(cmd_name);
+	    get_subscription_command_name(cmd_name);
 
     	dd = adm_dev->command_inout(cmd_name,subscriber_in);
 		dd.reset_exceptions(DeviceData::isempty_flag);
