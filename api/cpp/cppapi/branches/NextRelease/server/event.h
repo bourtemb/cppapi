@@ -488,7 +488,7 @@ protected :
 	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &,EventCallBackStruct &);
 
 	virtual void connect_event_channel(string &,Database *,bool,DeviceData &) = 0;
-    virtual void disconnect_event_channel(string &channel_name) {}
+    virtual void disconnect_event_channel(TANGO_UNUSED(string &channel_name)) {}
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &) = 0;
     virtual void disconnect_event(string &) {}
 

@@ -1538,8 +1538,6 @@ void DServer::get_mcast_event_prop(Tango::Util *tg)
 			mcast_event_prop.clear();
 			db_data[0] >> mcast_event_prop;
 
-copy(mcast_event_prop.begin(),mcast_event_prop.end(),ostream_iterator<string>(cout,"\n"));
-
 //
 // Check property coherency
 //

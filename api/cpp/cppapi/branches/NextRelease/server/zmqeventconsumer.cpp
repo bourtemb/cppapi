@@ -117,7 +117,7 @@ ZmqEventConsumer *ZmqEventConsumer::create()
 //
 //-----------------------------------------------------------------------------
 
-void *ZmqEventConsumer::run_undetached(void *arg)
+void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 {
 
     int linger = 0;
@@ -449,8 +449,6 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
 // Process each command
 //
 
-    int ind = 1;
-
     switch (cmd_code)
     {
         case ZMQ_END:
@@ -646,12 +644,14 @@ cout << "Create multicast socket" << endl;
 
                 if (rate != 0)
                     local_rate = rate * 1024;
+cout << "Set rate to " << local_rate << endl;
                 tmp_sock->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
 
                 int local_ivl = PGM_IVL;
 
                 if (ivl != 0)
                     local_ivl = ivl * 1000;
+cout << "Set IVL to " << local_ivl << endl;
                 tmp_sock->setsockopt(ZMQ_RATE,&local_ivl,sizeof(local_ivl));
 
                 int linger = 0;
@@ -772,7 +772,7 @@ void ZmqEventConsumer::cleanup_EventChannel_map()
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventConsumer::connect_event_channel(string &channel_name,Database *db,bool reconnect,DeviceData &dd)
+void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(Database *db),bool reconnect,DeviceData &dd)
 {
 
 //
@@ -1091,8 +1091,9 @@ void ZmqEventConsumer::disconnect_event(string &event_name)
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,const vector<string> &filters,
-                                            EvChanIte &eve_it,EventCallBackStruct &new_event_callback,DeviceData &dd)
+void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,TANGO_UNUSED(const vector<string> &filters),
+                                            TANGO_UNUSED(EvChanIte &eve_it),TANGO_UNUSED(EventCallBackStruct &new_event_callback),
+                                            DeviceData &dd)
 {
     string full_event_name = device_name + '/' + att_name + '.' + event_name;
 
@@ -1102,10 +1103,6 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
     const DevVarLongStringArray *ev_svr_data;
     dd >> ev_svr_data;
-cout << "Long data 0 = " << ev_svr_data->lvalue[0] << endl;
-cout << "Long data 1 = " << ev_svr_data->lvalue[1] << endl;
-cout << "Long data 2 = " << ev_svr_data->lvalue[2] << endl;
-cout << "Long data 3 = " << ev_svr_data->lvalue[3] << endl;
 
 //
 // Create and connect the REQ socket used to send message to the

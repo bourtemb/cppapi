@@ -72,6 +72,9 @@ ZmqEventSupplier::ZmqEventSupplier(Database *db,string &host_name,string &specif
 
     heartbeat_pub_sock = new zmq::socket_t(zmq_context,ZMQ_PUB);
 
+    int linger = 0;
+    heartbeat_pub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+
     heartbeat_endpoint = "tcp://";
 
     if (specified_ip.empty() == false)
@@ -266,6 +269,8 @@ void ZmqEventSupplier::create_event_socket()
 //
 
         event_pub_sock = new zmq::socket_t(zmq_context,ZMQ_PUB);
+        int linger = 0;
+        event_pub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
         event_endpoint = "tcp://";
 
@@ -345,6 +350,9 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
     }
     ms.endpoint = ms.endpoint + mcast_data;
 cout << "ms.endpoint = " << ms.endpoint << endl;
+
+    int linger = 0;
+    ms.pub_socket->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
 //
 // Change multicast hops
@@ -450,7 +458,7 @@ string &ZmqEventSupplier::get_mcast_event_endpoint(string &ev_name)
 //
 //-----------------------------------------------------------------------------
 
-void tg_free(void *data,void *hint)
+void tg_free(TANGO_UNUSED(void *data),TANGO_UNUSED(void *hint))
 {
 }
 
@@ -577,7 +585,7 @@ void ZmqEventSupplier::push_heartbeat_event()
 //
 //-----------------------------------------------------------------------------
 
-void tg_unlock(void *data,void *hint)
+void tg_unlock(TANGO_UNUSED(void *data),void *hint)
 {
     EventSupplier *ev = (EventSupplier *)hint;
     omni_mutex &the_mutex = ev->get_push_mutex();
@@ -585,7 +593,8 @@ void tg_unlock(void *data,void *hint)
 }
 
 void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
-            vector<string> &filterable_names,vector<double> &filterable_data,vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,
+            TANGO_UNUSED(vector<string> &filterable_names),TANGO_UNUSED(vector<double> &filterable_data),
+            TANGO_UNUSED(vector<string> &filterable_names_lg),TANGO_UNUSED(vector<long> &filterable_data_lg),
             struct AttributeData &attr_value,string &attr_name,DevFailed *except)
 {
 	cout3 << "ZmqEventSupplier::push_event(): called for attribute " << attr_name << endl;
