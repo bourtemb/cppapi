@@ -896,8 +896,11 @@ void Util::display_help_message()
 		DbDatum received = db->get_device_member(str);
 		received >> db_inst;
 	}
-	catch (Tango::DevFailed &)
+	catch (Tango::DevFailed &e)
 	{
+        string reason(e.errors[0].reason.in());
+        if (reason == "API_ReadOnlyMode")
+            o << "\n\nWarning: Control System configured with AccessControl but can't communicate with AccessControl server";
 		o << ends;
 		print_err_message(o.str(),Tango::INFO);
 	}

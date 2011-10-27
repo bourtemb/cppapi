@@ -1329,7 +1329,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 
     const DevVarLongStringArray *dvlsa;
     dd >> dvlsa;
-    if (dvlsa->lvalue.length() == 2)
+    if (dvlsa->lvalue.length() >= 2)
         new_event_callback.device_idl = dvlsa->lvalue[1];
     else
         new_event_callback.device_idl = 0;

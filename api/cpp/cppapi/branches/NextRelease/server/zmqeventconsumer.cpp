@@ -791,7 +791,29 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
     try
     {
         zmq::socket_t sender(zmq_context,ZMQ_REQ);
-        sender.connect(CTRL_SOCK_ENDPOINT);
+
+//
+// In case this thread runs before the main ZMQ thread, it is possible
+// to call connect before the main ZMQ thread has binded its socket.
+// In such a case, error code is set to ECONNREFUSED.
+// If this happens, give the main ZMQ thread a chance to run and
+// retry the connect call
+//
+
+        try
+        {
+            sender.connect(CTRL_SOCK_ENDPOINT);
+        }
+        catch (zmq::error_t &e)
+        {
+            if (e.num() == ECONNREFUSED)
+            {
+                omni_thread::yield();
+                sender.connect(CTRL_SOCK_ENDPOINT);
+            }
+            else
+                throw;
+        }
 
 //
 // Build message sent to ZMQ main thread
@@ -831,6 +853,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 
         o << "Failed to create connection to event channel!\n";
         o << "Error while communicating with the ZMQ main thread\n";
+        o << "ZMQ error code = " << e.num() << ends;
         o << "ZMQ message: " << e.what() << ends;
 
         Except::throw_exception((const char *)"API_ZmqFailed",
