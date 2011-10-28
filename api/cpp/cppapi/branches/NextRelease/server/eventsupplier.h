@@ -91,7 +91,7 @@ class EventSupplier
 {
 public :
     EventSupplier(Util *);
-	~EventSupplier() {}
+	virtual ~EventSupplier() {}
 
 	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
 
