@@ -108,8 +108,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 
 	if (Util::_FileDb == true && ev != NULL)
 	{
-		string &p_num = tg->get_svr_port_num();
-		ev->set_svr_port_num(p_num);
+		ev->file_db_svr();
 	}
 
     string mcast;
