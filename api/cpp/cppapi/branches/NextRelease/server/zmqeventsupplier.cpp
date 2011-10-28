@@ -60,7 +60,7 @@ ZmqEventSupplier *ZmqEventSupplier::_instance = NULL;
 /************************************************************************/
 
 
-ZmqEventSupplier::ZmqEventSupplier(Database *db,string &host_name,string &specified_ip):EventSupplier(db,host_name),zmq_context(1),event_pub_sock(NULL)
+ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),event_pub_sock(NULL)
 {
 	_instance = this;
 
@@ -76,6 +76,8 @@ ZmqEventSupplier::ZmqEventSupplier(Database *db,string &host_name,string &specif
     heartbeat_pub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
     heartbeat_endpoint = "tcp://";
+
+    string &specified_ip = tg->get_specified_ip();
 
     if (specified_ip.empty() == false)
     {
@@ -167,7 +169,7 @@ ZmqEventSupplier::ZmqEventSupplier(Database *db,string &host_name,string &specif
 }
 
 
-ZmqEventSupplier *ZmqEventSupplier::create(Database *db,string &host_name,string &specified_ip)
+ZmqEventSupplier *ZmqEventSupplier::create(Util *tg)
 {
 	cout4 << "calling Tango::ZmqEventSupplier::create() \n";
 
@@ -184,7 +186,7 @@ ZmqEventSupplier *ZmqEventSupplier::create(Database *db,string &host_name,string
 // ZmqEventSupplier singleton does not exist, create it
 //
 
-	ZmqEventSupplier *_event_supplier = new ZmqEventSupplier(db,host_name,specified_ip);
+	ZmqEventSupplier *_event_supplier = new ZmqEventSupplier(tg);
 
 	return _event_supplier;
 }
@@ -481,7 +483,18 @@ void ZmqEventSupplier::push_heartbeat_event()
 
 	if (heartbeat_name_init == false)
 	{
-        heartbeat_event_name = heartbeat_event_name + adm_dev->get_full_name() + ".heartbeat";
+
+//
+// Build heartbeat name
+// This is something like
+//   tango://host:port/dserver/exec_name/inst_name.heartbeat when using DB
+//   tango://host:port/dserver/exec_name/inst_name#dbase=no.heartbeat when using file as database
+//
+
+        heartbeat_event_name = heartbeat_event_name + adm_dev->get_full_name();
+        if (Util::_FileDb == true)
+            heartbeat_event_name = heartbeat_event_name + MODIFIER_DBASE_NO;
+        heartbeat_event_name = heartbeat_event_name + ".heartbeat";
 	    heartbeat_name_init = true;
 	}
 
@@ -607,11 +620,22 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 //
 // Create full event name
+// Don't forget case where we have notifd client (thus with a fqdn_prefix modified)
 //
 
 	string loc_attr_name(attr_name);
 	transform(loc_attr_name.begin(),loc_attr_name.end(),loc_attr_name.begin(),::tolower);
-	event_name = fqdn_prefix + device_impl->get_name_lower() + '/' + loc_attr_name + '.' + event_type;
+
+	event_name = fqdn_prefix;
+
+	int size = event_name.size();
+	if (event_name[size - 1] == '#')
+        event_name.erase(size -1);
+
+	event_name = event_name + device_impl->get_name_lower() + '/' + loc_attr_name;
+	if (Util::_FileDb == true)
+        event_name = event_name + MODIFIER_DBASE_NO;
+    event_name = event_name + '.' + event_type;
 
 //
 // Create zmq messages
@@ -633,7 +657,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         mess_ptr = event_call_nok_cdr.bufPtr();
     }
 
-    zmq::message_t call_mess(mess_ptr,mess_size,tg_unlock,(void *)this);
+    zmq::message_t call_mess(mess_ptr,mess_size,tg_free);
 
 //
 // Marshall the event data
@@ -678,7 +702,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
     mess_size = data_call_cdr.bufSize() - sizeof(CORBA::Long);
     mess_ptr = (char *)data_call_cdr.bufPtr() + sizeof(CORBA::Long);
-    zmq::message_t data_mess(mess_ptr,mess_size,tg_free);
+    zmq::message_t data_mess(mess_ptr,mess_size,tg_unlock,(void *)this);
 
 //
 // Send the data

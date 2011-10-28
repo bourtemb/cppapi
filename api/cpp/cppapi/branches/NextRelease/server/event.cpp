@@ -2356,7 +2356,18 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 		DeviceAttribute *da = NULL;
 		DevErrorList err;
 		err.length(0);
-		string domain_name = device_name + "/" + att_name_lower;
+
+		string domain_name;
+		string::size_type pos;
+
+		if ((pos = device_name.find(MODIFIER_DBASE_NO)) != string::npos)
+		{
+            domain_name = device_name;
+            string tmp = '/' + att_name_lower;
+            domain_name.insert(pos,tmp);
+		}
+		else
+            domain_name = device_name + '/' + att_name_lower;
 
 		try
 		{

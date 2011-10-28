@@ -364,6 +364,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
         if (ct == ZMQ)
         {
+            bool found = false;
 			for(unsigned int i = 0;i != attribute.ext->mcast_event.size();++i)
 			{
                 if (attribute.ext->mcast_event[i].find(event) == 0)
@@ -378,6 +379,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
                         mcast_data = attribute.ext->mcast_event[i].substr(start);
                         rate = 0;
                         ivl = 0;
+                        found = true;
                         break;
                     }
                     else
@@ -394,6 +396,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
                             istringstream iss(attribute.ext->mcast_event[i].substr(start_rate));
                             iss >> rate;
                             ivl = 0;
+                            found = true;
                             break;
                         }
                         else
@@ -407,10 +410,17 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
                             istringstream iss_ivl(attribute.ext->mcast_event[i].substr(end + 1));
                             iss_ivl >> ivl;
+                            found = true;
                             break;
                         }
                     }
                 }
+			}
+
+			if (found == false)
+			{
+			    rate = 0;
+			    ivl = 0;
 			}
         }
         else
@@ -511,14 +521,8 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 
 //
-// If we are using a file as database, gives port number to event supplier
+// Call common method (common between old and new command)
 //
-
-	if (Util::_FileDb == true && ev != NULL)
-	{
-		string &p_num = tg->get_svr_port_num();
-		ev->set_svr_port_num(p_num);
-	}
 
     string mcast;
     int rate,ivl;

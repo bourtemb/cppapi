@@ -798,6 +798,9 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 // In such a case, error code is set to ECONNREFUSED.
 // If this happens, give the main ZMQ thread a chance to run and
 // retry the connect call
+// I have tried with a yield call but it still failed in some cases
+// (when running the DS with a file as database  for instance)
+// Replace the yield with a 10 mS sleep !!!
 //
 
         try
@@ -808,7 +811,12 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
         {
             if (e.num() == ECONNREFUSED)
             {
-                omni_thread::yield();
+                struct timespec ts;
+                ts.tv_sec = 0;
+                ts.tv_nsec = 10000000;
+
+                nanosleep(&ts,NULL);
+
                 sender.connect(CTRL_SOCK_ENDPOINT);
             }
             else
@@ -853,7 +861,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 
         o << "Failed to create connection to event channel!\n";
         o << "Error while communicating with the ZMQ main thread\n";
-        o << "ZMQ error code = " << e.num() << ends;
+        o << "ZMQ error code = " << e.num() << "\n";
         o << "ZMQ message: " << e.what() << ends;
 
         Except::throw_exception((const char *)"API_ZmqFailed",
@@ -1118,7 +1126,23 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
                                             TANGO_UNUSED(EvChanIte &eve_it),TANGO_UNUSED(EventCallBackStruct &new_event_callback),
                                             DeviceData &dd)
 {
-    string full_event_name = device_name + '/' + att_name + '.' + event_name;
+//
+// Build full event name
+// Don't forget case of device in a DS using file as database
+//
+
+    string full_event_name;
+    string::size_type pos;
+
+    if ((pos = device_name.find("#dbase=no")) != string::npos)
+    {
+        full_event_name = device_name;
+        string tmp = '/' + att_name;
+        full_event_name.insert(pos,tmp);
+        full_event_name = full_event_name + '.' + event_name;
+    }
+    else
+        full_event_name = device_name + '/' + att_name + '.' + event_name;
 
 //
 // Extract server command result
@@ -1260,7 +1284,6 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
 void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
 {
-
 //
 // Remove ".heartbeat" at the end of event name
 //

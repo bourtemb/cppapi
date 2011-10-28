@@ -90,10 +90,8 @@ typedef struct _NotifService
 class EventSupplier
 {
 public :
-    EventSupplier(Database*,string &);
+    EventSupplier(Util *);
 	~EventSupplier() {}
-
-    void set_svr_port_num(string &);
 
 	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
 
@@ -172,7 +170,7 @@ class NotifdEventSupplier : public EventSupplier, public POA_CosNotifyComm::Stru
 {
 public :
 
-	TANGO_IMP_EXP static NotifdEventSupplier *create(CORBA::ORB_var,string,Database*,string &,Util *);
+	TANGO_IMP_EXP static NotifdEventSupplier *create(CORBA::ORB_var,string,Util *);
 	void connect();
 	void disconnect_structured_push_supplier();
 	void disconnect_from_notifd();
@@ -180,6 +178,7 @@ public :
 
 	void push_heartbeat_event();
 	string &get_event_channel_ior() {return event_channel_ior;}
+    void file_db_svr();
 
 //------------------ Push event -------------------------------
 
@@ -195,8 +194,7 @@ protected :
 		CosNotifyChannelAdmin::EventChannelFactory_var,
 		CosNotifyChannelAdmin::EventChannel_var,
 		string &,
-		Database *,
-		string &);
+		Util *);
 
 private :
 	static NotifdEventSupplier 								*_instance;
@@ -211,7 +209,7 @@ private :
 	string 		event_channel_ior;
 
 	void reconnect_notifd();
-	TANGO_IMP_EXP static void connect_to_notifd(NotifService &,CORBA::ORB_var &,string &,Database *,string &,Util *);
+	TANGO_IMP_EXP static void connect_to_notifd(NotifService &,CORBA::ORB_var &,string &,Util *);
 };
 
 
@@ -224,7 +222,7 @@ private :
 class ZmqEventSupplier : public EventSupplier
 {
 public :
-	TANGO_IMP_EXP static ZmqEventSupplier *create(Database *,string &,string &);
+	TANGO_IMP_EXP static ZmqEventSupplier *create(Util *);
 
 //------------------ Push event -------------------------------
 
@@ -240,7 +238,7 @@ public :
     string &get_mcast_event_endpoint(string &);
 
 protected :
-	ZmqEventSupplier(Database *,string &,string &);
+	ZmqEventSupplier(Util *);
 
 private :
 	static ZmqEventSupplier 	*_instance;

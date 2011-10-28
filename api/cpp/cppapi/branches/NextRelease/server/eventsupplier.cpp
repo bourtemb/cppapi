@@ -55,21 +55,23 @@ string      EventSupplier::fqdn_prefix;
 //
 // description : 	EventSupplier class ctor
 //
-// argument : in :	db : The database object
-//			        host_name : The host name !
+// argument : in :	tg : ptr to the Util class singleton
 //
 //-----------------------------------------------------------------------------
 
 
-EventSupplier::EventSupplier(Database *db,string &host_name)
+EventSupplier::EventSupplier(Util *tg)
 {
     if (fqdn_prefix.empty() == true)
     {
         fqdn_prefix = "tango://";
         if (Util::_FileDb == true)
-            fqdn_prefix = fqdn_prefix + host_name + ':';
+            fqdn_prefix = fqdn_prefix + tg->get_host_name() + ':' + tg->get_svr_port_num() + '/';
         else
-            fqdn_prefix = fqdn_prefix + db->get_db_host() + ':' + db->get_db_port() + '/' ;
+        {
+            Database *db = tg->get_database();
+            fqdn_prefix = fqdn_prefix + db->get_db_host() + ':' + db->get_db_port() + '/';
+        }
         transform(fqdn_prefix.begin(),fqdn_prefix.end(),fqdn_prefix.begin(),::tolower);
     }
 }
@@ -1966,29 +1968,6 @@ void EventSupplier::push_att_conf_events(DeviceImpl *device_impl,AttributeData &
            attr_conf,
            attr_name,
            except);
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		EventSupplier::set_svr_port_num()
-//
-// description : 	In case of DS using file as database, add the server port
-//					number received as argument to the fqdn prefix
-//
-// argument : in :	port_num : The DS port number
-//
-//-----------------------------------------------------------------------------
-
-void EventSupplier::set_svr_port_num(string &port_num)
-{
-
-//
-// If the port number is not already specified in the fqdn prefix, add it
-//
-
-	unsigned int sz = fqdn_prefix.size();
-	if (fqdn_prefix[sz - 1] == ':')
-		fqdn_prefix = fqdn_prefix + port_num + "/#";
 }
 
 } /* End of Tango namespace */
