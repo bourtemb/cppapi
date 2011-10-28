@@ -811,12 +811,15 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
         {
             if (e.num() == ECONNREFUSED)
             {
+#ifndef _TG_WINDOWS_
                 struct timespec ts;
                 ts.tv_sec = 0;
                 ts.tv_nsec = 10000000;
 
                 nanosleep(&ts,NULL);
-
+#else
+                Sleep(10);
+#endif
                 sender.connect(CTRL_SOCK_ENDPOINT);
             }
             else
