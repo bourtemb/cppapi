@@ -1426,7 +1426,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         if (data_type == ATT_VALUE && error == false)
         {
             int disc = ((int *)data_ptr)[1];
-            if (disc == ATT_DOUBLE || disc == ATT_LONG64 || disc == ATT_LONG64)
+            if (disc == ATT_DOUBLE || disc == ATT_LONG64 || disc == ATT_ULONG64)
                 data64 = true;
         }
 
@@ -1500,22 +1500,22 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
             switch (data_type)
             {
                 case ATT_CONF:
-                if (evt_cb.device_idl == 2)
-                {
-                    (AttributeConfig_2 &)ac2 <<= event_data_cdr;
-                    attr_conf_2 = &ac2.in();
-                    vers = 2;
-                    attr_info_ex = new AttributeInfoEx();
-                    *attr_info_ex = const_cast<AttributeConfig_2 *>(attr_conf_2);
-                    ev_attr_conf = true;
-                }
-                else if (evt_cb.device_idl > 2)
+                if (evt_cb.device_idl > 2)
                 {
                     (AttributeConfig_3 &)ac3 <<= event_data_cdr;
                     attr_conf_3 = &ac3.in();
                     vers = 3;
                     attr_info_ex = new AttributeInfoEx();
                     *attr_info_ex = const_cast<AttributeConfig_3 *>(attr_conf_3);
+                    ev_attr_conf = true;
+                }
+                else if (evt_cb.device_idl == 2)
+                {
+                    (AttributeConfig_2 &)ac2 <<= event_data_cdr;
+                    attr_conf_2 = &ac2.in();
+                    vers = 2;
+                    attr_info_ex = new AttributeInfoEx();
+                    *attr_info_ex = const_cast<AttributeConfig_2 *>(attr_conf_2);
                     ev_attr_conf = true;
                 }
                 break;
@@ -1527,13 +1527,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 break;
 
                 case ATT_VALUE:
-                if (evt_cb.device_idl < 3)
+                if (evt_cb.device_idl > 3)
                 {
-                    (AttributeValue &)av <<= event_data_cdr;
-                    attr_value = &av.in();
-                    vers = 2;
+                    (AttributeValue_4 &)av4 <<= event_data_cdr;
+                    attr_value_4 = &av4.in();
+                    vers = 4;
                     dev_attr = new (DeviceAttribute);
-                    attr_to_device(attr_value,attr_value_3,vers,dev_attr);
+                    attr_to_device(attr_value_4,dev_attr);
                 }
                 else if (evt_cb.device_idl == 3)
                 {
@@ -1543,13 +1543,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     dev_attr = new (DeviceAttribute);
                     attr_to_device(attr_value,attr_value_3,vers,dev_attr);
                 }
-                else if (evt_cb.device_idl > 3)
+                else if (evt_cb.device_idl < 3)
                 {
-                    (AttributeValue_4 &)av4 <<= event_data_cdr;
-                    attr_value_4 = &av4.in();
-                    vers = 4;
+                    (AttributeValue &)av <<= event_data_cdr;
+                    attr_value = &av.in();
+                    vers = 2;
                     dev_attr = new (DeviceAttribute);
-                    attr_to_device(attr_value_4,dev_attr);
+                    attr_to_device(attr_value,attr_value_3,vers,dev_attr);
                 }
                 break;
             }
