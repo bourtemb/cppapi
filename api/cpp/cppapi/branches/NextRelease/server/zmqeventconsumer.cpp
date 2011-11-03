@@ -1399,25 +1399,28 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         DeviceAttribute *dev_attr = NULL;
 
 //
-// Check if the buffer returned by ZMQ is aligned on a 8 bytes boundary.
-// This is mandatory for omniORB unmarshalling in case of 64 bits
-// data transfer
-// If it is not the case, shift the buffer starting point
-// from the padding CORBA long sent by the event supplier
+// For 64 bits data (double, long64 and ulong64), omniORB unmarshalling
+// methods required that the 64 bits data are aligned on a 8 bytes
+// memory address.
+// ZMQ returned memory which is sometimes aligned on a 8 bytes boundary but
+// not always (seems to depend on the host architecture)
+// The attribute data transfert starts with the union discriminator
+// (4 bytes), the elt nb (4 bytes) and the element themselves.
+// This means 8 bytes before the real data.
+// There is a trick here.
+// The buffer is always transferred with an extra 4 bytes added at the beginning
+// If the alignememnt is not correct (buffer aligned on a 8 bytes boundary
+// and 64 bits data type), shift the whole buffer by 4 bytes erasing the
+// additional 4 bytes sent.
 //
-// When transfering 64 bits data, omniORB marshalling/unmarshalling
-// layer requires the 64 bits data to be aligned on a 8 bytes
-// boundary. The transferred data starts with the union
-// descriminator (4 bytes) followed by the sequence element number
-// (4 bytes). ZMQ returns a buffer which could be aligned on a 4 bytes
-// boudary. In such a case, the first 64 bits data with not be aligned
-// in a 8 bytes boundary (4 + 4 + 4 = 12).
+// Note: The buffer is not correctly aligned if it is retruned on a
+// 8 bytes boundary because we have the 4 extra bytes + 8 bytes for
+// union discriminator + elt nb. This means 64 bits data not on a
+// 8 bytes boundary
 //
 
         char *data_ptr = (char *)event_data.data();
         size_t data_size = (size_t)event_data.size();
-
-cout << "Ptr = " << hex << (void *)data_ptr << dec << ", size = " << data_size << endl;
 
         bool data64 = false;
         if (data_type == ATT_VALUE && error == false)
@@ -1434,16 +1437,26 @@ cout << "Ptr = " << hex << (void *)data_ptr << dec << ", size = " << data_size <
                 buffer_aligned64 = true;
         }
 
+//
+// Shift buffer if required
+//
 
         if (data64 == true && buffer_aligned64 == true)
         {
-            int nb_loop = data_size >> 2;
+            int nb_loop = (data_size >> 2) - 1;
             int remaining = data_size & 0x3;
-cout << "Shifting !!!!!!!!!!!!!!!!!!!!, nb_loop = " << nb_loop << ", remaining = " << remaining << endl;
+
+            if (omniORB::trace(30))
+            {
+                {
+                    omniORB::logger log;
+                    log << "ZMQ: Shifting received buffer!!!" << '\n';
+                }
+            }
 
             int *src,*dest;
             dest = (int *)data_ptr;
-            src = dest++;
+            src = dest + 1;
             for (int loop = 0;loop < nb_loop;++loop)
             {
                 *dest = *src;
@@ -1469,41 +1482,8 @@ cout << "Shifting !!!!!!!!!!!!!!!!!!!!, nb_loop = " << nb_loop << ", remaining =
             data_size = data_size - sizeof(CORBA::Long);
         }
 
-
-//        bool aligned = true;
-//
-//        if (((unsigned long)data_ptr & 0x7) != 0)
-//        {
-//            data_ptr = data_ptr + sizeof(CORBA::Long);
-//            data_size = data_size - sizeof(CORBA::Long);
-//            aligned = false;
-//        }
-
-cout << "Before cdrMemoryStream ctor: Ptr = " << hex << (void *)data_ptr << dec << ", size = " << data_size << endl;
         cdrMemoryStream event_data_cdr(data_ptr,data_size);
         event_data_cdr.setByteSwapFlag(endian);
-
-//
-// Unmarshal the data
-//
-// In case the buffer starting point has not been changed due to alignemnt,
-// don't forget to extract the padding CORBA long
-// At the moment, abort the process in case it happenss
-// (never detected during all the development and testing phase)
-//
-// TODO: In case, it happens, and if the attribute data type is
-// DevLong64, DevULong64 or DevDouble, allocate buffer aligned
-// on a 8 bytes boundary and copy the buffer into this memory
-// but not the first 4 bytes
-//
-
-//        if (aligned == true)
-//        {
-//            CORBA::Long dummy;
-//            (CORBA::Long &)dummy <<= event_data_cdr;
-//
-//            assert(false);
-//        }
 
 //
 // Unmarshall the data
