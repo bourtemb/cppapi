@@ -1414,17 +1414,72 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // in a 8 bytes boundary (4 + 4 + 4 = 12).
 //
 
-        bool aligned = true;
         char *data_ptr = (char *)event_data.data();
         size_t data_size = (size_t)event_data.size();
 
-        if (((unsigned long)data_ptr & 0x7) != 0)
+cout << "Ptr = " << hex << (void *)data_ptr << dec << ", size = " << data_size << endl;
+
+        bool data64 = false;
+        if (data_type == ATT_VALUE && error == false)
+        {
+            int disc = ((int *)data_ptr)[1];
+            if (disc == ATT_DOUBLE || disc == ATT_LONG64 || disc == ATT_LONG64)
+                data64 = true;
+        }
+
+        bool buffer_aligned64 = false;
+        if (data64 == true)
+        {
+            if (((unsigned long)data_ptr & 0x7) == 0)
+                buffer_aligned64 = true;
+        }
+
+
+        if (data64 == true && buffer_aligned64 == true)
+        {
+            int nb_loop = data_size >> 2;
+            int remaining = data_size & 0x3;
+cout << "Shifting !!!!!!!!!!!!!!!!!!!!, nb_loop = " << nb_loop << ", remaining = " << remaining << endl;
+
+            int *src,*dest;
+            dest = (int *)data_ptr;
+            src = dest++;
+            for (int loop = 0;loop < nb_loop;++loop)
+            {
+                *dest = *src;
+                ++dest;
+                ++src;
+            }
+
+            char *src_char,*dest_char;
+            dest_char = (char *)dest;
+            src_char = dest_char + sizeof(int);
+            for (int loop = 0;loop < remaining;++loop)
+            {
+                *dest = *src;
+                ++dest;
+                ++src;
+            }
+
+            data_size = data_size - 4;
+        }
+        else
         {
             data_ptr = data_ptr + sizeof(CORBA::Long);
             data_size = data_size - sizeof(CORBA::Long);
-            aligned = false;
         }
 
+
+//        bool aligned = true;
+//
+//        if (((unsigned long)data_ptr & 0x7) != 0)
+//        {
+//            data_ptr = data_ptr + sizeof(CORBA::Long);
+//            data_size = data_size - sizeof(CORBA::Long);
+//            aligned = false;
+//        }
+
+cout << "Before cdrMemoryStream ctor: Ptr = " << hex << (void *)data_ptr << dec << ", size = " << data_size << endl;
         cdrMemoryStream event_data_cdr(data_ptr,data_size);
         event_data_cdr.setByteSwapFlag(endian);
 
@@ -1442,13 +1497,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // but not the first 4 bytes
 //
 
-        if (aligned == true)
-        {
-            CORBA::Long dummy;
-            (CORBA::Long &)dummy <<= event_data_cdr;
-
-            assert(false);
-        }
+//        if (aligned == true)
+//        {
+//            CORBA::Long dummy;
+//            (CORBA::Long &)dummy <<= event_data_cdr;
+//
+//            assert(false);
+//        }
 
 //
 // Unmarshall the data
