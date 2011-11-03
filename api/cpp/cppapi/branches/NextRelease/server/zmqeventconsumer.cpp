@@ -1381,6 +1381,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 
         string::size_type pos = ev_name.rfind('.');
         string event_name = ev_name.substr(pos + 1);
+        string att_name = ev_name.substr(0,pos);
 
         UserDataEventType data_type;
 
@@ -1597,7 +1598,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                             }
 
                             event_data = new EventData(event_callback_map[ev_name].device,
-                                                                ev_name,
+                                                                att_name,
                                                                 event_name,
                                                                 dev_attr_copy,
                                                                 errors);
@@ -1605,7 +1606,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         else
                         {
                             event_data = new EventData (event_callback_map[ev_name].device,
-                                                              ev_name,
+                                                              att_name,
                                                               event_name,
                                                               dev_attr,
                                                               errors);
@@ -1642,7 +1643,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                             AttributeInfoEx *attr_info_copy = new AttributeInfoEx();
                             *attr_info_copy = *attr_info_ex;
                             event_data = new AttrConfEventData(event_callback_map[ev_name].device,
-                                                              ev_name,
+                                                              att_name,
                                                               event_name,
                                                               attr_info_copy,
                                                               errors);
@@ -1650,7 +1651,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         else
                         {
                             event_data = new AttrConfEventData(event_callback_map[ev_name].device,
-                                                              ev_name,
+                                                              att_name,
                                                               event_name,
                                                               attr_info_ex,
                                                               errors);
