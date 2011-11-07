@@ -2338,9 +2338,9 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 //
 
 #define SET_EV_PROP(A,B,C,D) \
-	string C##_##str(A); \
-	bool C##_##valid = true; \
-	if ((strcmp(C##_##str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_##str.c_str(),AlrmValueNotSpec) == 0)) \
+	string C##_str(A); \
+	bool C##_valid = true; \
+	if ((strcmp(C##_str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_str.c_str(),AlrmValueNotSpec) == 0)) \
 	{ \
 		if (D.size() != 0) \
 		{ \
@@ -2351,29 +2351,29 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 					break; \
 			} \
 			if (i == D.size()) \
-				C##_##valid = false; \
+				C##_valid = false; \
 			else \
 			{ \
-				C##_##str = D[i].get_value(); \
-				if ((strcmp(C##_##str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_##str.c_str(),AlrmValueNotSpec) == 0)) \
-					C##_##valid = false; \
+				C##_str = D[i].get_value(); \
+				if ((strcmp(C##_str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_str.c_str(),AlrmValueNotSpec) == 0)) \
+					C##_valid = false; \
 			} \
 		} \
 		else \
-			C##_##valid = false; \
+			C##_valid = false; \
 	} \
-	if (C##_##valid) \
+	if (C##_valid) \
 	{ \
-		if (strcmp(C##_##str.c_str(),AlrmValueNotSpec) != 0) \
+		if (strcmp(C##_str.c_str(),AlrmValueNotSpec) != 0) \
 		{ \
 			double rel_change_min=INT_MAX, rel_change_max=INT_MAX; \
  			B.seekp(0); \
 			B.seekg(0); \
 			B.clear(); \
-			string::size_type pos = C##_##str.find(','); \
+			string::size_type pos = C##_str.find(','); \
 			if (pos != string::npos) \
-				replace(C##_##str.begin(),C##_##str.end(),',',' '); \
-			B << C##_##str << ends; \
+				replace(C##_str.begin(),C##_str.end(),',',' '); \
+			B << C##_str << ends; \
 			B >> rel_change_min; \
 			if (pos != string::npos) \
 				B >> rel_change_max; \

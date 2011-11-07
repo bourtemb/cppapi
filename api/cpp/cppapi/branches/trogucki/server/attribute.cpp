@@ -338,7 +338,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list)
 	try
 	{
     	string event_period_str;
-    	event_period_str = get_attr_value(prop_list,"event_period");
+    	event_period_str = get_attr_value(prop_list,"period");
 
     	TangoSys_MemStream str;
     	if (event_period_str != AlrmValueNotSpec)
@@ -2654,6 +2654,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 //
 // And finally, the last two event periods
 //
+
 	string event_period_str(conf.event_prop.per_event.period);
 	bool event_period_valid = true;
 	if (strcmp(event_period_str.c_str(),NotANumber) == 0 || strcmp(event_period_str.c_str(),AlrmValueNotSpec) == 0)

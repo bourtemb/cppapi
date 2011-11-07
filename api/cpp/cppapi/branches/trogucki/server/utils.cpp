@@ -1249,7 +1249,7 @@ void Util::init_host_name()
 
 #ifdef _TG_WINDOWS_
 #ifdef WIN32_VC9
-			hints.ai_falgs	   |= AI_ADDRCONFIG;
+			hints.ai_flags	   |= AI_ADDRCONFIG;
 #endif
 #else
 #ifdef GCC_HAS_AI_ADDRCONFIG
