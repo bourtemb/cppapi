@@ -493,7 +493,7 @@ $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
 	-lomnithread    			\
 	-lCOS4
 
-# library verioning is not handled the same way under MacOSX
+# library versioning is not handled the same way under MacOSX
 install_link:
 	d=`pwd`
 	cd $(INSTALL_BASE)/$(LIB_DIR); \
