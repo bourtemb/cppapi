@@ -340,6 +340,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			dserverclass.h \
 			dserversignal.h \
 			event.h \
+			eventconsumer.h \
 			eventsupplier.h \
 			except.h \
 			log4tango.h \
