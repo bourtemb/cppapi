@@ -77,8 +77,7 @@ NotifdEventSupplier::NotifdEventSupplier(CORBA::ORB_var _orb,
 	CosNotifyChannelAdmin::EventChannelFactory_var _eventChannelFactory,
 	CosNotifyChannelAdmin::EventChannel_var _eventChannel,
 	string &event_ior,
-	Database *db,
-	string &host_name): EventSupplier(db,host_name)
+	Util *tg): EventSupplier(tg)
 {
 	orb_ = _orb;
 	supplierAdmin = _supplierAdmin;
@@ -94,8 +93,6 @@ NotifdEventSupplier::NotifdEventSupplier(CORBA::ORB_var _orb,
 
 NotifdEventSupplier *NotifdEventSupplier::create(CORBA::ORB_var _orb,
 				     string server_name,
-				     Database *db,
-				     string &host_name,
 				     Util *tg)
 {
 	cout4 << "calling Tango::NotifdEventSupplier::create() \n";
@@ -114,14 +111,14 @@ NotifdEventSupplier *NotifdEventSupplier::create(CORBA::ORB_var _orb,
 //
 
 	NotifService ns;
-	connect_to_notifd(ns,_orb,server_name,db,host_name,tg);
+	connect_to_notifd(ns,_orb,server_name,tg);
 
 //
 // NotifdEventSupplier singleton does not exist, create it
 //
 
 	NotifdEventSupplier *_event_supplier =
-		new NotifdEventSupplier(_orb,ns.SupAdm,ns.pID,ns.ProCon,ns.StrProPush,ns.EveChaFac,ns.EveCha,ns.ec_ior,db,host_name);
+		new NotifdEventSupplier(_orb,ns.SupAdm,ns.pID,ns.ProCon,ns.StrProPush,ns.EveChaFac,ns.EveCha,ns.ec_ior,tg);
 
 	return _event_supplier;
 }
@@ -165,8 +162,6 @@ void NotifdEventSupplier::subscription_change(TANGO_UNUSED(const CosNotification
 
 void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_orb,
 				      string &server_name,
-				      Database *db,
-				      string &host_name,
 				      Util *tg)
 {
 	CosNotifyChannelAdmin::EventChannelFactory_var _eventChannelFactory;
@@ -178,6 +173,8 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 // started with the -file option
 //
 
+    string &host_name = tg->get_host_name();
+
 	string factory_ior;
 	string factory_name;
 	factory_name = "notifd/factory/" + host_name;
@@ -185,6 +182,8 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 	string d_name = "DServer/";
 	d_name = d_name + server_name;
 	const DevVarLongStringArray *dev_import_list;
+
+	Database *db = tg->get_database();
 
 	if (Util::_FileDb == false)
 	{
@@ -755,10 +754,7 @@ void NotifdEventSupplier::reconnect_notifd()
 		if (Util::_FileDb == true)
 			db->reread_filedatabase();
 
-		connect_to_notifd(ns,orb_,
-				  tg->get_ds_name(),
-				  db,
-				  tg->get_host_name(),tg);
+		connect_to_notifd(ns,orb_,tg->get_ds_name(),tg);
 
 		supplierAdmin = ns.SupAdm;
 		proxyId = ns.pID;
@@ -940,6 +936,20 @@ cout << "Entering NotifdEventSupplier::push_event() method" << endl;
 		}
 		catch (...) {}
 	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		NotifdEventSupplier::file_db_svr()
+//
+// description : 	In case of DS using file as database, set a marker in the
+//                  fqdn_prefix
+//
+//-----------------------------------------------------------------------------
+
+void NotifdEventSupplier::file_db_svr()
+{
+    fqdn_prefix = fqdn_prefix + '#';
 }
 
 

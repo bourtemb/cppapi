@@ -90,10 +90,8 @@ typedef struct _NotifService
 class EventSupplier
 {
 public :
-    EventSupplier(Database*,string &);
-	~EventSupplier() {}
-
-    void set_svr_port_num(string &);
+    EventSupplier(Util *);
+	virtual ~EventSupplier() {}
 
 	void push_att_data_ready_event(DeviceImpl *,const string &,long,DevLong);
 
@@ -135,6 +133,7 @@ public :
 	void push_att_conf_events(DeviceImpl *device_impl,AttributeData &,DevFailed *,string &);
 
 	omni_mutex &get_push_mutex() {return push_mutex;}
+	string &get_fqdn_prefix() {return fqdn_prefix;}
 
 protected :
 	inline int timeval_diff(TimeVal before, TimeVal after)
@@ -171,7 +170,7 @@ class NotifdEventSupplier : public EventSupplier, public POA_CosNotifyComm::Stru
 {
 public :
 
-	TANGO_IMP_EXP static NotifdEventSupplier *create(CORBA::ORB_var,string,Database*,string &,Util *);
+	TANGO_IMP_EXP static NotifdEventSupplier *create(CORBA::ORB_var,string,Util *);
 	void connect();
 	void disconnect_structured_push_supplier();
 	void disconnect_from_notifd();
@@ -179,6 +178,7 @@ public :
 
 	void push_heartbeat_event();
 	string &get_event_channel_ior() {return event_channel_ior;}
+    void file_db_svr();
 
 //------------------ Push event -------------------------------
 
@@ -194,8 +194,7 @@ protected :
 		CosNotifyChannelAdmin::EventChannelFactory_var,
 		CosNotifyChannelAdmin::EventChannel_var,
 		string &,
-		Database *,
-		string &);
+		Util *);
 
 private :
 	static NotifdEventSupplier 								*_instance;
@@ -210,7 +209,7 @@ private :
 	string 		event_channel_ior;
 
 	void reconnect_notifd();
-	TANGO_IMP_EXP static void connect_to_notifd(NotifService &,CORBA::ORB_var &,string &,Database *,string &,Util *);
+	TANGO_IMP_EXP static void connect_to_notifd(NotifService &,CORBA::ORB_var &,string &,Util *);
 };
 
 
@@ -223,7 +222,7 @@ private :
 class ZmqEventSupplier : public EventSupplier
 {
 public :
-	TANGO_IMP_EXP static ZmqEventSupplier *create(Database *,string &,string &);
+	TANGO_IMP_EXP static ZmqEventSupplier *create(Util *);
 
 //------------------ Push event -------------------------------
 
@@ -234,16 +233,26 @@ public :
 	string &get_event_endpoint() {return event_endpoint;}
 
     void create_event_socket();
+    void create_mcast_event_socket(string &,string &,int);
+    bool is_event_mcast(string &);
+    string &get_mcast_event_endpoint(string &);
 
 protected :
-	ZmqEventSupplier(Database *,string &,string &);
+	ZmqEventSupplier(Util *);
 
 private :
 	static ZmqEventSupplier 	*_instance;
 
+    struct McastSocketPub
+    {
+        string                  endpoint;
+        zmq::socket_t           *pub_socket;
+    };
+
 	zmq::context_t              zmq_context;            // ZMQ context
 	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
 	zmq::socket_t               *event_pub_sock;        // events publisher socket
+	map<string,McastSocketPub>  event_mcast;            // multicast socket(s)
 
 	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
 	string                      host_ip;                // Host IP address

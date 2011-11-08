@@ -1034,6 +1034,7 @@ public:
 	bool is_memorized_init() {return memorized_init;}
 	void set_memorized_init(bool mem_init) {memorized_init = mem_init;}
 	string &get_mem_value() {return mem_value;}
+	void set_mem_value(const string &new_val) {mem_value = new_val;}
 	void set_written_date();
     bool mem_value_below_above(MinMaxValueCheck,string &);
 

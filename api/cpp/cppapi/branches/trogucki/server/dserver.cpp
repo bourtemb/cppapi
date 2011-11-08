@@ -47,6 +47,8 @@ static const char *RcsId = "$Id$\n$Name$";
 
 #include <new>
 #include <algorithm>
+#include <iterator>
+#include <sstream>
 #include <math.h>
 
 #ifndef _TG_WINDOWS_
@@ -181,6 +183,12 @@ void DServer::init_device()
 			tg->add_class_to_list(this->get_device_class());
 
 //
+// Retrieve multicast event property
+//
+
+			get_mcast_event_prop(tg);
+
+//
 // A loop for each class
 //
 
@@ -277,6 +285,12 @@ void DServer::init_device()
 					{
 						lock_ptr->Get();
 					}
+
+//
+// Get mcast event parameters (in case of)
+//
+
+					class_list[i]->get_mcast_event(this);
 				}
 				else
 				{
@@ -1487,6 +1501,190 @@ void DServer::check_lock_owner(DeviceImpl *dev,const char *cmd_name,const char *
 				o << " Your request is not allowed while a device is locked." << ends;
 				v << "DServer::" << cmd_name << ends;
 				Except::throw_exception((const char *)"API_DeviceLocked",o.str(),v.str());
+			}
+		}
+	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		DServer::get_mcast_event_prop()
+//
+// description : 	Get the property defining which event has to be transported
+//					using multicast protocol
+//
+// argin: tg : Tango Util instance pointer
+//
+//-----------------------------------------------------------------------------
+
+void DServer::get_mcast_event_prop(Tango::Util *tg)
+{
+
+	if (tg->_UseDb == true)
+	{
+
+//
+// Get property
+//
+
+		DbData db_data;
+
+		db_data.push_back(DbDatum("MulticastEvent"));
+
+		try
+		{
+			tg->get_database()->get_property(CONTROL_SYSTEM,db_data,tg->get_db_cache());
+
+			mcast_event_prop.clear();
+			db_data[0] >> mcast_event_prop;
+
+//
+// Check property coherency
+//
+
+			vector<string>::size_type nb_elt = mcast_event_prop.size();
+			bool uncoherent  = false;
+
+			for (unsigned int i = 0;i < nb_elt;++i)
+			{
+				if (is_ip_address(mcast_event_prop[i]) == true)
+				{
+
+//
+// Check multicast address validity
+//
+
+                    string start_ip_mcast = mcast_event_prop[i].substr(0,mcast_event_prop[i].find('.'));
+
+                    istringstream ss(start_ip_mcast);
+                    int ip_start;
+                    ss >> ip_start;
+
+                    if ((ip_start < 224) || (ip_start > 239))
+                        uncoherent = true;
+                    else
+                    {
+
+//
+// Check property definition
+//
+
+                        if (nb_elt < i + 3)
+                            uncoherent = true;
+                        else
+                        {
+                            if (nb_elt > i + 4)
+                            {
+                                if ((is_event_name(mcast_event_prop[i + 2]) == false) &&
+                                    (is_event_name(mcast_event_prop[i + 3]) == false) &&
+                                    (is_event_name(mcast_event_prop[i + 4]) == false))
+                                    uncoherent = true;
+                            }
+                            else if (nb_elt > i + 3)
+                            {
+                                if ((is_event_name(mcast_event_prop[i + 2]) == false) &&
+                                    (is_event_name(mcast_event_prop[i + 3]) == false))
+                                    uncoherent = true;
+                            }
+                            else
+                            {
+                                if (is_event_name(mcast_event_prop[i + 2]) == false)
+                                    uncoherent = true;
+                            }
+                        }
+                    }
+
+//
+// If the property is uncoherent, clear it but inform user
+// No event will use multicasting in this case
+//
+
+					if (uncoherent == true)
+					{
+						cerr << "Database CtrlSystem/MulticastEvent property is uncoherent" << endl;
+						cerr << "Prop syntax = mcast ip adr (must be between 224.x.y.z and 239.x.y.z) - port - [rate] - [ivl] - event name" << endl;
+						cerr << "All events will use unicast communication" << endl;
+
+						mcast_event_prop.clear();
+						break;
+					}
+					else
+						i = i + 1;
+				}
+			}
+
+//
+// All values in lower case letters
+//
+
+			for (unsigned int i = 0;i < nb_elt;i++)
+			{
+				transform(mcast_event_prop[i].begin(),mcast_event_prop[i].end(),mcast_event_prop[i].begin(),::tolower);
+			}
+		}
+		catch (Tango::DevFailed &)
+		{
+			cerr << "Database error while trying to retrieve multicast event property" << endl;
+			cerr << "All events will use unicast communication" << endl;
+		}
+	}
+	else
+		mcast_event_prop.clear();
+
+}
+
+
+//+----------------------------------------------------------------------------
+//
+// method : 		DServer::mcast_event_for_att()
+//
+// description : 	Return in m_event vector, list of mcast event for the
+//					specified device/attribute.
+//					For each event, the returned string in the vector
+//					follow the syntax
+//						event_name:ip_adr:port:rate:ivl
+//					The last two are optionals
+//					Please note that the same dev/att may have several event
+//					using multicasting
+//
+// argin: dev_name : The device name
+//		  att_name : The attribute name
+// argout: m_event : The multicast event definition
+//
+//-----------------------------------------------------------------------------
+
+void DServer::mcast_event_for_att(string &dev_name,string &att_name,vector<string> &m_event)
+{
+
+	m_event.clear();
+
+	string full_att_name = dev_name + '/' + att_name;
+
+	vector<string>::size_type nb_elt = mcast_event_prop.size();
+	unsigned int ip_adr_ind;
+
+	for (unsigned int i = 0;i < nb_elt;++i)
+	{
+		if (is_ip_address(mcast_event_prop[i]) == true)
+		{
+			ip_adr_ind = i;
+			continue;
+		}
+
+		if (is_event_name(mcast_event_prop[i]) == true)
+		{
+			if (mcast_event_prop[i].find(full_att_name) == 0)
+			{
+				string::size_type pos = mcast_event_prop[i].rfind('.');
+				string tmp = mcast_event_prop[i].substr(pos + 1);
+				tmp = tmp + ':' + mcast_event_prop[ip_adr_ind] + ':' + mcast_event_prop[ip_adr_ind + 1];
+				if (is_event_name(mcast_event_prop[ip_adr_ind + 2]) == false)
+				{
+					tmp = tmp + ':' + mcast_event_prop[ip_adr_ind + 2];
+					if (is_event_name(mcast_event_prop[ip_adr_ind + 3]) == false)
+						tmp = tmp + ':' + mcast_event_prop[ip_adr_ind + 3];
+				}
+				m_event.push_back(tmp);
 			}
 		}
 	}
