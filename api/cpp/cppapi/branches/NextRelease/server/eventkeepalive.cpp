@@ -45,10 +45,7 @@ static const char *RcsId = "$Id$";
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>
-
-#include <COS/CosNotification.hh>
-#include <COS/CosNotifyChannelAdmin.hh>
-#include <COS/CosNotifyComm.hh>
+#include <eventconsumer.h>
 
 #include <stdio.h>
 

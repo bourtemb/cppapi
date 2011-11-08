@@ -37,6 +37,7 @@ static const char *RcsId = "$Id$";
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>
+#include <eventconsumer.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -79,7 +80,6 @@ ZmqEventConsumer::ZmqEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_threa
 
     av = new AttributeValue();
     av3 = new AttributeValue_3();
-    av4 = new AttributeValue_4();
     ac2 = new AttributeConfig_2();
     ac3 = new AttributeConfig_3();
     adr = new AttDataReady();
@@ -1362,7 +1362,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
     {
         const AttributeValue *attr_value = NULL;
         const AttributeValue_3 *attr_value_3 = NULL;
-        const AttributeValue_4 *attr_value_4 = NULL;
+        const ZmqAttributeValue_4 *z_attr_value_4 = NULL;
         const AttributeConfig_2 *attr_conf_2 = NULL;
         const AttributeConfig_3 *attr_conf_3 = NULL;
         const AttDataReady *att_ready = NULL;
@@ -1483,7 +1483,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
             data_size = data_size - sizeof(CORBA::Long);
         }
 
-        cdrMemoryStream event_data_cdr(data_ptr,data_size);
+        TangoCdrMemoryStream event_data_cdr(data_ptr,data_size);
         event_data_cdr.setByteSwapFlag(endian);
 
 //
@@ -1530,11 +1530,11 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 case ATT_VALUE:
                 if (evt_cb.device_idl > 3)
                 {
-                    (AttributeValue_4 &)av4 <<= event_data_cdr;
-                    attr_value_4 = &av4.in();
+                    zav4.operator<<=(event_data_cdr);
+                    z_attr_value_4 = &zav4;
                     vers = 4;
                     dev_attr = new (DeviceAttribute);
-                    attr_to_device(attr_value_4,dev_attr);
+                    attr_to_device(z_attr_value_4,dev_attr);
                 }
                 else if (evt_cb.device_idl == 3)
                 {
@@ -1588,10 +1588,17 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     if ((ev_attr_conf == false) && (ev_attr_ready == false))
                     {
                         EventData *event_data;
+
+//
+// Incase we have several callbacks on the same event
+// or if the event has to be stored in a queue, copy
+// the event data (Event data are in the ZMQ message)
+//
+
                         if (cb_ctr != cb_nb)
                         {
                             DeviceAttribute *dev_attr_copy = NULL;
-                            if (dev_attr != NULL)
+                            if (dev_attr != NULL || (callback == NULL && vers == 4))
                             {
                                 dev_attr_copy = new DeviceAttribute();
                                 dev_attr_copy->deep_copy(*dev_attr);
@@ -1605,14 +1612,34 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         }
                         else
                         {
-                            event_data = new EventData (event_callback_map[ev_name].device,
+                            if (callback == NULL && vers == 4)
+                            {
+                                DeviceAttribute *dev_attr_copy = NULL;
+                                if (dev_attr != NULL)
+                                {
+                                    dev_attr_copy = new DeviceAttribute();
+                                    dev_attr_copy->deep_copy(*dev_attr);
+                                }
+
+                                event_data = new EventData(event_callback_map[ev_name].device,
+                                                                att_name,
+                                                                event_name,
+                                                                dev_attr_copy,
+                                                                errors);
+
+                            }
+                            else
+                                event_data = new EventData (event_callback_map[ev_name].device,
                                                               att_name,
                                                               event_name,
                                                               dev_attr,
                                                               errors);
                         }
 
-                        // if a callback method was specified, call it!
+//
+// if a callback method was specified, call it!
+//
+
                         if (callback != NULL )
                         {
                             try
@@ -1627,11 +1654,15 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                             delete event_data;
                         }
 
-                        // no calback method, the event has to be instered
-                        // into the event queue
+//
+// No calback method, the event has to be instered into the event queue
+//
+
                         else
                         {
                             ev_queue->insert_event(event_data);
+                            if (vers == 4 && cb_ctr == cb_nb)
+                                delete dev_attr;
                         }
                     }
                     else if (ev_attr_ready == false)
@@ -1738,6 +1769,187 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 		// even if nothing was found in the map, free the lock
         map_modification_lock.readerOut();
     }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqAttrValUnion::operator<<=()
+//
+// description :    Write our own unmarshalling method. The omniORB one
+//                  allocate memory and copy data. We already have memory
+//                  allocated in the ZMQ message. No need to allocate once
+//                  more and to copy data.
+//                  We are doinng this only for attribute data.
+//                  For the remaining, keep using omniORB stuff
+//
+// argument(s) : in :
+//
+//-----------------------------------------------------------------------------
+
+void ZmqAttrValUnion::operator<<= (TangoCdrMemoryStream& _n)
+{
+    char *data_ptr = (char *)_n.bufPtr();
+
+//
+// Get union discriminator from cdr and if data type is string or device_state
+// let omniORB do its stuff. Don't forget to rewind memory
+// ptr before returning to omniORB
+//
+
+    AttributeDataType _pd__d;
+    (AttributeDataType&)_pd__d <<= _n;
+
+    if (_pd__d == ATT_STRING || _pd__d == DEVICE_STATE)
+    {
+        _n.rewindPtrs();
+        AttrValUnion::operator<<=(_n);
+    }
+    else
+    {
+
+//
+// Get data length from cdr
+//
+
+        _CORBA_ULong length;
+        length <<= _n;
+
+        if (length == 0)
+            return;
+
+//
+// Get att data depending on type
+//
+
+        switch (_pd__d)
+        {
+            case ATT_SHORT:
+            {
+                init_seq<DevShort,DevVarShortArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_DOUBLE:
+            {
+                init_seq<DevDouble,DevVarDoubleArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_FLOAT:
+            {
+                init_seq<DevFloat,DevVarFloatArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_USHORT:
+            {
+                init_seq<DevUShort,DevVarUShortArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_BOOL:
+            {
+                init_seq<DevBoolean,DevVarBooleanArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_LONG:
+            {
+                init_seq<DevLong,DevVarLongArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_LONG64:
+            {
+                init_seq<DevLong64,DevVarLong64Array>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_ULONG:
+            {
+                init_seq<DevULong,DevVarULongArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_ULONG64:
+            {
+                init_seq<DevULong64,DevVarULong64Array>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_UCHAR:
+            {
+                init_seq<DevUChar,DevVarUCharArray>(data_ptr,length,_n);
+            }
+            break;
+
+            case ATT_STATE:
+            {
+                init_seq<DevState,DevVarStateArray>(data_ptr,length,_n);
+            }
+            break;
+
+//
+// We have special cases for DevEncoded (a structure)
+// and NO_DATA
+//
+
+            case ATT_ENCODED:
+            {
+                DevVarEncodedArray dummy_seq;
+                encoded_att_value(dummy_seq);
+
+                DevVarEncodedArray &dvea = encoded_att_value();
+                dvea.length(length);
+
+                for (_CORBA_ULong i = 0;i < length;i++)
+                {
+                    dvea[i].encoded_format = _n.unmarshalString(0);
+                    _CORBA_ULong seq_length;
+                    seq_length <<= _n;
+                    _CORBA_Octet *ptr = (_CORBA_Octet *)(data_ptr + _n.currentInputPtr());
+                    dvea[i].encoded_data.replace(seq_length,seq_length,ptr,false);
+                    _n.tango_get_octet_array((seq_length * sizeof(_CORBA_Octet)));
+                }
+            }
+            break;
+
+            case NO_DATA:
+            {
+                DevBoolean bo;
+                bo = _n.unmarshalBoolean();
+
+                union_no_data(bo);
+               _n.tango_get_octet_array((length * sizeof(DevBoolean)));
+            }
+            break;
+
+            default:
+            assert(false);
+        }
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqAttributeValue_4::operator<<=()
+//
+// description :
+//
+// argument(s) : in :
+//
+//-----------------------------------------------------------------------------
+
+void Tango::ZmqAttributeValue_4::operator<<= (TangoCdrMemoryStream &_n)
+{
+  (ZmqAttrValUnion&)zvalue <<= _n;
+  (AttrQuality&)quality <<= _n;
+  (AttrDataFormat&)data_format <<= _n;
+  (TimeVal&)time <<= _n;
+  name = _n.unmarshalString(0);
+  (AttributeDim&)r_dim <<= _n;
+  (AttributeDim&)w_dim <<= _n;
+  (DevErrorList&)err_list <<= _n;
 }
 
 } /* End of Tango namespace */
