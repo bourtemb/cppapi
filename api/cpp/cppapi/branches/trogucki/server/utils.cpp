@@ -896,8 +896,11 @@ void Util::display_help_message()
 		DbDatum received = db->get_device_member(str);
 		received >> db_inst;
 	}
-	catch (Tango::DevFailed &)
+	catch (Tango::DevFailed &e)
 	{
+        string reason(e.errors[0].reason.in());
+        if (reason == "API_ReadOnlyMode")
+            o << "\n\nWarning: Control System configured with AccessControl but can't communicate with AccessControl server";
 		o << ends;
 		print_err_message(o.str(),Tango::INFO);
 	}
@@ -1314,23 +1317,14 @@ void Util::create_notifd_event_supplier()
 	{
 		try
 		{
-			ext->nd_event_supplier = NotifdEventSupplier::create(orb,ds_name,db,hostname,this);
+			ext->nd_event_supplier = NotifdEventSupplier::create(orb,ds_name,this);
 			ext->nd_event_supplier->connect();
-		}
-		catch (Tango::DevFailed &e)
-		{
-			ext->nd_event_supplier = NULL;
-			if (_FileDb == true)
-			{
-				Tango::Except::print_exception(e);
-				cerr << "Can't create notifd event supplier. Event not available" << endl;
-			}
 		}
 		catch (...)
 		{
 			ext->nd_event_supplier = NULL;
 			if (_FileDb == true)
-				cerr << "Can't create notifd event supplier. Event not available" << endl;
+				cerr << "Can't create notifd event supplier. Notifd event not available" << endl;
 		}
 	}
 	else
@@ -1353,25 +1347,13 @@ void Util::create_zmq_event_supplier()
 	{
 		try
 		{
-		    string specified_ip;
-		    if (get_endpoint_specified() == true)
-                specified_ip = get_specified_ip();
-			ext->zmq_event_supplier = ZmqEventSupplier::create(db,hostname,specified_ip);
-		}
-		catch (Tango::DevFailed &e)
-		{
-			ext->zmq_event_supplier = NULL;
-			if (_FileDb == true)
-			{
-				Tango::Except::print_exception(e);
-				cerr << "Can't create zmq event supplier. Event not available" << endl;
-			}
+			ext->zmq_event_supplier = ZmqEventSupplier::create(this);
 		}
 		catch (...)
 		{
 			ext->zmq_event_supplier = NULL;
 			if (_FileDb == true)
-				cerr << "Can't create zmq event supplier. Event not available" << endl;
+				cerr << "Can't create zmq event supplier. Zmq event not available" << endl;
 		}
 	}
 	else
