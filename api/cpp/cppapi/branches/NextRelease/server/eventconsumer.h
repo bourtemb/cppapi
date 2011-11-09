@@ -87,9 +87,11 @@ class TangoCdrMemoryStream : public cdrMemoryStream
 {
 public:
     TangoCdrMemoryStream(void *buf,size_t si):cdrMemoryStream(buf,si) {}
+    TangoCdrMemoryStream():cdrMemoryStream(512,false) {}
 
 //    void get_octet_array(_CORBA_Octet*,int,omni::alignment_t align=omni::ALIGN_1);
     void tango_get_octet_array(int size);
+    void *get_end_out_buf() {return pd_outb_end;}
 };
 
 inline void TangoCdrMemoryStream::tango_get_octet_array(int size)

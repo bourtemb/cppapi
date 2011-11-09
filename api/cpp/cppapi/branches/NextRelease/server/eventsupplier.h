@@ -59,6 +59,7 @@
 #undef USE_stub_in_nt_dll
 #endif
 
+#include <eventconsumer.h>
 
 #include <omnithread.h>
 #ifndef _TG_WINDOWS_
@@ -219,6 +220,9 @@ private :
 //
 //---------------------------------------------------------------------
 
+#define     LARGE_DATA_THRESHOLD    2048
+#define     LARGE_DATA_THRESHOLD_ENCODED   LARGE_DATA_THRESHOLD * 4
+
 class ZmqEventSupplier : public EventSupplier
 {
 public :
@@ -263,8 +267,17 @@ private :
     cdrMemoryStream             heartbeat_call_cdr;     //
     cdrMemoryStream             event_call_ok_cdr;      //
     cdrMemoryStream             event_call_nok_cdr;     //
-    cdrMemoryStream             data_call_cdr;
+    TangoCdrMemoryStream        data_call_cdr;
     string                      event_name;
+
+    zmq::message_t              endian_mess;            // Zmq message for host endianness
+    zmq::message_t              endian_mess_2;          //
+    zmq::message_t              heartbeat_call_mess;    //
+    zmq::message_t              heartbeat_call_mess_2;  //
+    zmq::message_t              event_call_ok_mess;     //
+    zmq::message_t              event_call_ok_mess_2;   //
+    zmq::message_t              event_call_nok_mess;    //
+    zmq::message_t              event_call_nok_mess_2;  //
 
 	unsigned char               host_endian;            // the host endianess
 	bool                        heartbeat_name_init;

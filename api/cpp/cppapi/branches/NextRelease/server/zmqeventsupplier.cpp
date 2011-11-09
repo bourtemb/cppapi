@@ -130,10 +130,16 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
     }
 
 //
-// Find out the host endianness
+// Find out the host endianness and
+// create the zmq message used to pass it
 //
 
     host_endian = test_endian();
+
+    endian_mess.rebuild(1);
+    memcpy(endian_mess.data(),&host_endian,1);
+
+    endian_mess_2.copy(&endian_mess);
 
 //
 // Init heartbeat and event call info (both ok and nok)
@@ -158,6 +164,25 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
     event_call_nok.call_is_except = true;
 
     event_call_nok >>= event_call_nok_cdr;
+
+//
+// Create some ZMQ messages from the already created memory buffer in CDR
+//
+
+    heartbeat_call_mess.rebuild(heartbeat_call_cdr.bufSize());
+    memcpy(heartbeat_call_mess.data(),heartbeat_call_cdr.bufPtr(),heartbeat_call_cdr.bufSize());
+
+    heartbeat_call_mess_2.copy(&heartbeat_call_mess);
+
+    event_call_ok_mess.rebuild(event_call_ok_cdr.bufSize());
+    memcpy(event_call_ok_mess.data(),event_call_ok_cdr.bufPtr(),event_call_ok_cdr.bufSize());
+
+    event_call_ok_mess_2.copy(&event_call_ok_mess);
+
+    event_call_nok_mess.rebuild(event_call_nok_cdr.bufSize());
+    memcpy(event_call_nok_mess.data(),event_call_nok_cdr.bufPtr(),event_call_nok_cdr.bufSize());
+
+    event_call_nok_mess_2.copy(&event_call_nok_mess_2);
 
 //
 // Start to init the event name used for the DS heartbeat event
@@ -460,10 +485,6 @@ string &ZmqEventSupplier::get_mcast_event_endpoint(string &ev_name)
 //
 //-----------------------------------------------------------------------------
 
-void tg_free(TANGO_UNUSED(void *data),TANGO_UNUSED(void *hint))
-{
-}
-
 void ZmqEventSupplier::push_heartbeat_event()
 {
 	time_t delta_time;
@@ -512,12 +533,11 @@ void ZmqEventSupplier::push_heartbeat_event()
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): delta _time " << delta_time << endl;
 
 //
-// Create zmq messages using zero copy messages
+// Create zmq message
 //
 
-        zmq::message_t name_mess((void *)heartbeat_event_name.data(),heartbeat_event_name.size(),tg_free);
-        zmq::message_t endian_mess(&host_endian,1,tg_free);
-        zmq::message_t call_mess(heartbeat_call_cdr.bufPtr(),heartbeat_call_cdr.bufSize(),tg_free);
+        zmq::message_t name_mess(heartbeat_event_name.size());
+        memcpy(name_mess.data(),(void *)heartbeat_event_name.data(),heartbeat_event_name.size());
 
 		bool fail = false;
 		try
@@ -549,7 +569,7 @@ void ZmqEventSupplier::push_heartbeat_event()
                     omniORB::logger log;
                     log << "ZMQ: Call info" << '\n';
                 }
-                omni::giopStream::dumpbuf((unsigned char *)call_mess.data(),call_mess.size());
+                omni::giopStream::dumpbuf((unsigned char *)heartbeat_call_mess.data(),heartbeat_call_mess.size());
             }
 
 //
@@ -558,7 +578,14 @@ void ZmqEventSupplier::push_heartbeat_event()
 
             heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
 			heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);
-			heartbeat_pub_sock->send(call_mess,0);
+			heartbeat_pub_sock->send(heartbeat_call_mess,0);
+
+//
+// For reference counting on zmq messages which do not have a local scope
+//
+
+			endian_mess.copy(&endian_mess_2);
+			heartbeat_call_mess.copy(&heartbeat_call_mess_2);
 		}
 		catch(...)
 		{
@@ -614,6 +641,11 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 //
 // Get the mutex to synchronize the sending of events
+// This method may be called by several threads in case they are several
+// user threads doing dev.push_xxxx_event() on several devices.
+// On top of that, zmq socket can be used by several threads
+// only if they are memory barriers between their use in these different
+// threads. The mutex used here is also a memory barrier
 //
 
     push_mutex.lock();
@@ -639,34 +671,27 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 //
 // Create zmq messages
+// Use memcpy here. Don't use message with no-copy option because
+// it does not give any performance improvement in this case
+// (too small amount of data)
 //
 
-    zmq::message_t name_mess((void *)event_name.data(),event_name.size(),tg_free);
-    zmq::message_t endian_mess(&host_endian,1,tg_free);
-
-    size_t mess_size;
-    void *mess_ptr;
-    if (except == NULL)
-    {
-        mess_size = event_call_ok_cdr.bufSize();
-        mess_ptr = event_call_ok_cdr.bufPtr();
-    }
-    else
-    {
-        mess_size = event_call_nok_cdr.bufSize();
-        mess_ptr = event_call_nok_cdr.bufPtr();
-    }
-
-    zmq::message_t call_mess(mess_ptr,mess_size,tg_free);
+    zmq::message_t name_mess(event_name.size());
+    memcpy(name_mess.data(),event_name.data(),event_name.size());
 
 //
 // Marshall the event data
 //
 
+    size_t mess_size;
+    void *mess_ptr;
+
 	CORBA::Long padding = 0XDEC0DEC0;
 	data_call_cdr.rewindPtrs();
 	padding >>= data_call_cdr;
 	padding >>= data_call_cdr;
+	bool large_data = false;
+	bool large_message_created = false;
 
     if (except == NULL)
     {
@@ -680,7 +705,33 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         }
         else if (attr_value.attr_val_4 != NULL)
         {
+
+//
+// Get number of data exchanged by this event
+// If this value is greater than a threashold, set a flag
+// In such a case, we will use ZMQ no-copy message call
+//
+
             *(attr_value.attr_val_4) >>= data_call_cdr;
+            mess_ptr = data_call_cdr.bufPtr();
+            mess_ptr = (char *)mess_ptr + (sizeof(CORBA::Long) << 1);
+
+            int nb_data;
+            int data_discr = ((int *)mess_ptr)[0];
+
+            if (data_discr == ATT_ENCODED)
+            {
+                const DevVarEncodedArray &dvea = attr_value.attr_val_4->value.encoded_att_value();
+                nb_data = dvea.length();
+                if (nb_data > LARGE_DATA_THRESHOLD_ENCODED)
+                    large_data = true;
+            }
+            else
+            {
+                nb_data = ((int *)mess_ptr)[1];
+                if (nb_data >= LARGE_DATA_THRESHOLD)
+                    large_data = true;
+            }
         }
         else if (attr_value.attr_conf_2 != NULL)
         {
@@ -702,7 +753,25 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
     mess_size = data_call_cdr.bufSize() - sizeof(CORBA::Long);
     mess_ptr = (char *)data_call_cdr.bufPtr() + sizeof(CORBA::Long);
-    zmq::message_t data_mess(mess_ptr,mess_size,tg_unlock,(void *)this);
+
+//
+// For event with samll amount of data, use memcpy to initialize
+// the zmq message. For large amount of data, use zmq message
+// with no-copy option
+//
+
+    zmq::message_t data_mess;
+
+    if (large_data == true)
+    {
+        data_mess.rebuild(mess_ptr,mess_size,tg_unlock,(void *)this);
+        large_message_created = true;
+    }
+    else
+    {
+        data_mess.rebuild(mess_size);
+        memcpy(data_mess.data(),mess_ptr,mess_size);
+    }
 
 //
 // Send the data
@@ -739,8 +808,10 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
                 omniORB::logger log;
                 log << "ZMQ: Call info" << '\n';
             }
-            omni::giopStream::dumpbuf((unsigned char *)call_mess.data(),call_mess.size());
-
+            if (except == NULL)
+                omni::giopStream::dumpbuf((unsigned char *)event_call_ok_mess.data(),event_call_ok_mess.size());
+            else
+                omni::giopStream::dumpbuf((unsigned char *)event_call_nok_mess.data(),event_call_nok_mess.size());
             {
                 omniORB::logger log;
                 log << "ZMQ: Event data" << '\n';
@@ -768,13 +839,30 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
         pub->send(name_mess,ZMQ_SNDMORE);
         pub->send(endian_mess,ZMQ_SNDMORE);
-        pub->send(call_mess,ZMQ_SNDMORE);
+        if (except == NULL)
+            pub->send(event_call_ok_mess,ZMQ_SNDMORE);
+        else
+            pub->send(event_call_nok_mess,ZMQ_SNDMORE);
         pub->send(data_mess,0);
+
+        if (large_data == false)
+            push_mutex.unlock();
+
+//
+// For reference counting on zmq messages which do not have a local scope
+//
+
+        endian_mess.copy(&endian_mess_2);
+        if (except == NULL)
+            event_call_ok_mess.copy(&event_call_ok_mess_2);
+        else
+            event_call_nok_mess.copy(&event_call_nok_mess_2);
     }
     catch(...)
     {
         cout3 << "ZmqEventSupplier::push_event() failed !\n";
-        push_mutex.unlock();
+        if (large_message_created == false)
+            push_mutex.unlock();
         fail = true;
     }
 }
