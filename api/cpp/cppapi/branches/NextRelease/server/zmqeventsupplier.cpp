@@ -107,7 +107,6 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
         vector<string> adrs;
 
         au->get_ip_from_if(adrs);
-//copy(adrs.begin(),adrs.end(),ostream_iterator<string>(cout,"\n"));
 
         string::size_type pos = heartbeat_endpoint.find('*');
         if (adrs.size() > 1)
@@ -143,24 +142,21 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
 
 //
 // Init heartbeat and event call info (both ok and nok)
-// Leave the OID un-initialized
+// Leave the OID and method name un-initialized
 // Marshall the structure into CORBA CDR
 //
 
     heartbeat_call.version = ZMQ_EVENT_PROT_VERSION;
-    heartbeat_call.method_name = CORBA::string_dup(HEARTBEAT_METHOD_NAME);
     heartbeat_call.call_is_except = false;
 
     heartbeat_call >>= heartbeat_call_cdr;
 
     event_call_ok.version = ZMQ_EVENT_PROT_VERSION;
-    event_call_ok.method_name = CORBA::string_dup(EVENT_METHOD_NAME);
     event_call_ok.call_is_except = false;
 
     event_call_ok >>= event_call_ok_cdr;
 
     event_call_nok.version = ZMQ_EVENT_PROT_VERSION;
-    event_call_nok.method_name = CORBA::string_dup(EVENT_METHOD_NAME);
     event_call_nok.call_is_except = true;
 
     event_call_nok >>= event_call_nok_cdr;
@@ -324,8 +320,6 @@ void ZmqEventSupplier::create_event_socket()
         {
             event_endpoint.replace(6,1,host_ip);
         }
-
-cout << "Event endpoint = " << event_endpoint << endl;
     }
 
 }

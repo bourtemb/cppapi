@@ -307,17 +307,11 @@ void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq
     receiv_call = &c_info_var.in();
 
 //
-// Call the required method
+// Call the heartbeat method
 //
 
-    if (::strcmp(receiv_call->method_name,HEARTBEAT_METHOD_NAME) == 0)
-    {
-        push_heartbeat_event(event_name);
-    }
-    else
-    {
+    push_heartbeat_event(event_name);
 
-    }
 }
 
 //+----------------------------------------------------------------------------
@@ -389,17 +383,11 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
     receiv_call = &c_info_var.in();
 
 //
-// Call the required method
+// Call the event method
 //
 
-    if (::strcmp(receiv_call->method_name,EVENT_METHOD_NAME) == 0)
-    {
-        push_zmq_event(event_name,endian,event_data,receiv_call->call_is_except);
-    }
-    else
-    {
+    push_zmq_event(event_name,endian,event_data,receiv_call->call_is_except);
 
-    }
 }
 
 //+----------------------------------------------------------------------------
@@ -985,7 +973,7 @@ void ZmqEventConsumer::disconnect_event_channel(string &channel_name)
     {
         TangoSys_OMemStream o;
 
-        o << "Failed to create connection to event channel!\n";
+        o << "Failed to disconnect from the event channel!\n";
         o << "Error while communicating with the ZMQ main thread\n";
         o << "ZMQ message: " << e.what() << ends;
 
@@ -1006,7 +994,7 @@ void ZmqEventConsumer::disconnect_event_channel(string &channel_name)
 
         TangoSys_OMemStream o;
 
-        o << "Failed to create connection to event channel!\n";
+        o << "Failed to disconnect from event channel!\n";
         o << "Error while trying to unsubscribe the heartbeat ZMQ socket from the channel heartbeat publisher\n";
         o << "ZMQ message: " << err_mess << ends;
 
@@ -1075,7 +1063,7 @@ void ZmqEventConsumer::disconnect_event(string &event_name)
     {
         TangoSys_OMemStream o;
 
-        o << "Failed to create connection to event channel!\n";
+        o << "Failed to disconnect from event!\n";
         o << "Error while communicating with the ZMQ main thread\n";
         o << "ZMQ message: " << e.what() << ends;
 
@@ -1096,7 +1084,7 @@ void ZmqEventConsumer::disconnect_event(string &event_name)
 
         TangoSys_OMemStream o;
 
-        o << "Failed to create connection to event channel!\n";
+        o << "Failed to disconnect from event!\n";
         o << "Error while trying to unsubscribe the heartbeat ZMQ socket from the channel heartbeat publisher\n";
         o << "ZMQ message: " << err_mess << ends;
 
@@ -1590,7 +1578,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         EventData *event_data;
 
 //
-// Incase we have several callbacks on the same event
+// In case we have several callbacks on the same event
 // or if the event has to be stored in a queue, copy
 // the event data (Event data are in the ZMQ message)
 //
@@ -1637,7 +1625,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         }
 
 //
-// if a callback method was specified, call it!
+// If a callback method was specified, call it!
 //
 
                         if (callback != NULL )
