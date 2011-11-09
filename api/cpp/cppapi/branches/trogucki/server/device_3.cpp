@@ -1814,11 +1814,7 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 			}
 
 			if (att.is_memorized() == true)
-			{
-                att_in_db.push_back(i);
-                if (att.get_mem_value() == MemNotUsed)
-                    att.set_mem_value("Set");
-			}
+				att_in_db.push_back(i);
 			if (att.is_alarmed().test(Attribute::rds) == true)
 				att.set_written_date();
 		}

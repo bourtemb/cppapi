@@ -37,7 +37,6 @@ static const char *RcsId = "$Id$\n$Name$";
 #endif
 
 #include <tango.h>
-#include <eventconsumer.h>
 
 #ifdef _TG_WINDOWS_
 #include <sys/timeb.h>

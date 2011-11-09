@@ -40,7 +40,6 @@ static const char *RcsId = "$Id$";
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>
-#include <eventconsumer.h>
 
 #include <stdio.h>
 
@@ -145,6 +144,7 @@ cout << "Entering leavefunc function" << endl;
 
 EventConsumer::EventConsumer(ApiUtil *api_ptr)
 {
+cout << "Entering EventConsumer ctor" << endl;
 //
 // Build and store the fqdn prefix for devices in the TANGO_HOST
 // environment variable (in lower case letters)
@@ -199,6 +199,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 	{
 		int res;
 		res = atexit(leavefunc);
+cout << "Installing exit function, retuned value = " << res << endl;
 		api_ptr->set_lock_exit_installed(true);
 	}
 #endif
@@ -219,6 +220,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 
     if (keep_alive_thread == NULL)
     {
+cout << "Creating KeepAliveThread" << endl;
         keep_alive_thread = new EventConsumerKeepAliveThread(cmd);
         keep_alive_thread->start();
     }
@@ -234,6 +236,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 //-----------------------------------------------------------------------------
 void EventConsumer::shutdown()
 {
+cout << "Entering EventConsumer::shutdown()" << endl;
 	cout3 << "calling Tango::EventConsumer::shutdown() \n";
 
 //
@@ -261,6 +264,7 @@ void EventConsumer::shutdown()
 
 void EventConsumer::shutdown_keep_alive_thread()
 {
+cout << "Entering shutdown_keep_alive_thread: keep_alive_thread ptr = "  << hex << (void *)keep_alive_thread << dec << endl;
 //
 // Shut-down the KeepAliveThread and wait for it to exit
 //
@@ -304,6 +308,7 @@ void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name,DeviceData 
 	{
 		channel_name.insert(0,env_var_fqdn_prefix[0]);
 	}
+cout << "connect: channel name from adm_name = " << channel_name << endl;
 
 //
 // If no connection exists to this channel then connect to it.
@@ -322,12 +327,16 @@ void EventConsumer::connect(DeviceProxy *device_proxy,string &d_name,DeviceData 
 
     if (device_proxy->get_from_env_var() == true)
     {
+cout << "connect: insert env_var_fqdn_prefix !!!!, before = " << adm_name << endl;
         adm_name.insert(0,env_var_fqdn_prefix[0]);
+cout << "connect: after " << adm_name << endl;
     }
 
 //
 // Init adm device name in channel map entry
 //
+
+cout << "connect: channel name  = " << channel_name << ", adm_name in map = " << adm_name << endl;
 
 	channel_map[channel_name].full_adm_name = adm_name;
 
@@ -647,55 +656,7 @@ void EventConsumer::attr_to_device(const AttributeValue *attr_value,
 
 void EventConsumer::attr_to_device(const AttributeValue_4 *attr_value_4,DeviceAttribute *dev_attr)
 {
-	dev_attr->name = attr_value_4->name;
-	dev_attr->quality = attr_value_4->quality;
-	dev_attr->time = attr_value_4->time;
-	dev_attr->dim_x = attr_value_4->r_dim.dim_x;
-	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
-	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
-	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
-	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
 
-	if (dev_attr->quality != Tango::ATTR_INVALID)
-	{
-	    att_union_to_device(&attr_value_4->value,dev_attr);
-	}
-}
-
-
-void EventConsumer::attr_to_device(const ZmqAttributeValue_4 *attr_value_4,DeviceAttribute *dev_attr)
-{
-	dev_attr->name = attr_value_4->name;
-	dev_attr->quality = attr_value_4->quality;
-	dev_attr->time = attr_value_4->time;
-	dev_attr->dim_x = attr_value_4->r_dim.dim_x;
-	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
-	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
-	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
-	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
-
-	if (dev_attr->quality != Tango::ATTR_INVALID)
-	{
-	    att_union_to_device(&attr_value_4->zvalue,dev_attr);
-	}
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		EventConsumer::att_union_to_device()
-//
-// description : 	Method to initialize in the DeviceAttribute instance
-//                  given to the user the attribute value which are received
-//                  in a AttrValUnion (or in a class inheriting from)
-//
-// argument : in :  union_ptr : Pointer to the received union
-//			        dev_attr  : Pointer to the DeviceAttribute which will be given
-//                              to the user
-//
-//-----------------------------------------------------------------------------
-
-void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttribute *dev_attr)
-{
 	CORBA::Long *tmp_lo;
 	CORBA::Short *tmp_sh;
 	CORBA::Double *tmp_db;
@@ -713,252 +674,265 @@ void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttr
 
 	CORBA::ULong max,len;
 
-    switch (union_ptr->_d())
-    {
-        case ATT_BOOL:
-        {
-            const DevVarBooleanArray &tmp_seq = union_ptr->bool_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_boo = (const_cast<DevVarBooleanArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->BooleanSeq = new DevVarBooleanArray(max,len,tmp_boo,true);
-            }
-            else
-            {
-                tmp_boo = const_cast<CORBA::Boolean *>(tmp_seq.get_buffer());
-                dev_attr->BooleanSeq = new DevVarBooleanArray(max,len,tmp_boo,false);
-            }
-        }
-        break;
+	dev_attr->name = attr_value_4->name;
+	dev_attr->quality = attr_value_4->quality;
+	dev_attr->time = attr_value_4->time;
+	dev_attr->dim_x = attr_value_4->r_dim.dim_x;
+	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
+	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
+	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
+	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
 
-        case ATT_SHORT:
-        {
-            const DevVarShortArray &tmp_seq = union_ptr->short_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_sh = (const_cast<DevVarShortArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ShortSeq = new DevVarShortArray(max,len,tmp_sh,true);
-            }
-            else
-            {
-                tmp_sh = const_cast<CORBA::Short *>(tmp_seq.get_buffer());
-                dev_attr->ShortSeq = new DevVarShortArray(max,len,tmp_sh,false);
-            }
-        }
-        break;
+	if (dev_attr->quality != Tango::ATTR_INVALID)
+	{
+		switch (attr_value_4->value._d())
+		{
+			case ATT_BOOL:
+			{
+				const DevVarBooleanArray &tmp_seq = attr_value_4->value.bool_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_boo = (const_cast<DevVarBooleanArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->BooleanSeq = new DevVarBooleanArray(max,len,tmp_boo,true);
+				}
+				else
+				{
+					tmp_boo = const_cast<CORBA::Boolean *>(tmp_seq.get_buffer());
+					dev_attr->BooleanSeq = new DevVarBooleanArray(max,len,tmp_boo,false);
+				}
+			}
+			break;
 
-        case ATT_LONG:
-        {
-            const DevVarLongArray &tmp_seq = union_ptr->long_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_lo = (const_cast<DevVarLongArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->LongSeq = new DevVarLongArray(max,len,tmp_lo,true);
-            }
-            else
-            {
-                tmp_lo = const_cast<CORBA::Long *>(tmp_seq.get_buffer());
-                dev_attr->LongSeq = new DevVarLongArray(max,len,tmp_lo,false);
-            }
-        }
-        break;
+			case ATT_SHORT:
+			{
+				const DevVarShortArray &tmp_seq = attr_value_4->value.short_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_sh = (const_cast<DevVarShortArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->ShortSeq = new DevVarShortArray(max,len,tmp_sh,true);
+				}
+				else
+				{
+					tmp_sh = const_cast<CORBA::Short *>(tmp_seq.get_buffer());
+					dev_attr->ShortSeq = new DevVarShortArray(max,len,tmp_sh,false);
+				}
+			}
+			break;
 
-        case ATT_LONG64:
-        {
-            const DevVarLong64Array &tmp_seq = union_ptr->long64_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_lolo = (const_cast<DevVarLong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,true);
-            }
-            else
-            {
-                tmp_lolo = const_cast<CORBA::LongLong *>(tmp_seq.get_buffer());
-                dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,false);
-            }
-        }
-        break;
+			case ATT_LONG:
+			{
+				const DevVarLongArray &tmp_seq = attr_value_4->value.long_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_lo = (const_cast<DevVarLongArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->LongSeq = new DevVarLongArray(max,len,tmp_lo,true);
+				}
+				else
+				{
+					tmp_lo = const_cast<CORBA::Long *>(tmp_seq.get_buffer());
+					dev_attr->LongSeq = new DevVarLongArray(max,len,tmp_lo,false);
+				}
+			}
+			break;
 
-        case ATT_FLOAT:
-        {
-            const DevVarFloatArray &tmp_seq = union_ptr->float_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_fl = (const_cast<DevVarFloatArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->FloatSeq = new DevVarFloatArray(max,len,tmp_fl,true);
-            }
-            else
-            {
-                tmp_fl = const_cast<CORBA::Float *>(tmp_seq.get_buffer());
-                dev_attr->FloatSeq = new DevVarFloatArray(max,len,tmp_fl,false);
-            }
-        }
-        break;
+			case ATT_LONG64:
+			{
+				const DevVarLong64Array &tmp_seq = attr_value_4->value.long64_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_lolo = (const_cast<DevVarLong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,true);
+				}
+				else
+				{
+					tmp_lolo = const_cast<CORBA::LongLong *>(tmp_seq.get_buffer());
+					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,false);
+				}
+			}
+			break;
 
-        case ATT_DOUBLE:
-        {
-            const DevVarDoubleArray &tmp_seq = union_ptr->double_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_db = (const_cast<DevVarDoubleArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,true);
-            }
-            else
-            {
-                tmp_db = const_cast<CORBA::Double *>(tmp_seq.get_buffer());
-                dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,false);
-            }
-        }
-        break;
+			case ATT_FLOAT:
+			{
+				const DevVarFloatArray &tmp_seq = attr_value_4->value.float_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_fl = (const_cast<DevVarFloatArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->FloatSeq = new DevVarFloatArray(max,len,tmp_fl,true);
+				}
+				else
+				{
+					tmp_fl = const_cast<CORBA::Float *>(tmp_seq.get_buffer());
+					dev_attr->FloatSeq = new DevVarFloatArray(max,len,tmp_fl,false);
+				}
+			}
+			break;
 
-        case ATT_UCHAR:
-        {
-            const DevVarCharArray &tmp_seq = union_ptr->uchar_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_uch = (const_cast<DevVarCharArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->UCharSeq = new DevVarCharArray(max,len,tmp_uch,true);
-            }
-            else
-            {
-                tmp_uch = const_cast<CORBA::Octet *>(tmp_seq.get_buffer());
-                dev_attr->UCharSeq = new DevVarCharArray(max,len,tmp_uch,false);
-            }
-        }
-        break;
+			case ATT_DOUBLE:
+			{
+				const DevVarDoubleArray &tmp_seq = attr_value_4->value.double_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_db = (const_cast<DevVarDoubleArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,true);
+				}
+				else
+				{
+					tmp_db = const_cast<CORBA::Double *>(tmp_seq.get_buffer());
+					dev_attr->DoubleSeq = new DevVarDoubleArray(max,len,tmp_db,false);
+				}
+			}
+			break;
 
-        case ATT_USHORT:
-        {
-            const DevVarUShortArray &tmp_seq = union_ptr->ushort_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_ush = (const_cast<DevVarUShortArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->UShortSeq = new DevVarUShortArray(max,len,tmp_ush,true);
-            }
-            else
-            {
-                tmp_ush = const_cast<CORBA::UShort *>(tmp_seq.get_buffer());
-                dev_attr->UShortSeq = new DevVarUShortArray(max,len,tmp_ush,false);
-            }
-        }
-        break;
+			case ATT_UCHAR:
+			{
+				const DevVarCharArray &tmp_seq = attr_value_4->value.uchar_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_uch = (const_cast<DevVarCharArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->UCharSeq = new DevVarCharArray(max,len,tmp_uch,true);
+				}
+				else
+				{
+					tmp_uch = const_cast<CORBA::Octet *>(tmp_seq.get_buffer());
+					dev_attr->UCharSeq = new DevVarCharArray(max,len,tmp_uch,false);
+				}
+			}
+			break;
 
-        case ATT_ULONG:
-        {
-            const DevVarULongArray &tmp_seq = union_ptr->ulong_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_ulo = (const_cast<DevVarULongArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,true);
-            }
-            else
-            {
-                tmp_ulo = const_cast<CORBA::ULong *>(tmp_seq.get_buffer());
-                dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
-            }
-        }
-        break;
+			case ATT_USHORT:
+			{
+				const DevVarUShortArray &tmp_seq = attr_value_4->value.ushort_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_ush = (const_cast<DevVarUShortArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->UShortSeq = new DevVarUShortArray(max,len,tmp_ush,true);
+				}
+				else
+				{
+					tmp_ush = const_cast<CORBA::UShort *>(tmp_seq.get_buffer());
+					dev_attr->UShortSeq = new DevVarUShortArray(max,len,tmp_ush,false);
+				}
+			}
+			break;
 
-        case ATT_ULONG64:
-        {
-            const DevVarULong64Array &tmp_seq = union_ptr->ulong64_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_ulolo = (const_cast<DevVarULong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,true);
-            }
-            else
-            {
-                tmp_ulolo = const_cast<CORBA::ULongLong *>(tmp_seq.get_buffer());
-                dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
-            }
-        }
-        break;
+			case ATT_ULONG:
+			{
+				const DevVarULongArray &tmp_seq = attr_value_4->value.ulong_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_ulo = (const_cast<DevVarULongArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,true);
+				}
+				else
+				{
+					tmp_ulo = const_cast<CORBA::ULong *>(tmp_seq.get_buffer());
+					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
+				}
+			}
+			break;
 
-        case ATT_STRING:
-        {
-            const DevVarStringArray &tmp_seq = union_ptr->string_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_str = (const_cast<DevVarStringArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->StringSeq = new DevVarStringArray(max,len,tmp_str,true);
-            }
-            else
-            {
-                tmp_str = const_cast<char **>(tmp_seq.get_buffer());
-                dev_attr->StringSeq = new DevVarStringArray(max,len,tmp_str,false);
-            }
-        }
-        break;
+			case ATT_ULONG64:
+			{
+				const DevVarULong64Array &tmp_seq = attr_value_4->value.ulong64_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_ulolo = (const_cast<DevVarULong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,true);
+				}
+				else
+				{
+					tmp_ulolo = const_cast<CORBA::ULongLong *>(tmp_seq.get_buffer());
+					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
+				}
+			}
+			break;
 
-        case ATT_STATE:
-        {
-            const DevVarStateArray &tmp_seq = union_ptr->state_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_state = (const_cast<DevVarStateArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,true);
-            }
-            else
-            {
-                tmp_state = const_cast<Tango::DevState *>(tmp_seq.get_buffer());
-                dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
-            }
-        }
-        break;
+			case ATT_STRING:
+			{
+				const DevVarStringArray &tmp_seq = attr_value_4->value.string_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_str = (const_cast<DevVarStringArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->StringSeq = new DevVarStringArray(max,len,tmp_str,true);
+				}
+				else
+				{
+					tmp_str = const_cast<char **>(tmp_seq.get_buffer());
+					dev_attr->StringSeq = new DevVarStringArray(max,len,tmp_str,false);
+				}
+			}
+			break;
 
-        case DEVICE_STATE:
-            sta_dev = union_ptr->dev_state_att();
-            dev_attr->d_state_filled = true;
-            dev_attr->d_state = sta_dev;
-        break;
+			case ATT_STATE:
+			{
+				const DevVarStateArray &tmp_seq = attr_value_4->value.state_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_state = (const_cast<DevVarStateArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,true);
+				}
+				else
+				{
+					tmp_state = const_cast<Tango::DevState *>(tmp_seq.get_buffer());
+					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
+				}
+			}
+			break;
 
-        case NO_DATA:
-        break;
+			case DEVICE_STATE:
+				sta_dev = attr_value_4->value.dev_state_att();
+				dev_attr->d_state_filled = true;
+				dev_attr->d_state = sta_dev;
+			break;
 
-        case ATT_ENCODED:
-        {
-            const DevVarEncodedArray &tmp_seq = union_ptr->encoded_att_value();
-            max = tmp_seq.maximum();
-            len = tmp_seq.length();
-            if (tmp_seq.release() == true)
-            {
-                tmp_enc = (const_cast<DevVarEncodedArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,true);
-            }
-            else
-            {
-                tmp_enc = const_cast<Tango::DevEncoded *>(tmp_seq.get_buffer());
-                dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,false);
-            }
-        }
-        break;
-    }
+			case NO_DATA:
+			break;
+
+			case ATT_ENCODED:
+			{
+				const DevVarEncodedArray &tmp_seq = attr_value_4->value.encoded_att_value();
+				max = tmp_seq.maximum();
+				len = tmp_seq.length();
+				if (tmp_seq.release() == true)
+				{
+					tmp_enc = (const_cast<DevVarEncodedArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
+					dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,true);
+				}
+				else
+				{
+					tmp_enc = const_cast<Tango::DevEncoded *>(tmp_seq.get_buffer());
+					dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,false);
+				}
+			}
+			break;
+		}
+	}
 }
+
 
 //+----------------------------------------------------------------------------
 //
@@ -1047,14 +1021,33 @@ int EventConsumer::subscribe_event (DeviceProxy *device,
 				   bool stateless)
 {
 	string event_name;
-	if (event == QUALITY_EVENT)
+	switch (event)
 	{
-        EventSystemExcept::throw_exception((const char*)"API_InvalidArgs",
-            (const char*)"The quality change event does`nt exist any more. A change event is fired on a qaulity change!",
-            (const char*)"EventConsumer::subscribe_event()");
+		case CHANGE_EVENT : event_name = "change";
+				    break;
+
+		case QUALITY_EVENT : event_name = "quality";
+					  EventSystemExcept::throw_exception((const char*)"API_InvalidArgs",
+                       	(const char*)"The quality change event does`nt exist any more. A change event is fired on a qaulity change!",
+                       	(const char*)"EventConsumer::subscribe_event()");
+
+					  break;
+
+		case PERIODIC_EVENT : event_name = "periodic";
+				      break;
+
+		case ARCHIVE_EVENT : event_name = "archive";
+				     break;
+
+		case USER_EVENT : event_name = "user_event";
+				  break;
+
+		case ATTR_CONF_EVENT : event_name = "attr_conf";
+					      break;
+
+		case DATA_READY_EVENT: event_name = "data_ready";
+					break;
 	}
-    else
-        event_name = EventName[event];
 
 //
 // Take a writer lock right now and not in the connect_event method
@@ -1212,6 +1205,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 		try
 		{
 			adm_name = device->adm_name();
+cout << "adm_name returned by device: " << adm_name << endl;
 			adm_dev = new DeviceProxy(adm_name);
 			allocated = true;
 		}
@@ -1249,7 +1243,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	try
 	{
 	    string cmd_name;
-	    get_subscription_command_name(cmd_name);
+	    get_subcription_command_name(cmd_name);
 
     	dd = adm_dev->command_inout(cmd_name,subscriber_in);
 		dd.reset_exceptions(DeviceData::isempty_flag);
@@ -1365,7 +1359,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 
     const DevVarLongStringArray *dvlsa;
     dd >> dvlsa;
-    if (dvlsa->lvalue.length() >= 2)
+    if (dvlsa->lvalue.length() == 2)
         new_event_callback.device_idl = dvlsa->lvalue[1];
     else
         new_event_callback.device_idl = 0;
@@ -2392,18 +2386,7 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 		DeviceAttribute *da = NULL;
 		DevErrorList err;
 		err.length(0);
-
-		string domain_name;
-		string::size_type pos;
-
-		if ((pos = device_name.find(MODIFIER_DBASE_NO)) != string::npos)
-		{
-            domain_name = device_name;
-            string tmp = '/' + att_name_lower;
-            domain_name.insert(pos,tmp);
-		}
-		else
-            domain_name = device_name + '/' + att_name_lower;
+		string domain_name = device_name + "/" + att_name_lower;
 
 		try
 		{

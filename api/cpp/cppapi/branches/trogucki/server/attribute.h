@@ -191,7 +191,6 @@ public:
 	bool				scalar_str_attr_release;		// Need memory freeing (scalar string attr, R/W att)
 	bool                notifd_event;                   // Set to true if event required using notifd
 	bool                zmq_event;                      // Set to true if event required using ZMQ
-	vector<string>      mcast_event;                    // In case of multicasting used for event transport
 };
 
 /**
@@ -1897,8 +1896,6 @@ public:
 	void Attribute_2_AttributeValue(Tango::AttributeValue_3 *,DeviceImpl *);
 	void Attribute_2_AttributeValue(Tango::AttributeValue_4 *,DeviceImpl *);
 	void AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_4 *,Tango::AttributeValue_3 *);
-	
-	void set_mcast_event(vector<string> &vs) {ext->mcast_event.clear();copy(vs.begin(),vs.end(),back_inserter(ext->mcast_event));}
 
 #ifndef TANGO_HAS_LOG4TANGO
 	friend ostream &operator<<(ostream &,Attribute &);

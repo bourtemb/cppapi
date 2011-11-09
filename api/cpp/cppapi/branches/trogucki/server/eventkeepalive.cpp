@@ -45,7 +45,10 @@ static const char *RcsId = "$Id$";
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>
-#include <eventconsumer.h>
+
+#include <COS/CosNotification.hh>
+#include <COS/CosNotifyChannelAdmin.hh>
+#include <COS/CosNotifyComm.hh>
 
 #include <stdio.h>
 
@@ -361,6 +364,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 			if (shared_cmd.cmd_pending == true)
 			{
 				exit_th = true;
+cout << "Returning from KeepAlive thread" << endl;
 				return (void *)NULL;
 			}
 		}
@@ -368,7 +372,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 //
 // Re-subscribe
 //
-
+cout << "One more loop in keep alive thread" << endl;
 		// lock the maps only for reading
 		event_consumer->map_modification_lock.writerIn();
 
@@ -485,7 +489,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 									subscriber_info.push_back(epos->second.event_name);
 									subscriber_in << subscriber_info;
 									if (ipos->second.channel_type == ZMQ)
-                                        ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
+                                        ipos->second.adm_device_proxy->command_inout("ZmqEventSubsriptionChange",subscriber_in);
 									else
                                         ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
 

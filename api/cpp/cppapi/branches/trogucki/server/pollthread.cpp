@@ -1781,6 +1781,7 @@ void PollThread::poll_attr(WorkItem &to_do)
 // is detected.
 //
 
+cout << "CAlling detect_and_push() error, event_supplier_nd = " << hex << event_supplier_nd << ", event_supplier_zmq = " << event_supplier_zmq << endl;
             SendEventType send_event;
             if (event_supplier_nd != NULL)
                 send_event = event_supplier_nd->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
@@ -1823,6 +1824,7 @@ void PollThread::poll_attr(WorkItem &to_do)
 // is detected.
 //
 
+cout << "CAlling detect_and_push(), " << "event_supplier_nd = " << hex << event_supplier_nd << ", event_supplier_zmq = " << event_supplier_zmq << endl;
             SendEventType send_event;
             if (event_supplier_nd != NULL)
                 send_event = event_supplier_nd->detect_and_push_events(to_do.dev,ad,save_except,to_do.name,&before_cmd);
@@ -1918,6 +1920,7 @@ void PollThread::eve_heartbeat()
 	      << setw(6) << setfill('0') << now.tv_usec
 	      << " Sending event heartbeat" << endl;
 
+cout << "Pushing heartbeat event" << endl;
 	EventSupplier *event_supplier;
 	event_supplier = Util::instance()->get_zmq_event_supplier();
 	if ((event_supplier != NULL) && (send_heartbeat == true))

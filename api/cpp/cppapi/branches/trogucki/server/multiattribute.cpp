@@ -127,17 +127,12 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 // This has been experimented at ESRF. Increase timeout to cover this case
 //
 
-
-            int old_db_timeout = 0;
-            if (Util::_FileDb == false)
-                old_db_timeout = tg->get_database()->get_timeout_millis();
+            int old_db_timeout = tg->get_database()->get_timeout_millis();
 			try
 			{
-			    if (old_db_timeout != 0)
-                    tg->get_database()->set_timeout_millis(6000);
+			    tg->get_database()->set_timeout_millis(6000);
 				tg->get_database()->get_device_attribute_property(dev_name,db_list,tg->get_db_cache());
-				if (old_db_timeout != 0)
-                    tg->get_database()->set_timeout_millis(old_db_timeout);
+				tg->get_database()->set_timeout_millis(old_db_timeout);
 			}
 			catch (Tango::DevFailed &)
 			{

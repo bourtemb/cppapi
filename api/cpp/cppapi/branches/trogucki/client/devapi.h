@@ -130,7 +130,6 @@ public:
 	TangoSys_Pid		cl_pid;
 	int					user_connect_timeout;
 	ZmqEventConsumer    *zmq_event_consumer;
-	vector<string>      host_ip_adrs;
 };
 
 

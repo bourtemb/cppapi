@@ -65,7 +65,6 @@ static const char *RcsId = "$Id$";
 #endif
 
 #include <tango.h>
-#include <eventconsumer.h>
 #include <eventsupplier.h>
 
 extern omni_thread::key_t key_py_data;

@@ -108,13 +108,11 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 
 	if (Util::_FileDb == true && ev != NULL)
 	{
-		ev->file_db_svr();
+		string &p_num = tg->get_svr_port_num();
+		ev->set_svr_port_num(p_num);
 	}
 
-    string mcast;
-    int rate,ivl;
-
-    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast,rate,ivl);
+    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD);
 
 	Tango::DevLong ret_val = (Tango::DevLong)tg->get_tango_lib_release();
 	return ret_val;
@@ -134,13 +132,10 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 //      - event : The event type
 //      - attr_name_lower : The attribute name in lower case letters
 //      - ct : The channel type (notifd or zmq)
-//      - mcast_data : The multicast transport data
-//      - rate : PGM rate parameter
-//      - ivl : PGM ivl paramteter
 //
 //-----------------------------------------------------------------------------
 
-DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct,string &mcast_data,int &rate,int &ivl)
+DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct)
 {
     Tango::Util *tg = Tango::Util::instance();
 
@@ -354,81 +349,6 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
             attribute.set_use_notifd_event();
 
 //
-// Check if multicast has to be used for event transport
-// (only for ZMQ event)
-// Don't forget syntax in attribute mcast_event string:
-// event_name:ip_address:port:rate:ivl
-// The last two are not optionals
-//
-
-        if (ct == ZMQ)
-        {
-            bool found = false;
-			for(unsigned int i = 0;i != attribute.ext->mcast_event.size();++i)
-			{
-                if (attribute.ext->mcast_event[i].find(event) == 0)
-                {
-                    string::size_type start,end;
-                    start = attribute.ext->mcast_event[i].find(':');
-                    start++;
-                    end = attribute.ext->mcast_event[i].find(':',start);
-
-                    if ((end = attribute.ext->mcast_event[i].find(':',end + 1)) == string::npos)
-                    {
-                        mcast_data = attribute.ext->mcast_event[i].substr(start);
-                        rate = 0;
-                        ivl = 0;
-                        found = true;
-                        break;
-                    }
-                    else
-                    {
-                        mcast_data = attribute.ext->mcast_event[i].substr(start,end - start);
-
-//
-// Get rate because one is defined
-//
-
-                        string::size_type start_rate = end + 1;
-                        if ((end = attribute.ext->mcast_event[i].find(':',start_rate)) == string::npos)
-                        {
-                            istringstream iss(attribute.ext->mcast_event[i].substr(start_rate));
-                            iss >> rate;
-                            ivl = 0;
-                            found = true;
-                            break;
-                        }
-                        else
-                        {
-                            istringstream iss(attribute.ext->mcast_event[i].substr(start_rate,end - start_rate));
-                            iss >> rate;
-
-//
-// Get ivl because one is defined
-//
-
-                            istringstream iss_ivl(attribute.ext->mcast_event[i].substr(end + 1));
-                            iss_ivl >> ivl;
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-			}
-
-			if (found == false)
-			{
-			    rate = 0;
-			    ivl = 0;
-			}
-        }
-        else
-        {
-            rate = 0;
-            ivl = 0;
-        }
-
-//
 // Start polling for attribute in question. I suppose I should
 // check to see if the attribute is polled already. For the
 // moment I will simply ignore the exception. Why not rather
@@ -471,6 +391,8 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //-----------------------------------------------------------------------------
 DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVarStringArray *argin)
 {
+cout << "Entering ZmqEventSubscriptionChange command" << endl;
+cout << "ZMQSupplier = " << Util::instance()->get_zmq_event_supplier() << ", notifdSupplier = " << Util::instance()->get_notifd_event_supplier() << endl;
     if (argin->length() < 4)
     {
 		TangoSys_OMemStream o;
@@ -520,49 +442,38 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 
 //
-// Call common method (common between old and new command)
+// If we are using a file as database, gives port number to event supplier
 //
 
-    string mcast;
-    int rate,ivl;
+	if (Util::_FileDb == true && ev != NULL)
+	{
+		string &p_num = tg->get_svr_port_num();
+		ev->set_svr_port_num(p_num);
+	}
 
-    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
+    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ);
 
 //
 // Create the event publisher socket (if not already done)
 //
 
-    string ev_name = ev->get_fqdn_prefix() + dev->get_name_lower() + '/' + attr_name_lower + '.' +  event;
-    if ((mcast.empty() == false) && (ev->is_event_mcast(ev_name) == false))
-        ev->create_mcast_event_socket(mcast,ev_name,rate);
-    else
-        ev->create_event_socket();
+    ev->create_event_socket();
 
 //
 // Init data returned by command
 //
 
 	Tango::DevVarLongStringArray *ret_data = new Tango::DevVarLongStringArray();
-	ret_data->lvalue.length(4);
+	ret_data->lvalue.length(2);
 	ret_data->svalue.length(2);
 
 	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
 	ret_data->lvalue[1] = dev->get_dev_idl_version();
-	ret_data->lvalue[2] = rate;
-	ret_data->lvalue[3] = ivl;
 
     string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
 	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
-	if (mcast.empty() == true)
-	{
-        string &event_endpoint = ev->get_event_endpoint();
-        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
-	}
-	else
-	{
-        string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
-        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
-	}
+	string &event_endpoint = ev->get_event_endpoint();
+	ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
 
 	return ret_data;
 }

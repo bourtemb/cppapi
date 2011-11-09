@@ -37,7 +37,6 @@ static const char *RcsId = "$Id$";
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>
-#include <eventconsumer.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -70,6 +69,8 @@ ZmqEventConsumer *ZmqEventConsumer::_instance = NULL;
 
 ZmqEventConsumer::ZmqEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_thread((void *)ptr),zmq_context(1)
 {
+cout << "Entering ZmqEventConsumer ctor" << endl;
+
 	cout3 << "calling Tango::ZmqEventConsumer::ZmqEventConsumer() \n";
 
 	_instance = this;
@@ -80,6 +81,7 @@ ZmqEventConsumer::ZmqEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_threa
 
     av = new AttributeValue();
     av3 = new AttributeValue_3();
+    av4 = new AttributeValue_4();
     ac2 = new AttributeConfig_2();
     ac3 = new AttributeConfig_3();
     adr = new AttDataReady();
@@ -117,10 +119,8 @@ ZmqEventConsumer *ZmqEventConsumer::create()
 //
 //-----------------------------------------------------------------------------
 
-void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
+void *ZmqEventConsumer::run_undetached(void *arg)
 {
-
-    int linger = 0;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
@@ -129,7 +129,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 //
 
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
-    heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
 //
 // Create the subscriber socket used to receive events coming from different DS
@@ -138,14 +137,12 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 //
 
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
-    event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
 //
 
     control_sock = new zmq::socket_t(zmq_context,ZMQ_REP);
-    control_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
     control_sock->bind(CTRL_SOCK_ENDPOINT);
 
 //
@@ -172,8 +169,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 // Wait for message
 //
 
+cout << "Waiting for message (entering zmq::poll())" << endl;
         zmq::poll(&items[0],3,-1);
-//cout << "Awaken !!!!!!!!" << endl;
 
 //
 // Something received by the heartbeat socket ?
@@ -181,7 +178,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items [0].revents & ZMQ_POLLIN)
         {
-//cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -195,7 +191,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items [1].revents & ZMQ_POLLIN)
         {
-//cout << "For the control socket" << endl;
             control_sock->recv(&received_ctrl);
 
             string ret_str;
@@ -230,7 +225,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items [2].revents & ZMQ_POLLIN)
         {
-//cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
             event_sub_sock->recv(&received_endian);
             event_sub_sock->recv(&received_call);
@@ -241,6 +235,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     }
 
+    cout << "Returning from main ZMQ thread" << endl;
 	return (void *)NULL;
 }
 
@@ -260,6 +255,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
 void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq::message_t &received_endian,zmq::message_t &received_call)
 {
+cout << "Entering process_heartbeat" << endl;
 //
 // For debug and logging purposes
 //
@@ -306,6 +302,8 @@ void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq
     (ZmqCallInfo &)c_info_var <<= call_info;
     receiv_call = &c_info_var.in();
 
+cout << "Received: " << event_name << ", endian = " << (int)endian << ", method name = " << receiv_call->method_name <<", protocol version = " << receiv_call->version << endl;
+
 //
 // Call the required method
 //
@@ -336,6 +334,7 @@ void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq
 
 void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::message_t &received_endian,zmq::message_t &received_call,zmq::message_t &event_data)
 {
+cout << "Entering process_event" << endl;
 //
 // For debug and logging purposes
 //
@@ -388,6 +387,8 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
     (ZmqCallInfo &)c_info_var <<= call_info;
     receiv_call = &c_info_var.in();
 
+cout << "Received: " << event_name << ", endian = " << (int)endian << ", method name = " << receiv_call->method_name <<", protocol version = " << receiv_call->version << endl;
+
 //
 // Call the required method
 //
@@ -418,6 +419,7 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
 
 bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
 {
+cout << "Entering process_ctrl" << endl;
     bool ret = false;
 
 //
@@ -449,16 +451,20 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
 // Process each command
 //
 
+    int ind = 1;
+
     switch (cmd_code)
     {
         case ZMQ_END:
         {
+cout << "ZMQ_END command" << endl;
             ret = true;
         }
         break;
 
         case ZMQ_CONNECT_HEARTBEAT:
         {
+cout << "ZMQ_CONNECT_HEARTBEAT command" << endl;
 //
 // First extract the endpoint and the event name from received buffer
 //
@@ -500,6 +506,7 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
 
         case ZMQ_DISCONNECT_HEARTBEAT:
         {
+cout << "ZMQ_DISCONNECT_HEARTBEAT command" << endl;
 //
 // Get event name
 //
@@ -516,6 +523,7 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
 
         case ZMQ_CONNECT_EVENT:
         {
+cout << "ZMQ_CONNECT_EVENT command" << endl;
 //
 // First extract the endpoint and the event name from received buffer
 //
@@ -523,7 +531,6 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl)
             const char *endpoint = &(tmp_ptr[1]);
             int start = ::strlen(endpoint) + 2;
             const char *event_name = &(tmp_ptr[start]);
-cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << endl;
 
 //
 // Connect the socket to the publisher
@@ -543,7 +550,6 @@ cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_
 
             if (connect_pub == true)
             {
-cout << "Connect socket with endpoint: " << endpoint << endl;
                 event_sub_sock->connect(endpoint);
                 connected_pub.push_back(endpoint);
             }
@@ -553,133 +559,25 @@ cout << "Connect socket with endpoint: " << endpoint << endl;
 // Subscribe to the new event
 //
 
-cout << "Zmq subscribe with string: " << event_name << endl;
+cout << "Subscribing with string: " << event_name << endl;
             event_sub_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
         }
         break;
 
         case ZMQ_DISCONNECT_EVENT:
         {
-
+cout << "ZMQ_DISCONNECT_EVENT command" << endl;
 //
 // Get event name
 //
 
             const char *event_name = &(tmp_ptr[1]);
-            string ev_name(event_name);
-
-//
-// Check if it is a multicast event
-//
-
-            bool mcast = false;
-
-            map<string,zmq::socket_t *>::iterator pos;
-            if (event_mcast.empty() != true)
-            {
-                pos = event_mcast.find(ev_name);
-                if (pos != event_mcast.end())
-                    mcast = true;
-            }
 
 //
 // Unsubscribe this event from the socket
 //
 
-            if (mcast == false)
-                event_sub_sock->setsockopt(ZMQ_UNSUBSCRIBE,event_name,::strlen(event_name));
-            else
-            {
-                delete pos->second;
-                event_mcast.erase(pos);
-            }
-        }
-        break;
-
-        case ZMQ_CONNECT_MCAST_EVENT:
-        {
-//
-// First extract the endpoint and the event name from received buffer
-//
-
-            const char *endpoint = &(tmp_ptr[1]);
-            int start = ::strlen(endpoint) + 2;
-            const char *event_name = &(tmp_ptr[start]);
-            start = start + ::strlen(event_name) + 1;
-            Tango::DevLong rate,ivl;
-            ::memcpy(&rate,&(tmp_ptr[start]),sizeof(Tango::DevLong));
-            start = start + sizeof(Tango::DevLong);
-            ::memcpy(&ivl,&(tmp_ptr[start]),sizeof(Tango::DevLong));
-cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << " with rate = " << rate << " and ivl = " << ivl << endl;
-
-//
-// Connect the socket to the publisher
-//
-
-            bool created_sub = false;
-            string ev_name(event_name);
-            map<string,zmq::socket_t *>::iterator pos;
-
-            if (event_mcast.empty() == false)
-            {
-                pos = event_mcast.find(ev_name);
-                if (pos != event_mcast.end())
-                    created_sub = true;
-            }
-
-            if (created_sub == false)
-            {
-//
-// Create the socket
-//
-
-cout << "Create multicast socket" << endl;
-                zmq::socket_t *tmp_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
-
-//
-// Set socket rate, ivl and linger
-//
-
-                int local_rate = PGM_RATE;
-
-                if (rate != 0)
-                    local_rate = rate * 1024;
-cout << "Set rate to " << local_rate << endl;
-                tmp_sock->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
-
-                int local_ivl = PGM_IVL;
-
-                if (ivl != 0)
-                    local_ivl = ivl * 1000;
-cout << "Set IVL to " << local_ivl << endl;
-                tmp_sock->setsockopt(ZMQ_RATE,&local_ivl,sizeof(local_ivl));
-
-                int linger = 0;
-                tmp_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
-
-//
-// Connect the socket
-//
-
-cout << "Connect multicast socket to endpoint " << endpoint << endl;
-                tmp_sock->connect(endpoint);
-
-//
-// Subscribe to the new event
-//
-
-cout << "Zmq subscribe with string: " << event_name << endl;
-                tmp_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
-
-//
-// Store socket in map
-//
-
-                if (event_mcast.insert(make_pair(ev_name,tmp_sock)).second == false)
-                {
-                    cout << "Error while inserting pair in map !!!!!!!!!!!!!!!" << endl;
-                }
-            }
+            event_sub_sock->setsockopt(ZMQ_UNSUBSCRIBE,event_name,::strlen(event_name));
         }
         break;
 
@@ -772,7 +670,7 @@ void ZmqEventConsumer::cleanup_EventChannel_map()
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(Database *db),bool reconnect,DeviceData &dd)
+void ZmqEventConsumer::connect_event_channel(string &channel_name,Database *db,bool reconnect,DeviceData &dd)
 {
 
 //
@@ -781,6 +679,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 
     const DevVarLongStringArray *ev_svr_data;
     dd >> ev_svr_data;
+cout << "Heartbeat end point = " << ev_svr_data->svalue[0] << endl;
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -791,40 +690,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
     try
     {
         zmq::socket_t sender(zmq_context,ZMQ_REQ);
-
-//
-// In case this thread runs before the main ZMQ thread, it is possible
-// to call connect before the main ZMQ thread has binded its socket.
-// In such a case, error code is set to ECONNREFUSED.
-// If this happens, give the main ZMQ thread a chance to run and
-// retry the connect call
-// I have tried with a yield call but it still failed in some cases
-// (when running the DS with a file as database  for instance)
-// Replace the yield with a 10 mS sleep !!!
-//
-
-        try
-        {
-            sender.connect(CTRL_SOCK_ENDPOINT);
-        }
-        catch (zmq::error_t &e)
-        {
-            if (e.num() == ECONNREFUSED)
-            {
-#ifndef _TG_WINDOWS_
-                struct timespec ts;
-                ts.tv_sec = 0;
-                ts.tv_nsec = 10000000;
-
-                nanosleep(&ts,NULL);
-#else
-                Sleep(10);
-#endif
-                sender.connect(CTRL_SOCK_ENDPOINT);
-            }
-            else
-                throw;
-        }
+        sender.connect(CTRL_SOCK_ENDPOINT);
 
 //
 // Build message sent to ZMQ main thread
@@ -864,7 +730,6 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 
         o << "Failed to create connection to event channel!\n";
         o << "Error while communicating with the ZMQ main thread\n";
-        o << "ZMQ error code = " << e.num() << "\n";
         o << "ZMQ message: " << e.what() << ends;
 
         Except::throw_exception((const char *)"API_ZmqFailed",
@@ -941,6 +806,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 
 void ZmqEventConsumer::disconnect_event_channel(string &channel_name)
 {
+cout << "Channel name in unsubscribe: " << channel_name << endl;
     string unsub(channel_name);
     unsub = unsub + '.' + HEARTBEAT_EVENT_NAME;
 
@@ -1033,6 +899,7 @@ void ZmqEventConsumer::disconnect_event_channel(string &channel_name)
 
 void ZmqEventConsumer::disconnect_event(string &event_name)
 {
+cout << "Event name in unsubscribe: " << event_name << endl;
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -1125,27 +992,13 @@ void ZmqEventConsumer::disconnect_event(string &event_name)
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,TANGO_UNUSED(const vector<string> &filters),
-                                            TANGO_UNUSED(EvChanIte &eve_it),TANGO_UNUSED(EventCallBackStruct &new_event_callback),
-                                            DeviceData &dd)
+void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,const vector<string> &filters,
+                                            EvChanIte &eve_it,EventCallBackStruct &new_event_callback,DeviceData &dd)
 {
-//
-// Build full event name
-// Don't forget case of device in a DS using file as database
-//
+cout << "Entering ZmqEventConsumer::connect_event_system" << endl;
+cout << "device_name = " << device_name << ", att_name = " << att_name << ", event_name = " << event_name << endl;
 
-    string full_event_name;
-    string::size_type pos;
-
-    if ((pos = device_name.find("#dbase=no")) != string::npos)
-    {
-        full_event_name = device_name;
-        string tmp = '/' + att_name;
-        full_event_name.insert(pos,tmp);
-        full_event_name = full_event_name + '.' + event_name;
-    }
-    else
-        full_event_name = device_name + '/' + att_name + '.' + event_name;
+    string full_event_name = device_name + '/' + att_name + '.' + event_name;
 
 //
 // Extract server command result
@@ -1153,6 +1006,8 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
     const DevVarLongStringArray *ev_svr_data;
     dd >> ev_svr_data;
+cout << "Event end point = " << ev_svr_data->svalue[1] << endl;
+
 
 //
 // Create and connect the REQ socket used to send message to the
@@ -1166,34 +1021,6 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
         sender.connect(CTRL_SOCK_ENDPOINT);
 
 //
-// If the transport is multicast, add main IP interface address in endpoint
-//
-
-        bool mcast_transport = false;
-
-        string endpoint(ev_svr_data->svalue[1].in());
-        if (endpoint.find(MCAST_PROT) != string::npos)
-        {
-            mcast_transport = true;
-
-            ApiUtil *au = ApiUtil::instance();
-            vector<string> adrs;
-
-            au->get_ip_from_if(adrs);
-
-            for (unsigned int i = 0;i < adrs.size();++i)
-            {
-                if (adrs[i].find("127.") == 0)
-                    continue;
-                adrs[i] = adrs[i] + ';';
-                string::size_type pos = endpoint.find('/');
-                pos = pos + 2;
-                endpoint.insert(pos,adrs[i]);
-                break;
-            }
-        }
-
-//
 // Build message sent to ZMQ main thread
 // In this case, this is the command code, the publisher endpoint
 // and the event name
@@ -1202,30 +1029,14 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
         char buffer[1024];
         int length = 0;
 
-        if (mcast_transport == true)
-            buffer[length] = ZMQ_CONNECT_MCAST_EVENT;
-        else
-            buffer[length] = ZMQ_CONNECT_EVENT;
+        buffer[length] = ZMQ_CONNECT_EVENT;
         length++;
 
-        ::strcpy(&(buffer[length]),endpoint.c_str());
-        length = length + endpoint.size() + 1;
+        ::strcpy(&(buffer[length]),ev_svr_data->svalue[1].in());
+        length = length + ::strlen(ev_svr_data->svalue[1].in()) + 1;
 
         ::strcpy(&(buffer[length]),full_event_name.c_str());
         length = length + full_event_name.size() + 1;
-
-//
-// In case of multicasting, add rate and ivl parameters
-//
-
-        if (mcast_transport == true)
-        {
-            ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[2]),sizeof(Tango::DevLong));
-            length = length + sizeof(Tango::DevLong);
-
-           ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[3]),sizeof(Tango::DevLong));
-            length = length + sizeof(Tango::DevLong);
-        }
 
 //
 // Send command to main ZMQ thread
@@ -1287,6 +1098,7 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
 void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
 {
+
 //
 // Remove ".heartbeat" at the end of event name
 //
@@ -1313,6 +1125,7 @@ void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
         try
         {
             AutoTangoMonitor _mon(evt_ch.channel_monitor);
+cout << "Updating last_heartbeat for " << ev_name << endl;
             evt_ch.last_heartbeat = time(NULL);
         }
         catch (...)
@@ -1362,7 +1175,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
     {
         const AttributeValue *attr_value = NULL;
         const AttributeValue_3 *attr_value_3 = NULL;
-        const ZmqAttributeValue_4 *z_attr_value_4 = NULL;
+        const AttributeValue_4 *attr_value_4 = NULL;
         const AttributeConfig_2 *attr_conf_2 = NULL;
         const AttributeConfig_3 *attr_conf_3 = NULL;
         const AttDataReady *att_ready = NULL;
@@ -1381,7 +1194,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 
         string::size_type pos = ev_name.rfind('.');
         string event_name = ev_name.substr(pos + 1);
-        string att_name = ev_name.substr(0,pos);
 
         UserDataEventType data_type;
 
@@ -1400,91 +1212,59 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         DeviceAttribute *dev_attr = NULL;
 
 //
-// For 64 bits data (double, long64 and ulong64), omniORB unmarshalling
-// methods required that the 64 bits data are aligned on a 8 bytes
-// memory address.
-// ZMQ returned memory which is sometimes aligned on a 8 bytes boundary but
-// not always (seems to depend on the host architecture)
-// The attribute data transfert starts with the union discriminator
-// (4 bytes), the elt nb (4 bytes) and the element themselves.
-// This means 8 bytes before the real data.
-// There is a trick here.
-// The buffer is always transferred with an extra 4 bytes added at the beginning
-// If the alignememnt is not correct (buffer aligned on a 8 bytes boundary
-// and 64 bits data type), shift the whole buffer by 4 bytes erasing the
-// additional 4 bytes sent.
+// Check if the buffer returned by ZMQ is aligned on a 8 bytes boundary.
+// This is mandatory for omniORB unmarshalling in case of 64 bits
+// data transfer
+// If it is not the case, shift the buffer starting point
+// from the padding CORBA long sent by the event supplier
 //
-// Note: The buffer is not correctly aligned if it is retruned on a
-// 8 bytes boundary because we have the 4 extra bytes + 8 bytes for
-// union discriminator + elt nb. This means 64 bits data not on a
-// 8 bytes boundary
+// When transfering 64 bits data, omniORB marshalling/unmarshalling
+// layer requires the 64 bits data to be aligned on a 8 bytes
+// boundary. The transferred data starts with the union
+// descriminator (4 bytes) followed by the sequence element number
+// (4 bytes). ZMQ returns a buffer which could be aligned on a 4 bytes
+// boudary. In such a case, the first 64 bits data with not be aligned
+// in a 8 bytes boundary (4 + 4 + 4 = 12).
 //
 
+        bool aligned = true;
         char *data_ptr = (char *)event_data.data();
         size_t data_size = (size_t)event_data.size();
 
-        bool data64 = false;
-        if (data_type == ATT_VALUE && error == false)
-        {
-            int disc = ((int *)data_ptr)[1];
-            if (disc == ATT_DOUBLE || disc == ATT_LONG64 || disc == ATT_ULONG64)
-                data64 = true;
-        }
-
-        bool buffer_aligned64 = false;
-        if (data64 == true)
-        {
-            if (((unsigned long)data_ptr & 0x7) == 0)
-                buffer_aligned64 = true;
-        }
-
-//
-// Shift buffer if required
-//
-
-        if (data64 == true && buffer_aligned64 == true)
-        {
-            int nb_loop = (data_size >> 2) - 1;
-            int remaining = data_size & 0x3;
-
-            if (omniORB::trace(30))
-            {
-                {
-                    omniORB::logger log;
-                    log << "ZMQ: Shifting received buffer!!!" << '\n';
-                }
-            }
-
-            int *src,*dest;
-            dest = (int *)data_ptr;
-            src = dest + 1;
-            for (int loop = 0;loop < nb_loop;++loop)
-            {
-                *dest = *src;
-                ++dest;
-                ++src;
-            }
-
-            char *src_char,*dest_char;
-            dest_char = (char *)dest;
-            src_char = dest_char + sizeof(int);
-            for (int loop = 0;loop < remaining;++loop)
-            {
-                *dest = *src;
-                ++dest;
-                ++src;
-            }
-
-            data_size = data_size - 4;
-        }
-        else
+        if (((unsigned long)data_ptr & 0x7) != 0)
         {
             data_ptr = data_ptr + sizeof(CORBA::Long);
             data_size = data_size - sizeof(CORBA::Long);
+            aligned = false;
         }
 
-        TangoCdrMemoryStream event_data_cdr(data_ptr,data_size);
+        cdrMemoryStream event_data_cdr(data_ptr,data_size);
         event_data_cdr.setByteSwapFlag(endian);
+
+cout << "Event_data.data = " << hex << event_data.data() << endl;
+cout << "event_data_cdr.bufPtr = " << hex << event_data_cdr.bufPtr() << dec << endl;
+
+//
+// Unmarshal the data
+//
+// In case the buffer starting point has not been changed due to alignemnt,
+// don't forget to extract the padding CORBA long
+// At the moment, abort the process in case it happenss
+// (never detected during all the development and testing phase)
+//
+// TODO: In case, it happens, and if the attribute data type is
+// DevLong64, DevULong64 or DevDouble, allocate buffer aligned
+// on a 8 bytes boundary and copy the buffer into this memory
+// but not the first 4 bytes
+//
+
+        if (aligned == true)
+        {
+            CORBA::Long dummy;
+            (CORBA::Long &)dummy <<= event_data_cdr;
+
+            assert(false);
+        }
 
 //
 // Unmarshall the data
@@ -1501,22 +1281,22 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
             switch (data_type)
             {
                 case ATT_CONF:
-                if (evt_cb.device_idl > 2)
-                {
-                    (AttributeConfig_3 &)ac3 <<= event_data_cdr;
-                    attr_conf_3 = &ac3.in();
-                    vers = 3;
-                    attr_info_ex = new AttributeInfoEx();
-                    *attr_info_ex = const_cast<AttributeConfig_3 *>(attr_conf_3);
-                    ev_attr_conf = true;
-                }
-                else if (evt_cb.device_idl == 2)
+                if (evt_cb.device_idl == 2)
                 {
                     (AttributeConfig_2 &)ac2 <<= event_data_cdr;
                     attr_conf_2 = &ac2.in();
                     vers = 2;
                     attr_info_ex = new AttributeInfoEx();
                     *attr_info_ex = const_cast<AttributeConfig_2 *>(attr_conf_2);
+                    ev_attr_conf = true;
+                }
+                else if (evt_cb.device_idl > 2)
+                {
+                    (AttributeConfig_3 &)ac3 <<= event_data_cdr;
+                    attr_conf_3 = &ac3.in();
+                    vers = 3;
+                    attr_info_ex = new AttributeInfoEx();
+                    *attr_info_ex = const_cast<AttributeConfig_3 *>(attr_conf_3);
                     ev_attr_conf = true;
                 }
                 break;
@@ -1528,13 +1308,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 break;
 
                 case ATT_VALUE:
-                if (evt_cb.device_idl > 3)
+                if (evt_cb.device_idl < 3)
                 {
-                    zav4.operator<<=(event_data_cdr);
-                    z_attr_value_4 = &zav4;
-                    vers = 4;
+                    (AttributeValue &)av <<= event_data_cdr;
+                    attr_value = &av.in();
+                    vers = 2;
                     dev_attr = new (DeviceAttribute);
-                    attr_to_device(z_attr_value_4,dev_attr);
+                    attr_to_device(attr_value,attr_value_3,vers,dev_attr);
                 }
                 else if (evt_cb.device_idl == 3)
                 {
@@ -1544,17 +1324,19 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     dev_attr = new (DeviceAttribute);
                     attr_to_device(attr_value,attr_value_3,vers,dev_attr);
                 }
-                else if (evt_cb.device_idl < 3)
+                else if (evt_cb.device_idl > 3)
                 {
-                    (AttributeValue &)av <<= event_data_cdr;
-                    attr_value = &av.in();
-                    vers = 2;
+                    (AttributeValue_4 &)av4 <<= event_data_cdr;
+                    attr_value_4 = &av4.in();
+                    vers = 4;
                     dev_attr = new (DeviceAttribute);
-                    attr_to_device(attr_value,attr_value_3,vers,dev_attr);
+                    attr_to_device(attr_value_4,dev_attr);
                 }
                 break;
             }
         }
+
+cout << "Device IDL = " << ipos->second.device_idl << ", error flag = " << error << endl;
 
         AutoTangoMonitor _mon(evt_cb.callback_monitor);
         try
@@ -1588,58 +1370,31 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     if ((ev_attr_conf == false) && (ev_attr_ready == false))
                     {
                         EventData *event_data;
-
-//
-// Incase we have several callbacks on the same event
-// or if the event has to be stored in a queue, copy
-// the event data (Event data are in the ZMQ message)
-//
-
                         if (cb_ctr != cb_nb)
                         {
                             DeviceAttribute *dev_attr_copy = NULL;
-                            if (dev_attr != NULL || (callback == NULL && vers == 4))
+                            if (dev_attr != NULL)
                             {
                                 dev_attr_copy = new DeviceAttribute();
                                 dev_attr_copy->deep_copy(*dev_attr);
                             }
 
                             event_data = new EventData(event_callback_map[ev_name].device,
-                                                                att_name,
+                                                                ev_name,
                                                                 event_name,
                                                                 dev_attr_copy,
                                                                 errors);
                         }
                         else
                         {
-                            if (callback == NULL && vers == 4)
-                            {
-                                DeviceAttribute *dev_attr_copy = NULL;
-                                if (dev_attr != NULL)
-                                {
-                                    dev_attr_copy = new DeviceAttribute();
-                                    dev_attr_copy->deep_copy(*dev_attr);
-                                }
-
-                                event_data = new EventData(event_callback_map[ev_name].device,
-                                                                att_name,
-                                                                event_name,
-                                                                dev_attr_copy,
-                                                                errors);
-
-                            }
-                            else
-                                event_data = new EventData (event_callback_map[ev_name].device,
-                                                              att_name,
+                            event_data = new EventData (event_callback_map[ev_name].device,
+                                                              ev_name,
                                                               event_name,
                                                               dev_attr,
                                                               errors);
                         }
 
-//
-// if a callback method was specified, call it!
-//
-
+                        // if a callback method was specified, call it!
                         if (callback != NULL )
                         {
                             try
@@ -1654,15 +1409,11 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                             delete event_data;
                         }
 
-//
-// No calback method, the event has to be instered into the event queue
-//
-
+                        // no calback method, the event has to be instered
+                        // into the event queue
                         else
                         {
                             ev_queue->insert_event(event_data);
-                            if (vers == 4 && cb_ctr == cb_nb)
-                                delete dev_attr;
                         }
                     }
                     else if (ev_attr_ready == false)
@@ -1674,7 +1425,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                             AttributeInfoEx *attr_info_copy = new AttributeInfoEx();
                             *attr_info_copy = *attr_info_ex;
                             event_data = new AttrConfEventData(event_callback_map[ev_name].device,
-                                                              att_name,
+                                                              ev_name,
                                                               event_name,
                                                               attr_info_copy,
                                                               errors);
@@ -1682,7 +1433,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         else
                         {
                             event_data = new AttrConfEventData(event_callback_map[ev_name].device,
-                                                              att_name,
+                                                              ev_name,
                                                               event_name,
                                                               attr_info_ex,
                                                               errors);
@@ -1769,187 +1520,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 		// even if nothing was found in the map, free the lock
         map_modification_lock.readerOut();
     }
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		ZmqAttrValUnion::operator<<=()
-//
-// description :    Write our own unmarshalling method. The omniORB one
-//                  allocate memory and copy data. We already have memory
-//                  allocated in the ZMQ message. No need to allocate once
-//                  more and to copy data.
-//                  We are doinng this only for attribute data.
-//                  For the remaining, keep using omniORB stuff
-//
-// argument(s) : in :
-//
-//-----------------------------------------------------------------------------
-
-void ZmqAttrValUnion::operator<<= (TangoCdrMemoryStream& _n)
-{
-    char *data_ptr = (char *)_n.bufPtr();
-
-//
-// Get union discriminator from cdr and if data type is string or device_state
-// let omniORB do its stuff. Don't forget to rewind memory
-// ptr before returning to omniORB
-//
-
-    AttributeDataType _pd__d;
-    (AttributeDataType&)_pd__d <<= _n;
-
-    if (_pd__d == ATT_STRING || _pd__d == DEVICE_STATE)
-    {
-        _n.rewindPtrs();
-        AttrValUnion::operator<<=(_n);
-    }
-    else
-    {
-
-//
-// Get data length from cdr
-//
-
-        _CORBA_ULong length;
-        length <<= _n;
-
-        if (length == 0)
-            return;
-
-//
-// Get att data depending on type
-//
-
-        switch (_pd__d)
-        {
-            case ATT_SHORT:
-            {
-                init_seq<DevShort,DevVarShortArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_DOUBLE:
-            {
-                init_seq<DevDouble,DevVarDoubleArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_FLOAT:
-            {
-                init_seq<DevFloat,DevVarFloatArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_USHORT:
-            {
-                init_seq<DevUShort,DevVarUShortArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_BOOL:
-            {
-                init_seq<DevBoolean,DevVarBooleanArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_LONG:
-            {
-                init_seq<DevLong,DevVarLongArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_LONG64:
-            {
-                init_seq<DevLong64,DevVarLong64Array>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_ULONG:
-            {
-                init_seq<DevULong,DevVarULongArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_ULONG64:
-            {
-                init_seq<DevULong64,DevVarULong64Array>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_UCHAR:
-            {
-                init_seq<DevUChar,DevVarUCharArray>(data_ptr,length,_n);
-            }
-            break;
-
-            case ATT_STATE:
-            {
-                init_seq<DevState,DevVarStateArray>(data_ptr,length,_n);
-            }
-            break;
-
-//
-// We have special cases for DevEncoded (a structure)
-// and NO_DATA
-//
-
-            case ATT_ENCODED:
-            {
-                DevVarEncodedArray dummy_seq;
-                encoded_att_value(dummy_seq);
-
-                DevVarEncodedArray &dvea = encoded_att_value();
-                dvea.length(length);
-
-                for (_CORBA_ULong i = 0;i < length;i++)
-                {
-                    dvea[i].encoded_format = _n.unmarshalString(0);
-                    _CORBA_ULong seq_length;
-                    seq_length <<= _n;
-                    _CORBA_Octet *ptr = (_CORBA_Octet *)(data_ptr + _n.currentInputPtr());
-                    dvea[i].encoded_data.replace(seq_length,seq_length,ptr,false);
-                    _n.tango_get_octet_array((seq_length * sizeof(_CORBA_Octet)));
-                }
-            }
-            break;
-
-            case NO_DATA:
-            {
-                DevBoolean bo;
-                bo = _n.unmarshalBoolean();
-
-                union_no_data(bo);
-               _n.tango_get_octet_array((length * sizeof(DevBoolean)));
-            }
-            break;
-
-            default:
-            assert(false);
-        }
-    }
-}
-
-//+----------------------------------------------------------------------------
-//
-// method : 		ZmqAttributeValue_4::operator<<=()
-//
-// description :
-//
-// argument(s) : in :
-//
-//-----------------------------------------------------------------------------
-
-void Tango::ZmqAttributeValue_4::operator<<= (TangoCdrMemoryStream &_n)
-{
-  (ZmqAttrValUnion&)zvalue <<= _n;
-  (AttrQuality&)quality <<= _n;
-  (AttrDataFormat&)data_format <<= _n;
-  (TimeVal&)time <<= _n;
-  name = _n.unmarshalString(0);
-  (AttributeDim&)r_dim <<= _n;
-  (AttributeDim&)w_dim <<= _n;
-  (DevErrorList&)err_list <<= _n;
 }
 
 } /* End of Tango namespace */

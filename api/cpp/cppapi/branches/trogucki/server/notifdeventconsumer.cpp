@@ -37,7 +37,10 @@ static const char *RcsId = "$Id$";
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <tango.h>
-#include <eventconsumer.h>
+
+#include <COS/CosNotification.hh>
+#include <COS/CosNotifyChannelAdmin.hh>
+#include <COS/CosNotifyComm.hh>
 
 #include <stdio.h>
 
@@ -237,7 +240,7 @@ void NotifdEventConsumer::cleanup_EventChannel_map()
 
 void NotifdEventConsumer::connect_event_system(string &device_name,string &att_name,string &event_name,
                                               const vector<string> &filters,EvChanIte &evt_it,
-                                              EventCallBackStruct &new_event_callback,TANGO_UNUSED(DeviceData &dd))
+                                              EventCallBackStruct &new_event_callback,DeviceData &dd)
 {
 //
 // Build a filter using the CORBA Notify constraint Language
@@ -372,7 +375,7 @@ void NotifdEventConsumer::connect_event_system(string &device_name,string &att_n
 //
 //-----------------------------------------------------------------------------
 
-void NotifdEventConsumer::connect_event_channel(string &channel_name,Database *db,bool reconnect,TANGO_UNUSED(DeviceData &dd))
+void NotifdEventConsumer::connect_event_channel(string &channel_name,Database *db,bool reconnect,DeviceData &dd)
 {
 	CORBA::Any_var received;
 	const DevVarLongStringArray *dev_import_list;
