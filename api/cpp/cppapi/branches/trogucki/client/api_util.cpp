@@ -1526,7 +1526,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 												   (const char *)"ApiUtil::get_ip_from_if()");
 					}
 					string tmp_str(dest);
-					ip_adr_list.push_back(tmp_str);
+					ext->host_ip_adrs.push_back(tmp_str);
 				}
 			}
 		}
@@ -1588,7 +1588,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 					}
 					string tmp_str(dest);
 					if (tmp_str != "0.0.0.0" && tmp_str != "0:0:0:0:0:0:0:0" &&tmp_str != "::")
-						ip_adr_list.push_back(tmp_str);
+						ext->host_ip_adrs.push_back(tmp_str);
 				}
 			}
 		}
