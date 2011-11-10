@@ -107,7 +107,6 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
         vector<string> adrs;
 
         au->get_ip_from_if(adrs);
-//copy(adrs.begin(),adrs.end(),ostream_iterator<string>(cout,"\n"));
 
         string::size_type pos = heartbeat_endpoint.find('*');
         if (adrs.size() > 1)
@@ -143,24 +142,21 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
 
 //
 // Init heartbeat and event call info (both ok and nok)
-// Leave the OID un-initialized
+// Leave the OID and method name un-initialized
 // Marshall the structure into CORBA CDR
 //
 
     heartbeat_call.version = ZMQ_EVENT_PROT_VERSION;
-    heartbeat_call.method_name = CORBA::string_dup(HEARTBEAT_METHOD_NAME);
     heartbeat_call.call_is_except = false;
 
     heartbeat_call >>= heartbeat_call_cdr;
 
     event_call_ok.version = ZMQ_EVENT_PROT_VERSION;
-    event_call_ok.method_name = CORBA::string_dup(EVENT_METHOD_NAME);
     event_call_ok.call_is_except = false;
 
     event_call_ok >>= event_call_ok_cdr;
 
     event_call_nok.version = ZMQ_EVENT_PROT_VERSION;
-    event_call_nok.method_name = CORBA::string_dup(EVENT_METHOD_NAME);
     event_call_nok.call_is_except = true;
 
     event_call_nok >>= event_call_nok_cdr;
@@ -182,7 +178,7 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
     event_call_nok_mess.rebuild(event_call_nok_cdr.bufSize());
     memcpy(event_call_nok_mess.data(),event_call_nok_cdr.bufPtr(),event_call_nok_cdr.bufSize());
 
-    event_call_nok_mess_2.copy(&event_call_nok_mess_2);
+    event_call_nok_mess_2.copy(&event_call_nok_mess);
 
 //
 // Start to init the event name used for the DS heartbeat event
@@ -324,8 +320,6 @@ void ZmqEventSupplier::create_event_socket()
         {
             event_endpoint.replace(6,1,host_ip);
         }
-
-cout << "Event endpoint = " << event_endpoint << endl;
     }
 
 }
@@ -539,7 +533,9 @@ void ZmqEventSupplier::push_heartbeat_event()
         zmq::message_t name_mess(heartbeat_event_name.size());
         memcpy(name_mess.data(),(void *)heartbeat_event_name.data(),heartbeat_event_name.size());
 
-		bool fail = false;
+		bool endian_mess_sent = false;
+		bool call_mess_sent = false;
+
 		try
 		{
 //
@@ -578,7 +574,9 @@ void ZmqEventSupplier::push_heartbeat_event()
 
             heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
 			heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);
+			endian_mess_sent = true;
 			heartbeat_pub_sock->send(heartbeat_call_mess,0);
+			call_mess_sent = true;
 
 //
 // For reference counting on zmq messages which do not have a local scope
@@ -590,22 +588,23 @@ void ZmqEventSupplier::push_heartbeat_event()
 		catch(...)
 		{
 			cout3 << "ZmqEventSupplier::push_heartbeat_event() failed !\n";
-			fail = true;
+			if (endian_mess_sent == true)
+                endian_mess.copy(&endian_mess_2);
+            if (call_mess_sent == true)
+                heartbeat_call_mess.copy(&heartbeat_call_mess_2);
+
+            TangoSys_OMemStream o;
+            o << "Can't push ZMQ heartbeat event for event ";
+            o << heartbeat_event_name;
+            if (zmq_errno() != 0)
+                o << "\nZmq error: " << zmq_strerror(zmq_errno()) << ends;
+            else
+                o << ends;
+
+            Except::throw_exception((const char *)"DServer_Events",
+                                    o.str(),
+                                   (const char *)"ZmqEventSupplier::push_heartbeat_event");
 		}
-
-//
-// If it was not possible to communicate with notifd,
-// try a reconnection
-//
-
-//		if (fail == true)
-//		{
-//			try
-//			{
-//				reconnect_notifd();
-//			}
-//			catch (...) {}
-//		}
 	}
 }
 
@@ -777,7 +776,9 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // Send the data
 //
 
-    bool fail = false;
+    bool endian_mess_sent = false;
+    bool call_mess_sent = false;
+
     try
     {
 
@@ -839,10 +840,12 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
         pub->send(name_mess,ZMQ_SNDMORE);
         pub->send(endian_mess,ZMQ_SNDMORE);
+        endian_mess_sent = true;
         if (except == NULL)
             pub->send(event_call_ok_mess,ZMQ_SNDMORE);
         else
             pub->send(event_call_nok_mess,ZMQ_SNDMORE);
+        call_mess_sent = true;
         pub->send(data_mess,0);
 
         if (large_data == false)
@@ -857,13 +860,34 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             event_call_ok_mess.copy(&event_call_ok_mess_2);
         else
             event_call_nok_mess.copy(&event_call_nok_mess_2);
+
     }
     catch(...)
     {
-        cout3 << "ZmqEventSupplier::push_event() failed !\n";
+        cout3 << "ZmqEventSupplier::push_event() failed !!!!!!!!!!!\n";
+        if (endian_mess_sent == true)
+            endian_mess.copy(&endian_mess_2);
+        if (call_mess_sent == true)
+        {
+            if (except == NULL)
+                event_call_ok_mess.copy(&event_call_ok_mess_2);
+            else
+                event_call_nok_mess.copy(&event_call_nok_mess_2);
+        }
         if (large_message_created == false)
             push_mutex.unlock();
-        fail = true;
+
+        TangoSys_OMemStream o;
+        o << "Can't push ZMQ event for event ";
+        o << event_name;
+        if (zmq_errno() != 0)
+            o << "\nZmq error: " << zmq_strerror(zmq_errno()) << ends;
+        else
+            o << ends;
+
+        Except::throw_exception((const char *)"DServer_Events",
+                                    o.str(),
+                                   (const char *)"ZmqEventSupplier::push_event");
     }
 }
 
