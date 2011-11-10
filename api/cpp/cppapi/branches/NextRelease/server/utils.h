@@ -680,7 +680,7 @@ public:
  * Initialise all the device server pattern(s) embedded in a device server
  * process.
  *
- * @exception DevFailed If the device pattern initialistaion failed
+ * @exception DevFailed If the device pattern initialisation failed
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */

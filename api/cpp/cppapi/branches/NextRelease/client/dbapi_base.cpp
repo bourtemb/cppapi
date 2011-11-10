@@ -4068,7 +4068,7 @@ CORBA::Any *Database::fill_server_cache(string &ds_name,string &loc_host)
 	}
 
 //
-// Filling the cache is allways possible whatever access rights are
+// Filling the cache is always possible whatever access rights are
 //
 
 	Any_var received;

@@ -2340,25 +2340,43 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 //		C : storage place
 //
 
-#define SET_EV_PROP(A,B,C) \
-	if ((strcmp(A,NotANumber) == 0) || (TG_strcasecmp(A,AlrmValueNotSpec) == 0))\
+#define SET_EV_PROP(A,B,C,D) \
+	string C##_str(A); \
+	bool C##_valid = true; \
+	if ((strcmp(C##_str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_str.c_str(),AlrmValueNotSpec) == 0)) \
 	{ \
-		ext->C[0] = INT_MAX; \
-		ext->C[1] = INT_MAX; \
+		if (D.size() != 0) \
+		{ \
+			unsigned int i; \
+			for (i = 0;i < D.size();i++) \
+			{ \
+				if (D[i].get_name() == #C) \
+					break; \
+			} \
+			if (i == D.size()) \
+				C##_valid = false; \
+			else \
+			{ \
+				C##_str = D[i].get_value(); \
+				if ((strcmp(C##_str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_str.c_str(),AlrmValueNotSpec) == 0)) \
+					C##_valid = false; \
+			} \
+		} \
+		else \
+			C##_valid = false; \
 	} \
-	else \
+	if (C##_valid) \
 	{ \
-		if (strcmp(A,AlrmValueNotSpec) != 0) \
+		if (strcmp(C##_str.c_str(),AlrmValueNotSpec) != 0) \
 		{ \
 			double rel_change_min=INT_MAX, rel_change_max=INT_MAX; \
  			B.seekp(0); \
 			B.seekg(0); \
 			B.clear(); \
-			string st(A); \
-			string::size_type pos = st.find(','); \
+			string::size_type pos = C##_str.find(','); \
 			if (pos != string::npos) \
-				replace(st.begin(),st.end(),',',' '); \
-			B << st << ends; \
+				replace(C##_str.begin(),C##_str.end(),',',' '); \
+			B << C##_str << ends; \
 			B >> rel_change_min; \
 			if (pos != string::npos) \
 				B >> rel_change_max; \
@@ -2372,6 +2390,11 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				ext->C[1] = fabs(rel_change_max); \
         		} \
 		} \
+	} \
+	else \
+	{ \
+		ext->C[0] = INT_MAX; \
+		ext->C[1] = INT_MAX; \
 	}
 
 //

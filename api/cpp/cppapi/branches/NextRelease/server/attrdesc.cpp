@@ -244,11 +244,35 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	if (prop_list.max_alarm.empty() == false)
 		user_default_properties.push_back(AttrProperty("max_alarm",prop_list.max_alarm));
 
+	if (prop_list.min_warning.empty() == false)
+		user_default_properties.push_back(AttrProperty("min_warning",prop_list.min_warning));
+
+	if (prop_list.max_warning.empty() == false)
+		user_default_properties.push_back(AttrProperty("max_warning",prop_list.max_warning));
+
 	if (prop_list.delta_val.empty() == false)
 		user_default_properties.push_back(AttrProperty("delta_val",prop_list.delta_val));
 
 	if (prop_list.delta_t.empty() == false)
 		user_default_properties.push_back(AttrProperty("delta_t",prop_list.delta_t));
+
+	if (prop_list.abs_change.empty() == false)
+		user_default_properties.push_back(AttrProperty("abs_change",prop_list.abs_change));
+
+	if (prop_list.rel_change.empty() == false)
+		user_default_properties.push_back(AttrProperty("rel_change",prop_list.rel_change));
+
+	if (prop_list.period.empty() == false)
+		user_default_properties.push_back(AttrProperty("period",prop_list.period));
+
+	if (prop_list.archive_abs_change.empty() == false)
+		user_default_properties.push_back(AttrProperty("archive_abs_change",prop_list.archive_abs_change));
+
+	if (prop_list.archive_rel_change.empty() == false)
+		user_default_properties.push_back(AttrProperty("archive_rel_change",prop_list.archive_rel_change));
+
+	if (prop_list.archive_period.empty() == false)
+		user_default_properties.push_back(AttrProperty("archive_period",prop_list.archive_period));
 
 }
 

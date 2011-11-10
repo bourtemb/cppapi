@@ -456,8 +456,6 @@ void AttributeProxy::parse_name(string &full_name)
 		}
 		else
 		{
-			cerr << mod << " is a non supported database modifier!" << endl;
-
 			TangoSys_OMemStream desc;
 			desc << mod;
 			desc << " modifier is an unsupported db modifier" << ends;
@@ -482,8 +480,6 @@ void AttributeProxy::parse_name(string &full_name)
 		pos = name_wo_db_mod.find(HOST_SEP);
 		if (pos == string::npos)
 		{
-			cerr << "Host and port not correctly defined in device name " << full_name << endl;
-
 			ApiWrongNameExcept::throw_exception((const char*)"API_WrongAttributeNameSyntax",
 						(const char*)"Host and port not correctly defined in device name",
 						(const char*)"AttributeProxy::parse_name()");
@@ -493,8 +489,6 @@ void AttributeProxy::parse_name(string &full_name)
 		string::size_type tmp = name_wo_db_mod.find(PORT_SEP);
 		if (tmp == string::npos)
 		{
-			cerr << "Host and port not correctly defined in device name " << full_name << endl;
-
 			ApiWrongNameExcept::throw_exception((const char*)"API_WrongAttributeNameSyntax",
 						(const char*)"Host and port not correctly defined in device name",
 						(const char*)"AttributeProxy::parse_name()");
@@ -568,8 +562,6 @@ void AttributeProxy::parse_name(string &full_name)
 		{
 			if (pos == 0)
 			{
-				cerr << "Wrong attribute name syntax (domain/family/member/attr_name) in " << cased_name << endl;
-
 				ApiWrongNameExcept::throw_exception((const char*)"API_WrongAttributeNameSyntax",
 				(const char*)"Attribute name must have four fields separated by /'s or no /'s at all if it is an alias (e.g. my/device/name/an_attr or myalias)",
 				(const char*)"AttributeProxy::parse_name()");
@@ -578,8 +570,6 @@ void AttributeProxy::parse_name(string &full_name)
 			device_name_tmp = device_name_tmp.substr(pos+1);
 			if (device_name_tmp.size() == 0)
 			{
-				cerr << "Wrong attribute name syntax (domain/family/member/attr_name) in " << cased_name << endl;
-
 				ApiWrongNameExcept::throw_exception((const char*)"API_WrongAttributeNameSyntax",
 				(const char*)"Attribute name must have four fields separated by /'s or no /'s at all if it is an alias (e.g. my/device/name/an_attr or myalias)",
 				(const char*)"AttributeProxy::parse_name()");
@@ -591,8 +581,6 @@ void AttributeProxy::parse_name(string &full_name)
 
 	if ((n_sep > 1) && (n_sep != 3))
 	{
-		cerr << "Wrong attribute name syntax (domain/family/member/attr_name) in " << cased_name << endl;
-
 		ApiWrongNameExcept::throw_exception((const char*)"API_WrongAttributeNameSyntax",
 			(const char*)"Attribute name must have four fields separated by /'s or no /'s at all if it is an alias (e.g. my/device/name/an_attr or myalias)",
 			(const char*)"AttributeProxy::parse_name()");
@@ -607,9 +595,6 @@ void AttributeProxy::parse_name(string &full_name)
 	{
 		if (dbase_used == false)
 		{
-			cerr << "Wrong attribute name syntax (domain/family/member/attr_name) in " << cased_name << endl;
-			cerr << "Rem: Alias are forbidden when not using database" << endl;
-
 			ApiWrongNameExcept::throw_exception((const char *)"API_WrongAttributeNameSyntax",
 						(const char *)"Attribute alias is not supported when not using database",
 						(const char *)"AttributeProxy::parse_name()");
@@ -622,8 +607,6 @@ void AttributeProxy::parse_name(string &full_name)
 		pos = device_name.find(HOST_SEP);
 		if (pos != string::npos)
 		{
-			cerr << "Wrong alias name syntax in " << cased_name << " (: is not allowed in alias name)" << endl;
-
 			ApiWrongNameExcept::throw_exception((const char *)"API_WrongAttributeNameSyntax",
 			(const char *)"Wrong alias name (: not allowed in alias name)",
 			(const char *)"AttributeProxy::parse_name()");
@@ -632,8 +615,6 @@ void AttributeProxy::parse_name(string &full_name)
 		pos = device_name.find(RES_SEP);
 		if (pos != string::npos)
 		{
-			cerr << "Wrong alias name syntax in " << cased_name << " (-> is not allowed in alias name)" << endl;
-
 			ApiWrongNameExcept::throw_exception((const char *)"API_WrongAttributeNameSyntax",
 			(const char *)"Wrong alias name (-> not allowed in alias name)",
 			(const char *)"DeviceProxy::parse_name()");
