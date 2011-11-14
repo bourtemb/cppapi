@@ -1253,6 +1253,10 @@ void BlackBox::build_info_as_str(long index)
 		char host[512];
 
 		int res = getnameinfo((const sockaddr *)&si,sizeof(si),host,512,0,0,0);
+#ifdef _TG_WINDOWS_
+		for (int i = 0;i < ::strlen(host);i++)
+			host[i] = ::tolower(host[i]);
+#endif
 
 		if (res == 0)
 		{
