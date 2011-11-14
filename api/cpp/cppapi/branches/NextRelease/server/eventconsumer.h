@@ -332,8 +332,6 @@ typedef std::map<std::string,EventCallBackStruct>::iterator EvCbIte;
  * 																				*
  *******************************************************************************/
 
-class ZmqAttributeValue_4;
-
 class EventConsumer
 {
 
