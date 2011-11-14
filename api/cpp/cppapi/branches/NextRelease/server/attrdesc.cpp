@@ -263,7 +263,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 		user_default_properties.push_back(AttrProperty("rel_change",prop_list.rel_change));
 
 	if (prop_list.period.empty() == false)
-		user_default_properties.push_back(AttrProperty("period",prop_list.period));
+		user_default_properties.push_back(AttrProperty("event_period",prop_list.period));
 
 	if (prop_list.archive_abs_change.empty() == false)
 		user_default_properties.push_back(AttrProperty("archive_abs_change",prop_list.archive_abs_change));
