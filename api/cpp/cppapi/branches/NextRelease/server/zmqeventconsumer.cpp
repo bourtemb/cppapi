@@ -139,6 +139,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+//int hwm=10;
+//event_sub_sock->setsockopt(ZMQ_RCVHWM,&hwm,sizeof(hwm));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
@@ -173,7 +175,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 //
 
         zmq::poll(&items[0],3,-1);
-//cout << "Awaken !!!!!!!!" << endl;
+cout << "Awaken !!!!!!!!" << endl;
 
 //
 // Something received by the heartbeat socket ?
@@ -181,7 +183,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items [0].revents & ZMQ_POLLIN)
         {
-//cout << "For the heartbeat socket" << endl;
+cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -386,7 +388,7 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
 // Call the event method
 //
 
-    push_zmq_event(event_name,endian,event_data,receiv_call->call_is_except);
+    push_zmq_event(event_name,endian,event_data,receiv_call->call_is_except,receiv_call->ctr);
 
 }
 
@@ -1125,7 +1127,7 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
     string full_event_name;
     string::size_type pos;
 
-    if ((pos = device_name.find("#dbase=no")) != string::npos)
+    if ((pos = device_name.find(MODIFIER_DBASE_NO)) != string::npos)
     {
         full_event_name = device_name;
         string tmp = '/' + att_name;
@@ -1329,10 +1331,11 @@ void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
 //                    - event_data : The event data still in a ZMQ message
 //                    - error : Flag set to true if the event data is an error
 //                              stack
+//                    - ctr : Event counter as received from server
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::message_t &event_data,bool error)
+void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::message_t &event_data,bool error,const DevLong &ds_ctr)
 {
 
     map_modification_lock.readerIn();
@@ -1362,6 +1365,19 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         bool ev_attr_ready = false;
 
         EventCallBackStruct &evt_cb = ipos->second;
+
+//
+// Miss some events?
+//
+
+        bool err_missed_event = false;
+        DevLong missed_event = ds_ctr - evt_cb.ctr;
+
+        if (missed_event >= 2)
+        {
+            err_missed_event = true;
+        }
+        evt_cb.ctr = ds_ctr;
 
 //
 // Get which type of event data has been received (from the event type)
@@ -1544,9 +1560,40 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
             }
         }
 
+        EventData *missed_event_data = NULL;
+        AttrConfEventData *missed_conf_event_data = NULL;
+        DataReadyEventData *missed_ready_event_data = NULL;
+
         AutoTangoMonitor _mon(evt_cb.callback_monitor);
+
         try
         {
+
+//
+// In case we have missed some event, prepare srtucture to send to callback
+// to inform user of this bad behavior
+//
+
+            if (err_missed_event == true)
+            {
+                DevErrorList missed_errors;
+                missed_errors.length(1);
+                missed_errors[0].reason = "API_MissedEvents";
+                missed_errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                missed_errors[0].desc = "Missed some events! Zmq queue has reached HWM?";
+                missed_errors[0].severity = ERR;
+
+                if ((ev_attr_conf == false) && (ev_attr_ready == false))
+                    missed_event_data = new EventData (event_callback_map[ev_name].device,
+                                                    att_name,event_name,NULL,missed_errors);
+                else if (ev_attr_ready == false)
+                    missed_conf_event_data = new AttrConfEventData(event_callback_map[ev_name].device,
+                                                                att_name,event_name,
+                                                                NULL,missed_errors);
+                else
+                    missed_ready_event_data = new DataReadyEventData(event_callback_map[ev_name].device,
+                                                                NULL,event_name,missed_errors);
+            }
 
 //
 // Fire the user callback
@@ -1632,6 +1679,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         {
                             try
                             {
+                                if (err_missed_event == true)
+                                    callback->push_event(missed_event_data);
                                 callback->push_event(event_data);
                             }
                             catch (...)
@@ -1643,11 +1692,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         }
 
 //
-// No calback method, the event has to be instered into the event queue
+// No calback method, the event has to be inserted into the event queue
 //
 
                         else
                         {
+                            if (err_missed_event == true)
+                                ev_queue->insert_event(missed_event_data);
                             ev_queue->insert_event(event_data);
                             if (vers == 4 && cb_ctr == cb_nb)
                                 delete dev_attr;
@@ -1682,6 +1733,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         {
                             try
                             {
+                                if (err_missed_event == true)
+                                    callback->push_event(missed_conf_event_data);
                                 callback->push_event(event_data);
                             }
                             catch (...)
@@ -1696,6 +1749,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         // into the event queue
                         else
                         {
+                           if (err_missed_event == true)
+                                ev_queue->insert_event(missed_conf_event_data);
                             ev_queue->insert_event(event_data);
                         }
                     }
@@ -1708,6 +1763,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         {
                             try
                             {
+                                if (err_missed_event == true)
+                                    callback->push_event(missed_ready_event_data);
                                 callback->push_event(event_data);
                             }
                             catch (...)
@@ -1721,6 +1778,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         // into the event queue
                         else
                         {
+                            if (err_missed_event == true)
+                                ev_queue->insert_event(missed_ready_event_data);
                             ev_queue->insert_event(event_data);
                         }
                     }
@@ -1739,9 +1798,17 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         delete attr_info_ex;
                 }
             } // End of for
+
+            delete missed_event_data;
+            delete missed_conf_event_data;
+            delete missed_ready_event_data;
         }
         catch (...)
         {
+            delete missed_event_data;
+            delete missed_conf_event_data;
+            delete missed_ready_event_data;
+
             // free the map lock if not already done
             if ( map_lock == true )
             {

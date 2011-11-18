@@ -530,13 +530,54 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 
 //
 // Create the event publisher socket (if not already done)
+// Take care for case where the device is running with db in a file
 //
 
-    string ev_name = ev->get_fqdn_prefix() + dev->get_name_lower() + '/' + attr_name_lower + '.' +  event;
+    string ev_name = ev->get_fqdn_prefix();
+    if (Util::_FileDb == true)
+    {
+        int size = ev_name.size();
+        if (ev_name[size - 1] == '#')
+            ev_name.erase(size - 1);
+    }
+
+    ev_name = ev_name + dev->get_name_lower() + '/' + attr_name_lower;
+    if (Util::_FileDb == true && ev != NULL)
+        ev_name = ev_name + MODIFIER_DBASE_NO;
+    ev_name = ev_name + '.' +  event;
+
+//
+// If the event is defined as using mcast transport, get caller host
+//
+
+    bool local_call = false;
+    if (mcast.empty() == false)
+    {
+        client_addr *c_addr = get_client_ident();
+cout << "Client host = " << c_addr->client_ip << endl;
+        if ((c_addr->client_ip[5] == 'u') ||
+            ((c_addr->client_ip[9] == '1') && (c_addr->client_ip[10] == '2') && (c_addr->client_ip[11] == '7')))
+        {
+           cout << "Local call !!!" << endl;
+           local_call = true;
+        }
+
+    }
+
+//
+// Create ZMQ event socket
+//
+
     if ((mcast.empty() == false) && (ev->is_event_mcast(ev_name) == false))
-        ev->create_mcast_event_socket(mcast,ev_name,rate);
+        ev->create_mcast_event_socket(mcast,ev_name,rate,local_call);
     else
         ev->create_event_socket();
+
+//
+// Init event counter in Event Supplier
+//
+
+    ev->init_event_cptr(ev_name);
 
 //
 // Init data returned by command
@@ -560,8 +601,16 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 	else
 	{
-        string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
-        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	    if (local_call == true)
+	    {
+            string &event_endpoint = ev->get_event_endpoint();
+            ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	    }
+	    else
+	    {
+            string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
+            ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	    }
 	}
 
 	return ret_data;

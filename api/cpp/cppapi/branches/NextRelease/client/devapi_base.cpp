@@ -2567,7 +2567,7 @@ string DeviceProxy::adm_name()
 				string prot("tango://");
 				prot = prot + host + ':' + port + '/';
 				adm_name_str.insert(0,prot);
-				adm_name_str.append("#dbase=no");
+				adm_name_str.append(MODIFIER_DBASE_NO);
 			}
 			else if (from_env_var == false)
 			{

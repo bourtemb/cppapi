@@ -237,9 +237,10 @@ public :
 	string &get_event_endpoint() {return event_endpoint;}
 
     void create_event_socket();
-    void create_mcast_event_socket(string &,string &,int);
+    void create_mcast_event_socket(string &,string &,int,bool);
     bool is_event_mcast(string &);
     string &get_mcast_event_endpoint(string &);
+    void init_event_cptr(string &event_name);
 
 protected :
 	ZmqEventSupplier(Util *);
@@ -251,6 +252,7 @@ private :
     {
         string                  endpoint;
         zmq::socket_t           *pub_socket;
+        bool                    local_client;
     };
 
 	zmq::context_t              zmq_context;            // ZMQ context
@@ -262,11 +264,7 @@ private :
 	string                      host_ip;                // Host IP address
 	string                      heartbeat_event_name;   // The event name used for the heartbeat
 	ZmqCallInfo                 heartbeat_call;         // The heartbeat call info
-	ZmqCallInfo                 event_call_ok;          // The event call info
-	ZmqCallInfo                 event_call_nok;         //
     cdrMemoryStream             heartbeat_call_cdr;     //
-    cdrMemoryStream             event_call_ok_cdr;      //
-    cdrMemoryStream             event_call_nok_cdr;     //
     TangoCdrMemoryStream        data_call_cdr;
     string                      event_name;
 
@@ -274,10 +272,6 @@ private :
     zmq::message_t              endian_mess_2;          //
     zmq::message_t              heartbeat_call_mess;    //
     zmq::message_t              heartbeat_call_mess_2;  //
-    zmq::message_t              event_call_ok_mess;     //
-    zmq::message_t              event_call_ok_mess_2;   //
-    zmq::message_t              event_call_nok_mess;    //
-    zmq::message_t              event_call_nok_mess_2;  //
 
 	unsigned char               host_endian;            // the host endianess
 	bool                        heartbeat_name_init;
@@ -287,8 +281,11 @@ private :
 
 	string                      event_endpoint;         // event publisher endpoint
 
+	map<string,int>             event_cptr;             // event counter map
+
 	void tango_bind(zmq::socket_t *,string &);
 	unsigned char test_endian();
+    void create_mcast_socket(string &,string &,int,McastSocketPub &);
 };
 
 } // End of namespace

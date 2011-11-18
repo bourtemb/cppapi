@@ -1693,6 +1693,7 @@ const ::CORBA::TypeCode_ptr Tango::_tc_DevAttrHistoryList_3 = _0RL_tc_Tango_mDev
 
 static CORBA::PR_structMember _0RL_structmember_Tango_mZmqCallInfo[] = {
   {"version", CORBA::TypeCode::PR_long_tc()},
+  {"ctr", CORBA::TypeCode::PR_long_tc()},
   {"method_name", CORBA::TypeCode::PR_string_tc(0, &_0RL_tcTrack)},
   {"oid", _0RL_tc_Tango_mDevVarCharArray},
   {"call_is_except", CORBA::TypeCode::PR_boolean_tc()}
@@ -1701,7 +1702,7 @@ static CORBA::PR_structMember _0RL_structmember_Tango_mZmqCallInfo[] = {
 #ifdef _0RL_tc_Tango_mZmqCallInfo
 #  undef _0RL_tc_Tango_mZmqCallInfo
 #endif
-static CORBA::TypeCode_ptr _0RL_tc_Tango_mZmqCallInfo = CORBA::TypeCode::PR_struct_tc("IDL:Tango/ZmqCallInfo:1.0", "ZmqCallInfo", _0RL_structmember_Tango_mZmqCallInfo, 4, &_0RL_tcTrack);
+static CORBA::TypeCode_ptr _0RL_tc_Tango_mZmqCallInfo = CORBA::TypeCode::PR_struct_tc("IDL:Tango/ZmqCallInfo:1.0", "ZmqCallInfo", _0RL_structmember_Tango_mZmqCallInfo, 5, &_0RL_tcTrack);
 
 #if defined(HAS_Cplusplus_Namespace) && defined(_MSC_VER)
 // MSVC++ does not give the constant external linkage otherwise.

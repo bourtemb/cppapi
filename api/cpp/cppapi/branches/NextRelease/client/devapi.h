@@ -1432,11 +1432,16 @@ public :
 // Event methods
 //
 	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *,
-	                   const vector<string> &filters);
+	                   const vector<string> &filters);  // For compatibility with Tango < 8
 	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *,
-	                   const vector<string> &filters, bool stateless);
+	                   const vector<string> &filters, bool stateless); // For compatibility with Tango < 8
 	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size,
-	                   const vector<string> &filters, bool stateless = false);
+	                   const vector<string> &filters, bool stateless = false); // For compatibility with Tango < 8
+
+	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *);
+	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *,bool stateless);
+	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size,
+	                   bool stateless = false);
 	virtual void unsubscribe_event(int event_id);
 //
 // Methods to access data in event queues
@@ -1620,10 +1625,10 @@ public:
 
 
 
-//
-// 					Some inline methods
-//					-------------------
-//
+///
+///					Some inline methods
+///					-------------------
+///
 
 inline ApiUtil *ApiUtil::instance()
 {
@@ -1690,9 +1695,33 @@ inline void DeviceProxy::check_connect_adm_device()
 }
 
 //
-//					Some macros
-//					-----------
+// For Tango 8 ZMQ event system
 //
+
+inline int DeviceProxy::subscribe_event (const string &attr_name, EventType event, CallBack *callback)
+{
+    vector<string> filt;
+	return subscribe_event (attr_name,event,callback,filt,false);
+}
+
+inline int DeviceProxy::subscribe_event (const string &attr_name, EventType event,
+                                 CallBack *callback,bool stateless)
+{
+    vector<string> filt;
+    return subscribe_event(attr_name,event,callback,filt,stateless);
+}
+
+inline int DeviceProxy::subscribe_event (const string &attr_name, EventType event,
+                                 int event_queue_size,bool stateless)
+{
+    vector<string> filt;
+    return subscribe_event(attr_name,event,event_queue_size,filt,stateless);
+}
+
+///
+///					Some macros
+///					-----------
+///
 
 #define READ_ATT_EXCEPT(NAME_CHAR) \
 		catch (Tango::ConnectionFailed &e) \
@@ -1760,9 +1789,9 @@ inline void DeviceProxy::check_connect_adm_device()
 						      (const char*)"DeviceProxy::read_attribute()"); \
 		}
 
-//
-// 					Small utility classes
-//					---------------------
+///
+/// 					Small utility classes
+///					---------------------
 
 
 class AutoConnectTimeout
@@ -1773,9 +1802,9 @@ public:
 };
 
 
-//
-// Some extension classes
-//
+///
+/// Some extension classes
+///
 
 class DeviceDataExt
 {
