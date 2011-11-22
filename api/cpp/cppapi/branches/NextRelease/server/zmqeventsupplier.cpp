@@ -349,7 +349,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
         {
             if (ite->second.local_client == true)
             {
-                create_mcast_socket(mcast_data,ev_name,rate,ite->second);
+                create_mcast_socket(mcast_data,rate,ite->second);
             }
         }
     }
@@ -372,7 +372,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
         else
         {
 
-            create_mcast_socket(mcast_data,ev_name,rate,ms);
+            create_mcast_socket(mcast_data,rate,ms);
 
             ms.local_client = false;
         }
@@ -402,13 +402,12 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
 //                  real events when multicast transport is required
 //
 // argument : in :	mcast_data : The multicast addr and port (mcast_adr:port)
-//                  ev_name : The event name (dev_name/attr_name.event_type)
 //                  rate: The user defined PGM rate (O if undefined)
 //                  ms: Reference to the structure to be stored in the macst map
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventSupplier::create_mcast_socket(string &mcast_data,string &ev_name,int rate,McastSocketPub &ms)
+void ZmqEventSupplier::create_mcast_socket(string &mcast_data,int rate,McastSocketPub &ms)
 {
 
 //
@@ -729,7 +728,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             struct AttributeData &attr_value,string &attr_name,DevFailed *except)
 {
 	cout3 << "ZmqEventSupplier::push_event(): called for attribute " << attr_name << endl;
-cout << "Entering push_event" << endl;
+
 //
 // Get the mutex to synchronize the sending of events
 // This method may be called by several threads in case they are several
@@ -896,7 +895,6 @@ cout << "Entering push_event" << endl;
 //
 
     bool endian_mess_sent = false;
-    bool call_mess_sent = false;
 
     try
     {
@@ -941,8 +939,15 @@ cout << "Entering push_event" << endl;
 // Get publisher socket (multicast case)
 //
 
+        int send_nb = 1;
         zmq::socket_t *pub;
         pub = event_pub_sock;
+
+        zmq::message_t *name_mess_ptr = &name_mess;
+        zmq::message_t *endian_mess_ptr = &endian_mess;
+        zmq::message_t *event_call_mess_ptr = &event_call_mess;
+        zmq::message_t *data_mess_ptr = &data_mess;
+
         if (event_mcast.empty() == false)
         {
             map<string,McastSocketPub>::iterator ite;
@@ -950,49 +955,85 @@ cout << "Entering push_event" << endl;
             if ((ite = event_mcast.find(event_name)) != event_mcast.end())
             {
                 if (ite->second.local_client == false)
-                    pub = ite->second.pub_socket;
+                {
+                   pub = ite->second.pub_socket;
+                }
+                else
+                {
+                    if (ite->second.pub_socket != NULL)
+                    {
+                        send_nb = 2;
+                        pub = ite->second.pub_socket;
+                    }
+                }
+
             }
         }
+
+//
+// If we have a multicast socket with also a local client
+// we are obliged to send to times the messages.
+// ZMQ does not support local client with PGM socket
+//
+
+        zmq::message_t name_mess_2;
+        zmq::message_t event_call_mess_2;
+        zmq::message_t data_mess_2;
+
+        if (send_nb == 2)
+        {
+            name_mess_2.copy(&name_mess);
+            event_call_mess_2.copy(&event_call_mess);
+            data_mess_2.copy(&data_mess);
+        }
+
+        while(send_nb > 0)
+        {
 
 //
 // Push the event
 //
 
-cout << "pushing the event" << endl;
-static int ctr = 0;
-ctr++;
-        bool ret;
+            bool ret;
 
-        ret = pub->send(name_mess,ZMQ_SNDMORE);
+            ret = pub->send(*name_mess_ptr,ZMQ_SNDMORE);
 if (ret == false)
 {
     cout << "Name message returned false" << endl;
     assert(false);
 }
-cout << "Pushing endian" << endl;
-        ret = pub->send(endian_mess,ZMQ_SNDMORE);
+            ret = pub->send(*endian_mess_ptr,ZMQ_SNDMORE);
 if (ret == false)
 {
     cout << "Endian message returned false" << endl;
     assert(false);
 }
-        endian_mess_sent = true;
-cout << "Pushing event_call " << endl;
-        pub->send(event_call_mess,ZMQ_SNDMORE);
-cout << "Pushing data" << endl;
-        ret = pub->send(data_mess,0);
-cout << "Everything pushed" << endl;
+            endian_mess_sent = true;
+            pub->send(*event_call_mess_ptr,ZMQ_SNDMORE);
+            ret = pub->send(*data_mess_ptr,0);
 if (ret == false)
 {
     cout << "Data message returned false" << endl;
     assert(false);
 }
-if ((ctr % 10) == 0)
-{
-struct timeval tv;
-gettimeofday(&tv,NULL);
-cout << "10 Messages sent at " << tv.tv_sec << "," << tv.tv_usec << endl;
-}
+
+            send_nb--;
+            if (send_nb == 1)
+            {
+
+//
+// Case of multicast socket with a local client
+//
+
+                pub = event_pub_sock;
+
+                name_mess_ptr = &name_mess_2;
+                endian_mess.copy(&endian_mess_2);
+                event_call_mess_ptr = &event_call_mess_2;
+                data_mess_ptr = &data_mess_2;
+            }
+
+        }
 
 //
 // Increment event counter

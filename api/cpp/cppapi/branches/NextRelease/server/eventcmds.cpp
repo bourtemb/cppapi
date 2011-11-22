@@ -554,11 +554,9 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
     if (mcast.empty() == false)
     {
         client_addr *c_addr = get_client_ident();
-cout << "Client host = " << c_addr->client_ip << endl;
         if ((c_addr->client_ip[5] == 'u') ||
             ((c_addr->client_ip[9] == '1') && (c_addr->client_ip[10] == '2') && (c_addr->client_ip[11] == '7')))
         {
-           cout << "Local call !!!" << endl;
            local_call = true;
         }
 
@@ -568,7 +566,7 @@ cout << "Client host = " << c_addr->client_ip << endl;
 // Create ZMQ event socket
 //
 
-    if ((mcast.empty() == false) && (ev->is_event_mcast(ev_name) == false))
+    if (mcast.empty() == false)
         ev->create_mcast_event_socket(mcast,ev_name,rate,local_call);
     else
         ev->create_event_socket();

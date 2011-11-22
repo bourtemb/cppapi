@@ -285,7 +285,7 @@ private :
 
 	void tango_bind(zmq::socket_t *,string &);
 	unsigned char test_endian();
-    void create_mcast_socket(string &,string &,int,McastSocketPub &);
+    void create_mcast_socket(string &,int,McastSocketPub &);
 };
 
 } // End of namespace

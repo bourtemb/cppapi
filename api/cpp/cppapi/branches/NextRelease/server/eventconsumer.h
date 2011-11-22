@@ -508,9 +508,10 @@ private :
 	void *run_undetached(void *arg);
 	void push_heartbeat_event(string &);
     void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevLong &);
-    bool process_ctrl(zmq::message_t &);
+    bool process_ctrl(zmq::message_t &,zmq::pollitem_t *,int &);
     void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
     void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);
+    void process_event(zmq_msg_t &,zmq_msg_t &,zmq_msg_t &,zmq_msg_t &);
 };
 
 /********************************************************************************
