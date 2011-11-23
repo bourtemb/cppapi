@@ -394,6 +394,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
                         {
                             istringstream iss(attribute.ext->mcast_event[i].substr(start_rate));
                             iss >> rate;
+                            rate = rate * 1024;
                             ivl = 0;
                             found = true;
                             break;
@@ -402,6 +403,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
                         {
                             istringstream iss(attribute.ext->mcast_event[i].substr(start_rate,end - start_rate));
                             iss >> rate;
+                            rate = rate * 1024;
 
 //
 // Get ivl because one is defined
@@ -409,6 +411,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
                             istringstream iss_ivl(attribute.ext->mcast_event[i].substr(end + 1));
                             iss_ivl >> ivl;
+                            ivl = ivl * 1000;
                             found = true;
                             break;
                         }
@@ -421,6 +424,15 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 			    rate = 0;
 			    ivl = 0;
 			}
+
+//
+// If one of the 2 parameters are not deefined, get the default value
+//
+
+            if (rate == 0)
+                rate = mcast_rate;
+            if (ivl == 0)
+                ivl = mcast_ivl;
         }
         else
         {
@@ -442,12 +454,10 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
 		try
 		{
-			DServer *adm_dev = tg->get_dserver_device();
-
-			if (adm_dev->get_heartbeat_started() == false)
+			if (get_heartbeat_started() == false)
 			{
-				adm_dev->add_event_heartbeat();
-				adm_dev->set_heartbeat_started(true);
+				add_event_heartbeat();
+				set_heartbeat_started(true);
 			}
 		}
 		catch (...)

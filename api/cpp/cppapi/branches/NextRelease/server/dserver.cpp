@@ -1530,6 +1530,10 @@ void DServer::get_mcast_event_prop(Tango::Util *tg)
 		DbData db_data;
 
 		db_data.push_back(DbDatum("MulticastEvent"));
+		db_data.push_back(DbDatum("MulticastHops"));
+		db_data.push_back(DbDatum("MulticastHwm"));
+		db_data.push_back(DbDatum("MulticastRate"));
+		db_data.push_back(DbDatum("MulticastIvl"));
 
 		try
 		{
@@ -1621,6 +1625,45 @@ void DServer::get_mcast_event_prop(Tango::Util *tg)
 			{
 				transform(mcast_event_prop[i].begin(),mcast_event_prop[i].end(),mcast_event_prop[i].begin(),::tolower);
 			}
+
+//
+// Multicast Hops
+//
+
+            mcast_hops = MCAST_HOPS;
+            if (db_data[1].is_empty() == false)
+                db_data[1] >> mcast_hops;
+
+//
+// Multicast Hwm
+//
+
+            zmq_event_hwm = MCAST_HWM;
+            if (db_data[2].is_empty() == false)
+                db_data[2] >> zmq_event_hwm;
+
+//
+// Multicast PGM rate
+//
+
+            mcast_rate = PGM_RATE;
+            if (db_data[3].is_empty() == false)
+            {
+                db_data[3] >> mcast_rate;
+                mcast_rate = mcast_rate * 1024;
+            }
+
+//
+// Multicast IVL
+//
+
+            mcast_ivl = PGM_IVL;
+            if (db_data[4].is_empty() == false)
+            {
+                db_data[4] >> mcast_ivl;
+                mcast_rate = mcast_rate * 1000;
+            }
+
 		}
 		catch (Tango::DevFailed &)
 		{

@@ -760,17 +760,11 @@ cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_
 // Set socket rate, ivl and linger
 //
 
-                int local_rate = PGM_RATE;
-
-                if (rate != 0)
-                    local_rate = rate * 1024;
+                int local_rate = rate;
 cout << "Set rate to " << local_rate << endl;
                 tmp_sock->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
 
-                int local_ivl = PGM_IVL;
-
-                if (ivl != 0)
-                    local_ivl = ivl * 1000;
+                int local_ivl = ivl;
 cout << "Set IVL to " << local_ivl << endl;
                 tmp_sock->setsockopt(ZMQ_RECOVERY_IVL,&local_ivl,sizeof(local_ivl));
 

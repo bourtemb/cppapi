@@ -290,7 +290,11 @@ void ZmqEventSupplier::create_event_socket()
 // Set a publisher HWM
 //
 
-        int hwm = 10;
+        Tango::Util *tg = Tango::Util::instance();
+        DServer *admin_dev = tg->get_dserver_device();
+
+        int hwm = admin_dev->zmq_event_hwm;
+cout << "Setting HWM to " << hwm << endl;
         event_pub_sock->setsockopt(ZMQ_SNDHWM,&hwm,sizeof(hwm));
 
 //
@@ -448,17 +452,17 @@ cout << "ms.endpoint = " << ms.endpoint << endl;
 // Change multicast hops
 //
 
-    int nb_hops = MCAST_HOPS;
+    Tango::Util *tg = Tango::Util::instance();
+    DServer *admin_dev = tg->get_dserver_device();
+
+    int nb_hops = admin_dev->mcast_hops;
     ms.pub_socket->setsockopt(ZMQ_MULTICAST_HOPS,&nb_hops,sizeof(nb_hops));
 
 //
 // Change PGM rate to default value (80 Mbits/sec) or to user defined value
 //
 
-    int local_rate = PGM_RATE;
-
-    if (rate != 0)
-        local_rate = rate * 1024;
+    int local_rate = rate;
 
 cout << "Set rate to " << local_rate << endl;
     ms.pub_socket->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));

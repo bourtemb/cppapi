@@ -161,6 +161,11 @@ private:
 
 	bool			from_constructor;
 	vector<string>	mcast_event_prop;
+
+	DevLong         mcast_hops;
+	DevLong         mcast_rate;
+	DevLong         mcast_ivl;
+	DevLong         zmq_event_hwm;
 };
 
 class KillThread: public omni_thread
