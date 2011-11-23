@@ -73,7 +73,7 @@ namespace Tango
 	template<> \
 	struct ranges_const2type<Tango::constant> \
 	{ \
-		typedef typename type Type; \
+		typedef type Type; \
 		static string str; \
 	}; \
 	string ranges_const2type<Tango::constant>::str = #type; \
