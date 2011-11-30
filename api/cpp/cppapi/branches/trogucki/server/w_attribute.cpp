@@ -4898,7 +4898,7 @@ void WAttribute::set_min_value(Tango::DevUChar &new_val)
 //
 
 	TangoSys_MemStream str;
-	str << new_val;
+	str << (short)new_val; // to store the numeric value
 	min_value_str = str.str();
 
 //

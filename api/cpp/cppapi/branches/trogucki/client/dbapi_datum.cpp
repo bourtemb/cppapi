@@ -499,7 +499,7 @@ void DbDatum::operator << (unsigned char datum)
 #else
 	ostringstream ostream;
 #endif /* STRSTREAM */
-	ostream << datum;
+	ostream << (short)datum; // to accept only numbers
 #ifdef STRSTREAM
 	ostream << ends;
 #endif /* STRSTREAM */

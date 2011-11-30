@@ -79,14 +79,14 @@ namespace Tango
 	string ranges_const2type<Tango::constant>::str = #type; \
 
 RANGES_TYPE2CONST(Tango::DevDouble,DEV_DOUBLE)
-RANGES_TYPE2CONST(Tango::DevShort,DEV_SHORT)
+RANGES_TYPE2CONST(Tango::DevFloat,DEV_FLOAT)
 RANGES_TYPE2CONST(Tango::DevLong,DEV_LONG)
 RANGES_TYPE2CONST(Tango::DevLong64,DEV_LONG64)
-RANGES_TYPE2CONST(Tango::DevFloat,DEV_FLOAT)
-RANGES_TYPE2CONST(Tango::DevUShort,DEV_USHORT)
+RANGES_TYPE2CONST(Tango::DevShort,DEV_SHORT)
 RANGES_TYPE2CONST(Tango::DevUChar,DEV_UCHAR)
 RANGES_TYPE2CONST(Tango::DevULong,DEV_ULONG)
 RANGES_TYPE2CONST(Tango::DevULong64,DEV_ULONG64)
+RANGES_TYPE2CONST(Tango::DevUShort,DEV_USHORT)
 
 //
 // A classical function which will be used as unary predicate for the find_if
@@ -4997,9 +4997,6 @@ void Attribute::set_max_alarm_impl(Tango::attr_range &new_max_alarm)
 
 	get_att_device()->push_att_conf_event(this);
 }
-
-
-// END OF NEW RANGES SET/GET FUNCTIONS -------------------------------------
 
 
 //+-------------------------------------------------------------------------
