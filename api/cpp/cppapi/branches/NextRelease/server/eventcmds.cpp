@@ -592,13 +592,14 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 //
 
 	Tango::DevVarLongStringArray *ret_data = new Tango::DevVarLongStringArray();
-	ret_data->lvalue.length(4);
+	ret_data->lvalue.length(5);
 	ret_data->svalue.length(2);
 
 	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
 	ret_data->lvalue[1] = dev->get_dev_idl_version();
-	ret_data->lvalue[2] = rate;
-	ret_data->lvalue[3] = ivl;
+	ret_data->lvalue[2] = zmq_sub_event_hwm;
+	ret_data->lvalue[3] = rate;
+	ret_data->lvalue[4] = ivl;
 
     string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
 	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());

@@ -293,7 +293,10 @@ void ZmqEventSupplier::create_event_socket()
         Tango::Util *tg = Tango::Util::instance();
         DServer *admin_dev = tg->get_dserver_device();
 
-        int hwm = admin_dev->zmq_event_hwm;
+        int hwm = tg->get_user_pub_hwm();
+        if (hwm == -1)
+            hwm = admin_dev->zmq_pub_event_hwm;
+
 cout << "Setting HWM to " << hwm << endl;
         event_pub_sock->setsockopt(ZMQ_SNDHWM,&hwm,sizeof(hwm));
 
@@ -784,7 +787,10 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
     if (ev_cptr_ite != event_cptr.end())
         ev_ctr = ev_cptr_ite->second;
     else
-        cerr << "Can't find event counter for event " << event_name << " in map!" << endl;
+    {
+       cerr << "Can't find event counter for event " << event_name << " in map!" << endl;
+    }
+
 
     ZmqCallInfo event_call;
     event_call.version = ZMQ_EVENT_PROT_VERSION;

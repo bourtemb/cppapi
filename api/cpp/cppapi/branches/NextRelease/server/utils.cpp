@@ -1209,6 +1209,20 @@ void Util::misc_init()
 	main_win_text = main_win_text + "CORBA based device server\n";
 	main_win_text = main_win_text + "Developped by Tango team";
 #endif
+
+//
+// Check if the user has defined his own publisher hwm (fpr zmq event tuning)
+//
+
+	string var;
+	if (ApiUtil::get_env_var("TANGO_PUB_HWM",var) == 0)
+	{
+		int pub_hwm = -1;
+		istringstream iss(var);
+		iss >> pub_hwm;
+		if (iss)
+			ext->user_pub_hwm = pub_hwm;
+	}
 }
 
 //+----------------------------------------------------------------------------

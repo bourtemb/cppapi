@@ -119,7 +119,8 @@ namespace Tango
 #define     PGM_RATE                    80 * 1024
 #define     PGM_IVL                     20 * 1000
 #define     MAX_SOCKET_SUB              10
-#define     MCAST_HWM                   100
+#define     PUB_HWM                     100
+#define     SUB_HWM                     100
 
 #define     ZMQ_END                     0
 #define     ZMQ_CONNECT_HEARTBEAT       1

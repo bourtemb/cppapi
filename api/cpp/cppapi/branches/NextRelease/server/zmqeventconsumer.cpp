@@ -633,6 +633,9 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
             const char *endpoint = &(tmp_ptr[1]);
             int start = ::strlen(endpoint) + 2;
             const char *event_name = &(tmp_ptr[start]);
+            start = start + ::strlen(event_name) + 1;
+            Tango::DevLong sub_hwm;
+            ::memcpy(&sub_hwm,&(tmp_ptr[start]),sizeof(Tango::DevLong));
 cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << endl;
 
 //
@@ -653,6 +656,9 @@ cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_
 
             if (connect_pub == true)
             {
+cout << "Set socket HWM to " << sub_hwm << endl;
+                event_sub_sock->setsockopt(ZMQ_RCVHWM,&sub_hwm,sizeof(sub_hwm));
+
 cout << "Connect socket with endpoint: " << endpoint << endl;
                 event_sub_sock->connect(endpoint);
                 connected_pub.push_back(endpoint);
@@ -715,7 +721,9 @@ cout << "Zmq subscribe with string: " << event_name << endl;
             int start = ::strlen(endpoint) + 2;
             const char *event_name = &(tmp_ptr[start]);
             start = start + ::strlen(event_name) + 1;
-            Tango::DevLong rate,ivl;
+            Tango::DevLong sub_hwm,rate,ivl;
+            ::memcpy(&sub_hwm,&(tmp_ptr[start]),sizeof(Tango::DevLong));
+            start = start + sizeof(Tango::DevLong);
             ::memcpy(&rate,&(tmp_ptr[start]),sizeof(Tango::DevLong));
             start = start + sizeof(Tango::DevLong);
             ::memcpy(&ivl,&(tmp_ptr[start]),sizeof(Tango::DevLong));
@@ -757,7 +765,7 @@ cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_
                 zmq::socket_t *tmp_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
 
 //
-// Set socket rate, ivl and linger
+// Set socket rate, ivl linger and hwm
 //
 
                 int local_rate = rate;
@@ -770,6 +778,8 @@ cout << "Set IVL to " << local_ivl << endl;
 
                 int linger = 0;
                 tmp_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+
+                tmp_sock->setsockopt(ZMQ_RCVHWM,&sub_hwm,sizeof(sub_hwm));
 
 //
 // Connect the socket
@@ -1299,15 +1309,14 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 //
 
         bool mcast_transport = false;
+        ApiUtil *au = ApiUtil::instance();
 
         string endpoint(ev_svr_data->svalue[1].in());
         if (endpoint.find(MCAST_PROT) != string::npos)
         {
             mcast_transport = true;
 
-            ApiUtil *au = ApiUtil::instance();
             vector<string> adrs;
-
             au->get_ip_from_if(adrs);
 
             for (unsigned int i = 0;i < adrs.size();++i)
@@ -1324,8 +1333,8 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
 //
 // Build message sent to ZMQ main thread
-// In this case, this is the command code, the publisher endpoint
-// and the event name
+// In this case, this is the command code, the publisher endpoint,
+// the event name and the sub hwm
 //
 
         char buffer[1024];
@@ -1343,16 +1352,23 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
         ::strcpy(&(buffer[length]),full_event_name.c_str());
         length = length + full_event_name.size() + 1;
 
+        DevLong user_hwm = au->get_user_sub_hwm();
+        if (user_hwm != -1)
+            ::memcpy(&(buffer[length]),&(user_hwm),sizeof(Tango::DevLong));
+        else
+            ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[2]),sizeof(Tango::DevLong));
+        length = length + sizeof(Tango::DevLong);
+
 //
 // In case of multicasting, add rate and ivl parameters
 //
 
         if (mcast_transport == true)
         {
-            ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[2]),sizeof(Tango::DevLong));
+            ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[3]),sizeof(Tango::DevLong));
             length = length + sizeof(Tango::DevLong);
 
-           ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[3]),sizeof(Tango::DevLong));
+            ::memcpy(&(buffer[length]),&(ev_svr_data->lvalue[4]),sizeof(Tango::DevLong));
             length = length + sizeof(Tango::DevLong);
         }
 

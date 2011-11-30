@@ -1947,6 +1947,13 @@ void EventSupplier::push_att_conf_events(DeviceImpl *device_impl,AttributeData &
 
     Attribute &attr = device_impl->dev_attr->get_attr_by_name(attr_name.c_str());
 
+//
+// Return if there is no client
+//
+
+    if (attr.ext->event_attr_conf_subscription == 0)
+        return;
+
     now = time(NULL);
     att_conf_subscription = now - attr.ext->event_attr_conf_subscription;
 

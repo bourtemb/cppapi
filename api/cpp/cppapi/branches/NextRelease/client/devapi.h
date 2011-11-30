@@ -124,13 +124,15 @@ public:
 class ApiUtilExt
 {
 public:
-	ApiUtilExt():notifd_event_consumer(NULL),cl_pid(0),user_connect_timeout(-1),zmq_event_consumer(NULL) {};
+	ApiUtilExt():notifd_event_consumer(NULL),cl_pid(0),user_connect_timeout(-1),
+                 zmq_event_consumer(NULL),user_sub_hwm(-1) {};
 
 	NotifdEventConsumer *notifd_event_consumer;
 	TangoSys_Pid		cl_pid;
 	int					user_connect_timeout;
 	ZmqEventConsumer    *zmq_event_consumer;
 	vector<string>      host_ip_adrs;
+	DevLong             user_sub_hwm;
 };
 
 
@@ -383,6 +385,9 @@ public:
 
 	TANGO_IMP_EXP static int get_env_var(const char *,string &);
 	int get_user_connect_timeout() {return ext->user_connect_timeout;}
+
+	DevLong get_user_sub_hwm() {return ext->user_sub_hwm;}
+	void set_event_buffer_hwm(DevLong val) {if (ext->user_sub_hwm == -1)ext->user_sub_hwm=val;}
 
 	void get_ip_from_if(vector<string> &);
 

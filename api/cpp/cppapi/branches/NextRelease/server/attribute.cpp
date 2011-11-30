@@ -2664,7 +2664,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			int i;
 			for (i = 0;i < nb_user;i++)
 			{
-				if (def_user_prop[i].get_name() == "period")
+				if (def_user_prop[i].get_name() == "event_period")
 					break;
 			}
 			if (i == nb_user)

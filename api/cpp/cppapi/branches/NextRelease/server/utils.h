@@ -145,7 +145,7 @@ public:
 	 	  py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
 		  svr_starting(true),svr_stopping(false),db_svr_version(0),poll_pool_size(ULONG_MAX),
 		  conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
-		  endpoint_specified(false)
+		  endpoint_specified(false),user_pub_hwm(-1)
 	{shared_data.cmd_pending=false;shared_data.trigger=false;
 	cr_py_lock = new CreatePyLock();}
 
@@ -194,6 +194,7 @@ public:
 	ZmqEventSupplier            *zmq_event_supplier;    // The zmq event supplier object
 	bool                        endpoint_specified;     // Endpoint specified on cmd line
 	string                      specified_ip;           // IP address specified in the endpoint
+	DevLong                     user_pub_hwm;           // User defined pub HWM
 };
 
 /**
@@ -452,18 +453,27 @@ public:
  * BY_DEVICE, BY_CLASS, BY_PROCESS or NO_SYNC
  */
 	SerialModel get_serial_model() {return ext->ser_model;}
+
 /**
  * Get a reference to the notifd TANGO EventSupplier object
  *
  * @return The notifd EventSupplier object
  */
 	NotifdEventSupplier *get_notifd_event_supplier() {return ext->nd_event_supplier;}
+
 /**
  * Get a reference to the ZMQ TANGO EventSupplier object
  *
  * @return The zmq EventSupplier object
  */
 	ZmqEventSupplier *get_zmq_event_supplier() {return ext->zmq_event_supplier;}
+
+/**
+ * Set the event publisher buffer high water mark (HWM)
+ *
+ * @param val The new event buffer high water mark in number of events
+ */
+	void set_event_buffer_hwm(DevLong val) {if (ext->user_pub_hwm == -1)ext->user_pub_hwm = val;}
 //@}
 
 /**@Miscellaneous methods */
@@ -567,6 +577,8 @@ public:
 
 	string &get_specified_ip() {return ext->specified_ip;}
 	void set_specified_ip(string &val) {ext->specified_ip = val;}
+
+	DevLong get_user_pub_hwm() {return ext->user_pub_hwm;}
 
 /**@name Database related methods */
 //@{

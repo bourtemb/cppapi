@@ -183,10 +183,10 @@ void DServer::init_device()
 			tg->add_class_to_list(this->get_device_class());
 
 //
-// Retrieve multicast event property
+// Retrieve event related properties (multicast and other)
 //
 
-			get_mcast_event_prop(tg);
+			get_event_prop(tg);
 
 //
 // A loop for each class
@@ -1508,7 +1508,7 @@ void DServer::check_lock_owner(DeviceImpl *dev,const char *cmd_name,const char *
 
 //+----------------------------------------------------------------------------
 //
-// method : 		DServer::get_mcast_event_prop()
+// method : 		DServer::get_event_prop()
 //
 // description : 	Get the property defining which event has to be transported
 //					using multicast protocol
@@ -1517,7 +1517,7 @@ void DServer::check_lock_owner(DeviceImpl *dev,const char *cmd_name,const char *
 //
 //-----------------------------------------------------------------------------
 
-void DServer::get_mcast_event_prop(Tango::Util *tg)
+void DServer::get_event_prop(Tango::Util *tg)
 {
 
 	if (tg->_UseDb == true)
@@ -1531,9 +1531,10 @@ void DServer::get_mcast_event_prop(Tango::Util *tg)
 
 		db_data.push_back(DbDatum("MulticastEvent"));
 		db_data.push_back(DbDatum("MulticastHops"));
-		db_data.push_back(DbDatum("MulticastHwm"));
 		db_data.push_back(DbDatum("MulticastRate"));
 		db_data.push_back(DbDatum("MulticastIvl"));
+		db_data.push_back(DbDatum("PublisherHwm"));
+		db_data.push_back(DbDatum("SubscriberHwm"));
 
 		try
 		{
@@ -1635,21 +1636,13 @@ void DServer::get_mcast_event_prop(Tango::Util *tg)
                 db_data[1] >> mcast_hops;
 
 //
-// Multicast Hwm
-//
-
-            zmq_event_hwm = MCAST_HWM;
-            if (db_data[2].is_empty() == false)
-                db_data[2] >> zmq_event_hwm;
-
-//
 // Multicast PGM rate
 //
 
             mcast_rate = PGM_RATE;
-            if (db_data[3].is_empty() == false)
+            if (db_data[2].is_empty() == false)
             {
-                db_data[3] >> mcast_rate;
+                db_data[2] >> mcast_rate;
                 mcast_rate = mcast_rate * 1024;
             }
 
@@ -1658,11 +1651,27 @@ void DServer::get_mcast_event_prop(Tango::Util *tg)
 //
 
             mcast_ivl = PGM_IVL;
-            if (db_data[4].is_empty() == false)
+            if (db_data[3].is_empty() == false)
             {
-                db_data[4] >> mcast_ivl;
-                mcast_rate = mcast_rate * 1000;
+                db_data[3] >> mcast_ivl;
+                mcast_ivl = mcast_ivl * 1000;
             }
+
+//
+// Publisher Hwm
+//
+
+            zmq_pub_event_hwm = PUB_HWM;
+            if (db_data[4].is_empty() == false)
+                db_data[4] >> zmq_pub_event_hwm;
+
+//
+// Subscriber Hwm
+//
+
+            zmq_sub_event_hwm = SUB_HWM;
+            if (db_data[5].is_empty() == false)
+                db_data[5] >> zmq_sub_event_hwm;
 
 		}
 		catch (Tango::DevFailed &)
