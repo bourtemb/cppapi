@@ -394,6 +394,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
                         {
                             istringstream iss(attribute.ext->mcast_event[i].substr(start_rate));
                             iss >> rate;
+                            rate = rate * 1024;
                             ivl = 0;
                             found = true;
                             break;
@@ -402,6 +403,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
                         {
                             istringstream iss(attribute.ext->mcast_event[i].substr(start_rate,end - start_rate));
                             iss >> rate;
+                            rate = rate * 1024;
 
 //
 // Get ivl because one is defined
@@ -409,6 +411,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
                             istringstream iss_ivl(attribute.ext->mcast_event[i].substr(end + 1));
                             iss_ivl >> ivl;
+                            ivl = ivl * 1000;
                             found = true;
                             break;
                         }
@@ -421,6 +424,15 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 			    rate = 0;
 			    ivl = 0;
 			}
+
+//
+// If one of the 2 parameters are not deefined, get the default value
+//
+
+            if (rate == 0)
+                rate = mcast_rate;
+            if (ivl == 0)
+                ivl = mcast_ivl;
         }
         else
         {
@@ -442,12 +454,10 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 
 		try
 		{
-			DServer *adm_dev = tg->get_dserver_device();
-
-			if (adm_dev->get_heartbeat_started() == false)
+			if (get_heartbeat_started() == false)
 			{
-				adm_dev->add_event_heartbeat();
-				adm_dev->set_heartbeat_started(true);
+				add_event_heartbeat();
+				set_heartbeat_started(true);
 			}
 		}
 		catch (...)
@@ -530,26 +540,66 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 
 //
 // Create the event publisher socket (if not already done)
+// Take care for case where the device is running with db in a file
 //
 
-    string ev_name = ev->get_fqdn_prefix() + dev->get_name_lower() + '/' + attr_name_lower + '.' +  event;
-    if ((mcast.empty() == false) && (ev->is_event_mcast(ev_name) == false))
-        ev->create_mcast_event_socket(mcast,ev_name,rate);
+    string ev_name = ev->get_fqdn_prefix();
+    if (Util::_FileDb == true)
+    {
+        int size = ev_name.size();
+        if (ev_name[size - 1] == '#')
+            ev_name.erase(size - 1);
+    }
+
+    ev_name = ev_name + dev->get_name_lower() + '/' + attr_name_lower;
+    if (Util::_FileDb == true && ev != NULL)
+        ev_name = ev_name + MODIFIER_DBASE_NO;
+    ev_name = ev_name + '.' +  event;
+
+//
+// If the event is defined as using mcast transport, get caller host
+//
+
+    bool local_call = false;
+    if (mcast.empty() == false)
+    {
+        client_addr *c_addr = get_client_ident();
+        if ((c_addr->client_ip[5] == 'u') ||
+            ((c_addr->client_ip[9] == '1') && (c_addr->client_ip[10] == '2') && (c_addr->client_ip[11] == '7')))
+        {
+           local_call = true;
+        }
+
+    }
+
+//
+// Create ZMQ event socket
+//
+
+    if (mcast.empty() == false)
+        ev->create_mcast_event_socket(mcast,ev_name,rate,local_call);
     else
         ev->create_event_socket();
+
+//
+// Init event counter in Event Supplier
+//
+
+    ev->init_event_cptr(ev_name);
 
 //
 // Init data returned by command
 //
 
 	Tango::DevVarLongStringArray *ret_data = new Tango::DevVarLongStringArray();
-	ret_data->lvalue.length(4);
+	ret_data->lvalue.length(5);
 	ret_data->svalue.length(2);
 
 	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
 	ret_data->lvalue[1] = dev->get_dev_idl_version();
-	ret_data->lvalue[2] = rate;
-	ret_data->lvalue[3] = ivl;
+	ret_data->lvalue[2] = zmq_sub_event_hwm;
+	ret_data->lvalue[3] = rate;
+	ret_data->lvalue[4] = ivl;
 
     string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
 	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
@@ -560,8 +610,16 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 	else
 	{
-        string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
-        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	    if (local_call == true)
+	    {
+            string &event_endpoint = ev->get_event_endpoint();
+            ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	    }
+	    else
+	    {
+            string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
+            ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+	    }
 	}
 
 	return ret_data;

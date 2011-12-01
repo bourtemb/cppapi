@@ -155,12 +155,18 @@ private:
 	void create_cpp_class(const char *,const char *);
 	void get_dev_prop(Tango::Util *);
     DeviceImpl *event_subscription(string &,string &,string &,string &,string &,ChannelType,string &,int &,int &);
-	void get_mcast_event_prop(Tango::Util *);
+	void get_event_prop(Tango::Util *);
 	bool is_event_name(string &);
 	bool is_ip_address(string &);
 
 	bool			from_constructor;
 	vector<string>	mcast_event_prop;
+
+	DevLong         mcast_hops;
+	DevLong         mcast_rate;
+	DevLong         mcast_ivl;
+	DevLong         zmq_pub_event_hwm;
+	DevLong         zmq_sub_event_hwm;
 };
 
 class KillThread: public omni_thread

@@ -113,7 +113,7 @@ void AttributeProxy::real_constructor (string &name)
 		string::size_type stop;
 		stop = name.rfind(DEVICE_SEP);
 		string nodb_dev_name  = name.substr(0,stop);
-		nodb_dev_name = nodb_dev_name + "#dbase=no";
+		nodb_dev_name = nodb_dev_name + MODIFIER_DBASE_NO;
 
 		dev_proxy = new DeviceProxy(nodb_dev_name);
 	}

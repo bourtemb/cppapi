@@ -141,7 +141,7 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
     endian_mess_2.copy(&endian_mess);
 
 //
-// Init heartbeat and event call info (both ok and nok)
+// Init heartbeat call info
 // Leave the OID and method name un-initialized
 // Marshall the structure into CORBA CDR
 //
@@ -151,16 +151,6 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
 
     heartbeat_call >>= heartbeat_call_cdr;
 
-    event_call_ok.version = ZMQ_EVENT_PROT_VERSION;
-    event_call_ok.call_is_except = false;
-
-    event_call_ok >>= event_call_ok_cdr;
-
-    event_call_nok.version = ZMQ_EVENT_PROT_VERSION;
-    event_call_nok.call_is_except = true;
-
-    event_call_nok >>= event_call_nok_cdr;
-
 //
 // Create some ZMQ messages from the already created memory buffer in CDR
 //
@@ -169,16 +159,6 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
     memcpy(heartbeat_call_mess.data(),heartbeat_call_cdr.bufPtr(),heartbeat_call_cdr.bufSize());
 
     heartbeat_call_mess_2.copy(&heartbeat_call_mess);
-
-    event_call_ok_mess.rebuild(event_call_ok_cdr.bufSize());
-    memcpy(event_call_ok_mess.data(),event_call_ok_cdr.bufPtr(),event_call_ok_cdr.bufSize());
-
-    event_call_ok_mess_2.copy(&event_call_ok_mess);
-
-    event_call_nok_mess.rebuild(event_call_nok_cdr.bufSize());
-    memcpy(event_call_nok_mess.data(),event_call_nok_cdr.bufPtr(),event_call_nok_cdr.bufSize());
-
-    event_call_nok_mess_2.copy(&event_call_nok_mess);
 
 //
 // Start to init the event name used for the DS heartbeat event
@@ -307,6 +287,20 @@ void ZmqEventSupplier::create_event_socket()
         }
 
 //
+// Set a publisher HWM
+//
+
+        Tango::Util *tg = Tango::Util::instance();
+        DServer *admin_dev = tg->get_dserver_device();
+
+        int hwm = tg->get_user_pub_hwm();
+        if (hwm == -1)
+            hwm = admin_dev->zmq_pub_event_hwm;
+
+cout << "Setting HWM to " << hwm << endl;
+        event_pub_sock->setsockopt(ZMQ_SNDHWM,&hwm,sizeof(hwm));
+
+//
 // Bind the publisher socket to one ephemeral port
 //
 
@@ -321,7 +315,6 @@ void ZmqEventSupplier::create_event_socket()
             event_endpoint.replace(6,1,host_ip);
         }
     }
-
 }
 
 //+----------------------------------------------------------------------------
@@ -334,10 +327,94 @@ void ZmqEventSupplier::create_event_socket()
 // argument : in :	mcast_data : The multicast addr and port (mcast_adr:port)
 //                  ev_name : The event name (dev_name/attr_name.event_type)
 //                  rate: The user defined PGM rate (O if undefined)
+//                  local_call: True if the caller is on the same host
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_name,int rate)
+void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_name,int rate,bool local_call)
+{
+
+    map<string,McastSocketPub>::iterator ite;
+
+//
+// If the event is already in the mcast event map, check if it is
+// already used by local clients
+//
+
+    if ((ite = event_mcast.find(ev_name)) != event_mcast.end())
+    {
+        if (local_call == true)
+        {
+            if (ite->second.local_client == false)
+            {
+                create_event_socket();
+
+                ite->second.local_client = true;
+            }
+        }
+        else
+        {
+            if (ite->second.local_client == true)
+            {
+                create_mcast_socket(mcast_data,rate,ite->second);
+            }
+        }
+    }
+    else
+    {
+
+//
+// New mcast event
+//
+
+        McastSocketPub ms;
+
+        if (local_call == true)
+        {
+            create_event_socket();
+
+            ms.pub_socket = NULL;
+            ms.local_client = true;
+        }
+        else
+        {
+
+            create_mcast_socket(mcast_data,rate,ms);
+
+            ms.local_client = false;
+        }
+
+//
+// Insert element in map
+//
+
+        if (event_mcast.insert(make_pair(ev_name,ms)).second == false)
+        {
+            TangoSys_OMemStream o;
+            o << "Can't insert multicast transport parameter for event ";
+            o << ev_name << " in EventSupplier instance" << ends;
+
+            Except::throw_exception((const char *)"DServer_Events",
+                                o.str(),
+                               (const char *)"ZmqEventSupplier::create_mcast_event_socket");
+        }
+    }
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqEventSupplier::create_mcast_socket()
+//
+// description : 	Create and bind the publisher socket used to publish the
+//                  real events when multicast transport is required
+//
+// argument : in :	mcast_data : The multicast addr and port (mcast_adr:port)
+//                  rate: The user defined PGM rate (O if undefined)
+//                  ms: Reference to the structure to be stored in the macst map
+//
+//-----------------------------------------------------------------------------
+
+void ZmqEventSupplier::create_mcast_socket(string &mcast_data,int rate,McastSocketPub &ms)
 {
 
 //
@@ -346,7 +423,6 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
 // re-use it in the endpoint
 //
 
-    McastSocketPub ms;
     ms.pub_socket = new zmq::socket_t(zmq_context,ZMQ_PUB);
 
     ms.endpoint = MCAST_PROT;
@@ -379,17 +455,17 @@ cout << "ms.endpoint = " << ms.endpoint << endl;
 // Change multicast hops
 //
 
-    int nb_hops = MCAST_HOPS;
+    Tango::Util *tg = Tango::Util::instance();
+    DServer *admin_dev = tg->get_dserver_device();
+
+    int nb_hops = admin_dev->mcast_hops;
     ms.pub_socket->setsockopt(ZMQ_MULTICAST_HOPS,&nb_hops,sizeof(nb_hops));
 
 //
 // Change PGM rate to default value (80 Mbits/sec) or to user defined value
 //
 
-    int local_rate = PGM_RATE;
-
-    if (rate != 0)
-        local_rate = rate * 1024;
+    int local_rate = rate;
 
 cout << "Set rate to " << local_rate << endl;
     ms.pub_socket->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
@@ -416,20 +492,6 @@ cout << "Set rate to " << local_rate << endl;
 
     ms.endpoint = MCAST_PROT + mcast_data;
 
-//
-// Insert element in map
-//
-
-    if (event_mcast.insert(make_pair(ev_name,ms)).second == false)
-    {
-        TangoSys_OMemStream o;
-        o << "Can't insert multicast transport parameter for event ";
-        o << ev_name << " in EventSupplier instance" << ends;
-
-        Except::throw_exception((const char *)"DServer_Events",
-                                    o.str(),
-                                   (const char *)"ZmqEventSupplier::create_mcast_event_socket");
-    }
 }
 
 //+----------------------------------------------------------------------------
@@ -469,6 +531,42 @@ bool ZmqEventSupplier::is_event_mcast(string &ev_name)
 string &ZmqEventSupplier::get_mcast_event_endpoint(string &ev_name)
 {
     return event_mcast.find(ev_name)->second.endpoint;
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqEventSupplier::init_event_cptr()
+//
+// description : 	Method to initialize event counter for a specific event
+//
+// argument : in :	event_name : The event name (device/attr.event_type)
+//
+//-----------------------------------------------------------------------------
+
+void ZmqEventSupplier::init_event_cptr(string &event_name)
+{
+    map<string,int>::iterator pos;
+
+    pos = event_cptr.find(event_name);
+    if (pos == event_cptr.end())
+    {
+        if (event_cptr.insert(make_pair(event_name,0)).second == false)
+        {
+            TangoSys_OMemStream o;
+            o << "Can't insert event counter for event ";
+            o << event_name << " in EventSupplier instance" << ends;
+
+            Except::throw_exception((const char *)"DServer_Events",
+                                    o.str(),
+                                   (const char *)"ZmqEventSupplier::init_event_cptr");
+        }
+    }
+    else
+    {
+        push_mutex.lock();
+        pos->second = 0;
+        push_mutex.unlock();
+    }
 }
 
 //+----------------------------------------------------------------------------
@@ -661,7 +759,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 	int size = event_name.size();
 	if (event_name[size - 1] == '#')
-        event_name.erase(size -1);
+        event_name.erase(size - 1);
 
 	event_name = event_name + device_impl->get_name_lower() + '/' + loc_attr_name;
 	if (Util::_FileDb == true)
@@ -677,6 +775,36 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
     zmq::message_t name_mess(event_name.size());
     memcpy(name_mess.data(),event_name.data(),event_name.size());
+
+//
+// Get event cptr and create the event call zmq message
+//
+
+    map<string,int>::iterator ev_cptr_ite;
+    int ev_ctr = 0;
+
+    ev_cptr_ite = event_cptr.find(event_name);
+    if (ev_cptr_ite != event_cptr.end())
+        ev_ctr = ev_cptr_ite->second;
+    else
+    {
+       cerr << "Can't find event counter for event " << event_name << " in map!" << endl;
+    }
+
+
+    ZmqCallInfo event_call;
+    event_call.version = ZMQ_EVENT_PROT_VERSION;
+    if (except == NULL)
+        event_call.call_is_except = false;
+    else
+        event_call.call_is_except = true;
+    event_call.ctr = ev_ctr;
+
+    cdrMemoryStream event_call_cdr;
+    event_call >>= event_call_cdr;
+
+    zmq::message_t event_call_mess(event_call_cdr.bufSize());
+    memcpy(event_call_mess.data(),event_call_cdr.bufPtr(),event_call_cdr.bufSize());
 
 //
 // Marshall the event data
@@ -777,7 +905,6 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 //
 
     bool endian_mess_sent = false;
-    bool call_mess_sent = false;
 
     try
     {
@@ -809,10 +936,8 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
                 omniORB::logger log;
                 log << "ZMQ: Call info" << '\n';
             }
-            if (except == NULL)
-                omni::giopStream::dumpbuf((unsigned char *)event_call_ok_mess.data(),event_call_ok_mess.size());
-            else
-                omni::giopStream::dumpbuf((unsigned char *)event_call_nok_mess.data(),event_call_nok_mess.size());
+            omni::giopStream::dumpbuf((unsigned char *)event_call_mess.data(),event_call_mess.size());
+
             {
                 omniORB::logger log;
                 log << "ZMQ: Event data" << '\n';
@@ -824,29 +949,112 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // Get publisher socket (multicast case)
 //
 
+        int send_nb = 1;
         zmq::socket_t *pub;
         pub = event_pub_sock;
+
+        zmq::message_t *name_mess_ptr = &name_mess;
+        zmq::message_t *endian_mess_ptr = &endian_mess;
+        zmq::message_t *event_call_mess_ptr = &event_call_mess;
+        zmq::message_t *data_mess_ptr = &data_mess;
+
         if (event_mcast.empty() == false)
         {
             map<string,McastSocketPub>::iterator ite;
 
             if ((ite = event_mcast.find(event_name)) != event_mcast.end())
-                pub = ite->second.pub_socket;
+            {
+                if (ite->second.local_client == false)
+                {
+                   pub = ite->second.pub_socket;
+                }
+                else
+                {
+                    if (ite->second.pub_socket != NULL)
+                    {
+                        send_nb = 2;
+                        pub = ite->second.pub_socket;
+                    }
+                }
+
+            }
         }
+
+//
+// If we have a multicast socket with also a local client
+// we are obliged to send to times the messages.
+// ZMQ does not support local client with PGM socket
+//
+
+        zmq::message_t name_mess_2;
+        zmq::message_t event_call_mess_2;
+        zmq::message_t data_mess_2;
+
+        if (send_nb == 2)
+        {
+            name_mess_2.copy(&name_mess);
+            event_call_mess_2.copy(&event_call_mess);
+            data_mess_2.copy(&data_mess);
+        }
+
+        while(send_nb > 0)
+        {
 
 //
 // Push the event
 //
 
-        pub->send(name_mess,ZMQ_SNDMORE);
-        pub->send(endian_mess,ZMQ_SNDMORE);
-        endian_mess_sent = true;
-        if (except == NULL)
-            pub->send(event_call_ok_mess,ZMQ_SNDMORE);
-        else
-            pub->send(event_call_nok_mess,ZMQ_SNDMORE);
-        call_mess_sent = true;
-        pub->send(data_mess,0);
+            bool ret;
+
+            ret = pub->send(*name_mess_ptr,ZMQ_SNDMORE);
+if (ret == false)
+{
+    cout << "Name message returned false" << endl;
+    assert(false);
+}
+            ret = pub->send(*endian_mess_ptr,ZMQ_SNDMORE);
+if (ret == false)
+{
+    cout << "Endian message returned false" << endl;
+    assert(false);
+}
+            endian_mess_sent = true;
+            pub->send(*event_call_mess_ptr,ZMQ_SNDMORE);
+            ret = pub->send(*data_mess_ptr,0);
+if (ret == false)
+{
+    cout << "Data message returned false" << endl;
+    assert(false);
+}
+
+            send_nb--;
+            if (send_nb == 1)
+            {
+
+//
+// Case of multicast socket with a local client
+//
+
+                pub = event_pub_sock;
+
+                name_mess_ptr = &name_mess_2;
+                endian_mess.copy(&endian_mess_2);
+                event_call_mess_ptr = &event_call_mess_2;
+                data_mess_ptr = &data_mess_2;
+            }
+
+        }
+
+//
+// Increment event counter
+//
+
+        if (ev_cptr_ite != event_cptr.end())
+            ev_cptr_ite->second++;
+
+//
+// release mutex if we haven't use ZMQ no copy mode
+//
 
         if (large_data == false)
             push_mutex.unlock();
@@ -856,24 +1064,14 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 //
 
         endian_mess.copy(&endian_mess_2);
-        if (except == NULL)
-            event_call_ok_mess.copy(&event_call_ok_mess_2);
-        else
-            event_call_nok_mess.copy(&event_call_nok_mess_2);
-
     }
     catch(...)
     {
+cout << "Exception in push !!!!!!!!!!!" << endl;
         cout3 << "ZmqEventSupplier::push_event() failed !!!!!!!!!!!\n";
         if (endian_mess_sent == true)
             endian_mess.copy(&endian_mess_2);
-        if (call_mess_sent == true)
-        {
-            if (except == NULL)
-                event_call_ok_mess.copy(&event_call_ok_mess_2);
-            else
-                event_call_nok_mess.copy(&event_call_nok_mess_2);
-        }
+
         if (large_message_created == false)
             push_mutex.unlock();
 

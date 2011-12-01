@@ -135,6 +135,20 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 		if (iss)
 			ext->user_connect_timeout = user_to;
 	}
+
+//
+// Check if the user has defined his own subscriber hwm (fpr zmq event tuning)
+//
+
+	var.clear();
+	if (get_env_var("TANGO_SUB_HWM",var) == 0)
+	{
+		int sub_hwm = -1;
+		istringstream iss(var);
+		iss >> sub_hwm;
+		if (iss)
+			ext->user_sub_hwm = sub_hwm;
+	}
 }
 
 //+----------------------------------------------------------------------------

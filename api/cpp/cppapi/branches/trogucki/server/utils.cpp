@@ -1209,6 +1209,20 @@ void Util::misc_init()
 	main_win_text = main_win_text + "CORBA based device server\n";
 	main_win_text = main_win_text + "Developped by Tango team";
 #endif
+
+//
+// Check if the user has defined his own publisher hwm (fpr zmq event tuning)
+//
+
+	string var;
+	if (ApiUtil::get_env_var("TANGO_PUB_HWM",var) == 0)
+	{
+		int pub_hwm = -1;
+		istringstream iss(var);
+		iss >> pub_hwm;
+		if (iss)
+			ext->user_pub_hwm = pub_hwm;
+	}
 }
 
 //+----------------------------------------------------------------------------
@@ -1251,9 +1265,7 @@ void Util::init_host_name()
   			hints.ai_flags = AI_NUMERICHOST;	// inhibits resolution of node parameter if it is not a numeric network address
 
 #ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
 			hints.ai_flags	   |= AI_ADDRCONFIG;
-#endif
 #else
 #ifdef GCC_HAS_AI_ADDRCONFIG
   			hints.ai_flags     |= AI_ADDRCONFIG;
@@ -1278,6 +1290,12 @@ void Util::init_host_name()
 						if(getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,NI_MAXHOST,NULL,0,0) == 0)
 						{
 							string myhost(tmp_host);
+#ifdef _TG_WINDOWS_
+//
+// On windows, getnameinfo may return name in uppercase letters
+//
+							transform(myhost.begin(),myhost.end(),myhost.begin(),::tolower);
+#endif
 							string::size_type pos = myhost.find('.');
 							if (pos != string::npos)
 							{
