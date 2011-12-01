@@ -901,10 +901,15 @@ void BlackBox::get_client_host()
 
 	omni_thread::value_t *ip = th_id->get_value(key);
 	if (ip == NULL)
-		strcpy(box[insert_elt].host_ip_str,"polling");
+    {
+        Tango::Util *tg = Tango::Util::instance();
+        if (tg->is_svr_starting() == true)
+            strcpy(box[insert_elt].host_ip_str,"init");
+        else
+            strcpy(box[insert_elt].host_ip_str,"polling");
+    }
 	else
-		strcpy(box[insert_elt].host_ip_str,
-	       	       ((client_addr *)(ip))->client_ip);
+		strcpy(box[insert_elt].host_ip_str,((client_addr *)(ip))->client_ip);
 }
 
 //+-------------------------------------------------------------------------
@@ -1181,7 +1186,8 @@ void BlackBox::build_info_as_str(long index)
 	bool ipv6=false;
 	if ((box[index].host_ip_str[0] != '\0') &&
 	    (box[index].host_ip_str[0] != 'p') &&
-		(box[index].host_ip_str[5] != 'u'))
+		(box[index].host_ip_str[5] != 'u') &&
+        (box[index].host_ip_str[0] != 'i'))
 	{
 		string omni_addr = box[index].host_ip_str;
 		string::size_type pos;
@@ -1293,10 +1299,34 @@ void BlackBox::build_info_as_str(long index)
 	{
 		Tango::Util *tg = Tango::Util::instance();
 		elt_str = elt_str + "requested from " + tg->get_host_name();
+
+//
+// Add client identification if available
+//
+
+		if (box[index].client_ident == true)
+		{
+			if (box[index].client_lang == Tango::CPP)
+			{
+				elt_str = elt_str + " (CPP/Python client with PID ";
+				TangoSys_MemStream o;
+				o << box[index].client_pid;
+				elt_str = elt_str + o.str() + ")";
+			}
+			else
+			{
+				elt_str = elt_str + " (Java client with main class ";
+				elt_str = elt_str + box[index].java_main_class + ")";
+			}
+		}
 	}
 	else if (box[index].host_ip_str[0] == 'p')
 	{
-		elt_str = elt_str + "requested from polling";
+        elt_str = elt_str + "requested from polling";
+	}
+	else if (box[index].host_ip_str[0] == 'i')
+	{
+        elt_str = elt_str + "requested during device server process init sequence";
 	}
 
 	return;
