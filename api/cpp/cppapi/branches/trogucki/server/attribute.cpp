@@ -61,23 +61,6 @@ static const char *RcsId = "$Id$\n$Name$";
 namespace Tango
 {
 
-#define RANGES_TYPE2CONST(type,constant) \
-	template <> \
-	struct ranges_type2const<type> \
-	{ \
-		static CmdArgType enu; \
-		static string str; \
-	}; \
-	CmdArgType ranges_type2const<type>::enu = constant; \
-	string ranges_type2const<type>::str = #type; \
-	template<> \
-	struct ranges_const2type<Tango::constant> \
-	{ \
-		typedef type Type; \
-		static string str; \
-	}; \
-	string ranges_const2type<Tango::constant>::str = #type; \
-
 RANGES_TYPE2CONST(Tango::DevDouble,DEV_DOUBLE)
 RANGES_TYPE2CONST(Tango::DevFloat,DEV_FLOAT)
 RANGES_TYPE2CONST(Tango::DevLong,DEV_LONG)
@@ -4717,7 +4700,7 @@ void Attribute::set_value(Tango::EncodedAttribute *attr) {
 //
 //--------------------------------------------------------------------------
 
-void Attribute::set_min_alarm_impl(Tango::attr_range &new_min_alarm)
+void Attribute::set_min_alarm_impl(const Tango::attr_range &new_min_alarm)
 {
 
 	if (data_type != new_min_alarm.enu)
@@ -4790,7 +4773,7 @@ void Attribute::set_min_alarm_impl(Tango::attr_range &new_min_alarm)
 //
 //--------------------------------------------------------------------------
 
-void Attribute::set_min_warning_impl(Tango::attr_range &new_min_warning)
+void Attribute::set_min_warning_impl(const Tango::attr_range &new_min_warning)
 {
 
 	if (data_type != new_min_warning.enu)
@@ -4863,7 +4846,7 @@ void Attribute::set_min_warning_impl(Tango::attr_range &new_min_warning)
 //
 //--------------------------------------------------------------------------
 
-void Attribute::set_max_warning_impl(Tango::attr_range &new_max_warning)
+void Attribute::set_max_warning_impl(const Tango::attr_range &new_max_warning)
 {
 
 	if (data_type != new_max_warning.enu)
@@ -4936,7 +4919,7 @@ void Attribute::set_max_warning_impl(Tango::attr_range &new_max_warning)
 //
 //--------------------------------------------------------------------------
 
-void Attribute::set_max_alarm_impl(Tango::attr_range &new_max_alarm)
+void Attribute::set_max_alarm_impl(const Tango::attr_range &new_max_alarm)
 {
 
 	if (data_type != new_max_alarm.enu)
