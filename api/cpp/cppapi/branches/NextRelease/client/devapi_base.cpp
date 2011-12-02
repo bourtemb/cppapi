@@ -922,7 +922,6 @@ DeviceData Connection::command_inout(string &command)
 
 DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 {
-
 //
 // We are using a pointer to an Any as the return value of the command_inout
 // call. This is because the assignament to the Any_var any in the

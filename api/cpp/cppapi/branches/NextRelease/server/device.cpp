@@ -89,78 +89,15 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,const char *d_name,
 :device_name(d_name),desc(de),device_status(sta),
  device_state(st),device_class(cl_ptr)
 {
-	version = DevVersion;
-	blackbox_depth = 0;
-	ext = new DeviceImplExt(d_name);
-	ext->device_prev_state = device_state;
+    real_ctor();
+}
 
-//
-// Init lower case device name
-//
-
-	ext->device_name_lower = device_name;
-	transform(ext->device_name_lower.begin(),ext->device_name_lower.end(),
-		  ext->device_name_lower.begin(),::tolower);
-
-//
-//  Write the device name into the per thread data for
-//  sub device diagnostics
-//
-
-	(Tango::Util::instance())->get_sub_dev_diag().set_associated_device(ext->device_name_lower);
-
-//
-// Create the DbDevice object
-//
-
-	try
-	{
-		db_dev = new DbDevice(device_name,Tango::Util::instance()->get_database());
-	}
-	catch (Tango::DevFailed)
-	{
-		throw;
-	}
-
-	get_dev_system_resource();
-
-	black_box_create();
-
-	ext->idl_version = 1;
-
-//
-// Create the multi attribute object
-//
-
-	try
-	{
-		dev_attr = new MultiAttribute(device_name,device_class);
-	}
-	catch (Tango::DevFailed)
-	{
-		throw;
-	}
-
-//
-// Build adm device name
-//
-
-	adm_device_name = "dserver/";
-	adm_device_name = adm_device_name + Util::instance()->get_ds_name();
-
-//
-// Init logging
-//
-
-#ifdef TANGO_HAS_LOG4TANGO
-	init_logger();
-#endif
-
-//
-// write the polling
-//
-	init_cmd_poll_period();
-	init_attr_poll_period();
+DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &de,
+		       Tango::DevState st,string &sta)
+:device_name(d_name),desc(de),device_status(sta),
+ device_state(st),device_class(cl_ptr)
+{
+    real_ctor();
 }
 
 DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name)
@@ -170,78 +107,7 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name)
 	device_state = Tango::UNKNOWN;
 	device_status = StatusNotSet;
 
-	version = DevVersion;
-	blackbox_depth = 0;
-	ext = new DeviceImplExt(d_name.c_str());
-	ext->device_prev_state = device_state;
-
-//
-// Init lower case device name
-//
-
-	ext->device_name_lower = device_name;
-	transform(ext->device_name_lower.begin(),ext->device_name_lower.end(),
-		  ext->device_name_lower.begin(),::tolower);
-
-//
-//  Write the device name into the per thread data for
-//  sub device diagnostics
-//
-
-	(Tango::Util::instance())->get_sub_dev_diag().set_associated_device(ext->device_name_lower);
-
-//
-// Create the DbDevice object
-//
-
-	try
-	{
-		db_dev = new DbDevice(device_name,Tango::Util::instance()->get_database());
-	}
-	catch (Tango::DevFailed)
-	{
-		throw;
-	}
-
-	get_dev_system_resource();
-
-	black_box_create();
-
-	ext->idl_version = 1;
-
-//
-// Create the multi attribute object
-//
-
-	try
-	{
-		dev_attr = new MultiAttribute(device_name,device_class);
-	}
-	catch (Tango::DevFailed)
-	{
-		throw;
-	}
-
-//
-// Build adm device name
-//
-
-	adm_device_name = "dserver/";
-	adm_device_name = adm_device_name + Util::instance()->get_ds_name();
-
-//
-// Init logging
-//
-
-#ifdef TANGO_HAS_LOG4TANGO
-	init_logger();
-#endif
-
-//
-// write the polling
-//
-	init_cmd_poll_period();
-	init_attr_poll_period();
+    real_ctor();
 }
 
 DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &description)
@@ -251,88 +117,15 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &description)
 	device_state = Tango::UNKNOWN;
 	device_status = StatusNotSet;
 
-	version = DevVersion;
-	blackbox_depth = 0;
-	ext = new DeviceImplExt(d_name.c_str());
-	ext->device_prev_state = device_state;
-
-//
-// Init lower case device name
-//
-
-	ext->device_name_lower = device_name;
-	transform(ext->device_name_lower.begin(),ext->device_name_lower.end(),
-		  ext->device_name_lower.begin(),::tolower);
-
-//
-//  Write the device name into the per thread data for
-//  sub device diagnostics
-//
-
-	(Tango::Util::instance())->get_sub_dev_diag().set_associated_device(ext->device_name_lower);
-
-//
-// Create the DbDevice object
-//
-
-	try
-	{
-		db_dev = new DbDevice(device_name,Tango::Util::instance()->get_database());
-	}
-	catch (Tango::DevFailed)
-	{
-		throw;
-	}
-
-	get_dev_system_resource();
-
-	black_box_create();
-
-	ext->idl_version = 1;
-
-//
-// Create the multi attribute object
-//
-
-	try
-	{
-		dev_attr = new MultiAttribute(device_name,device_class);
-	}
-	catch (Tango::DevFailed)
-	{
-		throw;
-	}
-
-//
-// Build adm device name
-//
-
-	adm_device_name = "dserver/";
-	adm_device_name = adm_device_name + Util::instance()->get_ds_name();
-
-//
-// Init logging
-//
-
-#ifdef TANGO_HAS_LOG4TANGO
-	init_logger();
-#endif
-
-//
-// write the polling
-//
-	init_cmd_poll_period();
-	init_attr_poll_period();
+	real_ctor();
 }
 
-DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &de,
-		       Tango::DevState st,string &sta)
-:device_name(d_name),desc(de),device_status(sta),
- device_state(st),device_class(cl_ptr)
+
+void DeviceImpl::real_ctor()
 {
-	version = DevVersion;
+    version = DevVersion;
 	blackbox_depth = 0;
-	ext = new DeviceImplExt(d_name.c_str());
+	ext = new DeviceImplExt(device_name.c_str());
 	ext->device_prev_state = device_state;
 
 //
@@ -348,7 +141,8 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &de,
 //  sub device diagnostics
 //
 
-	(Tango::Util::instance())->get_sub_dev_diag().set_associated_device(ext->device_name_lower);
+    Tango::Util *tg = Tango::Util::instance();
+	tg->get_sub_dev_diag().set_associated_device(ext->device_name_lower);
 
 //
 // Create the DbDevice object
@@ -388,6 +182,7 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &de,
 
 	adm_device_name = "dserver/";
 	adm_device_name = adm_device_name + Util::instance()->get_ds_name();
+
 //
 // Init logging
 //
@@ -401,6 +196,11 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &de,
 //
 	init_cmd_poll_period();
 	init_attr_poll_period();
+
+	if (tg->_UseDb == false)
+	{
+	    init_poll_no_db();
+	}
 }
 
 //+-------------------------------------------------------------------------
@@ -5215,5 +5015,73 @@ void DeviceImpl::polled_data_into_net_object(AttributeValueList_3 *back,
 		}
 	}
 }
+
+//+-------------------------------------------------------------------------
+//
+// method : 		DeviceImpl::init_poll_no_db
+//
+// description : 	Init polling info for device running without DB
+//                  In such a case, polling is available only for
+//                  object with polling defined in code.
+//                  Fill in string vectors which are in case of DS using
+//                  database initialised from the db.
+//
+//--------------------------------------------------------------------------
+
+void DeviceImpl::init_poll_no_db()
+{
+    bool old_set = false;
+
+//
+// A loop for all device attribute
+//
+
+    vector<Attribute *> &att_list = dev_attr->get_attribute_list();
+    vector<Attribute *>::iterator ite;
+    for (ite = att_list.begin();ite != att_list.end();++ite)
+    {
+        long poll_period = (*ite)->get_polling_period();
+        if (poll_period != 0)
+        {
+            vector<string> &polled_attr_list = get_polled_attr();
+            polled_attr_list.push_back((*ite)->get_name());
+            stringstream ss;
+            ss << poll_period;
+            polled_attr_list.push_back(ss.str());
+
+            if (old_set == false)
+            {
+               set_poll_old_factor(DEFAULT_POLL_OLD_FACTOR);
+               old_set = true;
+            }
+        }
+    }
+
+//
+// A loop for all device commands
+//
+
+    vector<Command *> &cmd_list = device_class->get_command_list();
+    vector<Command *>::iterator ite_cmd;
+    for (ite_cmd = cmd_list.begin();ite_cmd != cmd_list.end();++ite_cmd)
+    {
+        long poll_period = (*ite_cmd)->get_polling_period();
+        if (poll_period != 0)
+        {
+            vector<string> &polled_cmd_list = get_polled_cmd();
+            polled_cmd_list.push_back((*ite_cmd)->get_name());
+            stringstream ss;
+            ss << poll_period;
+            polled_cmd_list.push_back(ss.str());
+
+            if (old_set == false)
+            {
+               set_poll_old_factor(DEFAULT_POLL_OLD_FACTOR);
+               old_set = true;
+            }
+        }
+    }
+}
+
 
 } // End of Tango namespace
