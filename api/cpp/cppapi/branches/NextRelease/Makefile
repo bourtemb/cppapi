@@ -171,13 +171,10 @@ SERVER_OBJS = 	$(OBJS_DIR)/device.o \
 		$(OBJS_DIR)/tangorollingfileappender.o \
 		$(OBJS_DIR)/event.o \
 		$(OBJS_DIR)/eventsupplier.o \
-        $(OBJS_DIR)/notifdeventsupplier.o \
-        $(OBJS_DIR)/notifdeventconsumer.o \
-        $(OBJS_DIR)/zmqeventsupplier.o \
-        $(OBJS_DIR)/zmqeventconsumer.o \
+        	$(OBJS_DIR)/notifdeventsupplier.o \
+        	$(OBJS_DIR)/zmqeventsupplier.o \
 		$(OBJS_DIR)/eventcmds.o \
 		$(OBJS_DIR)/eventqueue.o \
-		$(OBJS_DIR)/eventkeepalive.o \
 		$(OBJS_DIR)/utils_polling.o \
 		$(OBJS_DIR)/utils_shut.o \
 		$(OBJS_DIR)/subdev_diag.o \
@@ -214,7 +211,10 @@ CLIENT_OBJS = 	$(OBJS_DIR)/dbapi_base.o \
 		$(OBJS_DIR)/dbapi_attribute.o \
 		$(OBJS_DIR)/attr_proxy.o \
 		$(OBJS_DIR)/apiexcept.o \
-		$(OBJS_DIR)/filedatabase.o
+		$(OBJS_DIR)/filedatabase.o \
+        	$(OBJS_DIR)/notifdeventconsumer.o \
+        	$(OBJS_DIR)/zmqeventconsumer.o \
+		$(OBJS_DIR)/eventkeepalive.o
 
 IDL_OBJS_SL =	$(OBJS_DIR_SL)/tangoSK.so.o \
 		$(OBJS_DIR_SL)/tangoDynSK.so.o
@@ -258,13 +258,10 @@ SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
 	  	$(OBJS_DIR_SL)/tangorollingfileappender.so.o \
 		$(OBJS_DIR_SL)/event.so.o \
 		$(OBJS_DIR_SL)/eventsupplier.so.o \
-        $(OBJS_DIR_SL)/notifdeventsupplier.so.o \
-        $(OBJS_DIR_SL)/notifdeventconsumer.so.o \
-        $(OBJS_DIR_SL)/zmqeventsupplier.so.o \
-        $(OBJS_DIR_SL)/zmqeventconsumer.so.o \
+        	$(OBJS_DIR_SL)/notifdeventsupplier.so.o \
+        	$(OBJS_DIR_SL)/zmqeventsupplier.so.o \
 		$(OBJS_DIR_SL)/eventcmds.so.o \
 		$(OBJS_DIR_SL)/eventqueue.so.o \
-		$(OBJS_DIR_SL)/eventkeepalive.so.o \
 		$(OBJS_DIR_SL)/utils_polling.so.o \
 		$(OBJS_DIR_SL)/utils_shut.so.o \
 		$(OBJS_DIR_SL)/subdev_diag.so.o \
@@ -301,7 +298,10 @@ CLIENT_OBJS_SL = $(OBJS_DIR_SL)/dbapi_base.so.o \
 		$(OBJS_DIR_SL)/dbapi_attribute.so.o \
 		$(OBJS_DIR_SL)/attr_proxy.so.o \
 		$(OBJS_DIR_SL)/apiexcept.so.o \
-		$(OBJS_DIR_SL)/filedatabase.so.o
+		$(OBJS_DIR_SL)/filedatabase.so.o \
+        	$(OBJS_DIR_SL)/notifdeventconsumer.so.o \
+        	$(OBJS_DIR_SL)/zmqeventconsumer.so.o \
+		$(OBJS_DIR_SL)/eventkeepalive.so.o
 
 IDL_INCLUDE    = 	tango.h
 
@@ -318,11 +318,12 @@ CLIENT_INCLUDE =	apiexcept.h \
 			devasyn.h \
 			filedatabase.h \
 			group.h \
-			accessproxy.h
+			accessproxy.h \
+			eventconsumer.h
 
 SERVER_INCLUDE =	attrdesc.h \
 			attribute.h \
-            attribute.tpp \
+            		attribute.tpp \
 			attrmanip.h \
 			auto_tango_monitor.h \
 			basiccommand.h \
@@ -340,7 +341,6 @@ SERVER_INCLUDE =	attrdesc.h \
 			dserverclass.h \
 			dserversignal.h \
 			event.h \
-			eventconsumer.h \
 			eventsupplier.h \
 			except.h \
 			log4tango.h \
