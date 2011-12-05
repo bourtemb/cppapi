@@ -163,10 +163,6 @@ public:
   inline const DevErrorList& get_err_stack () const {
     return exception_m.errors;
   }
-  //- exception accessor
-  inline const DevFailed& get_err_exception () const {
-    return exception_m;
-  }
 protected:
   //- exception flag (enable/disable)
   static bool exception_enabled;
@@ -545,8 +541,11 @@ public:
   //-
   void disable (const std::string& device_name, bool fwd = true);
   //-
-  bool is_enabled (const std::string& device_name, bool fwd = true);
-  //-
+  bool is_enabled (const std::string& device_name, bool fwd = true) {
+    GroupElement * ge = this->find_i(device_name, fwd);
+    return ge ? ge->is_enabled() : false;
+  };
+  //- 
   bool is_root_group () const;
 
   //---------------------------------------------
