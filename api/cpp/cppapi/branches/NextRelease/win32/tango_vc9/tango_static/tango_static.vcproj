@@ -278,6 +278,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\client\eventconsumer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\server\eventsupplier.h"
 				>
 			</File>
@@ -366,11 +370,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\tango.h"
+				RelativePath="..\..\..\server\idl\tango.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\idl\tango.h"
+				RelativePath="..\..\..\server\tango.h"
 				>
 			</File>
 			<File
@@ -1331,7 +1335,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\server\eventkeepalive.cpp"
+				RelativePath="..\..\..\client\eventkeepalive.cpp"
 				>
 			</File>
 			<File
@@ -1567,7 +1571,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\server\notifdeventconsumer.cpp"
+				RelativePath="..\..\..\client\notifdeventconsumer.cpp"
 				>
 			</File>
 			<File
@@ -1971,7 +1975,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\server\zmqeventconsumer.cpp"
+				RelativePath="..\..\..\client\zmqeventconsumer.cpp"
 				>
 			</File>
 			<File
