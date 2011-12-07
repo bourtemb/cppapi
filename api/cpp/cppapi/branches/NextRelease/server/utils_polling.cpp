@@ -174,6 +174,9 @@ void Util::polling_configure()
 				s.str("");
 				send->lvalue[0] = upd;
 
+                if (upd < 0)
+                    upd = -upd;
+
 				if (first_loop == true)
 				{
 					smallest_upd = upd;
@@ -212,6 +215,9 @@ void Util::polling_configure()
 				s.clear();
 				s.str("");
 				send->lvalue[0] = upd;
+
+                if (upd < 0)
+                    upd = -upd;
 
 				if (first_loop == true)
 				{
@@ -277,7 +283,14 @@ void Util::polling_configure()
 		{
 			try
 			{
-				admin_dev->add_obj_polling(ext->poll_ths[loop]->v_poll_cmd[cmd_loop],false,delta_time);
+			    bool upd_db = false;
+			    int upd = ext->poll_ths[loop]->v_poll_cmd[cmd_loop]->lvalue[0];
+			    if (upd < 0)
+			    {
+			        ext->poll_ths[loop]->v_poll_cmd[cmd_loop]->lvalue[0] = -upd;
+                    upd_db = true;
+			    }
+				admin_dev->add_obj_polling(ext->poll_ths[loop]->v_poll_cmd[cmd_loop],upd_db,delta_time);
 			}
 			catch (Tango::DevFailed &e)
 			{

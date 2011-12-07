@@ -194,6 +194,7 @@ void DeviceImpl::real_ctor()
 //
 // write the polling
 //
+
 	init_cmd_poll_period();
 	init_attr_poll_period();
 
@@ -1306,7 +1307,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 	string last_associated_device = sub.get_associated_device();
 	sub.set_associated_device(get_name());
 
-// Catch all execeptions to set back the associated device after
+// Catch all exceptions to set back the associated device after
 // execution
 	try
 	{
@@ -3574,6 +3575,21 @@ void DeviceImpl::init_cmd_poll_period()
 			poll_data[0] << poll_list;
 			tg->get_database()->put_device_property(device_name, poll_data);
 		}
+
+//
+// Another loop to correctly initialize polling period data in Attribute instance
+//
+
+        for (unsigned int i = 0;i < poll_list.size();i = i+2)
+        {
+            Command &cmd = device_class->get_cmd_by_name(poll_list[i]);
+            stringstream ss;
+            long per;
+            ss << poll_list[i + 1];
+            ss >> per;
+            if (ss)
+               cmd.set_polling_period(per);
+        }
 	}
 }
 
@@ -3702,7 +3718,7 @@ void DeviceImpl::init_attr_poll_period()
 				continue;
 			}
 
-			string attr_name = attr_list[i]->get_name_lower();
+			string &attr_name = attr_list[i]->get_name_lower();
 
 //
 // search the attribute in the list of polled attributes
@@ -3712,7 +3728,9 @@ void DeviceImpl::init_attr_poll_period()
 			for (unsigned int i = 0;i < poll_list.size();i = i+2)
 			{
 
+//
 // Convert to lower case before comparison
+//
 
                 string  name_lowercase(poll_list[i]);
                 transform(name_lowercase.begin(),name_lowercase.end(),name_lowercase.begin(),::tolower);
@@ -3746,6 +3764,21 @@ void DeviceImpl::init_attr_poll_period()
 			poll_data[0] << poll_list;
 			tg->get_database()->put_device_property(device_name, poll_data);
 		}
+
+//
+// Another loop to correctly initialize polling period data in Attribute instance
+//
+
+        for (unsigned int i = 0;i < poll_list.size();i = i+2)
+        {
+            Attribute &att = dev_attr->get_attr_by_name(poll_list[i].c_str());
+            stringstream ss;
+            long per;
+            ss << poll_list[i + 1];
+            ss >> per;
+            if (ss)
+               att.set_polling_period(per);
+        }
 	}
 }
 
@@ -5015,73 +5048,5 @@ void DeviceImpl::polled_data_into_net_object(AttributeValueList_3 *back,
 		}
 	}
 }
-
-//+-------------------------------------------------------------------------
-//
-// method : 		DeviceImpl::init_poll_no_db
-//
-// description : 	Init polling info for device running without DB
-//                  In such a case, polling is available only for
-//                  object with polling defined in code.
-//                  Fill in string vectors which are in case of DS using
-//                  database initialised from the db.
-//
-//--------------------------------------------------------------------------
-
-void DeviceImpl::init_poll_no_db()
-{
-    bool old_set = false;
-
-//
-// A loop for all device attribute
-//
-
-    vector<Attribute *> &att_list = dev_attr->get_attribute_list();
-    vector<Attribute *>::iterator ite;
-    for (ite = att_list.begin();ite != att_list.end();++ite)
-    {
-        long poll_period = (*ite)->get_polling_period();
-        if (poll_period != 0)
-        {
-            vector<string> &polled_attr_list = get_polled_attr();
-            polled_attr_list.push_back((*ite)->get_name());
-            stringstream ss;
-            ss << poll_period;
-            polled_attr_list.push_back(ss.str());
-
-            if (old_set == false)
-            {
-               set_poll_old_factor(DEFAULT_POLL_OLD_FACTOR);
-               old_set = true;
-            }
-        }
-    }
-
-//
-// A loop for all device commands
-//
-
-    vector<Command *> &cmd_list = device_class->get_command_list();
-    vector<Command *>::iterator ite_cmd;
-    for (ite_cmd = cmd_list.begin();ite_cmd != cmd_list.end();++ite_cmd)
-    {
-        long poll_period = (*ite_cmd)->get_polling_period();
-        if (poll_period != 0)
-        {
-            vector<string> &polled_cmd_list = get_polled_cmd();
-            polled_cmd_list.push_back((*ite_cmd)->get_name());
-            stringstream ss;
-            ss << poll_period;
-            polled_cmd_list.push_back(ss.str());
-
-            if (old_set == false)
-            {
-               set_poll_old_factor(DEFAULT_POLL_OLD_FACTOR);
-               old_set = true;
-            }
-        }
-    }
-}
-
 
 } // End of Tango namespace

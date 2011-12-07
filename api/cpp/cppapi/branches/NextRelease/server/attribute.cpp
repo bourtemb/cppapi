@@ -1132,16 +1132,16 @@ void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,Min
 
 bool Attribute::is_polled()
 {
-	Tango::Util *tg = Util::instance();
-	if ( ext->dev == NULL )
-	{
-		ext->dev = tg->get_device_by_name(ext->d_name);
-	}
+    Tango::Util *tg = Util::instance();
+    if ( ext->dev == NULL )
+    {
+        ext->dev = tg->get_device_by_name(ext->d_name);
+    }
 
-	string att_name(get_name());
-	transform(att_name.begin(),att_name.end(),att_name.begin(),::tolower);
+	string &att_name = get_name_lower();
 
 	vector<string> &attr_list = ext->dev->get_polled_attr();
+
 	for (unsigned int i = 0;i < attr_list.size();i = i+2)
 	{
 
@@ -1199,6 +1199,15 @@ bool Attribute::is_polled()
 	return false;
 }
 
+bool Attribute::is_polled(DeviceImpl *the_dev)
+{
+    if ((the_dev != NULL) && (ext->dev == NULL))
+    {
+        ext->dev = the_dev;
+    }
+
+    return is_polled();
+}
 
 //+-------------------------------------------------------------------------
 //

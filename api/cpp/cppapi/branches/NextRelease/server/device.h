@@ -426,6 +426,457 @@ public:
 
 //@}
 
+protected:
+/**@name Polling related methods */
+//@{
+/**
+ * Check if attribute is polled.
+ *
+ * Returns true if attribute with name given as parameter is polled.
+ *
+ * @param   att_name    The attribute name
+ * @return  Boolean set to true if attribute is polled
+ */
+    bool is_attribute_polled(const string &att_name);
+/**
+ * Check if command is polled.
+ *
+ * Returns true if command with name given as parameter is polled.
+ *
+ * @param   cmd_name    The command name
+ * @return  Boolean set to true if command is polled
+ */
+    bool is_command_polled(const string &cmd_name);
+/**
+ * Get attribute polling period.
+ *
+ * Returns attribute polling period (in mS) or 0 if the attribute is not polled
+ *
+ * @param   att_name    The attribute name
+ * @return The attribute polling period in mS
+ */
+    int get_attribute_poll_period(const string &att_name);
+/**
+ * Get command polling period.
+ *
+ * Returns command polling period (in mS) or 0 if the command is not polled
+ *
+ * @param   cmd_name    The command name
+ * @return The command polling period in mS
+ */
+    int get_command_poll_period(const string &cmd_name);
+/**
+ * Start polling one attribute.
+ *
+ * Ask Tango polling system to poll one attribute
+ *
+ * @param   att_name    The attribute name
+ * @param   period      The polling period (mS)
+ */
+    void poll_attribute(const string &att_name,int period);
+/**
+ * Start polling a command.
+ *
+ * Ask Tango polling system to poll a command
+ *
+ * @param   cmd_name    The command name
+ * @param   period      The polling period (mS)
+ */
+    void poll_command(const string &cmd_name,int period);
+/**
+ * Stop polling one attribute.
+ *
+ * Ask Tango polling system to stop polling one attribute
+ *
+ * @param   att_name    The attribute name
+ */
+    void stop_poll_attribute(const string &);
+/**
+ * Stop polling one command.
+ *
+ * Ask Tango polling system to stop polling one command
+ *
+ * @param   cmd_name    The command name
+ */
+    void stop_poll_command(const string &);
+//@}
+
+public:
+/**@name Miscellaneous methods */
+//@{
+/**
+ * Intialise a device.
+ *
+ * In the DeviceImpl class, this method is pure abstract and must be defined
+ * in sub-class. Its rule is to initialise a device. This method is called
+ * during device creation by the device constructor.
+ *
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+
+	virtual void init_device() = 0;
+/**
+ * Delete a device.
+ *
+ * In the DeviceImpl class, this method is virtual and can be defined
+ * in sub-class. Its rule is to delete memory allocated in the init_device
+ * method. This method is called by the device destructor and by the
+ * device Init command.
+ *
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+
+	virtual void delete_device() {};
+/**
+ * Hook method.
+ *
+ * Default method to implement an action necessary on a device before any
+ * command is executed. This method can be redefined in
+ * sub-classes in case of the default behaviour does not fullfill the needs
+ *
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	virtual void always_executed_hook(void) {};
+
+/**
+ * Read the hardware to return attribute value(s).
+ *
+ * Default method to implement an action necessary on a device to read the
+ * hardware involved in a a read attribute CORBA call.
+ * This method must be redefined in sub-classes in order to support attribute
+ * reading
+ *
+ * @param attr_list Reference to a vector with Integer object. Each element in
+ * this vector
+ * is the index in the device object attribute vector of an attribute to be read.
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	virtual void read_attr_hardware(vector<long> &) {};
+/**
+ * Set the attribute read value.
+ *
+ * Default method to set an attribute read value.
+ * This method must be redefined in sub-classes when attributes are needed
+ *
+ * @param attr The attribute object
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	virtual void read_attr(Attribute &) {};
+/**
+ * Write the hardware for attributes.
+ *
+ * Default method to implement an action necessary on a device to write the
+ * hardware involved in a a write attribute.
+ * This method must be redefined in sub-classes in order to support writable
+ * attribute
+ *
+ * @param attr_list Reference to a vector of Integer objects. Each element in
+ * this vector
+ * is the index in the main attribute vector of an attribute to be written.
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	virtual void write_attr_hardware(vector<long> &) {};
+/**
+ * Get device state.
+ *
+ * Default method to get device state. The behaviour of this method depends
+ * on the device state. If the device state is ON or ALARM, it reads
+ * the attribute(s) with an alarm level defined, check if the read value is
+ * above/below the alarm and eventually change the state to ALARM, return the
+ * device state. For all th eother device state, ti smethod simply returns
+ * the state
+ * This method can be redefined in
+ * sub-classes in case of the default behaviour does not fullfill the needs
+ *
+ * @return The device state
+ * @exception DevFailed If it is necessary to read attribute(s) and a problem
+ * occurs during the reading.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	virtual Tango::DevState dev_state();
+
+/**
+ * Get device status.
+ *
+ * Default method to get device status. It returns the contents of the device
+ * dev_status field. If the device state is ALARM, alarm messages are
+ * added to the device status. This method can be redefined in
+ * sub-classes in case of the default behaviour does not fullfill the needs
+ *
+ * @return The device status
+ * @exception DevFailed This method does not throw exception but a
+ * redefined method can.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	virtual Tango::ConstDevString dev_status();
+
+/**
+ * Add a new attribute to the device attribute list.
+ *
+ * Attributes are normally
+ * constructed in the DeviceClass::attribute_factory() method. Nevertheless, it
+ * is still possible to add a new attribute to a device with this method.
+ * Please, note that if you add an attribute to a device at device creation
+ * time, this attribute will
+ * be added to the device class attribute list. Therefore, all devices
+ * belonging to the same class created after this attribute addition
+ * will also have this attribute.
+ *
+ * @param new_attr Pointer to the new attribute to be added to the list. This pointer
+ * must point to "heap" allocated memory (or to static memory) and not to "stack"
+ * allocated memory
+ * @exception DevFailed
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+ 	void add_attribute(Attr *new_attr);
+
+/**
+ * Remove one attribute from the device attribute list.
+ *
+ * Attributes are normally
+ * constructed in the DeviceClass::attribute_factory() method. Nevertheless, it
+ * is still possible to add a new attribute to a device with the DeviceImpl::add_attribute method.
+ * This remove_Attribute method delete the attribute from the
+ * device attribute list.
+ *
+ * @param rem_attr Pointer to the attribute to be removed
+ * @param free_it  Boolean set to true if the object passed as first argument
+ *		   must be freed. Default value is false.
+ * @exception DevFailed
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+ 	void remove_attribute(Attr *rem_attr,bool free_it = false);
+
+/**
+ * Remove one attribute from the device attribute list.
+ *
+ * Attributes are normally
+ * constructed in the DeviceClass::attribute_factory() method. Nevertheless, it
+ * is still possible to add a new attribute to a device with the DeviceImpl::add_attribute method.
+ * This remove_Attribute method delete the attribute from the
+ * device attribute list.
+ *
+ * @param rem_attr_name The name of the attribute to be removed
+ * @param free_it  Boolean set to true if the object passed as first argument
+ *		   must be freed. Default value is false.
+ * @exception DevFailed
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+ 	void remove_attribute(string &rem_attr_name,bool free_it = false);
+
+/**
+ * Retrieve a polled object from the polled object list.
+ *
+ * Retrieve in the device polled object list, the specified polled object
+ * (command or attribute).
+ *
+ * @param obj_type The object type (command or attribute)
+ * @param obj_name The object name
+ * @return An iterator pointing to the polled object in the polled object list
+ * @exception DevFailed Thrown if the object is not found.
+ * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
+ * <b>DevFailed</b> exception specification
+ */
+	vector<PollObj *>::iterator get_polled_obj_by_type_name(Tango::PollObjType obj_type,const string &obj_name);
+//@}
+
+
+
+/**@name Methods to build Tango array types.
+ * These methods are helper methods to build Tango array types from an already
+ * existing buffer (Tango array types are CORBA sequences)
+ */
+//@{
+/**
+ * Create a DevVarCharArray type.
+ *
+ * Create a DevVarCharArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarCharArray type data
+ */
+	inline Tango::DevVarCharArray *create_DevVarCharArray(unsigned char *ptr,long length)
+	{
+		return new Tango::DevVarCharArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarShortArray type.
+ *
+ * Create a DevVarShortArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarShortArray type data
+ */
+	inline Tango::DevVarShortArray *create_DevVarShortArray(short *ptr,long length)
+	{
+		return new Tango::DevVarShortArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarLongArray type.
+ *
+ * Create a DevVarLongArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in the previous buffer
+ *
+ * @return Pointer to the created DevVarLongArray type data
+ */
+
+	inline Tango::DevVarLongArray *create_DevVarLongArray(DevLong *ptr,long length)
+	{
+		return new Tango::DevVarLongArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarLong64Array type.
+ *
+ * Create a DevVarLong64Array type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in the previous buffer
+ *
+ * @return Pointer to the created DevVarLong64Array type data
+ */
+
+	inline Tango::DevVarLong64Array *create_DevVarLong64Array(DevLong64 *ptr,long length)
+	{
+		return new Tango::DevVarLong64Array(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarFloatArray type.
+ *
+ * Create a DevVarFloatArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarFloatArray type data
+ */
+	inline Tango::DevVarFloatArray *create_DevVarFloatArray(float *ptr,long length)
+	{
+		return new Tango::DevVarFloatArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarDoubleArray type.
+ *
+ * Create a DevVarDoubleArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarDoubleArray type data
+ */
+	inline Tango::DevVarDoubleArray *create_DevVarDoubleArray(double *ptr,long length)
+	{
+		return new Tango::DevVarDoubleArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarUShortArray type.
+ *
+ * Create a DevVarUShortArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarUShortArray type data
+ */
+	inline Tango::DevVarUShortArray *create_DevVarUShortArray(unsigned short *ptr,long length)
+	{
+		return new Tango::DevVarUShortArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarULongArray type.
+ *
+ * Create a DevVarULongArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarULongArray type data
+ */
+
+	inline Tango::DevVarULongArray *create_DevVarULongArray(DevULong *ptr,long length)
+	{
+		return new Tango::DevVarULongArray(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarULong64Array type.
+ *
+ * Create a DevVarULong64Array type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in the previous buffer
+ *
+ * @return Pointer to the created DevVarULong64Array type data
+ */
+
+
+	inline Tango::DevVarULong64Array *create_DevVarULong64Array(DevULong64 *ptr,long length)
+	{
+		return new Tango::DevVarULong64Array(length,length,ptr,false);
+	}
+
+/**
+ * Create a DevVarStringArray type.
+ *
+ * Create a DevVarStringArray type data and return a pointer to it. The array is
+ * build using the input pointer with the given length
+ *
+ * @param ptr	Pointer to the basic type data buffer
+ * @param length Number of element in  the previous buffer
+ *
+ * @return Pointer to the created DevVarStringArray type data
+ */
+	inline Tango::DevVarStringArray *create_DevVarStringArray(char **ptr,long length)
+	{
+		return new Tango::DevVarStringArray(length,length,ptr,false);
+	}
+//@}
+
+
 /**@name CORBA attribute methods
  * Method defined to implement TANGO device CORBA attribute */
 //@{
@@ -657,429 +1108,6 @@ public:
 	throw (Tango::DevFailed, CORBA::SystemException);
 
 //@}
-
-/**@name Methods to build Tango array types.
- * These methods are helper methods to build Tango array types from an already
- * existing buffer (Tango array types are CORBA sequences)
- */
-//@{
-/**
- * Create a DevVarCharArray type.
- *
- * Create a DevVarCharArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarCharArray type data
- */
-	inline Tango::DevVarCharArray *create_DevVarCharArray(unsigned char *ptr,long length)
-	{
-		return new Tango::DevVarCharArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarShortArray type.
- *
- * Create a DevVarShortArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarShortArray type data
- */
-	inline Tango::DevVarShortArray *create_DevVarShortArray(short *ptr,long length)
-	{
-		return new Tango::DevVarShortArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarLongArray type.
- *
- * Create a DevVarLongArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in the previous buffer
- *
- * @return Pointer to the created DevVarLongArray type data
- */
-
-	inline Tango::DevVarLongArray *create_DevVarLongArray(DevLong *ptr,long length)
-	{
-		return new Tango::DevVarLongArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarLong64Array type.
- *
- * Create a DevVarLong64Array type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in the previous buffer
- *
- * @return Pointer to the created DevVarLong64Array type data
- */
-
-	inline Tango::DevVarLong64Array *create_DevVarLong64Array(DevLong64 *ptr,long length)
-	{
-		return new Tango::DevVarLong64Array(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarFloatArray type.
- *
- * Create a DevVarFloatArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarFloatArray type data
- */
-	inline Tango::DevVarFloatArray *create_DevVarFloatArray(float *ptr,long length)
-	{
-		return new Tango::DevVarFloatArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarDoubleArray type.
- *
- * Create a DevVarDoubleArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarDoubleArray type data
- */
-	inline Tango::DevVarDoubleArray *create_DevVarDoubleArray(double *ptr,long length)
-	{
-		return new Tango::DevVarDoubleArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarUShortArray type.
- *
- * Create a DevVarUShortArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarUShortArray type data
- */
-	inline Tango::DevVarUShortArray *create_DevVarUShortArray(unsigned short *ptr,long length)
-	{
-		return new Tango::DevVarUShortArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarULongArray type.
- *
- * Create a DevVarULongArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarULongArray type data
- */
-
-	inline Tango::DevVarULongArray *create_DevVarULongArray(DevULong *ptr,long length)
-	{
-		return new Tango::DevVarULongArray(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarULong64Array type.
- *
- * Create a DevVarULong64Array type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in the previous buffer
- *
- * @return Pointer to the created DevVarULong64Array type data
- */
-
-
-	inline Tango::DevVarULong64Array *create_DevVarULong64Array(DevULong64 *ptr,long length)
-	{
-		return new Tango::DevVarULong64Array(length,length,ptr,false);
-	}
-
-/**
- * Create a DevVarStringArray type.
- *
- * Create a DevVarStringArray type data and return a pointer to it. The array is
- * build using the input pointer with the given length
- *
- * @param ptr	Pointer to the basic type data buffer
- * @param length Number of element in  the previous buffer
- *
- * @return Pointer to the created DevVarStringArray type data
- */
-	inline Tango::DevVarStringArray *create_DevVarStringArray(char **ptr,long length)
-	{
-		return new Tango::DevVarStringArray(length,length,ptr,false);
-	}
-//@}
-
-
-/**@name Miscellaneous methods */
-//@{
-/**
- * Intialise a device.
- *
- * In the DeviceImpl class, this method is pure abstract and must be defined
- * in sub-class. Its rule is to initialise a device. This method is called
- * during device creation by the device constructor.
- *
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-
-	virtual void init_device() = 0;
-/**
- * Delete a device.
- *
- * In the DeviceImpl class, this method is virtual and can be defined
- * in sub-class. Its rule is to delete memory allocated in the init_device
- * method. This method is called by the device destructor and by the
- * device Init command.
- *
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-
-	virtual void delete_device() {};
-/**
- * Hook method.
- *
- * Default method to implement an action necessary on a device before any
- * command is executed. This method can be redefined in
- * sub-classes in case of the default behaviour does not fullfill the needs
- *
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	virtual void always_executed_hook(void) {};
-
-/**
- * Read the hardware to return attribute value(s).
- *
- * Default method to implement an action necessary on a device to read the
- * hardware involved in a a read attribute CORBA call.
- * This method must be redefined in sub-classes in order to support attribute
- * reading
- *
- * @param attr_list Reference to a vector with Integer object. Each element in
- * this vector
- * is the index in the device object attribute vector of an attribute to be read.
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	virtual void read_attr_hardware(vector<long> &) {};
-/**
- * Set the attribute read value.
- *
- * Default method to set an attribute read value.
- * This method must be redefined in sub-classes when attributes are needed
- *
- * @param attr The attribute object
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	virtual void read_attr(Attribute &) {};
-/**
- * Write the hardware for attributes.
- *
- * Default method to implement an action necessary on a device to write the
- * hardware involved in a a write attribute.
- * This method must be redefined in sub-classes in order to support writable
- * attribute
- *
- * @param attr_list Reference to a vector of Integer objects. Each element in
- * this vector
- * is the index in the main attribute vector of an attribute to be written.
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	virtual void write_attr_hardware(vector<long> &) {};
-/**
- * Get device state.
- *
- * Default method to get device state. The behaviour of this method depends
- * on the device state. If the device state is ON or ALARM, it reads
- * the attribute(s) with an alarm level defined, check if the read value is
- * above/below the alarm and eventually change the state to ALARM, return the
- * device state. For all th eother device state, ti smethod simply returns
- * the state
- * This method can be redefined in
- * sub-classes in case of the default behaviour does not fullfill the needs
- *
- * @return The device state
- * @exception DevFailed If it is necessary to read attribute(s) and a problem
- * occurs during the reading.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	virtual Tango::DevState dev_state();
-
-/**
- * Get device status.
- *
- * Default method to get device status. It returns the contents of the device
- * dev_status field. If the device state is ALARM, alarm messages are
- * added to the device status. This method can be redefined in
- * sub-classes in case of the default behaviour does not fullfill the needs
- *
- * @return The device status
- * @exception DevFailed This method does not throw exception but a
- * redefined method can.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	virtual Tango::ConstDevString dev_status();
-
-/**
- * Add a new attribute to the device attribute list.
- *
- * Attributes are normally
- * constructed in the DeviceClass::attribute_factory() method. Nevertheless, it
- * is still possible to add a new attribute to a device with this method.
- * Please, note that if you add an attribute to a device at device creation
- * time, this attribute will
- * be added to the device class attribute list. Therefore, all devices
- * belonging to the same class created after this attribute addition
- * will also have this attribute.
- *
- * @param new_attr Pointer to the new attribute to be added to the list. This pointer
- * must point to "heap" allocated memory (or to static memory) and not to "stack"
- * allocated memory
- * @exception DevFailed
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
- 	void add_attribute(Attr *new_attr);
-
-/**
- * Remove one attribute from the device attribute list.
- *
- * Attributes are normally
- * constructed in the DeviceClass::attribute_factory() method. Nevertheless, it
- * is still possible to add a new attribute to a device with the DeviceImpl::add_attribute method.
- * This remove_Attribute method delete the attribute from the
- * device attribute list.
- *
- * @param rem_attr Pointer to the attribute to be removed
- * @param free_it  Boolean set to true if the object passed as first argument
- *		   must be freed. Default value is false.
- * @exception DevFailed
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
- 	void remove_attribute(Attr *rem_attr,bool free_it = false);
-
-/**
- * Remove one attribute from the device attribute list.
- *
- * Attributes are normally
- * constructed in the DeviceClass::attribute_factory() method. Nevertheless, it
- * is still possible to add a new attribute to a device with the DeviceImpl::add_attribute method.
- * This remove_Attribute method delete the attribute from the
- * device attribute list.
- *
- * @param rem_attr_name The name of the attribute to be removed
- * @param free_it  Boolean set to true if the object passed as first argument
- *		   must be freed. Default value is false.
- * @exception DevFailed
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
- 	void remove_attribute(string &rem_attr_name,bool free_it = false);
-
-/**
- * Retrieve a polled object from the polled object list.
- *
- * Retrieve in the device polled object list, the specified polled object
- * (command or attribute).
- *
- * @param obj_type The object type (command or attribute)
- * @param obj_name The object name
- * @return An iterator pointing to the polled object in the polled object list
- * @exception DevFailed Thrown if the object is not found.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	vector<PollObj *>::iterator get_polled_obj_by_type_name(Tango::PollObjType obj_type,const string &obj_name);
-
-/**
- * Write the command name to the list of polled commands in the database.
- * The polling period is set to 0 to indicate that the polling buffer
- * is filled externally from the device server code.
- * An already specified polling for this command gets replaced!
- *
- * @exception DevFailed in the case of database access problems.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	void init_cmd_poll_ext_trig (string cmd_name);
-
-/**
- * Checks the specified polling period for all commands of the device.
- * If a polling period is specified for a command the
- * command name and the period are written to the list of polled commands in the database.
- * This happens only if the command is not yet in the list of polled commands.
- *
- * @exception DevFailed in the case of database access problems.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	void init_cmd_poll_period();
-
-/**
- * Write the attribute name to the list of polled attributes in the database.
- * The polling period is set to 0 to indicate that the polling buffer
- * is filled externally from the device server code.
- * An already specified polling for this attribute gets replaced!
- *
- * @exception DevFailed in the case of database access problems.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	void init_attr_poll_ext_trig (string cmd_name);
-
-/**
- * Checks the specified polling period for all attributes of the device.
- * If a polling period is specified for an attribute the
- * attribute name and the period are written to the list of polled attributes in the database.
- * This happens only if the attribute is not yet in the list of polled attributes.
- *
- * @exception DevFailed in the case of database access problems.
- * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
- * <b>DevFailed</b> exception specification
- */
-	void init_attr_poll_period();
-//@}
-
-
 
 
 /**@name Push change event methods.
@@ -3461,6 +3489,11 @@ public:
 	vector<string> &get_cmd_min_poll_period() {return ext->cmd_min_poll_period;}
 	vector<string> &get_attr_min_poll_period() {return ext->attr_min_poll_period;}
 
+	void init_cmd_poll_ext_trig (string cmd_name);
+	void init_cmd_poll_period();
+	void init_attr_poll_ext_trig (string cmd_name);
+	void init_attr_poll_period();
+
 #ifdef TANGO_HAS_LOG4TANGO
  	inline log4tango::Logger *get_logger(void)
 	{return ext->logger ? ext->logger : get_logger_i();}
@@ -3483,6 +3516,8 @@ private:
 	void black_box_create();
 	void real_ctor();
 	void init_poll_no_db();
+    void poll_object(const string &,int,PollObjType);
+    void stop_poll_object(const string &,PollObjType);
 
 #ifdef TANGO_HAS_LOG4TANGO
   	log4tango::Logger *get_logger_i (void);
