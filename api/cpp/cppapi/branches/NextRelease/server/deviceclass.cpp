@@ -1399,7 +1399,7 @@ Command &DeviceClass::get_cmd_by_name(const string &cmd_name)
 	vector<Command *>::iterator pos;
 
 	pos = find_if(command_list.begin(),command_list.end(),
-		      bind2nd(WantedCmd<Command *,const string &,bool>(),cmd_name));
+		      bind2nd(WantedCmd<Command *,const char *,bool>(),cmd_name.c_str()));
 
 	if (pos == command_list.end())
 	{

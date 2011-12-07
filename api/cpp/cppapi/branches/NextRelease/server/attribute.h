@@ -61,7 +61,7 @@ namespace Tango
 // function object. It must be used with the bind2nd function adapter
 //
 
-template <class A1, class A2, class R>
+template <typename A1, typename A2, typename R>
 struct WantedProp : public  binary_function<A1,A2,R>
 {
 	R operator() (A1 att,A2 name_str) const
@@ -70,7 +70,7 @@ struct WantedProp : public  binary_function<A1,A2,R>
 	}
 };
 
-template <class A1, class A2, class R>
+template <typename A1, typename A2, typename R>
 struct WantedAttr : public binary_function<A1,A2,R>
 {
 	R operator() (A1 attr_ptr, A2 name) const

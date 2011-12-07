@@ -50,12 +50,12 @@ namespace Tango
 // function object. It must be used with the bind2nd function adapter
 //
 
-template <class A1, class A2, class R>
+template <typename A1,typename A2,typename R>
 struct WantedCmd : public binary_function<A1,A2,R>
 {
 	R operator() (A1 cmd_ptr, A2 name) const
 	{
-		if (name.size() != cmd_ptr->get_lower_name().size())
+		if (::strlen(name) != cmd_ptr->get_lower_name().size())
 			return false;
         string tmp_name(name);
 		transform(tmp_name.begin(),tmp_name.end(),tmp_name.begin(),::tolower);
