@@ -174,7 +174,7 @@ bool DeviceImpl::is_command_polled(const string &cmd_name)
 	}
 
 //
-// now check wether a polling period is set ( for example by pogo)
+// now check wether a polling period is set (for example by pogo)
 //
 
     Tango::Command &the_cmd = device_class->get_cmd_by_name(cmd_name);
@@ -233,8 +233,44 @@ int DeviceImpl::get_attribute_poll_period(const string &att_name)
 
 int DeviceImpl::get_command_poll_period(const string &cmd_name)
 {
-    Tango::Command &the_cmd = device_class->get_cmd_by_name(cmd_name);
-    return the_cmd.get_polling_period();
+    int per = 0;
+
+	string cmd = cmd_name;
+	transform(cmd.begin(),cmd.end(),cmd.begin(),::tolower);
+
+    bool found = false;
+	vector<string> &cmd_list = get_polled_cmd();
+	for (unsigned int i = 0;i < cmd_list.size();i = i+2)
+	{
+
+//
+//	Convert to lower case before comparison
+//
+
+		string name_lowercase(cmd_list[i]);
+		transform(name_lowercase.begin(),name_lowercase.end(),name_lowercase.begin(),::tolower);
+		if ( cmd == name_lowercase )
+		{
+            stringstream ss;
+            ss << cmd_list[i + 1];
+            ss >> per;
+            found = true;
+
+            break;
+		}
+	}
+
+//
+// now check wether a polling period is set (for example by pogo)
+//
+
+    if (found == false)
+    {
+        Tango::Command &the_cmd = device_class->get_cmd_by_name(cmd_name);
+        per = the_cmd.get_polling_period();
+	}
+
+	return per;
 }
 
 //+-------------------------------------------------------------------------

@@ -3575,21 +3575,6 @@ void DeviceImpl::init_cmd_poll_period()
 			poll_data[0] << poll_list;
 			tg->get_database()->put_device_property(device_name, poll_data);
 		}
-
-//
-// Another loop to correctly initialize polling period data in Attribute instance
-//
-
-        for (unsigned int i = 0;i < poll_list.size();i = i+2)
-        {
-            Command &cmd = device_class->get_cmd_by_name(poll_list[i]);
-            stringstream ss;
-            long per;
-            ss << poll_list[i + 1];
-            ss >> per;
-            if (ss)
-               cmd.set_polling_period(per);
-        }
 	}
 }
 

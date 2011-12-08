@@ -1967,7 +1967,6 @@ void DServer::check_upd_authorized(DeviceImpl *dev,int upd,PollObjType obj_type,
 	vector<string>::iterator ite = find(v_ptr->begin(),v_ptr->end(),obj_name);
 	if (ite != v_ptr->end())
 	{
-cout << obj_name << " found in vector" << endl;
 		ite++;
 		TangoSys_MemStream s;
 		s << *ite;
