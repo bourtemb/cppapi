@@ -406,6 +406,9 @@ public:
 
 protected:
 	Device_3ImplExt				*ext_3;
+
+private:
+    void real_ctor();
 };
 
 } // End of Tango namespace

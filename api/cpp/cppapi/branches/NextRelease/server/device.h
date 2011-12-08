@@ -3490,9 +3490,7 @@ public:
 	vector<string> &get_attr_min_poll_period() {return ext->attr_min_poll_period;}
 
 	void init_cmd_poll_ext_trig (string cmd_name);
-	void init_cmd_poll_period();
 	void init_attr_poll_ext_trig (string cmd_name);
-	void init_attr_poll_period();
 
 #ifdef TANGO_HAS_LOG4TANGO
  	inline log4tango::Logger *get_logger(void)
@@ -3507,6 +3505,10 @@ protected:
 	void check_lock(const char *,const char *cmd = NULL);
 	void throw_locked_exception(const char *meth);
 
+	void init_cmd_poll_period();
+	void init_attr_poll_period();
+	void init_poll_no_db();
+
 private:
 //
 // Some private methods and variables
@@ -3515,7 +3517,6 @@ private:
 	void get_dev_system_resource();
 	void black_box_create();
 	void real_ctor();
-	void init_poll_no_db();
     void poll_object(const string &,int,PollObjType);
     void stop_poll_object(const string &,PollObjType);
 

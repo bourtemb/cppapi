@@ -195,13 +195,18 @@ void DeviceImpl::real_ctor()
 // write the polling
 //
 
-	init_cmd_poll_period();
+// This code has been moved to Device_3Impl class ctor.
+// This is this ctor which make state and status available
+// as attributes. This is needed in case, state or status
+// is polled.
+
+/*	init_cmd_poll_period();
 	init_attr_poll_period();
 
 	if (tg->_UseDb == false)
 	{
 	    init_poll_no_db();
-	}
+	}*/
 }
 
 //+-------------------------------------------------------------------------
