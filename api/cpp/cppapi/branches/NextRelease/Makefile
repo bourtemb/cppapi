@@ -365,6 +365,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			tangoappender.h \
 			tangorollingfileappender.h \
 			utils.h \
+			utils.tpp \
 			w32win.h \
 			w_attribute.h \
 			subdev_diag.h \
