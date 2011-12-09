@@ -137,66 +137,6 @@ public:
 //
 //=============================================================================
 
-
-class UtilExt
-{
-public:
-	UtilExt():poll_mon("utils_poll"),ser_model(BY_DEVICE),only_one("process"),
-	 	  py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
-		  svr_starting(true),svr_stopping(false),db_svr_version(0),poll_pool_size(ULONG_MAX),
-		  conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
-		  endpoint_specified(false),user_pub_hwm(-1)
-	{shared_data.cmd_pending=false;shared_data.trigger=false;
-	cr_py_lock = new CreatePyLock();}
-
-	vector<string>				cmd_line_name_list;
-
-	PollThread					*heartbeat_th;			// The heartbeat thread object
-	int							heartbeat_th_id;		// The heartbeat thread identifier
-	PollThCmd					shared_data;			// The shared buffer
-	TangoMonitor				poll_mon;				// The monitor
-	bool						poll_on;				// Polling on flag
-	SerialModel					ser_model;				// The serialization model
-	TangoMonitor				only_one;				// Serialization monitor
-	NotifdEventSupplier			*nd_event_supplier;	    // The notifd event supplier object
-
-	void						*py_interp;				// The Python interpreter
-	bool						py_ds;					// The Python DS flag
-	CreatePyLock				*cr_py_lock;			// The python lock creator pointer
-	bool						py_dbg;					// Badly written Python dbg flag
-
-	DbServerCache				*db_cache;				// The db cache
-	Interceptors				*inter;					// The user interceptors
-
-	bool						svr_starting;			// Server is starting flag
-	bool						svr_stopping;			// Server is shutting down flag
-
-	vector<string>				polled_dyn_attr_names;	// Dynamic att. names (used for polling clean-up)
-	vector<string>				polled_att_list;		// Full polled att list
-	vector<string>				all_dyn_attr;			// All dynamic attr name list
-	string						dyn_att_dev_name;		// Device name (use for dyn att clean-up)
-	int							db_svr_version;			// Db server version;
-
-	unsigned long				poll_pool_size;			// Polling threads pool size
-	vector<string>  			poll_pool_conf;			// Polling threads pool conf.
-	map<string,int>				dev_poll_th_map;		// Link between device name and polling thread id
-	vector<PollingThreadInfo *>	poll_ths;				// Polling threads
-	bool						conf_needs_db_upd;		// Polling conf needs to be udated in db
-
-	bool 						(*ev_loop_func)(void);	// Ptr to user event loop
-	bool						shutdown_server;		// Flag to exit the manual event loop
-
-	SubDevDiag					sub_dev_diag;			// Object to handle sub device diagnostics
-	bool						_dummy_thread;			// The main DS thread is not the process main thread
-
-	string						svr_port_num;			// Server port when using file as database
-
-	ZmqEventSupplier            *zmq_event_supplier;    // The zmq event supplier object
-	bool                        endpoint_specified;     // Endpoint specified on cmd line
-	string                      specified_ip;           // IP address specified in the endpoint
-	DevLong                     user_pub_hwm;           // User defined pub HWM
-};
-
 /**
  * This class is a used to store TANGO device server process data and to provide
  * the user with a set of utilities method. This class is implemented using
@@ -824,6 +764,71 @@ protected:
 	Util(HINSTANCE AppInst,int CmdShow);
 #endif
 
+//
+// The extension class
+//
+
+private:
+
+    class UtilExt
+    {
+    public:
+        UtilExt():poll_mon("utils_poll"),ser_model(BY_DEVICE),only_one("process"),
+              py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
+              svr_starting(true),svr_stopping(false),db_svr_version(0),poll_pool_size(ULONG_MAX),
+              conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
+              endpoint_specified(false),user_pub_hwm(-1)
+        {shared_data.cmd_pending=false;shared_data.trigger=false;
+        cr_py_lock = new CreatePyLock();}
+
+        vector<string>				cmd_line_name_list;
+
+        PollThread					*heartbeat_th;			// The heartbeat thread object
+        int							heartbeat_th_id;		// The heartbeat thread identifier
+        PollThCmd					shared_data;			// The shared buffer
+        TangoMonitor				poll_mon;				// The monitor
+        bool						poll_on;				// Polling on flag
+        SerialModel					ser_model;				// The serialization model
+        TangoMonitor				only_one;				// Serialization monitor
+        NotifdEventSupplier			*nd_event_supplier;	    // The notifd event supplier object
+
+        void						*py_interp;				// The Python interpreter
+        bool						py_ds;					// The Python DS flag
+        CreatePyLock				*cr_py_lock;			// The python lock creator pointer
+        bool						py_dbg;					// Badly written Python dbg flag
+
+        DbServerCache				*db_cache;				// The db cache
+        Interceptors				*inter;					// The user interceptors
+
+        bool						svr_starting;			// Server is starting flag
+        bool						svr_stopping;			// Server is shutting down flag
+
+        vector<string>				polled_dyn_attr_names;	// Dynamic att. names (used for polling clean-up)
+        vector<string>				polled_att_list;		// Full polled att list
+        vector<string>				all_dyn_attr;			// All dynamic attr name list
+        string						dyn_att_dev_name;		// Device name (use for dyn att clean-up)
+        int							db_svr_version;			// Db server version;
+
+        unsigned long				poll_pool_size;			// Polling threads pool size
+        vector<string>  			poll_pool_conf;			// Polling threads pool conf.
+        map<string,int>				dev_poll_th_map;		// Link between device name and polling thread id
+        vector<PollingThreadInfo *>	poll_ths;				// Polling threads
+        bool						conf_needs_db_upd;		// Polling conf needs to be udated in db
+
+        bool 						(*ev_loop_func)(void);	// Ptr to user event loop
+        bool						shutdown_server;		// Flag to exit the manual event loop
+
+        SubDevDiag					sub_dev_diag;			// Object to handle sub device diagnostics
+        bool						_dummy_thread;			// The main DS thread is not the process main thread
+
+        string						svr_port_num;			// Server port when using file as database
+
+        ZmqEventSupplier            *zmq_event_supplier;    // The zmq event supplier object
+        bool                        endpoint_specified;     // Endpoint specified on cmd line
+        string                      specified_ip;           // IP address specified in the endpoint
+        DevLong                     user_pub_hwm;           // User defined pub HWM
+    };
+
 public:
 	void set_interceptors(Interceptors *in) {ext->inter = in;}
 	Interceptors *get_interceptors() {return ext->inter;}
@@ -987,7 +992,7 @@ private:
 
 	bool  							display_help;	// display help message flag
 	const vector<DeviceClass *>		*cl_list_ptr;	// Ptr to server device class list
-	UtilExt							*ext;			// Class extension
+	Util::UtilExt					*ext;			// Class extension
 	vector<DeviceClass *>			cl_list;		// Full class list ptr
 };
 

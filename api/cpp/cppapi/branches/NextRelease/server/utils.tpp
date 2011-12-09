@@ -38,7 +38,7 @@
 
 
 template <typename T>
-void fill_attr_polling_buffer(DeviceImpl *dev,
+void Util::fill_attr_polling_buffer(DeviceImpl *dev,
 				      string &att_name,
 				      AttrHistoryStack<T>  &data)
 {
@@ -427,7 +427,7 @@ void fill_attr_polling_buffer(DeviceImpl *dev,
 
 
 template <typename T>
-void fill_cmd_polling_buffer(DeviceImpl *dev,
+void Util::fill_cmd_polling_buffer(DeviceImpl *dev,
                  string &cmd_name,
                  CmdHistoryStack<T>  &data)
 {
