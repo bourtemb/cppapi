@@ -948,7 +948,7 @@ void PollThread::insert_in_list(WorkItem &new_work)
 // argument: In :	- from_needed : Set to true if the delta between
 //					work should be at least equal to the
 //					time needed to execute the previous work
-//			- min_delta : Min. delta between polling works
+//			        - min_delta : Min. delta between polling works
 //				      when from_needed is false
 //
 //--------------------------------------------------------------------------

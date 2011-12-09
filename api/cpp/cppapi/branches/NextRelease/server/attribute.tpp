@@ -37,9 +37,6 @@
 #define _ATTRIBUTE_TPP
 
 
-namespace Tango
-{
-
 //+-------------------------------------------------------------------------
 //
 // method : 		Attribute::check_hard_coded_properties()
@@ -125,7 +122,5 @@ void Attribute::check_hard_coded_properties(const T &user_conf)
         throw_hard_coded_prop("writable_attr_name");
     }
 }
-
-} // End of Tango namespace
 
 #endif // _ATTRIBUTE_TPP
