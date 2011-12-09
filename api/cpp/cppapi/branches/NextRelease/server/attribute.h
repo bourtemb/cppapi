@@ -2442,10 +2442,10 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 	else \
 		(void)0
 
-} // End of Tango namespace
-
 // Add template methods definitions
 
 #include <attribute.tpp>
+
+} // End of Tango namespace
 
 #endif // _ATTRIBUTE_H
