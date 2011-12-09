@@ -82,7 +82,7 @@ DeviceClass::DeviceClass(string &s):name(s)
 // Create the DeviceClassExt instance
 //
 
-	ext = new DeviceClassExt;
+	ext = new DeviceClass::DeviceClassExt;
 
 //
 // Create the associated DbClass object

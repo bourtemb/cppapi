@@ -87,7 +87,7 @@ WAttribute::WAttribute(vector<AttrProperty> &prop_list,
 // Create the extension class
 //
 
-	w_ext = new WAttributeExt();
+	w_ext = new WAttribute::WAttributeExt();
 
 
 //

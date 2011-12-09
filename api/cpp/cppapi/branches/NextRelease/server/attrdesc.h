@@ -47,27 +47,6 @@ namespace Tango
 class AttrProperty;
 class WAttribute;
 
-class AttrExt
-{
-public:
-	AttrExt():poll_period(0),cl_name("Attr") {disp_level = Tango::OPERATOR;}
-	AttrExt(DispLevel level):poll_period(0),cl_name("Attr") {disp_level = level;}
-
-	Tango::DispLevel	disp_level;			// Display  level
-	long				poll_period;		// Polling period
-
-	bool				fire_change_event;
-	bool				fire_archive_event;
-	bool				check_change_event;
-	bool				check_archive_event;
-	bool				fire_dr_event;
-
-	string				cl_name;
-};
-
-class UserDefaultAttrPropExt
-{
-};
 
 /**
  * User class to set attribute default properties.
@@ -321,6 +300,11 @@ public:
 	string			archive_rel_change;
 	string			archive_period;
 
+private:
+    class UserDefaultAttrPropExt
+    {
+    };
+
 	UserDefaultAttrPropExt	*ext;
 };
 
@@ -533,11 +517,25 @@ protected:
 	vector<AttrProperty>	user_default_properties;
 
 private:
-	AttrExt					*ext;
-};
+    class AttrExt
+    {
+    public:
+        AttrExt():poll_period(0),cl_name("Attr") {disp_level = Tango::OPERATOR;}
+        AttrExt(DispLevel level):poll_period(0),cl_name("Attr") {disp_level = level;}
 
-class SpectrumAttrExt
-{
+        Tango::DispLevel	disp_level;			// Display  level
+        long				poll_period;		// Polling period
+
+        bool				fire_change_event;
+        bool				fire_archive_event;
+        bool				check_change_event;
+        bool				check_archive_event;
+        bool				fire_dr_event;
+
+        string				cl_name;
+    };
+
+	AttrExt					*ext;
 };
 
 /**
@@ -623,12 +621,13 @@ protected:
 	long			max_x;
 
 private:
+    class SpectrumAttrExt
+    {
+    };
+
 	SpectrumAttrExt		*ext;
 };
 
-class ImageAttrExt
-{
-};
 
 /**
  * User class to create a two dimensions attribute object.
@@ -721,6 +720,10 @@ protected:
 	long			max_y;
 
 private:
+    class ImageAttrExt
+    {
+    };
+
 	ImageAttrExt		*ext;
 };
 

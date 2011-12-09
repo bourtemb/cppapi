@@ -96,7 +96,7 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 // Create the extension class and init some of its members
 //
 
-	ext = new AttributeExt();
+	ext = new Attribute::AttributeExt();
 	ext->idx_in_attr = idx;
 	ext->d_name = dev_name;
 	ext->dev = NULL;

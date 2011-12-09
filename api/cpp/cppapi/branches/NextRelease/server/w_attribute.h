@@ -53,32 +53,6 @@ namespace Tango
 //
 //=============================================================================
 
-class WAttributeExt
-{
-public:
-	WAttributeExt() {}
-
-	Tango::DevLong64			long64_val;
-	Tango::DevLong64			old_long64_val;
-	Tango::DevULong				ulong_val;
-	Tango::DevULong				old_ulong_val;
-	Tango::DevULong64			ulong64_val;
-	Tango::DevULong64			old_ulong64_val;
-	Tango::DevState				dev_state_val;
-	Tango::DevState				old_dev_state_val;
-
-	Tango::DevVarLong64Array	long64_array_val;
-	Tango::DevVarULongArray		ulong_array_val;
-	Tango::DevVarULong64Array	ulong64_array_val;
-	Tango::DevVarStateArray		state_array_val;
-
-	const Tango::DevLong64		*long64_ptr;
-	const Tango::DevULong		*ulong_ptr;
-	const Tango::DevULong64		*ulong64_ptr;
-	const Tango::DevState		*state_ptr;
-
-	bool						uswv;					// User set_write_value
-};
 
 /**
  * This class represents a writable attribute. It inherits from the Attribute
@@ -1042,6 +1016,38 @@ protected:
 	virtual bool check_rds_alarm();
 
 private:
+
+//
+// The extension class
+//
+
+    class WAttributeExt
+    {
+    public:
+        WAttributeExt() {}
+
+        Tango::DevLong64			long64_val;
+        Tango::DevLong64			old_long64_val;
+        Tango::DevULong				ulong_val;
+        Tango::DevULong				old_ulong_val;
+        Tango::DevULong64			ulong64_val;
+        Tango::DevULong64			old_ulong64_val;
+        Tango::DevState				dev_state_val;
+        Tango::DevState				old_dev_state_val;
+
+        Tango::DevVarLong64Array	long64_array_val;
+        Tango::DevVarULongArray		ulong_array_val;
+        Tango::DevVarULong64Array	ulong64_array_val;
+        Tango::DevVarStateArray		state_array_val;
+
+        const Tango::DevLong64		*long64_ptr;
+        const Tango::DevULong		*ulong_ptr;
+        const Tango::DevULong64		*ulong64_ptr;
+        const Tango::DevState		*state_ptr;
+
+        bool						uswv;					// User set_write_value
+    };
+
 // Defined prior to Tango IDL release 3
 
 	Tango::DevShort 		short_val;
@@ -1100,6 +1106,7 @@ private:
 	bool 						memorized_init;
 	string						mem_value;
 	struct timeval				write_date;
+
 	WAttributeExt				*w_ext;
 };
 

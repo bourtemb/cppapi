@@ -125,7 +125,7 @@ void DeviceImpl::real_ctor()
 {
     version = DevVersion;
 	blackbox_depth = 0;
-	ext = new DeviceImplExt(device_name.c_str());
+	ext = new DeviceImpl::DeviceImplExt(device_name.c_str());
 	ext->device_prev_state = device_state;
 
 //
@@ -3356,27 +3356,6 @@ void DeviceImpl::poll_lists_2_v5()
 }
 
 //+----------------------------------------------------------------------------
-// method : DeviceImplExt::DeviceImplExt
-//-----------------------------------------------------------------------------
-
-#ifdef TANGO_HAS_LOG4TANGO
-DeviceImplExt::DeviceImplExt(const char *d_name)
-  : exported(false),
-    polled(false),
-    poll_ring_depth(0),only_one(d_name),
-    logger(0),saved_log_level(log4tango::Level::WARN),
-    rft(Tango::kDefaultRollingThreshold),
-    store_in_bb(true),poll_mon("cache"),
-    att_conf_mon("att_config"),state_from_read(false),
-    py_device(false),
-    device_locked(false),locker_client(NULL),old_locker_client(NULL),
-	lock_ctr(0),min_poll_period(0)
-{
-}
-#endif
-
-
-//+----------------------------------------------------------------------------
 //
 // method :		DeviceImplExt::~DeviceImplExt
 //
@@ -3385,7 +3364,7 @@ DeviceImplExt::DeviceImplExt(const char *d_name)
 //
 //-----------------------------------------------------------------------------
 
-DeviceImplExt::~DeviceImplExt()
+DeviceImpl::DeviceImplExt::~DeviceImplExt()
 {
 	for (unsigned long i = 0;i < poll_obj_list.size();i++)
 	{

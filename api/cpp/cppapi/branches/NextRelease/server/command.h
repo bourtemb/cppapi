@@ -65,16 +65,6 @@ struct WantedCmd : public binary_function<A1,A2,R>
 
 typedef bool (DeviceImpl::*ALLO_PTR)(const CORBA::Any &);
 
-class CommandExt
-{
-public:
-	CommandExt():poll_period(0) {cmd_disp_level = Tango::OPERATOR;}
-	CommandExt(Tango::DispLevel level):poll_period(0) {cmd_disp_level = level;}
-
-	Tango::DispLevel	cmd_disp_level;		// Display  level
-	long			poll_period;		// Polling period
-};
-
 /**
  * This class is a class representing a command in the TANGO device server
  * pattern. it is an abstract class. It is the root class for all command
@@ -1200,6 +1190,16 @@ protected:
 //@}
 
 private:
+    class CommandExt
+    {
+    public:
+        CommandExt():poll_period(0) {cmd_disp_level = Tango::OPERATOR;}
+        CommandExt(Tango::DispLevel level):poll_period(0) {cmd_disp_level = level;}
+
+        Tango::DispLevel	cmd_disp_level;		    // Display  level
+        long			    poll_period;		    // Polling period
+    };
+
 	void alloc_any(CORBA::Any *&);
 	void throw_bad_type(const char *);
 
@@ -1220,10 +1220,6 @@ private:
 //			class
 //
 //=============================================================================
-
-class TemplCommandExt
-{
-};
 
 /**
  * This class is a class representing a command in the template command model
@@ -1573,6 +1569,10 @@ public:
 //@}
 
 private:
+    class TemplCommandExt
+    {
+    };
+
 	void (DeviceImpl::*exe_ptr)();
 	TemplCommandExt		*ext;
 
@@ -1602,9 +1602,6 @@ protected:
 //
 //=============================================================================
 
-class TemplCommandInOutExt
-{
-};
 
 /**
  * This class is a class representing a command in the template command model
@@ -1940,6 +1937,10 @@ public:
 //@}
 
 private:
+    class TemplCommandInOutExt
+    {
+    };
+
 	OUTARG (DeviceImpl::*exe_ptr_inout)(INARG);
 	TemplCommandInOutExt		*ext;
 };
@@ -2265,9 +2266,6 @@ CORBA::Any *TemplCommandInOut<INARG,OUTARG>::execute(DeviceImpl *dev_ptr,const C
 //
 //=============================================================================
 
-class TemplCommandInExt
-{
-};
 
 /**
  * This class is a class representing a command in the template command model
@@ -2603,6 +2601,10 @@ public:
 //@}
 
 private:
+    class TemplCommandInExt
+    {
+    };
+
 	void (DeviceImpl::*exe_ptr_in)(INARG);
 	TemplCommandInExt		*ext;
 };
@@ -2923,9 +2925,6 @@ CORBA::Any *TemplCommandIn<INARG>::execute(DeviceImpl *dev_ptr,const CORBA::Any 
 //
 //=============================================================================
 
-class TemplCommandOutExt
-{
-};
 
 /**
  * This class is a class representing a command in the template command model
@@ -3245,6 +3244,10 @@ public:
 //@}
 
 private:
+    class TemplCommandOutExt
+    {
+    };
+
 	OUTARG (DeviceImpl::*exe_ptr_out)();
 	TemplCommandOutExt		*ext;
 };

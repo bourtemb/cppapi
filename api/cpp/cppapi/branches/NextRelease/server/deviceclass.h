@@ -60,23 +60,6 @@ class DServer;
 //
 //=============================================================================
 
-class DeviceClassExt
-{
-public:
-	DeviceClassExt():only_one("class"),default_cmd(NULL),py_class(false) {};
-
-	vector<string>		nodb_name_list;
-
-	TangoMonitor		only_one;
-
-	string				cvs_tag;
-	string				cvs_location;
-
-	Command * 			default_cmd;
-	bool				py_class;
-
-};
-
 /**
  * Base class for all TANGO device-class class. A TANGO device-class class is
  * a class where is stored all data/method common to all devices of a TANGO
@@ -335,35 +318,6 @@ public:
 
 //@}
 
-	vector<string> &get_nodb_name_list() {return ext->nodb_name_list;}
-	void set_memorized_values(bool flag, long idx = 0,bool from_init = false);
-
-	void add_wiz_dev_prop(string &name,string &desc,string &def);
-	void add_wiz_dev_prop(string &name,string &desc);
-
-	void add_wiz_class_prop(string &name,string &desc,string &def);
-	void add_wiz_class_prop(string &name,string &desc);
-
-	vector<string> &get_wiz_class_prop() {return wiz_class_prop;}
-	vector<string> &get_wiz_dev_prop() {return wiz_dev_prop;}
-
-	string &get_cvs_tag() {return ext->cvs_tag;}
-	string &get_cvs_location() {return ext->cvs_location;}
-
-	void set_cvs_tag(string &str) {ext->cvs_tag=str;}
-	void set_cvs_location(string &str) {ext->cvs_location=str;}
-
-	void add_device(DeviceImpl *dev) {device_list.push_back(dev);}
-	void delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_poa);
-
-	bool is_py_class() {return ext->py_class;}
-	void set_py_class(bool py) {ext->py_class=py;}
-	virtual void delete_class() {}
-	void get_mcast_event(DServer *);
-
-	bool is_command_allowed(const char *);
-
-
 protected:
 /**@name Constructor
  Only one constructot for this class which is a singleton */
@@ -409,8 +363,6 @@ protected:
 
 	void set_default_command(Command *cmd) {ext->default_cmd = cmd;}
 //@}
-	Command *get_default_command() {return ext->default_cmd;}
-
 
 /**@name Class data members */
 //@{
@@ -444,7 +396,52 @@ protected:
  	MultiClassAttribute		*class_attr;
 //@}
 
+public:
+	vector<string> &get_nodb_name_list() {return ext->nodb_name_list;}
+	void set_memorized_values(bool flag, long idx = 0,bool from_init = false);
+
+	void add_wiz_dev_prop(string &name,string &desc,string &def);
+	void add_wiz_dev_prop(string &name,string &desc);
+
+	void add_wiz_class_prop(string &name,string &desc,string &def);
+	void add_wiz_class_prop(string &name,string &desc);
+
+	vector<string> &get_wiz_class_prop() {return wiz_class_prop;}
+	vector<string> &get_wiz_dev_prop() {return wiz_dev_prop;}
+
+	string &get_cvs_tag() {return ext->cvs_tag;}
+	string &get_cvs_location() {return ext->cvs_location;}
+
+	void set_cvs_tag(string &str) {ext->cvs_tag=str;}
+	void set_cvs_location(string &str) {ext->cvs_location=str;}
+
+	void add_device(DeviceImpl *dev) {device_list.push_back(dev);}
+	void delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_poa);
+
+	bool is_py_class() {return ext->py_class;}
+	void set_py_class(bool py) {ext->py_class=py;}
+	virtual void delete_class() {}
+	void get_mcast_event(DServer *);
+
+	bool is_command_allowed(const char *);
+
+protected:
+	Command *get_default_command() {return ext->default_cmd;}
+
 private:
+    class DeviceClassExt
+    {
+    public:
+        DeviceClassExt():only_one("class"),default_cmd(NULL),py_class(false) {};
+
+        vector<string>		nodb_name_list;
+        TangoMonitor		only_one;
+        string				cvs_tag;
+        string				cvs_location;
+        Command * 			default_cmd;
+        bool				py_class;
+    };
+
 	void get_class_system_resource();
 	void throw_mem_value(DeviceImpl *,Attribute &);
 
@@ -454,7 +451,6 @@ private:
 	vector<string>			allowed_cmds;
 
 	DeviceClassExt			*ext;
-
 };
 
 

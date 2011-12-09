@@ -65,7 +65,7 @@ Attr::Attr(const char *att_name,long att_type,AttrWriteType att_writable,
       mem(false),mem_init(true)
 {
 	format = Tango::SCALAR;
-	ext = new AttrExt();
+	ext = new Attr::AttrExt();
 
 	ext->fire_change_event = false;
 	ext->check_change_event = true;
@@ -110,7 +110,7 @@ Attr::Attr(const char *att_name,long att_type,DispLevel level,
 :name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),mem(false)
 {
 	format = Tango::SCALAR;
-	ext = new AttrExt(level);
+	ext = new Attr::AttrExt(level);
 	if (name != "State")
 		check_type();
 

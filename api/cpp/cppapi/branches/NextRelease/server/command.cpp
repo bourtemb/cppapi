@@ -231,7 +231,7 @@ Command::Command(const char *s,
 {
 	lower_name = name;
 	transform(lower_name.begin(),lower_name.end(),lower_name.begin(),::tolower);
-	ext = new CommandExt();
+	ext = new Command::CommandExt();
 }
 
 Command::Command(string &s,
@@ -241,7 +241,7 @@ Command::Command(string &s,
 {
 	lower_name = name;
 	transform(lower_name.begin(),lower_name.end(),lower_name.begin(),::tolower);
-	ext = new CommandExt();
+	ext = new Command::CommandExt();
 }
 
 Command::Command(const char *s,
@@ -251,7 +251,7 @@ Command::Command(const char *s,
 		 const char *out_desc)
 :name(s),in_type(in),out_type(out)
 {
-	ext = new CommandExt();
+	ext = new Command::CommandExt();
 	if (in_desc != NULL)
 		in_type_desc = in_desc;
 	if (out_desc != NULL)
@@ -268,7 +268,7 @@ Command::Command(string &s,
 :name(s),in_type(in),out_type(out),
 in_type_desc(in_desc),out_type_desc(out_desc)
 {
-	ext = new CommandExt();
+	ext = new Command::CommandExt();
 	lower_name = name;
 	transform(lower_name.begin(),lower_name.end(),lower_name.begin(),::tolower);
 }
@@ -279,7 +279,7 @@ Command::Command(const char *s,
 		 Tango::DispLevel level)
 :name(s),in_type(in),out_type(out)
 {
-	ext = new CommandExt(level);
+	ext = new Command::CommandExt(level);
 	lower_name = name;
 	transform(lower_name.begin(),lower_name.end(),lower_name.begin(),::tolower);
 }
@@ -290,7 +290,7 @@ Command::Command(string &s,
 		 Tango::DispLevel level)
 :name(s),in_type(in),out_type(out),ext(NULL)
 {
-	ext = new CommandExt(level);
+	ext = new Command::CommandExt(level);
 	lower_name = name;
 	transform(lower_name.begin(),lower_name.end(),lower_name.begin(),::tolower);
 }
@@ -303,7 +303,7 @@ Command::Command(const char *s,
 		 Tango::DispLevel level)
 :name(s),in_type(in),out_type(out)
 {
-	ext = new CommandExt(level);
+	ext = new Command::CommandExt(level);
 	if (in_desc != NULL)
 		in_type_desc = in_desc;
 	if (out_desc != NULL)
@@ -321,7 +321,7 @@ Command::Command(string &s,
 :name(s),in_type(in),out_type(out),
 in_type_desc(in_desc),out_type_desc(out_desc)
 {
-	ext = new CommandExt(level);
+	ext = new Command::CommandExt(level);
 	lower_name = name;
 	transform(lower_name.begin(),lower_name.end(),lower_name.begin(),::tolower);
 }

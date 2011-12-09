@@ -141,59 +141,6 @@ class EventSupplier;
 //
 //=============================================================================
 
-class AttributeExt
-{
-public:
-	AttributeExt() {}
-
- 	Tango::DispLevel 	disp_level;						// Display level
- 	long				poll_period;					// Polling period
-	double				rel_change[2];					// Delta for relative change events in %
-	double				abs_change[2];					// Delta for absolute change events
-	double				archive_rel_change[2];			// Delta for relative archive change events in %
-	double				archive_abs_change[2];			// Delta for absolute change events
-	int					event_period;					// Delta for periodic events in ms
-	int					archive_period;					// Delta for archive periodic events in ms
-	double				last_periodic;					// Last time a periodic event was detected
-	double				archive_last_periodic;			// Last time an archive periodic event was detected
-	long				periodic_counter;				// Number of periodic events sent so far
-	long				archive_periodic_counter;		// Number of periodic events sent so far
-	LastAttrValue		prev_change_event;				// Last change attribute
-	LastAttrValue		prev_quality_event;				// Last quality attribute
-	LastAttrValue		prev_archive_event;				// Last archive attribute
-	time_t				event_change_subscription;		// Last time() a subscription was made
-	time_t				event_quality_subscription;		// Last time() a subscription was made
-	time_t				event_periodic_subscription;	// Last time() a subscription was made
-	time_t				event_archive_subscription; 	// Last time() a subscription was made
-	time_t				event_user_subscription; 		// Last time() a subscription was made
-	time_t				event_attr_conf_subscription;	// Last time() a subsription was made
-	time_t				event_data_ready_subscription;	// Last time() a subsription was made
-	double				archive_last_event;				// Last time an archive event was detected (periodic or not)
-	long				idx_in_attr;					// Index in MultiClassAttribute vector
-	string				d_name;							// The device name
-	DeviceImpl 			*dev;							// The device object
-	bool				change_event_implmented;		// Flag true if a manual fire change event is implemented.
-	bool				archive_event_implmented;		// Flag true if a manual fire archive event is implemented.
-	bool				check_change_event_criteria;	// True if change event criteria should be checked when sending the event
-	bool				check_archive_event_criteria;	// True if change event criteria should be checked when sending the event
-	bool				event_periodic_client_3;		// True if at least one periodic event client is using IDL 3
-	bool				event_change_client_3;			// True if at least one periodic event client is using IDL 3
-	bool				event_archive_client_3;			// True if at least one periodic event client is using IDL 3
-	bool				event_user_client_3;			// True if at least one periodic event client is using IDL 3
-	Tango::DevLong64	tmp_lo64[2];
-	Tango::DevULong		tmp_ulo[2];
-	Tango::DevULong64	tmp_ulo64[2];
-	Tango::DevState		tmp_state[2];
-	omni_mutex			attr_mutex;						// Mutex to protect the attributes shared data buffer
-	omni_mutex			*user_attr_mutex;				// Ptr for user mutex in case he manages exclusion
-	AttrSerialModel		attr_serial_model;				// Flag for attribute serialization model
-	bool				dr_event_implmented;			// Flag true if fire data ready event is implemented
-	bool				scalar_str_attr_release;		// Need memory freeing (scalar string attr, R/W att)
-	bool                notifd_event;                   // Set to true if event required using notifd
-	bool                zmq_event;                      // Set to true if event required using ZMQ
-	vector<string>      mcast_event;                    // In case of multicasting used for event transport
-};
-
 /**
  * This class represents a Tango attribute.
  *
@@ -1812,131 +1759,7 @@ public:
 	void remove_configuration();
 //@}
 
-//
-// methods not usable for the external world
-//
-
-	virtual void set_rvalue() {};
-	void delete_seq();
-	bool check_scalar_wattribute();
-
-	void wanted_date(bool flag) {date = flag;}
-	bool get_wanted_date() {return date;}
-
-	Tango::TimeVal &get_when() {return when;}
-	void set_time();
-
-	Tango::DevVarShortArray *get_short_value() {return value.sh_seq;}
-	Tango::DevVarLongArray *get_long_value() {return value.lg_seq;}
-	Tango::DevVarDoubleArray *get_double_value() {return value.db_seq;}
-	Tango::DevVarStringArray *get_string_value() {return value.str_seq;}
-	Tango::DevVarFloatArray *get_float_value() {return value.fl_seq;}
-	Tango::DevVarBooleanArray *get_boolean_value() {return value.boo_seq;}
-	Tango::DevVarUShortArray *get_ushort_value() {return value.ush_seq;}
-	Tango::DevVarCharArray *get_uchar_value() {return value.cha_seq;}
-	Tango::DevVarLong64Array *get_long64_value() {return value.lg64_seq;}
-	Tango::DevVarULongArray *get_ulong_value() {return value.ulg_seq;}
-	Tango::DevVarULong64Array *get_ulong64_value() {return value.ulg64_seq;}
-	Tango::DevVarStateArray *get_state_value() {return value.state_seq;}
-	Tango::DevVarEncodedArray *get_encoded_value() {return value.enc_seq;}
-
-	Tango::DevLong64	*get_tmp_scalar_long64() {return ext->tmp_lo64;}
-	Tango::DevULong		*get_tmp_scalar_ulong() {return ext->tmp_ulo;}
-	Tango::DevULong64	*get_tmp_scalar_ulong64() {return ext->tmp_ulo64;}
-	Tango::DevState		*get_tmp_scalar_state() {return ext->tmp_state;}
-
-	void add_write_value(Tango::DevVarShortArray *);
-	void add_write_value(Tango::DevVarLongArray *);
-	void add_write_value(Tango::DevVarDoubleArray *);
-	void add_write_value(Tango::DevVarStringArray *);
-	void add_write_value(Tango::DevVarFloatArray *);
-	void add_write_value(Tango::DevVarBooleanArray *);
-	void add_write_value(Tango::DevVarUShortArray *);
-	void add_write_value(Tango::DevVarCharArray *);
-	void add_write_value(Tango::DevVarLong64Array *);
-	void add_write_value(Tango::DevVarULongArray *);
-	void add_write_value(Tango::DevVarULong64Array *);
-	void add_write_value(Tango::DevVarStateArray *);
-	void add_write_value(Tango::DevEncoded &);
-
-	unsigned long get_name_size() {return name_size;}
-	string &get_name_lower() {return name_lower;}
-	void set_value_flag(bool val) {value_flag = val;}
-	bool get_value_flag() {return value_flag;}
-	DispLevel get_disp_level() {return ext->disp_level;}
-
-	omni_mutex *get_attr_mutex() {return &(ext->attr_mutex);}
-	omni_mutex *get_user_attr_mutex() {return ext->user_attr_mutex;}
-
-	void set_properties(const Tango::AttributeConfig &,string &);
-	void set_properties(const Tango::AttributeConfig_3 &,string &);
-	void upd_database(const Tango::AttributeConfig &,string &);
-	void upd_database(const Tango::AttributeConfig_3 &,string &);
-
-	bool change_event_subscribed() {if (ext->event_change_subscription != 0)return true;else return false;}
-	bool periodic_event_subscribed() {if (ext->event_periodic_subscription != 0)return true;else return false;}
-	bool archive_event_subscribed() {if (ext->event_archive_subscription != 0)return true;else return false;}
-	bool quality_event_subscribed() {if (ext->event_quality_subscription != 0)return true;else return false;}
-	bool user_event_subscribed() {if (ext->event_user_subscription != 0)return true;else return false;}
-
-	bool use_notifd_event() {return ext->notifd_event;}
-	bool use_zmq_event() {return ext->zmq_event;}
-
-	void set_change_event_sub() {ext->event_change_subscription=time(NULL);}
-	void set_periodic_event_sub() {ext->event_periodic_subscription=time(NULL);}
-	void set_archive_event_sub() {ext->event_archive_subscription=time(NULL);}
-	void set_quality_event_sub() {ext->event_quality_subscription=time(NULL);}
-	void set_user_event_sub() {ext->event_user_subscription=time(NULL);}
-	void set_use_notifd_event() {ext->notifd_event = true;}
-	void set_use_zmq_event() {ext->zmq_event = true;}
-
-	long get_attr_idx() {return ext->idx_in_attr;}
-	void set_attr_idx(long new_idx) {ext->idx_in_attr=new_idx;}
-	DeviceImpl *get_att_device();
-
-	void Attribute_2_AttributeValue(Tango::AttributeValue_3 *,DeviceImpl *);
-	void Attribute_2_AttributeValue(Tango::AttributeValue_4 *,DeviceImpl *);
-	void AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_4 *,Tango::AttributeValue_3 *);
-
-	void set_mcast_event(vector<string> &vs) {ext->mcast_event.clear();copy(vs.begin(),vs.end(),back_inserter(ext->mcast_event));}
-
-	bool is_polled(DeviceImpl *);
-	void set_polling_period(long per) {ext->poll_period = per;}
-
-#ifndef TANGO_HAS_LOG4TANGO
-	friend ostream &operator<<(ostream &,Attribute &);
-#endif // TANGO_HAS_LOG4TANGO
-	friend class EventSupplier;
-	friend class DServer;
-
-private:
-	void set_data_size();
-	void throw_err_format(const char *,string &);
-	void throw_err_data_type(const char *,string &);
-	void throw_min_max_value(string &,string &,MinMaxValueCheck);
-	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &);
-
-	unsigned long 		name_size;
-	string 				name_lower;
-	DevEncoded			enc_help;
-
-	AttributeExt		*ext;
-
 protected:
-	virtual void init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name);
-	virtual void init_event_prop(vector<AttrProperty> &prop_list);
-	string &get_attr_value(vector<AttrProperty> &prop_list,const char *name);
-	long get_lg_attr_value(vector<AttrProperty> &prop_list,const char *name);
-	virtual bool check_rds_alarm() {return false;}
-	bool check_level_alarm();
-	bool check_warn_alarm();
-	void upd_att_prop_db(Tango::Attr_CheckVal &,const char *);
-
-	template <typename T>
-    void check_hard_coded_properties(const T &);
-
-    void throw_hard_coded_prop(const char *);
-
 /**@name Class data members */
 //@{
 /**
@@ -2109,6 +1932,191 @@ protected:
  */
  	long 			delta_t;
 //@}
+
+public:
+
+//
+// methods not usable for the external world (outside the lib)
+//
+
+	virtual void set_rvalue() {};
+	void delete_seq();
+	bool check_scalar_wattribute();
+
+	void wanted_date(bool flag) {date = flag;}
+	bool get_wanted_date() {return date;}
+
+	Tango::TimeVal &get_when() {return when;}
+	void set_time();
+
+	Tango::DevVarShortArray *get_short_value() {return value.sh_seq;}
+	Tango::DevVarLongArray *get_long_value() {return value.lg_seq;}
+	Tango::DevVarDoubleArray *get_double_value() {return value.db_seq;}
+	Tango::DevVarStringArray *get_string_value() {return value.str_seq;}
+	Tango::DevVarFloatArray *get_float_value() {return value.fl_seq;}
+	Tango::DevVarBooleanArray *get_boolean_value() {return value.boo_seq;}
+	Tango::DevVarUShortArray *get_ushort_value() {return value.ush_seq;}
+	Tango::DevVarCharArray *get_uchar_value() {return value.cha_seq;}
+	Tango::DevVarLong64Array *get_long64_value() {return value.lg64_seq;}
+	Tango::DevVarULongArray *get_ulong_value() {return value.ulg_seq;}
+	Tango::DevVarULong64Array *get_ulong64_value() {return value.ulg64_seq;}
+	Tango::DevVarStateArray *get_state_value() {return value.state_seq;}
+	Tango::DevVarEncodedArray *get_encoded_value() {return value.enc_seq;}
+
+	Tango::DevLong64	*get_tmp_scalar_long64() {return ext->tmp_lo64;}
+	Tango::DevULong		*get_tmp_scalar_ulong() {return ext->tmp_ulo;}
+	Tango::DevULong64	*get_tmp_scalar_ulong64() {return ext->tmp_ulo64;}
+	Tango::DevState		*get_tmp_scalar_state() {return ext->tmp_state;}
+
+	void add_write_value(Tango::DevVarShortArray *);
+	void add_write_value(Tango::DevVarLongArray *);
+	void add_write_value(Tango::DevVarDoubleArray *);
+	void add_write_value(Tango::DevVarStringArray *);
+	void add_write_value(Tango::DevVarFloatArray *);
+	void add_write_value(Tango::DevVarBooleanArray *);
+	void add_write_value(Tango::DevVarUShortArray *);
+	void add_write_value(Tango::DevVarCharArray *);
+	void add_write_value(Tango::DevVarLong64Array *);
+	void add_write_value(Tango::DevVarULongArray *);
+	void add_write_value(Tango::DevVarULong64Array *);
+	void add_write_value(Tango::DevVarStateArray *);
+	void add_write_value(Tango::DevEncoded &);
+
+	unsigned long get_name_size() {return name_size;}
+	string &get_name_lower() {return name_lower;}
+	void set_value_flag(bool val) {value_flag = val;}
+	bool get_value_flag() {return value_flag;}
+	DispLevel get_disp_level() {return ext->disp_level;}
+
+	omni_mutex *get_attr_mutex() {return &(ext->attr_mutex);}
+	omni_mutex *get_user_attr_mutex() {return ext->user_attr_mutex;}
+
+	void set_properties(const Tango::AttributeConfig &,string &);
+	void set_properties(const Tango::AttributeConfig_3 &,string &);
+	void upd_database(const Tango::AttributeConfig &,string &);
+	void upd_database(const Tango::AttributeConfig_3 &,string &);
+
+	bool change_event_subscribed() {if (ext->event_change_subscription != 0)return true;else return false;}
+	bool periodic_event_subscribed() {if (ext->event_periodic_subscription != 0)return true;else return false;}
+	bool archive_event_subscribed() {if (ext->event_archive_subscription != 0)return true;else return false;}
+	bool quality_event_subscribed() {if (ext->event_quality_subscription != 0)return true;else return false;}
+	bool user_event_subscribed() {if (ext->event_user_subscription != 0)return true;else return false;}
+
+	bool use_notifd_event() {return ext->notifd_event;}
+	bool use_zmq_event() {return ext->zmq_event;}
+
+	void set_change_event_sub() {ext->event_change_subscription=time(NULL);}
+	void set_periodic_event_sub() {ext->event_periodic_subscription=time(NULL);}
+	void set_archive_event_sub() {ext->event_archive_subscription=time(NULL);}
+	void set_quality_event_sub() {ext->event_quality_subscription=time(NULL);}
+	void set_user_event_sub() {ext->event_user_subscription=time(NULL);}
+	void set_use_notifd_event() {ext->notifd_event = true;}
+	void set_use_zmq_event() {ext->zmq_event = true;}
+
+	long get_attr_idx() {return ext->idx_in_attr;}
+	void set_attr_idx(long new_idx) {ext->idx_in_attr=new_idx;}
+	DeviceImpl *get_att_device();
+
+	void Attribute_2_AttributeValue(Tango::AttributeValue_3 *,DeviceImpl *);
+	void Attribute_2_AttributeValue(Tango::AttributeValue_4 *,DeviceImpl *);
+	void AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_4 *,Tango::AttributeValue_3 *);
+
+	void set_mcast_event(vector<string> &vs) {ext->mcast_event.clear();copy(vs.begin(),vs.end(),back_inserter(ext->mcast_event));}
+
+	bool is_polled(DeviceImpl *);
+	void set_polling_period(long per) {ext->poll_period = per;}
+
+#ifndef TANGO_HAS_LOG4TANGO
+	friend ostream &operator<<(ostream &,Attribute &);
+#endif // TANGO_HAS_LOG4TANGO
+	friend class EventSupplier;
+	friend class DServer;
+
+private:
+
+//
+// The extension class
+//
+
+    class AttributeExt
+    {
+    public:
+        AttributeExt() {}
+
+        Tango::DispLevel 	disp_level;						// Display level
+        long				poll_period;					// Polling period
+        double				rel_change[2];					// Delta for relative change events in %
+        double				abs_change[2];					// Delta for absolute change events
+        double				archive_rel_change[2];			// Delta for relative archive change events in %
+        double				archive_abs_change[2];			// Delta for absolute change events
+        int					event_period;					// Delta for periodic events in ms
+        int					archive_period;					// Delta for archive periodic events in ms
+        double				last_periodic;					// Last time a periodic event was detected
+        double				archive_last_periodic;			// Last time an archive periodic event was detected
+        long				periodic_counter;				// Number of periodic events sent so far
+        long				archive_periodic_counter;		// Number of periodic events sent so far
+        LastAttrValue		prev_change_event;				// Last change attribute
+        LastAttrValue		prev_quality_event;				// Last quality attribute
+        LastAttrValue		prev_archive_event;				// Last archive attribute
+        time_t				event_change_subscription;		// Last time() a subscription was made
+        time_t				event_quality_subscription;		// Last time() a subscription was made
+        time_t				event_periodic_subscription;	// Last time() a subscription was made
+        time_t				event_archive_subscription; 	// Last time() a subscription was made
+        time_t				event_user_subscription; 		// Last time() a subscription was made
+        time_t				event_attr_conf_subscription;	// Last time() a subsription was made
+        time_t				event_data_ready_subscription;	// Last time() a subsription was made
+        double				archive_last_event;				// Last time an archive event was detected (periodic or not)
+        long				idx_in_attr;					// Index in MultiClassAttribute vector
+        string				d_name;							// The device name
+        DeviceImpl 			*dev;							// The device object
+        bool				change_event_implmented;		// Flag true if a manual fire change event is implemented.
+        bool				archive_event_implmented;		// Flag true if a manual fire archive event is implemented.
+        bool				check_change_event_criteria;	// True if change event criteria should be checked when sending the event
+        bool				check_archive_event_criteria;	// True if change event criteria should be checked when sending the event
+        bool				event_periodic_client_3;		// True if at least one periodic event client is using IDL 3
+        bool				event_change_client_3;			// True if at least one periodic event client is using IDL 3
+        bool				event_archive_client_3;			// True if at least one periodic event client is using IDL 3
+        bool				event_user_client_3;			// True if at least one periodic event client is using IDL 3
+        Tango::DevLong64	tmp_lo64[2];
+        Tango::DevULong		tmp_ulo[2];
+        Tango::DevULong64	tmp_ulo64[2];
+        Tango::DevState		tmp_state[2];
+        omni_mutex			attr_mutex;						// Mutex to protect the attributes shared data buffer
+        omni_mutex			*user_attr_mutex;				// Ptr for user mutex in case he manages exclusion
+        AttrSerialModel		attr_serial_model;				// Flag for attribute serialization model
+        bool				dr_event_implmented;			// Flag true if fire data ready event is implemented
+        bool				scalar_str_attr_release;		// Need memory freeing (scalar string attr, R/W att)
+        bool                notifd_event;                   // Set to true if event required using notifd
+        bool                zmq_event;                      // Set to true if event required using ZMQ
+        vector<string>      mcast_event;                    // In case of multicasting used for event transport
+    };
+
+	void set_data_size();
+	void throw_err_format(const char *,string &);
+	void throw_err_data_type(const char *,string &);
+	void throw_min_max_value(string &,string &,MinMaxValueCheck);
+	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &);
+
+	unsigned long 		name_size;
+	string 				name_lower;
+	DevEncoded			enc_help;
+
+	AttributeExt		*ext;
+
+protected:
+	virtual void init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name);
+	virtual void init_event_prop(vector<AttrProperty> &prop_list);
+	string &get_attr_value(vector<AttrProperty> &prop_list,const char *name);
+	long get_lg_attr_value(vector<AttrProperty> &prop_list,const char *name);
+	virtual bool check_rds_alarm() {return false;}
+	bool check_level_alarm();
+	bool check_warn_alarm();
+	void upd_att_prop_db(Tango::Attr_CheckVal &,const char *);
+
+	template <typename T>
+    void check_hard_coded_properties(const T &);
+
+    void throw_hard_coded_prop(const char *);
 
 	bitset<numFlags>	alarm_conf;
 	bitset<numFlags>	alarm;
