@@ -1150,7 +1150,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\eventqueue.cpp"
+				RelativePath="..\..\..\client\eventqueue.cpp"
 				>
 			</File>
 			<File
@@ -1899,7 +1899,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\event.h"
+				RelativePath="..\..\..\client\event.h"
 				>
 			</File>
 			<File
@@ -1999,11 +1999,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\idl\tango.h"
+				RelativePath="..\..\..\server\tango.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\tango.h"
+				RelativePath="..\..\..\server\idl\tango.h"
 				>
 			</File>
 			<File
