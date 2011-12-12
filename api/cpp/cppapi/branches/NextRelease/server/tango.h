@@ -35,35 +35,6 @@
 #ifndef _TANGO_H
 #define _TANGO_H
 
-
-//
-// Check GCC release
-//
-
-#if __GNUC__ >= 3
-	#if __GNUC__ == 3
-		#if __GNUC_MINOR__ >= 4
-			#define GCC_STD
-		#endif
-	#else
-		#define GCC_STD
-	#endif
-#else
-    #error "Gcc too old to use Tango!"
-#endif
-
-//
-// Check Win32 VC release
-//
-
-#if ((defined WIN32) || (defined WIN64))
-	#if (_MSC_VER >= 1400)       // VC8+
-		#define WIN32_VC8
-	#elif (_MSC_VER >= 1500)
-		#define WIN32_VC9
-	#endif   // VC8+/VC9
-#endif
-
 //
 // Insert typeinfo file as the first include file (needed for Hp-UX aCC as the
 // first include file)

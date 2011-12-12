@@ -59,6 +59,19 @@
 #endif
 
 //
+// Check Win32 VC release
+//
+
+#if ((defined WIN32) || (defined WIN64))
+	#if (_MSC_VER >= 1400)       // VC8+
+		#define WIN32_VC8
+	#elif (_MSC_VER >= 1500)
+		#define WIN32_VC9
+	#endif   // VC8+/VC9
+#endif
+
+
+//
 // Define a common preprocessor macros for all Windows (32 or 64 bits)
 //
 // Please note that on Windows, this file include Windows include file.
@@ -93,6 +106,24 @@
 	#define TANGO_IMP_EXP
 	#define TANGO_IMP
 #endif /* _WINDOWS_ */
+
+//
+// Check GCC release
+//
+
+#ifndef _TG_WINDOWS_
+    #if __GNUC__ >= 3
+        #if __GNUC__ == 3
+            #if __GNUC_MINOR__ >= 4
+                #define GCC_STD
+            #endif
+        #else
+            #define GCC_STD
+        #endif
+    #else
+        #error "Gcc too old to use Tango!"
+    #endif
+#endif /* _TG_WINDOWS_ */
 
 //
 // Some helper define
