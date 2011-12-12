@@ -126,6 +126,16 @@
 #endif /* _TG_WINDOWS_ */
 
 //
+// Some C++11 feature
+//
+
+#ifndef _TG_WINDOWS_
+    #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)))
+        #define HAS_UNIQUE_PTR
+    #endif
+#endif
+
+//
 // Some helper define
 //
 

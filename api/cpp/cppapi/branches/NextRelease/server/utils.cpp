@@ -158,22 +158,17 @@ Util *Util::instance(bool exit)
 //-----------------------------------------------------------------------------
 
 #ifdef _TG_WINDOWS
-Util::Util(int argc,char *argv[]):cl_list_ptr(NULL),mon("Windows startup")
+Util::Util(int argc,char *argv[]):cl_list_ptr(NULL),mon("Windows startup"),ext(new UtilExt)
 # ifndef TANGO_HAS_LOG4TANGO
     ,cout_tmp(cout.rdbuf())
 # endif
 #else
-Util::Util(int argc,char *argv[]):cl_list_ptr(NULL)
+Util::Util(int argc,char *argv[]):cl_list_ptr(NULL),ext(new UtilExt)
 # ifndef TANGO_HAS_LOG4TANGO
     ,cout_tmp(cout.rdbuf())
 # endif
 #endif
 {
-//
-// Create the UtilExt instance
-//
-
-	ext = new UtilExt;
 
 //
 // Do the job

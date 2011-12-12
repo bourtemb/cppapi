@@ -51,12 +51,23 @@ INCLUDE_DIRS = -I$(CLIENT_SRC) \
 #------------------------------------------------------------------
 MMFLAG =
 
+#Check that we have at least gcc 4.3 (for c++0x features)
+ifdef linux
+GCC_MAJOR_VERSION_GTEQ4 := $(shell expr `c++ -dumpversion | cut -f1 -d.` \>= 4)
+GCC_MINOR_VERSION_GTEQ3 := $(shell expr `c++ -dumpversion | cut -f2 -d.` \>= 3)
+ifeq ($(GCC_MAJOR_VERSION_GTEQ4),1)
+    ifeq ($(GCC_MINOR_VERSION_GTEQ3),1)
+        CXX11 = -std=c++0x
+    endif
+endif
+endif
+
 ifdef linux
 ifdef debug
-FLAGS = -g -Wall -Wextra -D_REENTRANT -DOMNI_UNLOADABLE_STUBS $(INCLUDE_DIRS)
+FLAGS = -g -Wall -Wextra $(CXX11) -D_REENTRANT -DOMNI_UNLOADABLE_STUBS $(INCLUDE_DIRS)
 #FLAGS    = -g -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 else
-FLAGS    = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
+FLAGS    = -O2 $(CXX11) -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 #FLAGS    = -O2 -D_REENTRANT $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 endif
 
