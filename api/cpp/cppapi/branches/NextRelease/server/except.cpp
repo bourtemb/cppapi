@@ -39,18 +39,6 @@ static const char *RcsId = "$Id$\n$Name$";
 #include <ac_config.h>
 #endif
 
-#if __GNUC__ >= 3
-	#if __GNUC__ == 3
-		#if __GNUC_MINOR__ >= 4
-			#define GCC_STD
-		#endif
-	#else
-		#define GCC_STD
-	#endif
-#else
-    #error "Gcc too old to use Tango!"
-#endif
-
 #include <tango_config.h>
 #include <except.h>
 #include <apiexcept.h>
