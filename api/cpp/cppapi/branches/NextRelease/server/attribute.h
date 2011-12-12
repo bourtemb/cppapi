@@ -11,7 +11,7 @@
 //
 // author(s) :		A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -2154,28 +2154,12 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 // Macro to help coding
 //
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-#define MEM_STREAM_2_CORBA(A,B) NEW_MEM_STREAM_2_CORBA(A,B)
-#else
-#define MEM_STREAM_2_CORBA(A,B) OLD_MEM_STREAM_2_CORBA(A,B)
-#endif
-
-#define NEW_MEM_STREAM_2_CORBA(A,B) \
+#define MEM_STREAM_2_CORBA(A,B) \
 	if (true) \
 	{ \
 		string s = B.str(); \
 		A = CORBA::string_dup(s.c_str()); \
 		B.str(""); \
-	} \
-	else \
-		(void)0
-
-#define OLD_MEM_STREAM_2_CORBA(A,B) \
-	if (true) \
-	{ \
-		char *tmp_str = B.str(); \
-		A = CORBA::string_dup(tmp_str); \
-		delete[]tmp_str; \
 	} \
 	else \
 		(void)0

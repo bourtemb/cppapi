@@ -1,8 +1,8 @@
 //
-// devsyn.h - include file for TANGO api device asynchronous calls 
+// devsyn.h - include file for TANGO api device asynchronous calls
 //
-// 
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+//
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -13,12 +13,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -60,7 +60,7 @@ class CallBackExt;
  * 						CmdDoneEvent class										*
  * 																				*
  *******************************************************************************/
- 
+
 class CmdDoneEvent
 {
 public:
@@ -72,13 +72,13 @@ public:
 					   argout(arg),
 					   errors(err_in)
 	{if (errors.length()==0) err=false;else err=true;}
-	
+
 	Tango::DeviceProxy 	*device;
 	string				&cmd_name;
 	DeviceData			&argout;
 	bool				err;
 	DevErrorList		&errors;
-	
+
 	CmdDoneEventExt		*ext;
 };
 
@@ -87,7 +87,7 @@ public:
  * 						AttrReadEvent class										*
  * 																				*
  *******************************************************************************/
- 
+
 class AttrReadEvent
 {
 public:
@@ -105,7 +105,7 @@ public:
 	vector<DeviceAttribute>	*argout;
 	bool					err;
 	DevErrorList			&errors;
-	
+
 	AttrReadEventExt		*ext;
 };
 
@@ -114,7 +114,7 @@ public:
  * 						AttrWrittenEvent class									*
  * 																				*
  *******************************************************************************/
- 
+
 class AttrWrittenEvent
 {
 public:
@@ -124,12 +124,12 @@ public:
 			 		       attr_names(att_names),
 					       errors(err_in)
 	{err = errors.call_failed();}
-	
+
 	Tango::DeviceProxy	*device;
 	vector<string>		&attr_names;
 	bool				err;
 	NamedDevFailedList	&errors;
-	
+
 	AttrWrittenEventExt	*ext;
 };
 
@@ -138,7 +138,7 @@ public:
  * 						CallBack class											*
  * 																				*
  *******************************************************************************/
- 
+
 class CallBack
 {
 
@@ -154,7 +154,7 @@ public:
 	virtual void push_event(EventData *) {};
 	virtual void push_event(AttrConfEventData *) {};
 	virtual void push_event(DataReadyEventData *) {};
-	
+
 	CallBackExt		*ext;
 };
 
@@ -165,7 +165,7 @@ class UniqIdent: public omni_mutex
 public:
 	UniqIdent() {omni_mutex_lock(*this);ctr = 0;}
 	long get_ident() {omni_mutex_lock sync(*this);return ++ctr;}
-	
+
 	long ctr;
 };
 
@@ -178,20 +178,20 @@ public:
 		READ_ATTR,
 		WRITE_ATTR_SINGLE,
 		WRITE_ATTR
-	};	
-	
+	};
+
 	TgRequest(CORBA::Request_ptr re,ReqType ty):request(re),req_type(ty),cb_ptr(NULL),
 						    					arrived(false),dev(NULL)
 	{};
-	
+
 	TgRequest(CORBA::Request_ptr re,ReqType ty,CallBack *cb):request(re),req_type(ty),cb_ptr(cb),
 							 								 arrived(false),dev(NULL)
 	{};
-	
+
 	TgRequest(Tango::Connection *con,ReqType ty,CallBack *cb):request(NULL),req_type(ty),cb_ptr(cb),
 							 								  arrived(false),dev(con)
 	{};
-		
+
 	CORBA::Request_ptr	request;
 	ReqType				req_type;
 	CallBack			*cb_ptr;
@@ -204,21 +204,21 @@ class AsynReq: public omni_mutex
 public:
 	AsynReq(UniqIdent *ptr):ui_ptr(ptr),cond(this) {};
 	~AsynReq() {delete ui_ptr;}
-	
+
 	TgRequest &get_request(long);
 	TgRequest &get_request(CORBA::Request_ptr);
 	TgRequest *get_request(Tango::Connection *);
-	
+
 	long store_request(CORBA::Request_ptr,TgRequest::ReqType);
 	void store_request(CORBA::Request_ptr,CallBack *,Connection *,TgRequest::ReqType);
 
 	void remove_request(long);
 	void remove_request(Connection *,CORBA::Request_ptr);
-	
+
 	size_t get_request_nb() {omni_mutex_lock(*this);return asyn_poll_req_table.size();}
 	size_t get_cb_request_nb() {omni_mutex_lock(*this);return cb_req_table.size();}
 	size_t get_cb_request_nb_i() {return cb_req_table.size();}
-	
+
 	void mark_as_arrived(CORBA::Request_ptr req);
 	multimap<Connection *,TgRequest> &get_cb_dev_table() {return cb_dev_table;}
 
@@ -226,16 +226,16 @@ public:
 	void mark_all_polling_as_cancelled();
 	void wait() {cond.wait();}
 	void signal() {omni_mutex_lock(*this);cond.signal();}
-			
-protected:	
+
+protected:
 	map<long,TgRequest>			asyn_poll_req_table;
 	UniqIdent 					*ui_ptr;
-	
+
 	multimap<Connection *,TgRequest>	cb_dev_table;
 	map<CORBA::Request_ptr,TgRequest>	cb_req_table;
 
 	vector<long>				cancelled_request;
-	
+
 private:
 	omni_condition				cond;
 	bool remove_cancelled_request(long);
@@ -243,7 +243,7 @@ private:
 
 //-------------------------------------------------------------------------
 
-// 
+//
 // Some extension classes foreseen for library binary compatibility
 //
 

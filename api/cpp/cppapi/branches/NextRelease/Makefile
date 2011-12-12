@@ -4,24 +4,6 @@
 
 include Make.rules
 
-
-ifdef _solaris
-ifdef gcc
-CC = c++
-AR = /usr/ccs/bin/ar rv
-AR_SL = $(CC) -fPIC -shared -ldl
-VERS_OPT = -Wl,-h,
-SL_EXT = so
-else
-CC = /opt/SUNWspro/bin/CC
-AR = $(CC) -xar -o
-AR_SL = $(CC) -mt -G -lCstd -ldl
-VERS_OPT = -h
-SL_EXT = so
-endif
-endif
-
-
 ifdef linux
 CC = c++
 AR = ar rv
@@ -68,25 +50,6 @@ INCLUDE_DIRS = -I$(CLIENT_SRC) \
 #
 #------------------------------------------------------------------
 MMFLAG =
-
-ifdef _solaris
-ifdef gcc
-CXXFLAGS = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
-CXXFLAGS_SL = $(CXXFLAGS) -fPIC
-else
-BASE_CXXFLAGS = -mt -D_POSIX_PTHREAD_SEMANTICS -D_TANGO_LIB \
-	   	  -DOMNI_UNLOADABLE_STUBS \
-	        -xregs=no%appl $(INCLUDE_DIRS)
-BASE_CXXFLAGS_SL = $(BASE_CXXFLAGS) -KPIC
-ifdef debug
-CXXFLAGS = $(BASE_CXXFLAGS) -g
-CXXFLAGS_SL = $(BASE_CXXFLAGS_SL) -g
-else
-CXXFLAGS = $(BASE_CXXFLAGS)
-CXXFLAGS_SL = $(BASE_CXXFLAGS_SL)
-endif
-endif
-endif
 
 ifdef linux
 ifdef debug

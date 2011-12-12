@@ -13,7 +13,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -51,11 +51,7 @@ static const char *RcsId = "$Id$\n$Name$";
 	#include <sys/time.h>
 #endif
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-	#include <iomanip>
-#else
-	#include <iomanip.h>
-#endif
+#include <iomanip>
 
 extern omni_thread::key_t key_py_data;
 namespace Tango
@@ -530,6 +526,7 @@ void PollThread::execute_cmd()
 				compute_new_date(now,local_cmd.new_upd);
 				tmp_work.wake_up_date = now;
 				insert_in_list(tmp_work);
+				tune_ctr = 0;
 			}
 			else
 			{
@@ -767,7 +764,7 @@ void PollThread::one_more_poll()
 	}
 
 //
-// For case where the plling thread itself modify the polling
+// For case where the polling thread itself modify the polling
 // period of the object it already polls
 //
 

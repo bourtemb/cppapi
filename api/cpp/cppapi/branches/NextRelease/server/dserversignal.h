@@ -11,7 +11,7 @@
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -53,8 +53,7 @@ namespace Tango
 //
 //=============================================================================
 
-#if ((defined sun) || defined (_TG_WINDOWS_) || \
-    (defined __darwin__) || (defined __freebsd__))
+#if (defined (_TG_WINDOWS_) || (defined __darwin__) || (defined __freebsd__))
 #define		_NSIG		NSIG
 #endif
 
@@ -152,17 +151,6 @@ private:
 	}
 #endif
 
-#ifdef sun
-	static inline bool ign_signal(long s)
-	{
-		if ((s==SIGCHLD) || (s==SIGPWR) || (s==SIGWINCH) || (s==SIGURG) || (s==SIGCONT) || (s==SIGFREEZE))
-			return true;
-		else
-			return false;
-	}
-#endif
-
-
 #if (defined __linux || defined __darwin__ || defined __freebsd__)
 	static inline bool auth_signal(long s)
 	{
@@ -172,9 +160,7 @@ private:
 			return true;
 	}
 #endif
-#if ((defined sun) || (defined __hpux))
-	static inline bool auth_signal(long s) {return true;}
-#endif
+
 #ifdef _TG_WINDOWS_
 	static inline bool auth_signal(long s) {return true;}
 #endif

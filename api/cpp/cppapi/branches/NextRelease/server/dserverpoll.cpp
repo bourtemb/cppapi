@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -51,11 +51,7 @@ static const char *RcsId = "$Id$\n$Name$";
 	#include <sys/time.h>
 #endif
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-	#include <iomanip>
-#else
-	#include <iomanip.h>
-#endif
+#include <iomanip>
 
 namespace Tango
 {
@@ -1970,12 +1966,7 @@ void DServer::check_upd_authorized(DeviceImpl *dev,int upd,PollObjType obj_type,
 		ite++;
 		TangoSys_MemStream s;
 		s << *ite;
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 		if ((s >> min_upd) == false)
-#else
-		s >> min_upd;
-		if (!s)
-#endif
 		{
 			TangoSys_OMemStream o;
 			o << "System property ";

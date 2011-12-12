@@ -8,7 +8,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 		- March 2001
 //
-// Copyright (C) :      2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -768,15 +768,8 @@ void Connection::get_fqdn(string &the_host)
   	struct addrinfo hints;
 
 	memset(&hints,0,sizeof(struct addrinfo));
-#ifdef _TG_WINDOWS_
-#ifdef WIN32_VC9
-	hints.ai_falgs	   = AI_ADDRCONFIG;
-#endif
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
+
   	hints.ai_flags     = AI_ADDRCONFIG;
-#endif
-#endif
   	hints.ai_family    = AF_INET;
   	hints.ai_socktype  = SOCK_STREAM;
 
@@ -809,42 +802,6 @@ void Connection::get_fqdn(string &the_host)
 		}
 		freeaddrinfo(info);
 	}
-
-#ifdef __sun
-
-//
-// Unfortunately, on solaris (at least solaris9), getnameinfo does
-// not return the fqdn....
-// Use the old way of doing
-//
-
-	string::size_type pos = the_host.find('.');
-
-	struct hostent *he;
-	he = gethostbyname(the_host.c_str());
-
-	if (he != NULL)
-	{
-		string na(he->h_name);
-		string::size_type pos = na.find('.');
-		if (pos == string::npos)
-		{
-			char **p;
-			for (p = he->h_aliases;*p != 0;++p)
-			{
-				string al(*p);
-				pos = al.find('.');
-				if (pos != string::npos)
-				{
-					the_host = al;
-					break;
-				}
-			}
-		}
-		else
-			the_host = na;
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3331,11 +3288,8 @@ void DeviceProxy::get_property_list(const string &wildcard,vector<string> &prop_
 	else
 	{
 		int num = 0;
-#ifdef __SUNPRO_CC
-		count(wildcard.begin(),wildcard.end(),'*',num);
-#else
 		num = count(wildcard.begin(),wildcard.end(),'*');
-#endif
+
 		if (num > 1)
 		{
 			ApiWrongNameExcept::throw_exception((const char*)"API_WrongWildcardUsage",
@@ -4496,14 +4450,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 				(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
 				(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 				(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 				string st = desc.str();
 				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-				char *tmp_str = desc.str();
-				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-				delete[] tmp_str;
-#endif
 				(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
 			}
 		}
@@ -4581,14 +4530,9 @@ DeviceAttribute DeviceProxy::read_attribute(string& attr_string)
 			dev_attr.ext->err_list.inout().length(nb_except + 1);
 			dev_attr.ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 			dev_attr.ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 			string st = desc.str();
 			dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-			char *tmp_str = desc.str();
-			dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-			delete[] tmp_str;
-#endif
 			dev_attr.ext->err_list[nb_except].severity = Tango::ERR;
 		}
 	}
@@ -4665,14 +4609,9 @@ void DeviceProxy::read_attribute(const char *attr_str,DeviceAttribute &dev_attr)
 			dev_attr.ext->err_list.inout().length(nb_except + 1);
 			dev_attr.ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 			dev_attr.ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 			string st = desc.str();
 			dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-			char *tmp_str = desc.str();
-			dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-			delete[] tmp_str;
-#endif
 			dev_attr.ext->err_list[nb_except].severity = Tango::ERR;
 		}
 	}
@@ -7772,14 +7711,9 @@ DeviceAttribute DeviceProxy::write_read_attribute(DeviceAttribute &dev_attr)
 		ret_dev_attr.ext->err_list.inout().length(nb_except + 1);
 		ret_dev_attr.ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 		ret_dev_attr.ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::write_read_attribute()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 		string st = desc.str();
 		ret_dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-		char *tmp_str = desc.str();
-		ret_dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-		delete[] tmp_str;
-#endif
 		ret_dev_attr.ext->err_list[nb_except].severity = Tango::ERR;
 	}
 
@@ -7812,15 +7746,10 @@ void DeviceProxy::same_att_name(vector<string> &attr_list,const char *met_name)
 		vector<string> same_att_lower = same_att;
 
 		vector<string>::iterator pos = unique(same_att.begin(),same_att.end());
+
 		int duplicate_att;
-#ifdef __SUNPRO_CC
-		int d1,d2;
-		distance(attr_list.begin(),attr_list.end(),d1);
-		distance(same_att.begin(),pos,d2);
-		duplicate_att = d1 - d2;
-#else
 		duplicate_att = distance(attr_list.begin(),attr_list.end()) - distance(same_att.begin(),pos);
-#endif
+
 		if (duplicate_att != 0)
 		{
 			TangoSys_OMemStream desc;

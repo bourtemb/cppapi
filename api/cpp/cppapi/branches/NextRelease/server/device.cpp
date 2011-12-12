@@ -15,7 +15,7 @@ static const char *RcsId = "$Id$";
 //
 // author(s) :		A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -898,12 +898,7 @@ long DeviceImpl::get_cmd_poll_ring_depth(string &cmd_name)
 			{
 				TangoSys_MemStream s;
 				s << ext->cmd_poll_ring_depth[k + 1];
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 				if ((s >> ret) == false)
-#else
-				s >> ret;
-				if (!s)
-#endif
 				{
 					TangoSys_OMemStream o;
 					o << "System property cmd_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
@@ -983,12 +978,7 @@ long DeviceImpl::get_attr_poll_ring_depth(string &attr_name)
 			{
 				TangoSys_MemStream s;
 				s << ext->attr_poll_ring_depth[k + 1];
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 				if ((s >> ret) == false)
-#else
-				s >> ret;
-				if (!s)
-#endif
 				{
 					TangoSys_OMemStream o;
 					o << "System property attr_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
@@ -2274,14 +2264,9 @@ throw (Tango::DevFailed, CORBA::SystemException)
 			o << "\nAll remaining attribute(s) have not been updated";
 		o << ends;
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 		string s = o.str();
 		e.errors[0].reason = CORBA::string_dup(s.c_str());
-#else
-		char *mess = o.str();
-		e.errors[0].reason = CORBA::string_dup(mess);
-		delete [] mess;
-#endif
+
 		throw;
 	}
 
@@ -4984,14 +4969,9 @@ void DeviceImpl::polled_data_into_net_object(AttributeValueList_3 *back,
 			(*back)[index].err_list[0].severity = Tango::ERR;
 			(*back)[index].err_list[0].reason = CORBA::string_dup("API_NotSupportedFeature");
 			(*back)[index].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 			string s = o.str();
 			(*back)[index].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-			char *tmp_str = o.str();
-			(*back)[index].err_list[0].desc = CORBA::string_dup(tmp_str);
-			delete[]tmp_str;
-#endif
 			(*back)[index].quality = Tango::ATTR_INVALID;
 			(*back)[index].name = CORBA::string_dup(names[index]);
 			clear_att_dim((*back)[index]);

@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -615,11 +615,7 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 #ifdef _TG_WINDOWS_
 			if (_finite((*db_ptr)[i]) == 0)
 #else
-	#ifdef __SUNPRO_CC
-			if (isnan((*db_ptr)[i]) != 0)
-	#else
 			if (isfinite((*db_ptr)[i]) == 0)
-	#endif
 #endif
 			{
 				TangoSys_OMemStream o;
@@ -776,11 +772,7 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 #ifdef _TG_WINDOWS_
 			if (_finite((*fl_ptr)[i]) == 0)
 #else
-	#ifdef  __SUNPRO_CC
-			if (isnan((*fl_ptr)[i]) != 0)
-	#else
 			if (isfinite((*fl_ptr)[i]) == 0)
-	#endif
 #endif
 			{
 				TangoSys_OMemStream o;
@@ -1566,11 +1558,7 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 #ifdef _TG_WINDOWS_
 				if (_finite(db_seq[i]) == 0)
 #else
-	#ifdef __SUNPRO_CC
-				if (isnan(db_seq[i]) != 0)
-	#else
 				if (isfinite(db_seq[i]) == 0)
-	#endif
 #endif
 				{
 					TangoSys_OMemStream o;
@@ -1729,11 +1717,7 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 #ifdef _TG_WINDOWS_
 				if (_finite(fl_seq[i]) == 0)
 #else
-	#ifdef __SUNPRO_CC
-				if (isnan(fl_seq[i]) != 0)
-	#else
 				if (isfinite(fl_seq[i]) == 0)
-	#endif
 #endif
 				{
 					TangoSys_OMemStream o;
@@ -3443,12 +3427,8 @@ bool WAttribute::check_rds_alarm()
 				}
 
 				float delta = (data_format == Tango::SCALAR) ? float_array_val[0] - tmp_fl[0] : float_array_val[i] - (*value.fl_seq)[i];
-#if ((defined __SUNPRO_CC) || (defined _TG_WINDOWS_) || (defined GCC_SOLARIS))
 				double delta_d = (double)delta;
 				if (((float)fabs(delta_d)) >= delta_val.fl)
-#else
-				if (fabsf(delta) >= delta_val.fl)
-#endif
 				{
 					quality = Tango::ATTR_ALARM;
 					alarm.set(rds);

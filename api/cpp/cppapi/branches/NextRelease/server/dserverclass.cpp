@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -649,7 +649,7 @@ CORBA::Any *DevSetTraceOutputCmd::execute(TANGO_UNUSED(DeviceImpl *device),TANGO
 	{
 		delete(Tango::Util::instance()->get_trace_output_stream());
 		Tango::Util::instance()->set_trace_output_stream((ofstream *)NULL);
-#if ((defined _WINDOWS) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 		ostream &tmp_stream = Tango::Util::instance()->get_out();
 
 //
@@ -661,9 +661,7 @@ CORBA::Any *DevSetTraceOutputCmd::execute(TANGO_UNUSED(DeviceImpl *device),TANGO
 		cout.copyfmt(tmp_stream);
 		cout.clear(tmp_stream.rdstate());
 		cout.rdbuf(tmp_stream.rdbuf());
-#else
-		cout = Tango::Util::instance()->get_out();
-#endif
+
 		Tango::Util::instance()->set_trace_output(in_file);
 	}
 	else
@@ -671,13 +669,10 @@ CORBA::Any *DevSetTraceOutputCmd::execute(TANGO_UNUSED(DeviceImpl *device),TANGO
 		ofstream *ofp = new ofstream(in_file_ptr);
 		if (ofp->good())
 		{
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD)
 			cout.copyfmt(*ofp);
 			cout.clear(ofp->rdstate());
 			cout.rdbuf(ofp->rdbuf());
-#else
-			cout = *ofp;
-#endif
+
 			delete(Tango::Util::instance()->get_trace_output_stream());
 			Tango::Util::instance()->set_trace_output(in_file);
 			Tango::Util::instance()->set_trace_output_stream(ofp);

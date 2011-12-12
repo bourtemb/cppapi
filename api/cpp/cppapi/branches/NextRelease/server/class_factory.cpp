@@ -16,7 +16,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :		A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -27,12 +27,12 @@ static const char *RcsId = "$Id$\n$Name$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -281,13 +281,13 @@ void DServer::class_factory()
 #endif
 	{
 		cerr << "Oups, no class defined in this server. Exiting ..." << endl;
-		exit(-1); 
+		exit(-1);
 	}
 	else
 	{
 		conv.d = &DServer::stop_polling;
 		conv.s = proc;
-		
+
 		tmp = conv.d;
 		(this->*tmp)();
 	}
@@ -296,7 +296,7 @@ void DServer::class_factory()
 	Tango::Util *tg = Tango::Util::instance();
 	string exe_name = tg->get_ds_exec_name();
 	exe_name = exe_name;
-	
+
 	void *mod;
 	void *proc;
 	convertor conv;
@@ -332,21 +332,21 @@ void DServer::class_factory()
 	{
 		cerr << "error : " << dlerror() << endl;
 		cerr << "Oups, no class defined in this server. Exiting ..." << endl;
-		exit(-1); 
+		exit(-1);
 	}
 	else
 	{
 		conv.d = &DServer::stop_polling;
 		conv.s = proc;
-		
+
 		tmp = conv.d;
 		(this->*tmp)();
-	}	
+	}
 #else
 		cerr << "Oups, no class defined in this server. Exiting ..." << endl;
 		exit(-1);
 #endif
-	
+
 }
 
 } // End of Tango namespace

@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -149,12 +149,6 @@ DServerSignal::DServerSignal():TangoMonitor("signal")
 	sig_name[SIGCLD]  = "SIGCLD";
 	sig_name[SIGPWR]  = "SIGPWR";
 #else
-#ifdef sun
-	sig_name[SIGCLD]  = "SIGCLD";
-	sig_name[SIGPWR]  = "SIGPWR";
-	sig_name[SIGLOST] = "SIGLOST";
-	sig_name[SIGEMT]  = "SIGEMT";
-#else
 #ifdef __darwin__
 	sig_name[SIGEMT]  = "SIGEMT";
 	sig_name[SIGINFO] = "SIGINFO";
@@ -164,7 +158,6 @@ DServerSignal::DServerSignal():TangoMonitor("signal")
 	sig_name[SIGXFSZ] = "SIGXFSZ";
 #endif /* __freebsd__ */
 #endif /* __darwin__ */
-#endif /* sun */
 #endif /* linux */
 #endif /* _TG_WINDOWS_ */
 
@@ -175,12 +168,8 @@ DServerSignal::DServerSignal():TangoMonitor("signal")
 		{
 			o << i << ends;
 			sig_name[i] = o.str();
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 			o.seekp(0);
 			o.clear();
-#else
-			o.rdbuf()->freeze(false);
-#endif
 		}
 	}
 
@@ -231,10 +220,6 @@ DServerSignal::DServerSignal():TangoMonitor("signal")
 #if (defined __linux)
 	sigdelset(&sigs_to_block,SIGUSR1);
 	sigdelset(&sigs_to_block,SIGUSR2);
-#endif
-#ifdef sun
-	sigdelset(&sigs_to_block,SIGEMT);
-	sigprocmask(SIG_BLOCK,&sigs_to_block,NULL);
 #endif
 	sigprocmask(SIG_BLOCK,&sigs_to_block,NULL);
 #else /* _TG_WINDOWS_ */
@@ -705,34 +690,6 @@ void DServerSignal::register_handler(long signo,bool handler)
 				      (const char *)"DServerSignal::register_handler");
 	}
 #else
-	#ifdef sun
-
-//
-// For Solaris, a signal is correctly managed by thread if its not ignored.
-// Install a dummy signal handler if the requested signal is one signal with
-// default action is to ignore signal. These signals are SIGCHLD, SIGPWR,
-// SIGWINCH, SIGURG, SIGCONT and SIGFREEZE
-//
-
-		if (ign_signal(signo) == true)
-		{
-			struct sigaction sa;
-
-			sa.sa_flags = SA_RESTART;
-			sa.sa_handler = DServerSignal::main_sig_handler;
-			sigemptyset(&sa.sa_mask);
-
-			if (sigaction((int)signo,&sa,0) == -1)
-			{
-				TangoSys_OMemStream o;
-				o << "Can't install signal " << signo << ". OS error = " << errno << ends;
-				Except::throw_exception((const char *)"API_CantInstallSignal",
-				     			o.str(),
-				      			(const char *)"DServerSignal::register_handler");
-			}
-		}
-	#endif
-
 	#if (defined __linux)
 	if (handler == true)
 	{
@@ -812,27 +769,6 @@ void DServerSignal::unregister_handler(long signo)
 				      (const char *)"DServerSignal::register_handler");
 	}
 #else
-
-	#ifdef sun
-	if (ign_signal(signo) == true)
-	{
-		struct sigaction sa;
-
-		sa.sa_flags = 0;
-		sa.sa_handler = SIG_DFL;
-		sigemptyset(&sa.sa_mask);
-
-		if (sigaction((int)signo,&sa,0) == -1)
-		{
-			TangoSys_OMemStream o;
-			o << "Can't install signal " << signo << ". OS error = " << errno << ends;
-			Except::throw_exception((const char *)"API_CantInstallSignal",
-				      		o.str(),
-				     		 (const char *)"DServerSignal::register_handler");
-		}
-	}
-	#endif
-
 	#if (defined __linux)
 	if (reg_sig[signo].own_handler == true)
 	{

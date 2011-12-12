@@ -7,7 +7,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- September 2000
 //
-// Copyright (C) :      2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -449,14 +449,9 @@ Database::Database(string &in_host, int in_port, ORB *orb_in) : Connection(orb_i
 
 	TangoSys_MemStream o;
 	o << in_port << ends;
-#ifdef STRSTREAM
-	char *ptr = o.str();
-	port = ptr;
-	delete [] ptr;
-#else
+
 	string st = o.str();
 	port = st.c_str();
-#endif
 
 	db_port = port;
 
@@ -738,21 +733,14 @@ string Database::get_info()
 	const DevVarStringArray *db_info_list;
 	received.inout() >>= db_info_list;
 
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
+
 	for (unsigned int i=0; i<db_info_list->length(); i++)
 	{
 		ostream << (*db_info_list)[i].in() << endl;
 	}
 	ostream << ends;
-
 	string ret_str = ostream.str();
-#ifdef STRSTREAM
-	ostream.rdbuf()->freeze(false);
-#endif /* STRSTREAM */
 
 	return(ret_str);
 }
@@ -859,20 +847,15 @@ void Database::export_device(DbDevExportInfo& dev_export)
 	(*dev_export_list)[0] = string_dup(dev_export.name.c_str());
 	(*dev_export_list)[1] = string_dup(dev_export.ior.c_str());
 	(*dev_export_list)[2] = string_dup(dev_export.host.c_str());
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
+
 	ostringstream ostream;
-#endif /* STRSTREAM */
+
 	ostream << dev_export.pid << ends;
-#ifdef STRSTREAM
-	(*dev_export_list)[3] = string_dup(ostream.str());
-	delete [] (ostream.str());
-#else
 	string st = ostream.str();
+
 	(*dev_export_list)[3] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 	(*dev_export_list)[4] = string_dup(dev_export.version.c_str());
+
 	send <<= dev_export_list;
 
 	if (filedb != 0)
@@ -1021,24 +1004,18 @@ void Database::export_server(DbDevExportInfos& dev_export)
 
 	DevVarStringArray *dev_export_list = new DevVarStringArray;
 	dev_export_list->length(5*dev_export.size());
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
+
 	ostringstream ostream;
-#endif /* STRSTREAM */
+
 	for (unsigned int i=0; i<dev_export.size(); i++)
 	{
 		(*dev_export_list)[i*5] = string_dup(dev_export[i].name.c_str());
 		(*dev_export_list)[i*5+1] = string_dup(dev_export[i].ior.c_str());
 		(*dev_export_list)[i*5+2] = string_dup(dev_export[i].host.c_str());
 		ostream << dev_export[i].pid << ends;
-#ifdef STRSTREAM
-		(*dev_export_list)[i*5+3] = string_dup(ostream.str());
-		ostream.rdbuf()->freeze(false);
-#else
+
 		string st = ostream.str();
 		(*dev_export_list)[i*5+3] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 		(*dev_export_list)[i*5+4] = string_dup(dev_export[i].version.c_str());
 	}
 	send <<= dev_export_list;
@@ -1187,11 +1164,8 @@ void Database::get_device_property(string dev, DbData &db_data,DbServerCache *db
 	}
 
 	unsigned int n_props, index;
-#ifdef STRSTREAM
-	strstream iostream;
-#else
 	stringstream iostream;
-#endif /* STRSTREAM */
+
 	iostream << (*property_values)[1].in() << ends;
 	iostream >> n_props;
 	index = 2;
@@ -1231,11 +1205,7 @@ void Database::get_device_property(string dev, DbData &db_data,DbServerCache *db
 
 void Database::put_device_property(string dev, DbData &db_data)
 {
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
 	Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
 	int index;
@@ -1246,14 +1216,10 @@ void Database::put_device_property(string dev, DbData &db_data)
 	property_values->length(2); index = 2;
 	(*property_values)[0] = string_dup(dev.c_str());
 	ostream << db_data.size();
-#ifdef STRSTREAM
-	ostream << ends;
-	(*property_values)[1] = string_dup(ostream.str());
-	ostream.rdbuf()->freeze(false);
-#else
+
 	string st = ostream.str();
 	(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 	for (unsigned int i=0; i<db_data.size(); i++)
 	{
 		index++; property_values->length(index);
@@ -1261,14 +1227,10 @@ void Database::put_device_property(string dev, DbData &db_data)
 		ostream.seekp (0); ostream.clear();
 		ostream << db_data[i].size() << ends;
 		index++; property_values->length(index);
-#ifdef STRSTREAM
-		ostream << ends;
-		(*property_values)[index-1] = string_dup(ostream.str());
-		ostream.rdbuf()->freeze(false);
-#else
+
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 		for (int j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
@@ -1424,11 +1386,8 @@ void Database::get_device_attribute_property(string dev, DbData &db_data, DbServ
 
 	unsigned int n_attribs, index;
 	int i_total_props;
-#ifdef STRSTREAM
-	strstream iostream;
-#else
 	stringstream iostream;
-#endif /* STRSTREAM */
+
 	iostream << (*property_values)[1].in() << ends;
 	iostream >> n_attribs;
 	index = 2;
@@ -1516,11 +1475,7 @@ void Database::get_device_attribute_property(string dev, DbData &db_data, DbServ
 
 void Database::put_device_attribute_property(string dev, DbData &db_data)
 {
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
 	Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
 	int index, n_attribs ;
@@ -1546,13 +1501,10 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 				ostream.seekp(0); ostream.clear();
 				ostream << n_props << ends;
 				index++; property_values->length(index);
-#ifdef STRSTREAM
-				(*property_values)[index-1] = string_dup(ostream.str());
-				ostream.rdbuf()->freeze(false);
-#else
+
 				string st = ostream.str();
 				(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 				for (int j=0; j<n_props; j++)
 				{
 					index++; property_values->length(index);
@@ -1561,13 +1513,10 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 					int prop_size = db_data[i+j+1].size();
 					ostream.seekp(0); ostream.clear();
 					ostream << prop_size << ends;
-#ifdef STRSTREAM
-					(*property_values)[index-1] = string_dup(ostream.str());
-					ostream.rdbuf()->freeze(false);
-#else
+
 					string st = ostream.str();
 					(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 					property_values->length(index + prop_size);
 					for (int q=0; q<prop_size; q++)
 					{
@@ -1581,13 +1530,9 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 
 			ostream.seekp(0); ostream.clear();
 			ostream << n_attribs << ends;
-#ifdef STRSTREAM
-			(*property_values)[1] = string_dup(ostream.str());
-			ostream.rdbuf()->freeze(false);
-#else
+
 			string st = ostream.str();
 			(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 		}
 		else
 		{
@@ -1600,13 +1545,10 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 				ostream.seekp(0); ostream.clear();
 				ostream << n_props << ends;
 				index++; property_values->length(index);
-#ifdef STRSTREAM
-				(*property_values)[index-1] = string_dup(ostream.str());
-				ostream.rdbuf()->freeze(false);
-#else
+
 				string st = ostream.str();
 				(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 				for (int j=0; j<n_props; j++)
 				{
 					index++; property_values->length(index);
@@ -1619,13 +1561,9 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 			}
 			ostream.seekp(0); ostream.clear();
 			ostream << n_attribs << ends;
-#ifdef STRSTREAM
-			(*property_values)[1] = string_dup(ostream.str());
-			ostream.rdbuf()->freeze(false);
-#else
+
 			string st = ostream.str();
 			(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 		}
 		send <<= property_values;
 
@@ -1784,11 +1722,8 @@ void Database::get_class_property(string device_class, DbData &db_data, DbServer
 //
 
 	unsigned int n_props, index;
-#ifdef STRSTREAM
-	strstream iostream;
-#else
 	stringstream iostream;
-#endif /* STRSTREAM */
+
 	iostream << (*property_values)[1].in() << ends;
 	iostream >> n_props;
 	index = 2;
@@ -1820,12 +1755,8 @@ void Database::get_class_property(string device_class, DbData &db_data, DbServer
 
 void Database::put_class_property(string device_class, DbData &db_data)
 {
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
-	Any send;
+    Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
 	int index;
 
@@ -1835,13 +1766,10 @@ void Database::put_class_property(string device_class, DbData &db_data)
 	property_values->length(2); index = 2;
 	(*property_values)[0] = string_dup(device_class.c_str());
 	ostream << db_data.size() << ends;
-#ifdef STRSTREAM
-	(*property_values)[1] = string_dup(ostream.str());
-	ostream.rdbuf()->freeze(false);
-#else
+
 	string st = ostream.str();
 	(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 	for (unsigned int i=0; i<db_data.size(); i++)
 	{
 		index++; property_values->length(index);
@@ -1849,13 +1777,10 @@ void Database::put_class_property(string device_class, DbData &db_data)
 		ostream.seekp (0); ostream.clear();
 		ostream << db_data[i].size() << ends;
 		index++; property_values->length(index);
-#ifdef STRSTREAM
-		(*property_values)[index-1] = string_dup(ostream.str());
-		ostream.rdbuf()->freeze(false);
-#else
+
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 		for (int j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
@@ -2010,11 +1935,7 @@ void Database::get_class_attribute_property(string device_class, DbData &db_data
 
 	unsigned int n_attribs, index;
 	int i_total_props;
-#ifdef STRSTREAM
-	strstream iostream;
-#else
 	stringstream iostream;
-#endif /* STRSTREAM */
 
 	iostream << (*property_values)[1].in() << ends;
 	iostream >> n_attribs;
@@ -2100,11 +2021,7 @@ void Database::get_class_attribute_property(string device_class, DbData &db_data
 
 void Database::put_class_attribute_property(string device_class, DbData &db_data)
 {
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
 	Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
 	int index, n_attribs;
@@ -2130,13 +2047,10 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 				ostream.seekp(0); ostream.clear();
 				ostream << n_props << ends;
 				index++; property_values->length(index);
-#ifdef STRSTREAM
-				(*property_values)[index-1] = string_dup(ostream.str());
-				ostream.rdbuf()->freeze(false);
-#else
+
 				string st = ostream.str();
 				(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 				for (int j=0; j<n_props; j++)
 				{
 					index++; property_values->length(index);
@@ -2145,13 +2059,10 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 					int prop_size = db_data[i+j+1].size();
 					ostream.seekp(0); ostream.clear();
 					ostream << prop_size << ends;
-#ifdef STRSTREAM
-					(*property_values)[index-1] = string_dup(ostream.str());
-					ostream.rdbuf()->freeze(false);
-#else
+
 					string st = ostream.str();
 					(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 					property_values->length(index + prop_size);
 					for (int q=0; q<prop_size; q++)
 					{
@@ -2165,13 +2076,9 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 
 			ostream.seekp(0); ostream.clear();
 			ostream << n_attribs << ends;
-#ifdef STRSTREAM
-			(*property_values)[1] = string_dup(ostream.str());
-			ostream.rdbuf()->freeze(false);
-#else
+
 			string st = ostream.str();
 			(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 		}
 		else
 		{
@@ -2184,13 +2091,10 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 				ostream.seekp(0); ostream.clear();
 				ostream << n_props << ends;
 				index++; property_values->length(index);
-#ifdef STRSTREAM
-				(*property_values)[index-1] = string_dup(ostream.str());
-				ostream.rdbuf()->freeze(false);
-#else
+
 				string st = ostream.str();
 				(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 				for (int j=0; j<n_props; j++)
 				{
 					index++; property_values->length(index);
@@ -2203,13 +2107,9 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 			}
 			ostream.seekp(0); ostream.clear();
 			ostream << n_attribs << ends;
-#ifdef STRSTREAM
-			(*property_values)[1] = string_dup(ostream.str());
-			ostream.rdbuf()->freeze(false);
-#else
+
 			string st = ostream.str();
 			(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 		}
 		send <<= property_values;
 
@@ -2569,11 +2469,8 @@ void Database::get_property(string obj, DbData &db_data,DbServerCache *db_cache)
 	}
 
 	unsigned int n_props, index;
-#ifdef STRSTREAM
-	strstream iostream;
-#else
 	stringstream iostream;
-#endif /* STRSTREAM */
+
 	iostream << (*property_values)[1].in() << ends;
 	iostream >> n_props;
 	index = 2;
@@ -2613,11 +2510,7 @@ void Database::get_property(string obj, DbData &db_data,DbServerCache *db_cache)
 
 void Database::put_property(string obj, DbData &db_data)
 {
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
 	Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
 	int index;
@@ -2628,14 +2521,10 @@ void Database::put_property(string obj, DbData &db_data)
 	property_values->length(2); index = 2;
 	(*property_values)[0] = string_dup(obj.c_str());
 	ostream << db_data.size();
-#ifdef STRSTREAM
-	ostream << ends;
-	(*property_values)[1] = string_dup(ostream.str());
-	ostream.rdbuf()->freeze(false);
-#else
+
 	string st = ostream.str();
 	(*property_values)[1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 	for (unsigned int i=0; i<db_data.size(); i++)
 	{
 		index++; property_values->length(index);
@@ -2643,14 +2532,10 @@ void Database::put_property(string obj, DbData &db_data)
 		ostream.seekp (0); ostream.clear();
 		ostream << db_data[i].size() << ends;
 		index++; property_values->length(index);
-#ifdef STRSTREAM
-		ostream << ends;
-		(*property_values)[index-1] = string_dup(ostream.str());
-		ostream.rdbuf()->freeze(false);
-#else
+
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
-#endif /* STRSTREAM */
+
 		for (int j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
@@ -3159,12 +3044,7 @@ DbDatum Database::get_host_server_list(string &hostname)
 
 void Database::put_server_info(DbServerInfo &info)
 {
-
-#ifdef STRSTREAM
-	ostrstream ostream;
-#else
 	ostringstream ostream;
-#endif /* STRSTREAM */
 	Any send;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
 	DevVarStringArray *serv_info = new DevVarStringArray;
@@ -3177,23 +3057,15 @@ void Database::put_server_info(DbServerInfo &info)
 
 	ostream.seekp(0); ostream.clear();
 	ostream << info.mode << ends;
-#ifdef STRSTREAM
-	(*serv_info)[2] = string_dup(ostream.str());
-	ostream.rdbuf()->freeze(false);
-#else
+
 	string st = ostream.str();
 	(*serv_info)[2] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 
 	ostream.seekp(0); ostream.clear();
 	ostream << info.level << ends;
-#ifdef STRSTREAM
-	(*serv_info)[3] = string_dup(ostream.str());
-	ostream.rdbuf()->freeze(false);
-#else
+
 	st = ostream.str();
 	(*serv_info)[3] = string_dup(st.c_str());
-#endif /* STRSTREAM */
 
 	send <<= serv_info;
 
@@ -3615,11 +3487,7 @@ vector<DbHistory> Database::make_history_array(bool is_attribute, Any_var &recei
 			offset = 3;
 		}
 
-#ifdef STRSTREAM
-		istrstream istream(pCount.c_str());
-#else
 		istringstream istream(pCount);
-#endif /* STRSTREAM */
 		istream >> count;
 		if (!istream)
 		{
@@ -4222,11 +4090,8 @@ AccessControlType Database::check_access_control(string &devname)
 			if (from_env_var == false)
 			{
 				int num = 0;
-#ifdef __SUNPRO_CC
-				count(access_devname_str.begin(),access_devname_str.end(),'/',num);
-#else
 				num = count(access_devname_str.begin(),access_devname_str.end(),'/');
-#endif
+
 				if (num == 2)
 				{
 					string fqdn("tango://");

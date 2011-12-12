@@ -5,14 +5,14 @@ static const char *RcsId = "$Id$\n$Name$";
 // file :         coutbuf.cpp
 //
 // description :  C++ source for the coutbuf class. This class is used
-//          only for Windows device server for the debug 
+//          only for Windows device server for the debug
 //          outputs
 //
 // project :      TANGO
 //
 // author(s) :    A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -23,12 +23,12 @@ static const char *RcsId = "$Id$\n$Name$";
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -176,12 +176,12 @@ static HWND hWndDebugList = NULL;
 //+----------------------------------------------------------------------------
 //
 // method :       CoutBuf::CoutBuf()
-// 
+//
 // description :  Constructor of the CoutBuf class. It mainly creates
 //          	  the debug output window
 //
 // in :     - hInstance : The application instance
-//          - nCmdShow : 
+//          - nCmdShow :
 //          - svc_name : The device server name
 //
 //-----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ CoutBuf::CoutBuf(HINSTANCE hInstance,int nCmdShow,HWND parent,LPCSTR svc_name)
 //
 // Init common controls library
 //
-  
+
   	InitCommonControls();
 
 //
@@ -214,7 +214,7 @@ CoutBuf::CoutBuf(HINSTANCE hInstance,int nCmdShow,HWND parent,LPCSTR svc_name)
   	wc.lpfnWndProc    = DebugWndProc;
   	wc.cbClsExtra     = 0;
   	wc.cbWndExtra     = 0;
-    
+
   	RegisterClass(&wc);
 
 //
@@ -281,14 +281,14 @@ void CoutBuf::CreateWin(LPCSTR svc_name)
 //+----------------------------------------------------------------------------
 //
 // method :       CoutBuf::dbg_out()
-// 
+//
 // description :  This method add a string to the end of the debug list
 //
 // in :     - buf : The string to be printed
 //
 //-----------------------------------------------------------------------------
 
-int CoutBuf::dbg_out(LPCSTR buf) 
+int CoutBuf::dbg_out(LPCSTR buf)
 {
 
 //
@@ -335,7 +335,7 @@ int CoutBuf::dbg_out(LPCSTR buf)
 //+----------------------------------------------------------------------------
 //
 // method :       CoutBuf::overflow()
-// 
+//
 // description :  Overriding of the streambuf::overflow method
 //          This method prints a single char at a time
 //          This method has been copied from the std C++ library
@@ -357,7 +357,7 @@ streambuf::int_type CoutBuf::overflow(streambuf::int_type c)
 
   	if (flushBuffer() == EOF)
     		return EOF;
-    
+
   	return c;
 }
 
@@ -378,7 +378,7 @@ streamsize CoutBuf::xsputn(const char_type *s,streamsize n)
   	int nb_place = epptr() - pptr();
   	int start = pptr() - pbase();
   	int nb_to_write,i;
-  
+
   	if (n <= nb_place)
     		nb_to_write = n;
   	else
@@ -394,13 +394,13 @@ streamsize CoutBuf::xsputn(const char_type *s,streamsize n)
     		start++;
   	}
   	pbump(nb_to_write);
-  	return nb_to_write;         
+  	return nb_to_write;
 }
 
 //+----------------------------------------------------------------------------
 //
 // method :       CoutBuf::flushBuffer()
-// 
+//
 // description :  This method flushs (send data to the output window)
 //          characters buffer
 //          This method has been copied from the std C++ library
@@ -448,7 +448,7 @@ int CoutBuf::flushBuffer()
 //+----------------------------------------------------------------------------
 //
 // method :       CoutBuf::sync()
-// 
+//
 // description :  Overriding of the streambuf::sync method
 //          This method synchronizes data with the output window
 //          This method has been copied from the std C++ library
@@ -484,12 +484,12 @@ LRESULT CALLBACK DebugWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
   	case WM_CREATE:
 
 //
-// Create the listbox 
+// Create the listbox
 //
 
     		hWndDebugList = CreateWindow("Listbox","",
-                                    WS_CHILD 
-                                  | WS_VISIBLE 
+                                    WS_CHILD
+                                  | WS_VISIBLE
                                   | WS_VSCROLL
                                   | LBS_DISABLENOSCROLL
                                   | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED
@@ -545,7 +545,7 @@ LRESULT CALLBACK DebugWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 //
 // Measure an item in our debug listbox
 //
- 
+
 void MeasureDebugItem(HWND hWnd, LPMEASUREITEMSTRUCT lpMIS)
 {
   	TEXTMETRIC tm;
@@ -558,14 +558,14 @@ void MeasureDebugItem(HWND hWnd, LPMEASUREITEMSTRUCT lpMIS)
 //
 // Display an item in our debug listbox
 //
- 
+
 void DrawDebugItem(HWND hWnd, LPDRAWITEMSTRUCT lpDI)
 {
   	HBRUSH hbrBkGnd;
   	RECT rc;
   	HDC hDC;
   	char buf[256];
-    
+
   	hDC = lpDI->hDC;
   	rc = lpDI->rcItem;
 
@@ -586,13 +586,13 @@ void DrawDebugItem(HWND hWnd, LPDRAWITEMSTRUCT lpDI)
 //
 
     		SetBkMode(hDC,(int)1);
-//        SetBkMode(hDC,TRANSPARENT);    
+//        SetBkMode(hDC,TRANSPARENT);
     		SendMessage(lpDI->hwndItem,LB_GETTEXT,lpDI->itemID,(LPARAM)(LPSTR)buf);
 
     		ExtTextOut(hDC,rc.left+2, rc.top,ETO_CLIPPED,&rc,buf,lstrlen(buf),NULL);
-    
+
     		break;
-    
+
   	}
 }
 

@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$";
 //
 //		original : 29 June 2004
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -434,15 +434,7 @@ bool EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 		else
 			eve_round = floor(tmp);
 #else
-	#if ((defined __SUNPRO_CC) || (!defined GCC_STD))
-		double eve_round = rint((double)arch_period * DELTA_PERIODIC);
-	#else
-		#if (defined GCC_SOLARIS)
-		double eve_round = rint((double)arch_period * DELTA_PERIODIC);
-		#else
 		double eve_round = round((double)arch_period * DELTA_PERIODIC);
-		#endif
-	#endif
 #endif
 			arch_period = (int)eve_round;
 		}
@@ -695,15 +687,7 @@ bool EventSupplier::detect_and_push_periodic_event(DeviceImpl *device_impl,struc
 		else
 			eve_round = floor(tmp);
 #else
-	#if ((defined __SUNPRO_CC) || (!defined GCC_STD))
-		double eve_round = rint((double)eve_period * DELTA_PERIODIC);
-	#else
-		#if (defined GCC_SOLARIS)
-		double eve_round = rint((double)eve_period * DELTA_PERIODIC);
-		#else
 		double eve_round = round((double)eve_period * DELTA_PERIODIC);
-		#endif
-	#endif
 #endif
 		eve_period = (int)eve_round;
 	}

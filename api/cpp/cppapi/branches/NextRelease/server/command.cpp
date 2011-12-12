@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -1308,11 +1308,7 @@ void TemplCommand::set_type(const type_info &data_type,Tango::CmdArgType &type)
 
 bool TemplCommand::is_allowed(DeviceImpl *dev_ptr,const CORBA::Any &in_any)
 {
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 	if (allowed_ptr == NULL)
-#else
-	if (allowed_ptr == (ALLO_PTR)NULL)
-#endif
 		return true;
 	else
 		return ((dev_ptr->*allowed_ptr)(in_any));

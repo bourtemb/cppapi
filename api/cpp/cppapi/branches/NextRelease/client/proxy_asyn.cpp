@@ -8,7 +8,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- August 2002
 //
-// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -892,14 +892,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 					(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
 					(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 					(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 					string st = desc.str();
 					(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-					char *tmp_str = desc.str();
-					(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-					delete[] tmp_str;
-#endif
 					(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
 				}
 			}
@@ -1040,14 +1035,10 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 				dev_attr->ext->err_list.inout().length(nb_except + 1);
 				dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 				dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 				string st = desc.str();
 				dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-				char *tmp_str = desc.str();
-				dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-				delete[] tmp_str;
-#endif
+
 				dev_attr->ext->err_list[nb_except].severity = Tango::ERR;
 			}
 		}
@@ -1237,14 +1228,9 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 				(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
 				(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 				(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 				string st = desc.str();
 				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-				char *tmp_str = desc.str();
-				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-				delete[] tmp_str;
-#endif
 				(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
 			}
 		}
@@ -1419,14 +1405,9 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 			dev_attr->ext->err_list.inout().length(nb_except + 1);
 			dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
 			dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 			string st = desc.str();
 			dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-			char *tmp_str = desc.str();
-			dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-			delete[] tmp_str;
-#endif
 			dev_attr->ext->err_list[nb_except].severity = Tango::ERR;
 		}
 	}

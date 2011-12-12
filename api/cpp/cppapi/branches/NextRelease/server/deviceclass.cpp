@@ -13,7 +13,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :		E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -431,18 +431,8 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 						case Tango::DEV_BOOLEAN:
 							if (from_init == false)
 							{
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 								if (!(str >> boolalpha >> boo))
 									throw_mem_value(device_list[i],att);
-#else
-								transform(mem_value.begin(),mem_value.end(),mem_value.begin(),::tolower);
-								if (mem_value == "true")
-									boo = true;
-								else if (mem_value == "false")
-									boo = false;
-								else
-									throw_mem_value(device_list[i],att);
-#endif
 								att.set_write_value(boo);
 							}
 							else

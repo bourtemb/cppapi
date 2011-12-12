@@ -15,7 +15,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -832,14 +832,9 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 							(*back)[index].err_list[0].severity = Tango::ERR;
 							(*back)[index].err_list[0].reason = CORBA::string_dup("API_AttrValueNotSet");
 							(*back)[index].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_no_except");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 							string s = o.str();
 							(*back)[index].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-							char *tmp_str = o.str();
-							(*back)[index].err_list[0].desc = CORBA::string_dup(tmp_str);
-							delete[]tmp_str;
-#endif
 							(*back)[index].quality = Tango::ATTR_INVALID;
 							(*back)[index].name = CORBA::string_dup(att.get_name().c_str());
 							clear_att_dim((*back)[index]);
@@ -858,14 +853,9 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 							(*back4)[index].err_list[0].severity = Tango::ERR;
 							(*back4)[index].err_list[0].reason = CORBA::string_dup("API_AttrValueNotSet");
 							(*back4)[index].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_no_except");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 							string s = o.str();
 							(*back4)[index].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-							char *tmp_str = o.str();
-							(*back4)[index].err_list[0].desc = CORBA::string_dup(tmp_str);
-							delete[]tmp_str;
-#endif
 							(*back4)[index].quality = Tango::ATTR_INVALID;
 							(*back4)[index].name = CORBA::string_dup(att.get_name().c_str());
 							clear_att_dim((*back4)[index]);
@@ -1157,14 +1147,9 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					(*back)[non_polled[i]].err_list[0].severity = Tango::ERR;
 					(*back)[non_polled[i]].err_list[0].reason = CORBA::string_dup("API_AttrNotPolled");
 					(*back)[non_polled[i]].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 					string s = o.str();
 					(*back)[non_polled[i]].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-					char *tmp_str = o.str();
-					(*back)[non_polled[i]].err_list[0].desc = CORBA::string_dup(tmp_str);
-					delete[]tmp_str;
-#endif
 					(*back)[non_polled[i]].quality = Tango::ATTR_INVALID;
 					(*back)[non_polled[i]].name = CORBA::string_dup(att.get_name().c_str());
 					clear_att_dim((*back)[i]);
@@ -1175,14 +1160,9 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					(*back4)[non_polled[i]].err_list[0].severity = Tango::ERR;
 					(*back4)[non_polled[i]].err_list[0].reason = CORBA::string_dup("API_AttrNotPolled");
 					(*back4)[non_polled[i]].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 					string s = o.str();
 					(*back4)[non_polled[i]].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-					char *tmp_str = o.str();
-					(*back4)[non_polled[i]].err_list[0].desc = CORBA::string_dup(tmp_str);
-					delete[]tmp_str;
-#endif
 					(*back4)[non_polled[i]].quality = Tango::ATTR_INVALID;
 					(*back4)[non_polled[i]].name = CORBA::string_dup(att.get_name().c_str());
 					clear_att_dim((*back4)[i]);
@@ -1252,14 +1232,9 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 				(*back)[i].err_list[0].severity = Tango::ERR;
 				(*back)[i].err_list[0].reason = CORBA::string_dup("API_NoDataYet");
 				(*back)[i].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 				string s = o.str();
 				(*back)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-				char *tmp_str = o.str();
-				(*back)[i].err_list[0].desc = CORBA::string_dup(tmp_str);
-				delete[]tmp_str;
-#endif
 				(*back)[i].quality = Tango::ATTR_INVALID;
 				(*back)[i].name = CORBA::string_dup(names[i]);
 				clear_att_dim((*back)[i]);
@@ -1270,14 +1245,9 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 				(*back4)[i].err_list[0].severity = Tango::ERR;
 				(*back4)[i].err_list[0].reason = CORBA::string_dup("API_NoDataYet");
 				(*back4)[i].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 				string s = o.str();
 				(*back4)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-				char *tmp_str = o.str();
-				(*back4)[i].err_list[0].desc = CORBA::string_dup(tmp_str);
-				delete[]tmp_str;
-#endif
 				(*back4)[i].quality = Tango::ATTR_INVALID;
 				(*back4)[i].name = CORBA::string_dup(names[i]);
 				clear_att_dim((*back4)[i]);
@@ -1318,14 +1288,9 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					(*back)[i].err_list[0].severity = Tango::ERR;
 					(*back)[i].err_list[0].reason = CORBA::string_dup("API_NotUpdatedAnyMore");
 					(*back)[i].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 					string s = o.str();
 					(*back)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-					char *tmp_str = o.str();
-					(*back)[i].err_list[0].desc = CORBA::string_dup(tmp_str);
-					delete[]tmp_str;
-#endif
 					(*back)[i].quality = Tango::ATTR_INVALID;
 					(*back)[i].name = CORBA::string_dup(names[i]);
 					clear_att_dim((*back)[i]);
@@ -1336,14 +1301,9 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					(*back4)[i].err_list[0].severity = Tango::ERR;
 					(*back4)[i].err_list[0].reason = CORBA::string_dup("API_NotUpdatedAnyMore");
 					(*back4)[i].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 					string s = o.str();
 					(*back4)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
-#else
-					char *tmp_str = o.str();
-					(*back4)[i].err_list[0].desc = CORBA::string_dup(tmp_str);
-					delete[]tmp_str;
-#endif
 					(*back4)[i].quality = Tango::ATTR_INVALID;
 					(*back4)[i].name = CORBA::string_dup(names[i]);
 					clear_att_dim((*back4)[i]);
@@ -2351,14 +2311,8 @@ throw (Tango::DevFailed, CORBA::SystemException)
 			o << "\nAll remaining attribute(s) have not been updated";
 		o << ends;
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 		string s = o.str();
 		e.errors[0].reason = CORBA::string_dup(s.c_str());
-#else
-		char *mess = o.str();
-		e.errors[0].reason = CORBA::string_dup(mess);
-		delete [] mess;
-#endif
 		throw;
 	}
 
