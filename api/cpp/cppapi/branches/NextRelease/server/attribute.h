@@ -43,6 +43,7 @@
 #include <encoded_attribute.h>
 #include <functional>
 #include <time.h>
+#include <iterator>
 
 #ifdef _TG_WINDOWS_
 	#include <sys/types.h>
