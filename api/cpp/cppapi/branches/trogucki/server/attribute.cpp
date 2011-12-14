@@ -476,71 +476,78 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 
 	min_alarm_str = get_attr_value(prop_list,"min_alarm");
-	if ((min_alarm_str != AlrmValueNotSpec) &&
-	    (data_type != Tango::DEV_STRING) &&
+	if ((data_type != Tango::DEV_STRING) &&
 	    (data_type != Tango::DEV_BOOLEAN) &&
 	    (data_type != Tango::DEV_STATE))
 	{
-		str << min_alarm_str << ends;
-		empty = false;
-		switch (data_type)
+		if(min_alarm_str == AlrmValueNotSpec)
 		{
-		case Tango::DEV_SHORT:
-			if (!(str >> min_alarm.sh))
-				throw_err_format("min_alarm",dev_name);
-			break;
-
-		case Tango::DEV_LONG:
-			if (!(str >> min_alarm.db))
-				throw_err_format("min_alarm",dev_name);
-			min_alarm.lg = (DevLong)min_alarm.db;
-			break;
-
-		case Tango::DEV_LONG64:
-			if (!(str >> min_alarm.db))
-				throw_err_format("min_alarm",dev_name);
-			min_alarm.lg64 = (DevLong64)min_alarm.db;
-			break;
-
-		case Tango::DEV_DOUBLE:
-			if (!(str >> min_alarm.db))
-				throw_err_format("min_alarm",dev_name);
-			break;
-		case Tango::DEV_FLOAT:
-			if (!(str >> min_alarm.fl))
-				throw_err_format("min_alarm",dev_name);
-			break;
-
-		case Tango::DEV_USHORT:
-			if (!(str >> min_alarm.ush))
-				throw_err_format("min_alarm",dev_name);
-			break;
-
-		case Tango::DEV_UCHAR:
-			if (!(str >> min_alarm.sh))
-				throw_err_format("min_alarm",dev_name);
-			min_alarm.uch = (unsigned char)min_alarm.sh;
-			break;
-
-		case Tango::DEV_ULONG:
-			if (!(str >> min_alarm.db))
-				throw_err_format("min_alarm",dev_name);
-			min_alarm.ulg = (DevULong)min_alarm.db;
-			break;
-
-		case Tango::DEV_ULONG64:
-			if (!(str >> min_alarm.db))
-				throw_err_format("min_alarm",dev_name);
-			min_alarm.ulg64 = (DevULong64)min_alarm.db;
-			break;
-
-		case Tango::DEV_ENCODED:
-			if (!(str >> min_alarm.sh))
-				throw_err_format("min_alarm",dev_name);
-			min_alarm.uch = (unsigned char)min_alarm.sh;
-			break;
+			// library defaults
+			min_alarm_str = AlrmValueNotSpec;
 		}
-		alarm_conf.set(min_level);
+		else
+		{
+			str << min_alarm_str << ends;
+			empty = false;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> min_alarm.sh))
+					throw_err_format("min_alarm",dev_name);
+				break;
+
+			case Tango::DEV_LONG:
+				if (!(str >> min_alarm.db))
+					throw_err_format("min_alarm",dev_name);
+				min_alarm.lg = (DevLong)min_alarm.db;
+				break;
+
+			case Tango::DEV_LONG64:
+				if (!(str >> min_alarm.db))
+					throw_err_format("min_alarm",dev_name);
+				min_alarm.lg64 = (DevLong64)min_alarm.db;
+				break;
+
+			case Tango::DEV_DOUBLE:
+				if (!(str >> min_alarm.db))
+					throw_err_format("min_alarm",dev_name);
+				break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> min_alarm.fl))
+					throw_err_format("min_alarm",dev_name);
+				break;
+
+			case Tango::DEV_USHORT:
+				if (!(str >> min_alarm.ush))
+					throw_err_format("min_alarm",dev_name);
+				break;
+
+			case Tango::DEV_UCHAR:
+				if (!(str >> min_alarm.sh))
+					throw_err_format("min_alarm",dev_name);
+				min_alarm.uch = (unsigned char)min_alarm.sh;
+				break;
+
+			case Tango::DEV_ULONG:
+				if (!(str >> min_alarm.db))
+					throw_err_format("min_alarm",dev_name);
+				min_alarm.ulg = (DevULong)min_alarm.db;
+				break;
+
+			case Tango::DEV_ULONG64:
+				if (!(str >> min_alarm.db))
+					throw_err_format("min_alarm",dev_name);
+				min_alarm.ulg64 = (DevULong64)min_alarm.db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> min_alarm.sh))
+					throw_err_format("min_alarm",dev_name);
+				min_alarm.uch = (unsigned char)min_alarm.sh;
+				break;
+			}
+			alarm_conf.set(min_level);
+		}
 	}
 
 //
@@ -548,78 +555,85 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 
 	max_alarm_str = get_attr_value(prop_list,"max_alarm");
-	if ((max_alarm_str != AlrmValueNotSpec) &&
-	    (data_type != Tango::DEV_STRING) &&
+	if ((data_type != Tango::DEV_STRING) &&
 	    (data_type != Tango::DEV_BOOLEAN) &&
 	    (data_type != Tango::DEV_STATE))
 	{
-		if (empty == false)
+		if(max_alarm_str == AlrmValueNotSpec)
 		{
-			str.seekp(0);
-			str.seekg(0);
+			// library defaults
+			max_alarm_str = AlrmValueNotSpec;
 		}
-
-		str << max_alarm_str << ends;
-		empty = false;
-		switch (data_type)
+		else
 		{
-		case Tango::DEV_SHORT:
-			if (!(str >> max_alarm.sh))
-				throw_err_format("max_alarm",dev_name);
-			break;
+			if (empty == false)
+			{
+				str.seekp(0);
+				str.seekg(0);
+			}
 
-		case Tango::DEV_LONG:
-			if (!(str >> max_alarm.db))
-				throw_err_format("max_alarm",dev_name);
-			max_alarm.lg = (DevLong)max_alarm.db;
-			break;
+			str << max_alarm_str << ends;
+			empty = false;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> max_alarm.sh))
+					throw_err_format("max_alarm",dev_name);
+				break;
 
-		case Tango::DEV_LONG64:
-			if (!(str >> max_alarm.db))
-				throw_err_format("max_alarm",dev_name);
-			max_alarm.lg64 = (DevLong64)max_alarm.db;
-			break;
+			case Tango::DEV_LONG:
+				if (!(str >> max_alarm.db))
+					throw_err_format("max_alarm",dev_name);
+				max_alarm.lg = (DevLong)max_alarm.db;
+				break;
 
-		case Tango::DEV_DOUBLE:
-			if (!(str >> max_alarm.db))
-				throw_err_format("max_alarm",dev_name);
-			break;
+			case Tango::DEV_LONG64:
+				if (!(str >> max_alarm.db))
+					throw_err_format("max_alarm",dev_name);
+				max_alarm.lg64 = (DevLong64)max_alarm.db;
+				break;
 
-		case Tango::DEV_FLOAT:
-			if (!(str >> max_alarm.fl))
-				throw_err_format("max_alarm",dev_name);
-			break;
+			case Tango::DEV_DOUBLE:
+				if (!(str >> max_alarm.db))
+					throw_err_format("max_alarm",dev_name);
+				break;
 
-		case Tango::DEV_USHORT:
-			if (!(str >> max_alarm.ush))
-				throw_err_format("max_alarm",dev_name);
-			break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> max_alarm.fl))
+					throw_err_format("max_alarm",dev_name);
+				break;
 
-		case Tango::DEV_UCHAR:
-			if (!(str >> max_alarm.sh))
-				throw_err_format("max_alarm",dev_name);
-			max_alarm.uch = (unsigned char)max_alarm.sh;
-			break;
+			case Tango::DEV_USHORT:
+				if (!(str >> max_alarm.ush))
+					throw_err_format("max_alarm",dev_name);
+				break;
 
-		case Tango::DEV_ULONG:
-			if (!(str >> max_alarm.db))
-				throw_err_format("max_alarm",dev_name);
-			max_alarm.ulg = (DevULong)max_alarm.db;
-			break;
+			case Tango::DEV_UCHAR:
+				if (!(str >> max_alarm.sh))
+					throw_err_format("max_alarm",dev_name);
+				max_alarm.uch = (unsigned char)max_alarm.sh;
+				break;
 
-		case Tango::DEV_ULONG64:
-			if (!(str >> max_alarm.db))
-				throw_err_format("max_alarm",dev_name);
-			max_alarm.ulg64 = (DevULong64)max_alarm.db;
-			break;
+			case Tango::DEV_ULONG:
+				if (!(str >> max_alarm.db))
+					throw_err_format("max_alarm",dev_name);
+				max_alarm.ulg = (DevULong)max_alarm.db;
+				break;
 
-		case Tango::DEV_ENCODED:
-			if (!(str >> max_alarm.sh))
-				throw_err_format("max_alarm",dev_name);
-			max_alarm.uch = (unsigned char)max_alarm.sh;
-			break;
+			case Tango::DEV_ULONG64:
+				if (!(str >> max_alarm.db))
+					throw_err_format("max_alarm",dev_name);
+				max_alarm.ulg64 = (DevULong64)max_alarm.db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> max_alarm.sh))
+					throw_err_format("max_alarm",dev_name);
+				max_alarm.uch = (unsigned char)max_alarm.sh;
+				break;
+			}
+			alarm_conf.set(max_level);
 		}
-		alarm_conf.set(max_level);
 	}
 
 //
@@ -627,78 +641,85 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 
 	min_value_str = get_attr_value(prop_list,"min_value");
-	if ((min_value_str != AlrmValueNotSpec) &&
-	    (data_type != Tango::DEV_STRING) &&
+	if ((data_type != Tango::DEV_STRING) &&
 	    (data_type != Tango::DEV_BOOLEAN) &&
 	    (data_type != Tango::DEV_STATE))
 	{
-		if (empty == false)
+		if(min_value_str == AlrmValueNotSpec)
 		{
-			str.seekp(0);
-			str.seekg(0);
+			// library defaults
+			min_value_str = AlrmValueNotSpec;
 		}
-
-		str << min_value_str << ends;
-		empty = false;
-		switch (data_type)
+		else
 		{
-		case Tango::DEV_SHORT:
-			if (!(str >> min_value.sh))
-				throw_err_format("min_value",dev_name);
-			break;
+			if (empty == false)
+			{
+				str.seekp(0);
+				str.seekg(0);
+			}
 
-		case Tango::DEV_LONG:
-			if (!(str >> min_value.db))
-				throw_err_format("min_value",dev_name);
-			min_value.lg = (DevLong)min_value.db;
-			break;
+			str << min_value_str << ends;
+			empty = false;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> min_value.sh))
+					throw_err_format("min_value",dev_name);
+				break;
 
-		case Tango::DEV_LONG64:
-			if (!(str >> min_value.db))
-				throw_err_format("min_value",dev_name);
-			min_value.lg64 = (DevLong64)min_value.db;
-			break;
+			case Tango::DEV_LONG:
+				if (!(str >> min_value.db))
+					throw_err_format("min_value",dev_name);
+				min_value.lg = (DevLong)min_value.db;
+				break;
 
-		case Tango::DEV_DOUBLE:
-			if (!(str >> min_value.db))
-				throw_err_format("min_value",dev_name);
-			break;
+			case Tango::DEV_LONG64:
+				if (!(str >> min_value.db))
+					throw_err_format("min_value",dev_name);
+				min_value.lg64 = (DevLong64)min_value.db;
+				break;
 
-		case Tango::DEV_FLOAT:
-			if (!(str >> min_value.fl))
-				throw_err_format("min_value",dev_name);
-			break;
+			case Tango::DEV_DOUBLE:
+				if (!(str >> min_value.db))
+					throw_err_format("min_value",dev_name);
+				break;
 
-		case Tango::DEV_USHORT:
-			if (!(str >> min_value.ush))
-				throw_err_format("min_value",dev_name);
-			break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> min_value.fl))
+					throw_err_format("min_value",dev_name);
+				break;
 
-		case Tango::DEV_UCHAR:
-			if (!(str >> min_value.sh))
-				throw_err_format("min_value",dev_name);
-			min_value.uch = (unsigned char)min_value.sh;
-			break;
+			case Tango::DEV_USHORT:
+				if (!(str >> min_value.ush))
+					throw_err_format("min_value",dev_name);
+				break;
 
-		case Tango::DEV_ULONG:
-			if (!(str >> min_value.db))
-				throw_err_format("min_value",dev_name);
-			min_value.ulg = (DevULong)min_value.db;
-			break;
+			case Tango::DEV_UCHAR:
+				if (!(str >> min_value.sh))
+					throw_err_format("min_value",dev_name);
+				min_value.uch = (unsigned char)min_value.sh;
+				break;
 
-		case Tango::DEV_ULONG64:
-			if (!(str >> min_value.db))
-				throw_err_format("min_value",dev_name);
-			min_value.ulg64 = (DevULong64)min_value.db;
-			break;
+			case Tango::DEV_ULONG:
+				if (!(str >> min_value.db))
+					throw_err_format("min_value",dev_name);
+				min_value.ulg = (DevULong)min_value.db;
+				break;
 
-		case Tango::DEV_ENCODED:
-			if (!(str >> min_value.sh))
-				throw_err_format("min_value",dev_name);
-			min_value.uch = (unsigned char)min_value.sh;
-			break;
+			case Tango::DEV_ULONG64:
+				if (!(str >> min_value.db))
+					throw_err_format("min_value",dev_name);
+				min_value.ulg64 = (DevULong64)min_value.db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> min_value.sh))
+					throw_err_format("min_value",dev_name);
+				min_value.uch = (unsigned char)min_value.sh;
+				break;
+			}
+			check_min_value = true;
 		}
-		check_min_value = true;
 	}
 
 //
@@ -706,78 +727,85 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 
 	max_value_str = get_attr_value(prop_list,"max_value");
-	if ((max_value_str != AlrmValueNotSpec) &&
-	    (data_type != Tango::DEV_STRING) &&
+	if ((data_type != Tango::DEV_STRING) &&
 	    (data_type != Tango::DEV_BOOLEAN) &&
 	    (data_type != Tango::DEV_STATE))
 	{
-		if (empty == false)
+		if(max_value_str == AlrmValueNotSpec)
 		{
-			str.seekp(0);
-			str.seekg(0);
+			// library defaults
+			max_value_str = AlrmValueNotSpec;
 		}
-
-		str << max_value_str << ends;
-		empty = false;
-		switch (data_type)
+		else
 		{
-		case Tango::DEV_SHORT:
-			if (!(str >> max_value.sh))
-				throw_err_format("max_value",dev_name);
-			break;
+			if (empty == false)
+			{
+				str.seekp(0);
+				str.seekg(0);
+			}
 
-		case Tango::DEV_LONG:
-			if (!(str >> max_value.db))
-				throw_err_format("max_value",dev_name);
-			max_value.lg = (DevLong)max_value.db;
-			break;
+			str << max_value_str << ends;
+			empty = false;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> max_value.sh))
+					throw_err_format("max_value",dev_name);
+				break;
 
-		case Tango::DEV_LONG64:
-			if (!(str >> max_value.db))
-				throw_err_format("max_value",dev_name);
-			max_value.lg64 = (DevLong64)max_value.db;
-			break;
+			case Tango::DEV_LONG:
+				if (!(str >> max_value.db))
+					throw_err_format("max_value",dev_name);
+				max_value.lg = (DevLong)max_value.db;
+				break;
 
-		case Tango::DEV_DOUBLE:
-			if (!(str >> max_value.db))
-				throw_err_format("max_value",dev_name);
-			break;
+			case Tango::DEV_LONG64:
+				if (!(str >> max_value.db))
+					throw_err_format("max_value",dev_name);
+				max_value.lg64 = (DevLong64)max_value.db;
+				break;
 
-		case Tango::DEV_FLOAT:
-			if (!(str >> max_value.fl))
-				throw_err_format("max_value",dev_name);
-			break;
+			case Tango::DEV_DOUBLE:
+				if (!(str >> max_value.db))
+					throw_err_format("max_value",dev_name);
+				break;
 
-		case Tango::DEV_USHORT:
-			if (!(str >> max_value.ush))
-				throw_err_format("max_value",dev_name);
-			break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> max_value.fl))
+					throw_err_format("max_value",dev_name);
+				break;
 
-		case Tango::DEV_UCHAR:
-			if (!(str >> max_value.sh))
-				throw_err_format("max_value",dev_name);
-			max_value.uch = (unsigned char)max_value.sh;
-			break;
+			case Tango::DEV_USHORT:
+				if (!(str >> max_value.ush))
+					throw_err_format("max_value",dev_name);
+				break;
 
-		case Tango::DEV_ULONG:
-			if (!(str >> max_value.db))
-				throw_err_format("max_value",dev_name);
-			max_value.ulg = (DevULong)max_value.db;
-			break;
+			case Tango::DEV_UCHAR:
+				if (!(str >> max_value.sh))
+					throw_err_format("max_value",dev_name);
+				max_value.uch = (unsigned char)max_value.sh;
+				break;
 
-		case Tango::DEV_ULONG64:
-			if (!(str >> max_value.db))
-				throw_err_format("max_value",dev_name);
-			max_value.ulg64 = (DevULong64)max_value.db;
-			break;
+			case Tango::DEV_ULONG:
+				if (!(str >> max_value.db))
+					throw_err_format("max_value",dev_name);
+				max_value.ulg = (DevULong)max_value.db;
+				break;
 
-		case Tango::DEV_ENCODED:
-			if (!(str >> max_value.sh))
-				throw_err_format("max_value",dev_name);
-			max_value.uch = (unsigned char)max_value.sh;
-			break;
+			case Tango::DEV_ULONG64:
+				if (!(str >> max_value.db))
+					throw_err_format("max_value",dev_name);
+				max_value.ulg64 = (DevULong64)max_value.db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> max_value.sh))
+					throw_err_format("max_value",dev_name);
+				max_value.uch = (unsigned char)max_value.sh;
+				break;
+			}
+			check_max_value = true;
 		}
-		check_max_value = true;
 	}
 
 //
@@ -785,77 +813,84 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 
 	min_warning_str = get_attr_value(prop_list,"min_warning");
-	if ((min_warning_str != AlrmValueNotSpec) &&
-	    (data_type != Tango::DEV_STRING) &&
+	if ((data_type != Tango::DEV_STRING) &&
 	    (data_type != Tango::DEV_BOOLEAN) &&
 	    (data_type != Tango::DEV_STATE))
 	{
-		if (empty == false)
+		if(min_warning_str == AlrmValueNotSpec)
 		{
-			str.seekp(0);
-			str.seekg(0);
+			// library defaults
+			min_warning_str = AlrmValueNotSpec;
 		}
-
-		str << min_warning_str << ends;
-		empty = false;
-		switch (data_type)
+		else
 		{
-		case Tango::DEV_SHORT:
-			if (!(str >> min_warning.sh))
-				throw_err_format("min_warning",dev_name);
-			break;
+			if (empty == false)
+			{
+				str.seekp(0);
+				str.seekg(0);
+			}
 
-		case Tango::DEV_LONG:
-			if (!(str >> min_warning.db))
-				throw_err_format("min_warning",dev_name);
-			min_warning.lg = (DevLong)min_warning.db;
-			break;
+			str << min_warning_str << ends;
+			empty = false;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> min_warning.sh))
+					throw_err_format("min_warning",dev_name);
+				break;
 
-		case Tango::DEV_LONG64:
-			if (!(str >> min_warning.db))
-				throw_err_format("min_warning",dev_name);
-			min_warning.lg64 = (DevLong64)min_warning.db;
-			break;
+			case Tango::DEV_LONG:
+				if (!(str >> min_warning.db))
+					throw_err_format("min_warning",dev_name);
+				min_warning.lg = (DevLong)min_warning.db;
+				break;
 
-		case Tango::DEV_DOUBLE:
-			if (!(str >> min_warning.db))
-				throw_err_format("min_warning",dev_name);
-			break;
-		case Tango::DEV_FLOAT:
-			if (!(str >> min_warning.fl))
-				throw_err_format("min_warning",dev_name);
-			break;
+			case Tango::DEV_LONG64:
+				if (!(str >> min_warning.db))
+					throw_err_format("min_warning",dev_name);
+				min_warning.lg64 = (DevLong64)min_warning.db;
+				break;
 
-		case Tango::DEV_USHORT:
-			if (!(str >> min_warning.ush))
-				throw_err_format("min_warning",dev_name);
-			break;
+			case Tango::DEV_DOUBLE:
+				if (!(str >> min_warning.db))
+					throw_err_format("min_warning",dev_name);
+				break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> min_warning.fl))
+					throw_err_format("min_warning",dev_name);
+				break;
 
-		case Tango::DEV_UCHAR:
-			if (!(str >> min_warning.sh))
-				throw_err_format("min_warning",dev_name);
-			min_warning.uch = (unsigned char)min_warning.sh;
-			break;
+			case Tango::DEV_USHORT:
+				if (!(str >> min_warning.ush))
+					throw_err_format("min_warning",dev_name);
+				break;
 
-		case Tango::DEV_ULONG:
-			if (!(str >> min_warning.db))
-				throw_err_format("min_warning",dev_name);
-			min_warning.ulg = (DevULong)min_warning.db;
-			break;
+			case Tango::DEV_UCHAR:
+				if (!(str >> min_warning.sh))
+					throw_err_format("min_warning",dev_name);
+				min_warning.uch = (unsigned char)min_warning.sh;
+				break;
 
-		case Tango::DEV_ULONG64:
-			if (!(str >> min_warning.db))
-				throw_err_format("min_warning",dev_name);
-			min_warning.ulg64 = (DevULong64)min_warning.db;
-			break;
+			case Tango::DEV_ULONG:
+				if (!(str >> min_warning.db))
+					throw_err_format("min_warning",dev_name);
+				min_warning.ulg = (DevULong)min_warning.db;
+				break;
 
-		case Tango::DEV_ENCODED:
-			if (!(str >> min_warning.sh))
-				throw_err_format("min_warning",dev_name);
-			min_warning.uch = (unsigned char)min_warning.sh;
-			break;
+			case Tango::DEV_ULONG64:
+				if (!(str >> min_warning.db))
+					throw_err_format("min_warning",dev_name);
+				min_warning.ulg64 = (DevULong64)min_warning.db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> min_warning.sh))
+					throw_err_format("min_warning",dev_name);
+				min_warning.uch = (unsigned char)min_warning.sh;
+				break;
+			}
+			alarm_conf.set(min_warn);
 		}
-		alarm_conf.set(min_warn);
 	}
 
 //
@@ -863,78 +898,85 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 
 	max_warning_str = get_attr_value(prop_list,"max_warning");
-	if ((max_warning_str != AlrmValueNotSpec) &&
-	    (data_type != Tango::DEV_STRING) &&
+	if ((data_type != Tango::DEV_STRING) &&
 	    (data_type != Tango::DEV_BOOLEAN) &&
 	    (data_type != Tango::DEV_STATE))
 	{
-		if (empty == false)
+		if(max_warning_str == AlrmValueNotSpec)
 		{
-			str.seekp(0);
-			str.seekg(0);
+			// library defaults
+			max_warning_str = AlrmValueNotSpec;
 		}
-
-		str << max_warning_str << ends;
-		empty = false;
-		switch (data_type)
+		else
 		{
-		case Tango::DEV_SHORT:
-			if (!(str >> max_warning.sh))
-				throw_err_format("max_warning",dev_name);
-			break;
+			if (empty == false)
+			{
+				str.seekp(0);
+				str.seekg(0);
+			}
 
-		case Tango::DEV_LONG:
-			if (!(str >> max_warning.db))
-				throw_err_format("max_warning",dev_name);
-			max_warning.lg = (DevLong)max_warning.db;
-			break;
+			str << max_warning_str << ends;
+			empty = false;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> max_warning.sh))
+					throw_err_format("max_warning",dev_name);
+				break;
 
-		case Tango::DEV_LONG64:
-			if (!(str >> max_warning.db))
-				throw_err_format("max_warning",dev_name);
-			max_warning.lg64 = (DevLong64)max_warning.db;
-			break;
+			case Tango::DEV_LONG:
+				if (!(str >> max_warning.db))
+					throw_err_format("max_warning",dev_name);
+				max_warning.lg = (DevLong)max_warning.db;
+				break;
 
-		case Tango::DEV_DOUBLE:
-			if (!(str >> max_warning.db))
-				throw_err_format("max_warning",dev_name);
-			break;
+			case Tango::DEV_LONG64:
+				if (!(str >> max_warning.db))
+					throw_err_format("max_warning",dev_name);
+				max_warning.lg64 = (DevLong64)max_warning.db;
+				break;
 
-		case Tango::DEV_FLOAT:
-			if (!(str >> max_warning.fl))
-				throw_err_format("max_warning",dev_name);
-			break;
+			case Tango::DEV_DOUBLE:
+				if (!(str >> max_warning.db))
+					throw_err_format("max_warning",dev_name);
+				break;
 
-		case Tango::DEV_USHORT:
-			if (!(str >> max_warning.ush))
-				throw_err_format("max_warning",dev_name);
-			break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> max_warning.fl))
+					throw_err_format("max_warning",dev_name);
+				break;
 
-		case Tango::DEV_UCHAR:
-			if (!(str >> max_warning.sh))
-				throw_err_format("max_warning",dev_name);
-			max_warning.uch = (unsigned char)max_warning.sh;
-			break;
+			case Tango::DEV_USHORT:
+				if (!(str >> max_warning.ush))
+					throw_err_format("max_warning",dev_name);
+				break;
 
-		case Tango::DEV_ULONG:
-			if (!(str >> max_warning.db))
-				throw_err_format("max_warning",dev_name);
-			max_warning.ulg = (DevULong)max_warning.db;
-			break;
+			case Tango::DEV_UCHAR:
+				if (!(str >> max_warning.sh))
+					throw_err_format("max_warning",dev_name);
+				max_warning.uch = (unsigned char)max_warning.sh;
+				break;
 
-		case Tango::DEV_ULONG64:
-			if (!(str >> max_warning.db))
-				throw_err_format("max_warning",dev_name);
-			max_warning.ulg64 = (DevULong64)max_warning.db;
-			break;
+			case Tango::DEV_ULONG:
+				if (!(str >> max_warning.db))
+					throw_err_format("max_warning",dev_name);
+				max_warning.ulg = (DevULong)max_warning.db;
+				break;
 
-		case Tango::DEV_ENCODED:
-			if (!(str >> max_warning.sh))
-				throw_err_format("max_warning",dev_name);
-			max_warning.uch = (unsigned char)max_warning.sh;
-			break;
+			case Tango::DEV_ULONG64:
+				if (!(str >> max_warning.db))
+					throw_err_format("max_warning",dev_name);
+				max_warning.ulg64 = (DevULong64)max_warning.db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> max_warning.sh))
+					throw_err_format("max_warning",dev_name);
+				max_warning.uch = (unsigned char)max_warning.sh;
+				break;
+			}
+			alarm_conf.set(max_warn);
 		}
-		alarm_conf.set(max_warn);
 	}
 
 //
@@ -945,9 +987,17 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 	bool delta_t_defined = false;
 	if ((data_type != Tango::DEV_STRING) && (data_type != Tango::DEV_BOOLEAN))
 	{
-		delta_t = get_lg_attr_value(prop_list,"delta_t");
-		if (delta_t != 0)
-			delta_t_defined = true;
+		if(delta_t_str == AlrmValueNotSpec)
+		{
+			// library defaults
+			delta_t_str = "0";
+		}
+		else
+		{
+			delta_t = get_lg_attr_value(prop_list,"delta_t");
+			if (delta_t != 0)
+				delta_t_defined = true;
+		}
 	}
 	else
 		delta_t =  0;
@@ -960,79 +1010,86 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 	bool delta_val_defined = false;
 	if (delta_t_defined == true)
 	{
-		if ((delta_val_str != AlrmValueNotSpec) &&
-		    (data_type != Tango::DEV_STRING) &&
+		if ((data_type != Tango::DEV_STRING) &&
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
-			if (empty == false)
+			if(delta_val_str == AlrmValueNotSpec)
 			{
-				str.seekp(0);
-				str.seekg(0);
+				// library defaults
+				delta_val_str = AlrmValueNotSpec;
 			}
-
-			str << delta_val_str << ends;
-			empty = false;
-			switch (data_type)
+			else
 			{
-			case Tango::DEV_SHORT:
-				if (!(str >> delta_val.sh))
-					throw_err_format("delta_val",dev_name);
-				break;
+				if (empty == false)
+				{
+					str.seekp(0);
+					str.seekg(0);
+				}
 
-			case Tango::DEV_LONG:
-				if (!(str >> delta_val.db))
-					throw_err_format("delta_val",dev_name);
-				delta_val.lg = (DevLong)delta_val.db;
-				break;
+				str << delta_val_str << ends;
+				empty = false;
+				switch (data_type)
+				{
+				case Tango::DEV_SHORT:
+					if (!(str >> delta_val.sh))
+						throw_err_format("delta_val",dev_name);
+					break;
 
-			case Tango::DEV_LONG64:
-				if (!(str >> delta_val.db))
-					throw_err_format("delta_val",dev_name);
-				delta_val.lg64 = (DevLong64)delta_val.db;
-				break;
+				case Tango::DEV_LONG:
+					if (!(str >> delta_val.db))
+						throw_err_format("delta_val",dev_name);
+					delta_val.lg = (DevLong)delta_val.db;
+					break;
 
-			case Tango::DEV_DOUBLE:
-				if (!(str >> delta_val.db))
-					throw_err_format("delta_val",dev_name);
-				break;
+				case Tango::DEV_LONG64:
+					if (!(str >> delta_val.db))
+						throw_err_format("delta_val",dev_name);
+					delta_val.lg64 = (DevLong64)delta_val.db;
+					break;
 
-			case Tango::DEV_FLOAT:
-				if (!(str >> delta_val.fl))
-					throw_err_format("delta_val",dev_name);
-				break;
+				case Tango::DEV_DOUBLE:
+					if (!(str >> delta_val.db))
+						throw_err_format("delta_val",dev_name);
+					break;
 
-			case Tango::DEV_USHORT:
-				if (!(str >> delta_val.ush))
-					throw_err_format("delta_val",dev_name);
-				break;
+				case Tango::DEV_FLOAT:
+					if (!(str >> delta_val.fl))
+						throw_err_format("delta_val",dev_name);
+					break;
 
-			case Tango::DEV_UCHAR:
-				if (!(str >> delta_val.sh))
-					throw_err_format("delta_val",dev_name);
-				delta_val.uch = (unsigned char)delta_val.sh;
-				break;
+				case Tango::DEV_USHORT:
+					if (!(str >> delta_val.ush))
+						throw_err_format("delta_val",dev_name);
+					break;
 
-			case Tango::DEV_ULONG:
-				if (!(str >> delta_val.db))
-					throw_err_format("delta_val",dev_name);
-				delta_val.ulg = (DevULong)delta_val.db;
-				break;
+				case Tango::DEV_UCHAR:
+					if (!(str >> delta_val.sh))
+						throw_err_format("delta_val",dev_name);
+					delta_val.uch = (unsigned char)delta_val.sh;
+					break;
 
-			case Tango::DEV_ULONG64:
-				if (!(str >> delta_val.db))
-					throw_err_format("delta_val",dev_name);
-				delta_val.ulg64 = (DevULong64)delta_val.db;
-				break;
+				case Tango::DEV_ULONG:
+					if (!(str >> delta_val.db))
+						throw_err_format("delta_val",dev_name);
+					delta_val.ulg = (DevULong)delta_val.db;
+					break;
 
-			case Tango::DEV_ENCODED:
-				if (!(str >> delta_val.sh))
-					throw_err_format("delta_val",dev_name);
-				delta_val.uch = (unsigned char)delta_val.sh;
-				break;
+				case Tango::DEV_ULONG64:
+					if (!(str >> delta_val.db))
+						throw_err_format("delta_val",dev_name);
+					delta_val.ulg64 = (DevULong64)delta_val.db;
+					break;
+
+				case Tango::DEV_ENCODED:
+					if (!(str >> delta_val.sh))
+						throw_err_format("delta_val",dev_name);
+					delta_val.uch = (unsigned char)delta_val.sh;
+					break;
+				}
+				alarm_conf.set(rds);
+				delta_val_defined = true;
 			}
-			alarm_conf.set(rds);
-			delta_val_defined = true;
 		}
 	}
 
@@ -1136,7 +1193,7 @@ void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,Min
 //
 // description : 	Check if the attribute polled
 //
-// This method returns a boolean set to true if the atribute is polled
+// This method returns a boolean set to true if the attribute is polled
 //
 //--------------------------------------------------------------------------
 
@@ -1568,12 +1625,16 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 // First the description
 //
 
-	if ((TG_strcasecmp(conf.description,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.description,DescNotSet) != 0) &&
-		(strlen(conf.description) != 0))
-		description = conf.description;
-	else
+	if(TG_strcasecmp(conf.description,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		description = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.description,NotANumber) == 0) ||
+			(TG_strcasecmp(conf.description,DescNotSet) == 0) ||
+			(strlen(conf.description) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1583,24 +1644,33 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					break;
 			}
 			if (i == nb_user)
-				description = DescNotSpec;
+				description = DescNotSet;
 			else
 				description = def_user_prop[i].get_value();
 		}
 		else
-			description = DescNotSpec;
+			description = DescNotSet;
+	}
+	else
+	{
+		// set property
+		description = conf.description;
 	}
 
 //
 // The label
 //
 
-	if ((TG_strcasecmp(conf.label,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.label,name.c_str()) != 0) &&
-		(strlen(conf.label) != 0))
-		label = conf.label;
-	else
+	if(TG_strcasecmp(conf.label,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		label = name.c_str();
+	}
+	else if((TG_strcasecmp(conf.label,NotANumber) == 0) ||
+			(TG_strcasecmp(conf.label,name.c_str()) == 0) ||
+			(strlen(conf.label) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1617,17 +1687,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		else
 			label = name.c_str();
 	}
+	else
+	{
+		// set property
+		label = conf.label;
+	}
 
 //
 // The unit
 //
 
-	if ((TG_strcasecmp(conf.unit,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.unit,UnitNotSpec) != 0) &&
-		(strlen(conf.unit) != 0))
-		unit = conf.unit;
-	else
+	if(TG_strcasecmp(conf.unit,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		unit = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.unit,NotANumber) == 0) ||
+			(TG_strcasecmp(conf.unit,UnitNotSpec) == 0) ||
+			(strlen(conf.unit) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1644,17 +1723,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		else
 			unit = UnitNotSpec;
 	}
+	else
+	{
+		// set property
+		unit = conf.unit;
+	}
 
 //
 // The standard unit
 //
 
-	if ((TG_strcasecmp(conf.standard_unit,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.standard_unit,StdUnitNotSpec) != 0) &&
-		(strlen(conf.standard_unit) != 0))
-		standard_unit = conf.standard_unit;
-	else
+	if(TG_strcasecmp(conf.standard_unit,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		standard_unit = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.standard_unit,NotANumber) == 0) ||
+			(TG_strcasecmp(conf.standard_unit,StdUnitNotSpec) == 0) ||
+			(strlen(conf.standard_unit) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1671,17 +1759,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		else
 			standard_unit = StdUnitNotSpec;
 	}
+	else
+	{
+		// set property
+		standard_unit = conf.standard_unit;
+	}
 
 //
 // The display unit
 //
 
-	if ((TG_strcasecmp(conf.display_unit,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.display_unit,DispUnitNotSpec) != 0) &&
-		(strlen(conf.display_unit) != 0))
-		display_unit = conf.display_unit;
-	else
+	if(TG_strcasecmp(conf.display_unit,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		display_unit = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.display_unit,NotANumber) == 0) ||
+			(TG_strcasecmp(conf.display_unit,DispUnitNotSpec) == 0) ||
+			(strlen(conf.display_unit) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1698,17 +1795,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		else
 			display_unit = DispUnitNotSpec;
 	}
+	else
+	{
+		// set property
+		display_unit = conf.display_unit;
+	}
 
 //
 // The format
 //
 
-	if ((TG_strcasecmp(conf.format,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.format,FormatNotSpec) != 0) &&
-		(strlen(conf.format) != 0))
-		format = conf.format;
-	else
+	if(TG_strcasecmp(conf.format,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		format = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.format,NotANumber) == 0) ||
+			(TG_strcasecmp(conf.format,FormatNotSpec) == 0) ||
+			(strlen(conf.format) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1725,6 +1831,11 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		else
 			format = FormatNotSpec;
 	}
+	else
+	{
+		// set property
+		format = conf.format;
+	}
 
 //
 // For the last four properties, convert their value to the right type
@@ -1735,12 +1846,15 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	Attr_CheckVal old_min_value = min_value;
 	bool old_check_min_value = check_min_value;
 
-	if ((TG_strcasecmp(conf.min_value,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.min_value,NotANumber) != 0) &&
-		(strlen(conf.min_value) != 0))
-		min_value_str = conf.min_value;
-	else
+	if(TG_strcasecmp(conf.min_value,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		min_value_str = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.min_value,NotANumber) == 0) ||
+			(strlen(conf.min_value) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1750,23 +1864,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					break;
 			}
 			if (i == nb_user)
-				min_value_str = NotANumber;
+				min_value_str = AlrmValueNotSpec;
 			else
 				min_value_str = def_user_prop[i].get_value();
 		}
 		else
-			min_value_str = NotANumber;
+			min_value_str = AlrmValueNotSpec;
+	}
+	else
+	{
+		// set property
+		min_value_str = conf.min_value;
 	}
 
-	if (min_value_str == NotANumber)
+	if (min_value_str == AlrmValueNotSpec)
 	{
-		min_value_str = AlrmValueNotSpec;
 		check_min_value = false;
 	}
 	else
 	{
-		if ((min_value_str != AlrmValueNotSpec) &&
-		    (data_type != Tango::DEV_STRING) &&
+		if ((data_type != Tango::DEV_STRING) &&
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
@@ -1858,12 +1975,15 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	Attr_CheckVal old_max_value = max_value;
 	bool old_check_max_value = check_max_value;
 
-	if ((TG_strcasecmp(conf.max_value,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.max_value,NotANumber) != 0) &&
-		(strlen(conf.max_value) != 0))
-		max_value_str = conf.max_value;
-	else
+	if(TG_strcasecmp(conf.max_value,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		max_value_str = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.max_value,NotANumber) == 0) ||
+			(strlen(conf.max_value) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1873,23 +1993,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					break;
 			}
 			if (i == nb_user)
-				max_value_str = NotANumber;
+				max_value_str = AlrmValueNotSpec;
 			else
 				max_value_str = def_user_prop[i].get_value();
 		}
 		else
-			max_value_str = NotANumber;
+			max_value_str = AlrmValueNotSpec;
+	}
+	else
+	{
+		// set property
+		max_value_str = conf.max_value;
 	}
 
-	if (max_value_str == NotANumber)
+	if (max_value_str == AlrmValueNotSpec)
 	{
-		max_value_str = AlrmValueNotSpec;
 		check_max_value = false;
 	}
 	else
 	{
-		if ((max_value_str != AlrmValueNotSpec) &&
-		    (data_type != Tango::DEV_STRING) &&
+		if ((data_type != Tango::DEV_STRING) &&
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
@@ -1981,12 +2104,15 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			check_max_value = false;
 	}
 
-	if ((TG_strcasecmp(conf.min_alarm,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.min_alarm,NotANumber) != 0) &&
-		(strlen(conf.min_alarm) != 0))
-		min_alarm_str = conf.min_alarm;
-	else
+	if(TG_strcasecmp(conf.min_alarm,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		min_alarm_str = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.min_alarm,NotANumber) == 0) ||
+			(strlen(conf.min_alarm) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -1996,23 +2122,26 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					break;
 			}
 			if (i == nb_user)
-				min_alarm_str = NotANumber;
+				min_alarm_str = AlrmValueNotSpec;
 			else
 				min_alarm_str = def_user_prop[i].get_value();
 		}
 		else
-			min_alarm_str = NotANumber;
+			min_alarm_str = AlrmValueNotSpec;
+	}
+	else
+	{
+		// set property
+		min_alarm_str = conf.min_alarm;
 	}
 
-	if (min_alarm_str == NotANumber)
+	if (min_alarm_str == AlrmValueNotSpec)
 	{
-		min_alarm_str = AlrmValueNotSpec;
 		alarm_conf.reset(min_level);
 	}
 	else
 	{
-		if ((min_alarm_str != AlrmValueNotSpec) &&
-		    (data_type != Tango::DEV_STRING) &&
+		if ((data_type != Tango::DEV_STRING) &&
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
@@ -2087,12 +2216,15 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		}
 	}
 
-	if ((TG_strcasecmp(conf.max_alarm,AlrmValueNotSpec) != 0) &&
-	    (TG_strcasecmp(conf.max_alarm,NotANumber) != 0) &&
-		(strlen(conf.max_alarm) != 0))
-		max_alarm_str = conf.max_alarm;
-	else
+	if(TG_strcasecmp(conf.max_alarm,AlrmValueNotSpec) == 0)
 	{
+		// force library defaults (even if user defaults defined)
+		max_alarm_str = AlrmValueNotSpec;
+	}
+	else if((TG_strcasecmp(conf.max_alarm,NotANumber) == 0) ||
+			(strlen(conf.max_alarm) == 0))
+	{
+		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
 			int i;
@@ -2102,23 +2234,27 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					break;
 			}
 			if (i == nb_user)
-				max_alarm_str = NotANumber;
+				max_alarm_str = AlrmValueNotSpec;
 			else
 				max_alarm_str = def_user_prop[i].get_value();
 		}
 		else
-			max_alarm_str = NotANumber;
+			max_alarm_str = AlrmValueNotSpec;
+	}
+	else
+	{
+		// set property
+		max_alarm_str = conf.max_alarm;
 	}
 
-	if (max_alarm_str == NotANumber)
+	if (max_alarm_str == AlrmValueNotSpec)
 	{
-		max_alarm_str = AlrmValueNotSpec;
+//		max_alarm_str = AlrmValueNotSpec;
 		alarm_conf.reset(max_level);
 	}
 	else
 	{
-		if ((max_alarm_str != AlrmValueNotSpec) &&
-		    (data_type != Tango::DEV_STRING) &&
+		if ((data_type != Tango::DEV_STRING) &&
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
@@ -2778,6 +2914,24 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 	long prop_to_delete = 0;
 
 //
+// Get the vector of user default properties to store the AlrmValueNotSpec in
+// the data base in case there are user defaults declared for the property
+//
+
+	Tango::DeviceImpl *dev;
+	if (ext->dev != NULL)
+		dev = ext->dev;
+	else
+	{
+		Tango::Util *tg = Tango::Util::instance();
+		dev = tg->get_device_by_name(dev_name);
+	}
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+
+//
 // Check if "string" properties must be updated in db and if
 // needed insert a corresponding DbDatum object in the DbData
 // vector
@@ -2793,16 +2947,16 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 	TangoSys_MemStream str;
 
 	CHECK_PROP(conf.min_value,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"min_value");
+	           prop_to_update,prop_to_delete,"min_value",def_user_prop);
 
 	CHECK_PROP(conf.max_value,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"max_value");
+	           prop_to_update,prop_to_delete,"max_value",def_user_prop);
 
 	CHECK_PROP(conf.min_alarm,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"min_alarm");
+	           prop_to_update,prop_to_delete,"min_alarm",def_user_prop);
 
 	CHECK_PROP(conf.max_alarm,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"max_alarm");
+	           prop_to_update,prop_to_delete,"max_alarm",def_user_prop);
 
 //
 // Update db only if needed
@@ -2883,6 +3037,24 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	long prop_to_delete = 0;
 
 //
+// Get the vector of user default properties to store the AlrmValueNotSpec in
+// the data base in case there are user defaults declared for the property
+//
+
+	Tango::DeviceImpl *dev;
+	if (ext->dev != NULL)
+		dev = ext->dev;
+	else
+	{
+		Tango::Util *tg = Tango::Util::instance();
+		dev = tg->get_device_by_name(dev_name);
+	}
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+
+//
 // Check if "string" properties must be updated in db and if
 // needed insert a corresponding DbDatum object in the DbData
 // vector
@@ -2906,29 +3078,29 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	TangoSys_MemStream str;
 
 	CHECK_PROP(conf.min_value,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"min_value");
+	           prop_to_update,prop_to_delete,"min_value",def_user_prop);
 
 	CHECK_PROP(conf.max_value,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"max_value");
+	           prop_to_update,prop_to_delete,"max_value",def_user_prop);
 
 //
 // Check for alarm related data
 //
 
 	CHECK_PROP(conf.att_alarm.min_alarm,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"min_alarm");
+	           prop_to_update,prop_to_delete,"min_alarm",def_user_prop);
 
 	CHECK_PROP(conf.att_alarm.max_alarm,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"max_alarm");
+	           prop_to_update,prop_to_delete,"max_alarm",def_user_prop);
 
 	CHECK_PROP(conf.att_alarm.min_warning,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"min_warning");
+	           prop_to_update,prop_to_delete,"min_warning",def_user_prop);
 
 	CHECK_PROP(conf.att_alarm.max_warning,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"max_warning");
+	           prop_to_update,prop_to_delete,"max_warning",def_user_prop);
 
 	CHECK_PROP(conf.att_alarm.delta_val,str,dev_name,db_d,db_del,
-	           prop_to_update,prop_to_delete,"delta_val");
+	           prop_to_update,prop_to_delete,"delta_val",def_user_prop);
 
 	if ((strcmp(conf.att_alarm.delta_t,AlrmValueNotSpec) != 0) &&
 	    (strcmp(conf.att_alarm.delta_t,NotANumber) != 0))

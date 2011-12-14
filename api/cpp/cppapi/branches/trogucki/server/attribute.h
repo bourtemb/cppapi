@@ -2335,98 +2335,122 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 //		F : Number of prop to update
 //		G : Number of prop to delete
 //		H : Property name
+//		I : Default user properties vector ref
 //
 // Too many parameters ?
 //
 
-#define CHECK_PROP(A,B,C,D,E,F,G,H) \
-	if ((strcmp(A,AlrmValueNotSpec) != 0) && \
-	    (strcmp(A,NotANumber) != 0)) \
+#define CHECK_PROP(A,B,C,D,E,F,G,H,I) \
+{ \
+	bool store_AlrmValueNotSpec = false; \
+	if(TG_strcasecmp(A,AlrmValueNotSpec) == 0) \
 	{ \
-		if ((data_type != Tango::DEV_STRING) && \
-		    (data_type != Tango::DEV_BOOLEAN) && \
-		    (data_type != Tango::DEV_STATE)) \
+		if (I.size() != 0) \
 		{ \
-			short sh; \
-			DevLong lg; \
-			double db; \
-			float fl; \
-			unsigned short ush; \
-			unsigned char uch; \
-			DevLong64 lg64; \
-			DevULong ulg; \
-			DevULong64 ulg64; \
-\
-			B.seekp(0); \
-			B.seekg(0); \
-			B.clear(); \
-			B << A << ends; \
-			switch (data_type) \
+			for (unsigned int i = 0;i < I.size();i++) \
 			{ \
-			case Tango::DEV_SHORT: \
-				if (!(B >> sh)) \
-					throw_err_format(H,C); \
-				break; \
-\
-			case Tango::DEV_LONG: \
-				if (!(B >> lg)) \
-					throw_err_format(H,C); \
-				break;\
-\
-			case Tango::DEV_LONG64: \
-				if (!(B >> lg64)) \
-					throw_err_format(H,C); \
-				break;\
-\
-			case Tango::DEV_DOUBLE: \
-				if (!(B >> db)) \
-					throw_err_format(H,C); \
-				break; \
-\
-			case Tango::DEV_FLOAT: \
-				if (!(B >> fl)) \
-					throw_err_format(H,C); \
-				break; \
-\
-			case Tango::DEV_USHORT: \
-				if (!(B >> ush)) \
-					throw_err_format(H,C); \
-				break; \
-\
-			case Tango::DEV_UCHAR: \
-				if (!(B >> uch)) \
-					throw_err_format(H,C); \
-				break; \
-\
-			case Tango::DEV_ULONG: \
-				if (!(B >> ulg)) \
-					throw_err_format(H,C); \
-				break; \
-\
-			case Tango::DEV_ULONG64: \
-				if (!(B >> ulg64)) \
-					throw_err_format(H,C); \
-				break; \
+				if (I[i].get_name() == H) \
+				{ \
+					store_AlrmValueNotSpec = true; \
+					break; \
+				} \
 			} \
 		} \
-		else \
-		{ \
-			throw_err_data_type(H,C); \
-		}\
-\
-		DbDatum max_val(H); \
-		const char *tmp = A.in(); \
-		max_val << tmp; \
-		D.push_back(max_val); \
-		F++; \
 	} \
 \
-	if ((strcmp(A,NotANumber) == 0) || (TG_strcasecmp(A,AlrmValueNotSpec) == 0)) \
+	if (strcmp(A,NotANumber) != 0) \
+	{ \
+		if(TG_strcasecmp(A,AlrmValueNotSpec) != 0) \
+		{ \
+			if ((data_type != Tango::DEV_STRING) && \
+				(data_type != Tango::DEV_BOOLEAN) && \
+				(data_type != Tango::DEV_STATE)) \
+			{ \
+				short sh; \
+				DevLong lg; \
+				double db; \
+				float fl; \
+				unsigned short ush; \
+				unsigned char uch; \
+				DevLong64 lg64; \
+				DevULong ulg; \
+				DevULong64 ulg64; \
+\
+				B.seekp(0); \
+				B.seekg(0); \
+				B.clear(); \
+				B << A << ends; \
+				switch (data_type) \
+				{ \
+				case Tango::DEV_SHORT: \
+					if (!(B >> sh)) \
+						throw_err_format(H,C); \
+					break; \
+\
+				case Tango::DEV_LONG: \
+					if (!(B >> lg)) \
+						throw_err_format(H,C); \
+					break;\
+\
+				case Tango::DEV_LONG64: \
+					if (!(B >> lg64)) \
+						throw_err_format(H,C); \
+					break;\
+\
+				case Tango::DEV_DOUBLE: \
+					if (!(B >> db)) \
+						throw_err_format(H,C); \
+					break; \
+\
+				case Tango::DEV_FLOAT: \
+					if (!(B >> fl)) \
+						throw_err_format(H,C); \
+					break; \
+\
+				case Tango::DEV_USHORT: \
+					if (!(B >> ush)) \
+						throw_err_format(H,C); \
+					break; \
+\
+				case Tango::DEV_UCHAR: \
+					if (!(B >> sh)) \
+						throw_err_format(H,C); \
+					break; \
+\
+				case Tango::DEV_ULONG: \
+					if (!(B >> ulg)) \
+						throw_err_format(H,C); \
+					break; \
+\
+				case Tango::DEV_ULONG64: \
+					if (!(B >> ulg64)) \
+						throw_err_format(H,C); \
+					break; \
+				} \
+			} \
+			else \
+			{ \
+				throw_err_data_type(H,C); \
+			} \
+		} \
+\
+		if(TG_strcasecmp(A,AlrmValueNotSpec) != 0 || store_AlrmValueNotSpec) \
+		{ \
+			DbDatum max_val(H); \
+			const char *tmp = A.in(); \
+			max_val << tmp; \
+			D.push_back(max_val); \
+			F++; \
+		} \
+	} \
+\
+	if (strcmp(A,NotANumber) == 0 || (TG_strcasecmp(A,AlrmValueNotSpec) == 0 && !store_AlrmValueNotSpec)) \
 	{ \
 		DbDatum max_val(H); \
 		E.push_back(max_val); \
 		G++; \
-	}
+	} \
+} \
 
 
 //
