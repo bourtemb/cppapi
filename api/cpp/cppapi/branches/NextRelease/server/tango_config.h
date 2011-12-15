@@ -63,11 +63,15 @@
 //
 
 #if ((defined WIN32) || (defined WIN64))
-	#if (_MSC_VER >= 1400)       // VC8+
-		#define WIN32_VC8
-	#elif (_MSC_VER >= 1500)
-		#define WIN32_VC9
-	#endif   // VC8+/VC9
+    #ifdef _MSC_VER
+        #if ((_MSC_VER >= 1400)  && (_MSC_VER < 1500))     // VC8+
+            #define WIN32_VC8
+        #elif ((_MSC_VER >= 1500) && (_MSC_VER < 1600))
+            #define WIN32_VC9
+        #elif (_MSC_VER >= 1600)
+            #define WIN32_VC10
+        #endif   // VC8+/VC9/VC10
+    #endif
 #endif
 
 
@@ -131,6 +135,10 @@
 
 #ifndef _TG_WINDOWS_
     #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)))
+        #define HAS_UNIQUE_PTR
+    #endif
+#else
+    #ifdef WIN32_VC10
         #define HAS_UNIQUE_PTR
     #endif
 #endif

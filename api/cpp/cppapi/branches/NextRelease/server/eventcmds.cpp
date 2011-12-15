@@ -169,15 +169,22 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //
 // Check if the request comes from a Tango 6 client (without client identification)
 // If true, the event has to be sent using AttributeValue_3 data structure
+// If cl is NULL, this means that the call is local (Two tango classes within the
+// same process and with events between device from class 1 and device from classs 2)
 //
 
 	client_addr *cl = get_client_ident();
 	int cl_release;
 
-	if (cl->client_ident == true)
-		cl_release = 4;
-	else
-		cl_release = 3;
+    if (cl == NULL)
+        cl_release = 4;
+    else
+    {
+        if (cl->client_ident == true)
+            cl_release = 4;
+        else
+            cl_release = 3;
+    }
 
 	if (action == "subscribe")
 	{

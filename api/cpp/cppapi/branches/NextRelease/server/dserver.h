@@ -122,6 +122,7 @@ public :
 
 	TANGO_IMP_EXP static void register_class_factory(ClassFactoryFuncPtr f_ptr) {class_factory_func_ptr = f_ptr;}
 	void _add_class(DeviceClass *dc) {this->add_class(dc);}
+	void _create_cpp_class(const char *c1,const char *c2) {this->create_cpp_class(c1,c2);}
 
 	void mcast_event_for_att(string &,string &,vector<string> &);
 

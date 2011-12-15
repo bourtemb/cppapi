@@ -1170,8 +1170,7 @@ void Util::misc_init()
 
 #ifdef _TG_WINDOWS_
 	main_win_text = "TANGO collaboration\n";
-	main_win_text = main_win_text + "(ALBA / DESY / ELETTRA / ESRF / SOLEIL )\n";
-	main_win_text = main_win_text + "CORBA based device server\n";
+	main_win_text = main_win_text + "(ALBA / DESY / ELETTRA / ESRF / FRMII / MAX-LAB / SOLEIL )\n";
 	main_win_text = main_win_text + "Developped by Tango team";
 #endif
 

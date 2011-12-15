@@ -1042,16 +1042,10 @@ inline CORBA::Any *return_empty_any(const char *cmd)
 		TangoSys_MemStream o;
 
 		o << cmd << "::execute";
-#if !defined(_TG_WINDOWS_) || (defined(_MSC_VER) && _MSC_VER >= 1300)
-		//cout3 << "Bad allocation while in " << cmd << "::execute()" << endl;
-#endif
 		Tango::Except::throw_exception((const char *)"API_MemoryAllocation",
 					     (const char *)"Can't allocate memory in server",
 					     o.str());
 	}
-#if !defined(_TG_WINDOWS_) || (defined(_MSC_VER) && _MSC_VER >= 1300)
-	//cout4 << "Leaving " << cmd << "::execute()" << endl;
-#endif
 	return(out_any);
 
 }
