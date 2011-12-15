@@ -116,7 +116,7 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 // Get the process PID
 //
 
-#ifdef WIN32_VC8
+#ifdef _TG_WINDOWS_
 	ext->cl_pid = _getpid();
 #else
 	ext->cl_pid = getpid();
