@@ -438,7 +438,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 						// subscribe has not worked, try again in the next hearbeat period
 						vpos->last_heartbeat = now;
 
-						cout << "During the event subscription an exception was send which is not a Tango::DevFailed exception!" << endl;
+						cout << "During the event subscription an exception was sent which is not a Tango::DevFailed exception!" << endl;
 					}
 				}
 				if (inc_vpos)
@@ -484,6 +484,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 									subscriber_info.push_back("subscribe");
 									subscriber_info.push_back(epos->second.event_name);
 									subscriber_in << subscriber_info;
+
 									if (ipos->second.channel_type == ZMQ)
                                         ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
 									else
@@ -765,6 +766,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
                                                 ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
 										    else
                                                 ipos->second.adm_device_proxy->command_inout("EventSubscriptionChange",subscriber_in);
+
 											ipos->second.heartbeat_skipped = false;
         									ipos->second.last_subscribed = time(NULL);
 										}
