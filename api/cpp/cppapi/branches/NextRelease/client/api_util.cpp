@@ -54,11 +54,9 @@ static const char *RcsId = "$Id$\n$Name$";
 
 #else
 #include <ws2tcpip.h>
-#endif
-
-#ifdef WIN32_VC8
 #include <process.h>
 #endif
+
 
 namespace Tango
 {
