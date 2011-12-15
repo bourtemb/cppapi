@@ -1485,8 +1485,14 @@ void BlackBox::date_ux_to_str(timeval &ux_date,char *str_date)
 
 /* Convert UNIX date to a string in UNIX format */
 
+#ifdef _TG_WINDOWS_
+	time_t win_time;
+	win_time = (time_t)ux_date.tv_sec;
+	ux_str = ctime(&win_time);
+#else
 	ux_str = ctime((time_t *)&(ux_date.tv_sec));
 	strcpy(unix_date,ux_str);
+#endif
 
 /* Copy day */
 
