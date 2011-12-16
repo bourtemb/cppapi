@@ -49,6 +49,15 @@ do
 		MAKE_PATH="devenv"
 		INSTALL_DIR=$WIN_INSTALL_DIR
 	fi
+
+	if [ $i = "Windows_VC10" ]
+	then
+		echo "Windows VC10 (64 bits)"
+		OS_TYPE="Windows"
+		OS_SPEC="Windows_64_VC10"
+		MAKE_PATH="devenv"
+		INSTALL_DIR=$WIN_INSTALL_DIR
+	fi
 	
 	if [ $i = "centos5" ]
 	then
@@ -137,10 +146,16 @@ then
 		BUILD="/rebuild"
 	fi
 	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME $BUILD $DEBUG_MODE /projectconfig $DEBUG_MODE /out $OUTFILE"
-	export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
-	echo $PATH
 	export PREFIX=$INSTALL_DIR
-	cd NextRelease/win32/tango_vc9
+	if [ $OS_SPEC = "Windows_64_VC10" ]
+	then
+		export PATH=$PATH:/cygdrive/c/Program\ Files\ (x86)/Microsoft\ Visual\ Studio\ 10.0/Common7/IDE
+		cd NextRelease/win64/tango_vc10
+	else
+		export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
+		cd NextRelease/win32/tango_vc9
+	fi
+	echo $PATH
 	/bin/rm -f $OUTFILE
 else
 	MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $CLEAN $LIBNAME install_include install_link"
@@ -162,12 +177,18 @@ then
 	if [ $RET = 0 ]
 	then
 		cd ../..
-		/bin/mkdir -p $INSTALL_DIR/win32/include
-		/bin/mkdir -p $INSTALL_DIR/win32/include/idl
-		/bin/cp client/*.h $INSTALL_DIR/win32/include
-		/bin/cp server/*.h $INSTALL_DIR/win32/include
-		/bin/cp server/*.tpp $INSTALL_DIR/win32/include
-		/bin/cp server/idl/*.h $INSTALL_DIR/win32/include/idl
+		if [ $OS_SPEC = "Windows_64_VC10" ]
+		then
+			BASE=$INSTALL_DIR/win64
+		else
+			BASE=$INSTALL_DIR/win32
+		fi
+		/bin/mkdir -p $BASE/include
+		/bin/mkdir -p $BASE/include/idl
+		/bin/cp client/*.h $BASE/include
+		/bin/cp server/*.h $BASE/include
+		/bin/cp server/*.tpp $BASE/include
+		/bin/cp server/idl/*.h $BASE/include/idl
 	fi
 fi
 
