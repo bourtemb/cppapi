@@ -149,7 +149,7 @@ then
 	export PREFIX=$INSTALL_DIR
 	if [ $OS_SPEC = "Windows_64_VC10" ]
 	then
-		export PATH=$PATH:/cygdrive/c/Program\ Files\ (x86)/Microsoft\ Visual\ Studio\ 10.0/Common7/IDE
+		export PATH=$PATH:/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ 10.0/Common7/IDE
 		cd NextRelease/win64/tango_vc10
 	else
 		export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
