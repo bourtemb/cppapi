@@ -55,7 +55,7 @@ do
 		echo "Windows VC10 (64 bits)"
 		OS_TYPE="Windows"
 		OS_SPEC="Windows_64_VC10"
-		MAKE_PATH="devenv"
+		MAKE_PATH="MSBuild"
 		INSTALL_DIR=$WIN_INSTALL_DIR
 	fi
 	
@@ -145,13 +145,14 @@ then
 	else
 		BUILD="/rebuild"
 	fi
-	MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME $BUILD $DEBUG_MODE /projectconfig $DEBUG_MODE /out $OUTFILE"
 	export PREFIX=$INSTALL_DIR
 	if [ $OS_SPEC = "Windows_64_VC10" ]
 	then
-		export PATH=$PATH:/cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ Visual\ Studio\ 10.0/Common7/IDE
+		MAKE_CMD="$MAKE_PATH winnt_lib.sln /p:Platform=x64 /t:$LIBNAME /p:DEBUG_MODE /v:quiet /flp:LogFile=$OUTFILE;Summary;ShowCommandLine;Verbosity=minimal"
+		export PATH=$PATH:/cygdrive/c/Windows/Microsoft.Net/Framework64/v4.0.30319
 		cd NextRelease/win64/tango_vc10
 	else
+		MAKE_CMD="$MAKE_PATH winnt_lib.sln /project $LIBNAME $BUILD $DEBUG_MODE /projectconfig $DEBUG_MODE /out $OUTFILE"
 		export PATH=$PATH:/cygdrive/c/Program\ Files/Microsoft\ Visual\ Studio\ 9.0/Common7/IDE
 		cd NextRelease/win32/tango_vc9
 	fi
