@@ -295,7 +295,8 @@ CLIENT_INCLUDE =	apiexcept.h \
 			filedatabase.h \
 			group.h \
 			accessproxy.h \
-			eventconsumer.h
+			eventconsumer.h \
+			event.h
 
 SERVER_INCLUDE =	attrdesc.h \
 			attribute.h \
@@ -316,7 +317,6 @@ SERVER_INCLUDE =	attrdesc.h \
 			dserver.h \
 			dserverclass.h \
 			dserversignal.h \
-			event.h \
 			eventsupplier.h \
 			except.h \
 			log4tango.h \
