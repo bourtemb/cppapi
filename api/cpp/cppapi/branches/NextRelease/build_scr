@@ -141,16 +141,11 @@ if [ $OS_TYPE = "Windows" ]
 then
 	if [ -z $CLEAN ]
 	then
-		if [ $OS_SPEC = "Windows_64_VC10" ]
-		then
-			BUILD="Build"
-		else
-			BUILD="/build"
-		fi
+		BUILD="/build"
 	else
 		if [ $OS_SPEC = "Windows_64_VC10" ]
 		then
-			BUILD="Rebuild"
+			LIBNAME="Clean;"$LIBNAME
 		else
 			BUILD="/rebuild"
 		fi
@@ -158,7 +153,7 @@ then
 	export PREFIX=$INSTALL_DIR
 	if [ $OS_SPEC = "Windows_64_VC10" ]
 	then
-		MAKE_CMD="$MAKE_PATH winnt_lib.sln /p:Platform=x64 /t:$LIBNAME;$BUILD /p:Configuration=$DEBUG_MODE /v:quiet /flp:LogFile=$OUTFILE;Summary;ShowCommandLine;Verbosity=minimal"
+		MAKE_CMD="$MAKE_PATH winnt_lib.sln /p:Platform=x64 /t:$LIBNAME /p:Configuration=$DEBUG_MODE /v:quiet /flp:LogFile=$OUTFILE;Summary;ShowCommandLine;Verbosity=minimal"
 		export PATH=$PATH:/cygdrive/c/Windows/Microsoft.Net/Framework64/v4.0.30319
 		cd NextRelease/win64/tango_vc10
 	else
