@@ -55,7 +55,7 @@ do
 		echo "Windows VC10 (64 bits)"
 		OS_TYPE="Windows"
 		OS_SPEC="Windows_64_VC10"
-		MAKE_PATH="MSBuild"
+		MAKE_PATH="MSBuild.exe"
 		INSTALL_DIR=$WIN_INSTALL_DIR
 	fi
 	
