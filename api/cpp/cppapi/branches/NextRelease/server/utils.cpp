@@ -493,16 +493,11 @@ void Util::create_CORBA_objects()
 //
 //-----------------------------------------------------------------------------
 
-Util::Util(HINSTANCE hInst,int nCmdShow):cl_list_ptr(NULL),mon("Windows startup")
+Util::Util(HINSTANCE hInst,int nCmdShow):cl_list_ptr(NULL),mon("Windows startup"),ext(new UtilExt)
 #ifndef TANGO_HAS_LOG4TANGO
   ,cout_tmp(cout.rdbuf())
 #endif
 {
-//
-// Create the UtilExt instance
-//
-
-	ext = new UtilExt;
 
 //
 // This method should be called from a Windows graphic program
