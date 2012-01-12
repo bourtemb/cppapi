@@ -58,12 +58,12 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-AttributeProxy::AttributeProxy (string &name):dev_proxy(NULL),ext(NULL)
+AttributeProxy::AttributeProxy (string &name):dev_proxy(NULL),ext(Tango_NullPtr)
 {
 	real_constructor(name);
 }
 
-AttributeProxy::AttributeProxy (const char *na):dev_proxy(NULL),ext(NULL)
+AttributeProxy::AttributeProxy (const char *na):dev_proxy(NULL),ext(Tango_NullPtr)
 {
 	string name(na);
 	real_constructor(name);
@@ -225,13 +225,13 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 	}
 }
 
-AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,const char *att_name):ext(NULL)
+AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,const char *att_name):ext(Tango_NullPtr)
 {
 	string att_na(att_name);
 	ctor_from_dp(dev_ptr,att_na);
 }
 
-AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext(NULL)
+AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext(Tango_NullPtr)
 {
 	ctor_from_dp(dev_ptr,att_name);
 }
@@ -243,7 +243,7 @@ AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext
 //
 //-----------------------------------------------------------------------------
 
-AttributeProxy::AttributeProxy(const AttributeProxy &prev):ext(NULL)
+AttributeProxy::AttributeProxy(const AttributeProxy &prev):ext(Tango_NullPtr)
 {
 
 //

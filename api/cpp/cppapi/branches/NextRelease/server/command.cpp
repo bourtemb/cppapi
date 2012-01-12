@@ -722,7 +722,7 @@ CORBA::Any *Command::insert(Tango::DevEncoded *data)
 
 TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)())
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -734,7 +734,7 @@ TemplCommand::TemplCommand(const char *s,
 TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)(),
 			   bool (DeviceImpl::*a)(const CORBA::Any &))
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	in_type = out_type = Tango::DEV_VOID;
@@ -744,7 +744,7 @@ TemplCommand::TemplCommand(const char *s,
 
 TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)())
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type = out_type = Tango::DEV_VOID;
@@ -756,7 +756,7 @@ TemplCommand::TemplCommand(string &s,
 TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)(),
 			   bool (DeviceImpl::*a)(const CORBA::Any &))
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	in_type = out_type = Tango::DEV_VOID;
@@ -767,7 +767,7 @@ TemplCommand::TemplCommand(string &s,
 TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)(),
 			   const char *in_desc,const char *out_desc)
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -784,7 +784,7 @@ TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)(),
 			   bool (DeviceImpl::*a)(const CORBA::Any &),
 			   const char *in_desc,const char *out_desc)
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -800,7 +800,7 @@ TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)(),
 			   bool (DeviceImpl::*a)(const CORBA::Any &),
 			   string &in_desc,string &out_desc)
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -813,7 +813,7 @@ TemplCommand::TemplCommand(string &s,
 TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)(),
 			   string &in_desc,string &out_desc)
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -827,7 +827,7 @@ TemplCommand::TemplCommand(string &s,
 TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)(),
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -841,7 +841,7 @@ TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)(),
 			   bool (DeviceImpl::*a)(const CORBA::Any &),
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	in_type = out_type = Tango::DEV_VOID;
@@ -853,7 +853,7 @@ TemplCommand::TemplCommand(const char *s,
 TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)(),
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type = out_type = Tango::DEV_VOID;
@@ -867,7 +867,7 @@ TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)(),
 			   bool (DeviceImpl::*a)(const CORBA::Any &),
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	in_type = out_type = Tango::DEV_VOID;
@@ -880,7 +880,7 @@ TemplCommand::TemplCommand(const char *s,
 			   void (DeviceImpl::*f)(),
 			   const char *in_desc,const char *out_desc,
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -899,7 +899,7 @@ TemplCommand::TemplCommand(const char *s,
 			   bool (DeviceImpl::*a)(const CORBA::Any &),
 			   const char *in_desc,const char *out_desc,
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -917,7 +917,7 @@ TemplCommand::TemplCommand(string &s,
 			   bool (DeviceImpl::*a)(const CORBA::Any &),
 			   string &in_desc,string &out_desc,
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL),allowed_ptr(a)
+			   :exe_ptr(f),ext(Tango_NullPtr),allowed_ptr(a)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -932,7 +932,7 @@ TemplCommand::TemplCommand(string &s,
 			   void (DeviceImpl::*f)(),
 			   string &in_desc,string &out_desc,
 			   Tango::DispLevel level)
-			   :exe_ptr(f),ext(NULL)
+			   :exe_ptr(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;

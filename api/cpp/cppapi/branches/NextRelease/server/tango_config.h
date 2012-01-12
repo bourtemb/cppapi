@@ -139,6 +139,7 @@
     #ifdef WIN32_VC10
         #define HAS_UNIQUE_PTR
         #define HAS_LAMBDA_FUNC
+        #define HAS_NULLPTR
     #endif
 #endif
 
@@ -176,6 +177,16 @@
     #endif
 #else
     #define Tango_isnan(A) _isnan(A)
+#endif
+
+//
+// Define a common isnan call
+//
+
+#ifdef HAS_NULLPTR
+    #define Tango_NullPtr   nullptr
+#else
+    #define Tango_NullPtr   NULL
 #endif
 
 //

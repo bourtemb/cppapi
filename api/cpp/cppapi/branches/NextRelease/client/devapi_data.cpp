@@ -47,7 +47,7 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DeviceData::DeviceData():ext(NULL)
+DeviceData::DeviceData():ext(Tango_NullPtr)
 {
 //
 // For omniORB, it is necessary to do the ORB::init before creating the Any.
@@ -62,7 +62,7 @@ DeviceData::DeviceData():ext(NULL)
 	exceptions_flags.set(isempty_flag);
 }
 
-DeviceData::DeviceData(const DeviceData & source):ext(NULL)
+DeviceData::DeviceData(const DeviceData & source):ext(Tango_NullPtr)
 {
 	exceptions_flags = source.exceptions_flags;
 	any = const_cast<DeviceData &>(source).any._retn();

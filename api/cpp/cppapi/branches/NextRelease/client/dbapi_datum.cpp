@@ -46,14 +46,14 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DbDatum::DbDatum(string p_name):ext(NULL)
+DbDatum::DbDatum(string p_name):ext(Tango_NullPtr)
 {
 	name = p_name;
 	value_size = 0;
 	value_string.resize(0);
 }
 
-DbDatum::DbDatum(const char *p_name):name(p_name),ext(NULL)
+DbDatum::DbDatum(const char *p_name):name(p_name),ext(Tango_NullPtr)
 {
 	value_size = 0;
 	value_string.resize(0);
@@ -65,7 +65,7 @@ DbDatum::DbDatum(const char *p_name):name(p_name),ext(NULL)
 //
 //-----------------------------------------------------------------------------
 
-DbDatum::DbDatum():ext(NULL)
+DbDatum::DbDatum():ext(Tango_NullPtr)
 {
 }
 

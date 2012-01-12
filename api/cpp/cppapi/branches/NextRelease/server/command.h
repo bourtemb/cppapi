@@ -1251,7 +1251,7 @@ public:
  *
  * The default constructor
  */
-	TemplCommand():ext(NULL) {}
+	TemplCommand():ext(Tango_NullPtr) {}
 
 /**
  * Constructs a newly allocated TemplCommand object for a command with a
@@ -1965,7 +1965,7 @@ private:
 template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG))
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -1978,7 +1978,7 @@ template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &))
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -1990,7 +1990,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG))
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2003,7 +2003,7 @@ template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &))
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2016,7 +2016,7 @@ template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 const char *in_desc,const char *out_desc)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -2034,7 +2034,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 const char *in_desc,const char *out_desc)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2050,7 +2050,7 @@ template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 string &in_desc,string &out_desc)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -2065,7 +2065,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 string &in_desc,string &out_desc)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2079,7 +2079,7 @@ template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2094,7 +2094,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2108,7 +2108,7 @@ template <typename INARG,typename OUTARG>
 TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2123,7 +2123,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2138,7 +2138,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 const char *in_desc,const char *out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -2158,7 +2158,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(const char *s,
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 const char *in_desc,const char *out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2176,7 +2176,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 OUTARG (DeviceImpl::*f)(INARG),
 					 string &in_desc,string &out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -2193,7 +2193,7 @@ TemplCommandInOut<INARG,OUTARG>::TemplCommandInOut(string &s,
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 string &in_desc,string &out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_inout(f),ext(NULL)
+					 :exe_ptr_inout(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2633,7 +2633,7 @@ private:
 template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG))
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2646,7 +2646,7 @@ template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &))
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2658,7 +2658,7 @@ TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG))
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2671,7 +2671,7 @@ template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &))
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2684,7 +2684,7 @@ template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG),
 					 const char *in_desc,const char *out_desc)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -2702,7 +2702,7 @@ TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 const char *in_desc,const char *out_desc)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2718,7 +2718,7 @@ template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG),
 					 string &in_desc,string &out_desc)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -2733,7 +2733,7 @@ TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 string &in_desc,string &out_desc)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2747,7 +2747,7 @@ template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG),
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2762,7 +2762,7 @@ TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2776,7 +2776,7 @@ template <typename INARG>
 TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG),
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -2791,7 +2791,7 @@ TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2806,7 +2806,7 @@ TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 void (DeviceImpl::*f)(INARG),
 					 const char *in_desc,const char *out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -2826,7 +2826,7 @@ TemplCommandIn<INARG>::TemplCommandIn(const char *s,
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 const char *in_desc,const char *out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -2844,7 +2844,7 @@ TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 void (DeviceImpl::*f)(INARG),
 					 string &in_desc,string &out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -2861,7 +2861,7 @@ TemplCommandIn<INARG>::TemplCommandIn(string &s,
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 string &in_desc,string &out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_in(f),ext(NULL)
+					 :exe_ptr_in(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3280,7 +3280,7 @@ private:
 template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)())
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -3293,7 +3293,7 @@ template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(),
 					 bool (DeviceImpl::*a)(const CORBA::Any &))
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3305,7 +3305,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)())
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -3318,7 +3318,7 @@ template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)(),
 					 bool (DeviceImpl::*a)(const CORBA::Any &))
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3331,7 +3331,7 @@ template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(),
 					 const char *in_desc,const char *out_desc)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -3349,7 +3349,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 const char *in_desc,const char *out_desc)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3365,7 +3365,7 @@ template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)(),
 					 string &in_desc,string &out_desc)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -3380,7 +3380,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)(),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 string &in_desc,string &out_desc)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3394,7 +3394,7 @@ template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(),
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -3409,7 +3409,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3423,7 +3423,7 @@ template <typename OUTARG>
 TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)(),
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = NULL;
@@ -3438,7 +3438,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)(),
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3453,7 +3453,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 OUTARG (DeviceImpl::*f)(),
 					 const char *in_desc,const char *out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	if (in_desc != NULL)
@@ -3473,7 +3473,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(const char *s,
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 const char *in_desc,const char *out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;
@@ -3491,7 +3491,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 OUTARG (DeviceImpl::*f)(),
 					 string &in_desc,string &out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	in_type_desc = in_desc;
@@ -3508,7 +3508,7 @@ TemplCommandOut<OUTARG>::TemplCommandOut(string &s,
 					 bool (DeviceImpl::*a)(const CORBA::Any &),
 					 string &in_desc,string &out_desc,
 					 Tango::DispLevel level)
-					 :exe_ptr_out(f),ext(NULL)
+					 :exe_ptr_out(f),ext(Tango_NullPtr)
 {
 	name = s;
 	allowed_ptr = a;

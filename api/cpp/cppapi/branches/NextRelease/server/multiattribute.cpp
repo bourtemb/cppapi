@@ -89,7 +89,7 @@ static OptAttrProp Tango_OptAttrProp[] = {
 //--------------------------------------------------------------------------
 
 MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
-:ext(NULL)
+:ext(Tango_NullPtr)
 {
 	long i;
 	cout4 << "Entering MultiAttribute class constructor for device " << dev_name << endl;

@@ -129,7 +129,7 @@ Connection::Connection(ORB *orb_in):pasyn_ctr(0),pasyn_cb_ctr(0),
 		ext->user_connect_timeout = ucto;
 }
 
-Connection::Connection(bool dummy):ext(NULL)
+Connection::Connection(bool dummy):ext(Tango_NullPtr)
 {
 	if (dummy)
 	{
@@ -160,7 +160,7 @@ Connection::~Connection()
 //
 //-----------------------------------------------------------------------------
 
-Connection::Connection(const Connection &sou):ext(NULL)
+Connection::Connection(const Connection &sou):ext(nullptr)
 {
 	dbase_used = sou.dbase_used;
 	from_env_var = sou.from_env_var;
@@ -246,7 +246,7 @@ Connection &Connection::operator=(const Connection &rval)
         *(ext.get()) = *(rval.ext.get());
     }
     else
-        ext.reset(NULL);
+        ext.reset(Tango_NullPtr);
 #else
 	if (rval.ext != NULL)
 	{

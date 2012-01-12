@@ -104,7 +104,7 @@ DeviceAttribute::DeviceAttribute():ext(new DeviceAttributeExt)
 	exceptions_flags.set(isempty_flag);
 }
 
-DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(NULL)
+DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullPtr)
 {
 	name = source.name;
 	exceptions_flags = source.exceptions_flags;
