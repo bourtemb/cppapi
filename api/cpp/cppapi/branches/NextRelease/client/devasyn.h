@@ -50,10 +50,6 @@ class AttrConfEventDataList;
 class DataReadyEventDataList;
 class EventConsumer;
 class EventConsumerKeepAliveThread;
-class CmdDoneEventExt;
-class AttrReadEventExt;
-class AttrWrittenEventExt;
-class CallBackExt;
 
 /********************************************************************************
  *                                                                              *
@@ -79,7 +75,18 @@ public:
 	bool				err;
 	DevErrorList		&errors;
 
-	CmdDoneEventExt		*ext;
+private:
+    class CmdDoneEventExt
+    {
+    public:
+        CmdDoneEventExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<CmdDoneEventExt> ext;
+#else
+	CmdDoneEventExt		        *ext;
+#endif
 };
 
 /********************************************************************************
@@ -106,7 +113,18 @@ public:
 	bool					err;
 	DevErrorList			&errors;
 
-	AttrReadEventExt		*ext;
+private:
+    class AttrReadEventExt
+    {
+    public:
+        AttrReadEventExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<AttrReadEventExt>    ext;
+#else
+	AttrReadEventExt		        *ext;
+#endif
 };
 
 /********************************************************************************
@@ -130,7 +148,18 @@ public:
 	bool				err;
 	NamedDevFailedList	&errors;
 
-	AttrWrittenEventExt	*ext;
+private:
+    class AttrWrittenEventExt
+    {
+    public:
+        AttrWrittenEventExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<AttrWrittenEventExt> ext;
+#else
+	AttrWrittenEventExt	            *ext;
+#endif
 };
 
 /********************************************************************************
@@ -155,7 +184,18 @@ public:
 	virtual void push_event(AttrConfEventData *) {};
 	virtual void push_event(DataReadyEventData *) {};
 
-	CallBackExt		*ext;
+private:
+    class CallBackExt
+    {
+    public:
+        CallBackExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<CallBackExt> ext;
+#else
+	CallBackExt		        *ext;
+#endif
 };
 
 //------------------------------------------------------------------------------
@@ -240,37 +280,6 @@ private:
 	omni_condition				cond;
 	bool remove_cancelled_request(long);
 };
-
-//-------------------------------------------------------------------------
-
-//
-// Some extension classes foreseen for library binary compatibility
-//
-
-class CmdDoneEventExt
-{
-public:
-	CmdDoneEventExt() {};
-};
-
-class AttrReadEventExt
-{
-public:
-	AttrReadEventExt() {};
-};
-
-class AttrWrittenEventExt
-{
-public:
-	AttrWrittenEventExt() {};
-};
-
-class CallBackExt
-{
-public:
-	CallBackExt() {};
-};
-
 
 } // End of Tango namespace
 

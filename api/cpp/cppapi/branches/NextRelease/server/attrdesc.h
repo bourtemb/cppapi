@@ -71,10 +71,10 @@ public:
 /**
  * Constructs a newly allocated UserDefaultAttrProp object.
  */
-	UserDefaultAttrProp() {ext = NULL;}
+	UserDefaultAttrProp():ext(NULL) {}
 //@}
 
-	~UserDefaultAttrProp() {delete ext;}
+	~UserDefaultAttrProp() {}
 
 /**@name Set default property methods */
 //@{
@@ -305,7 +305,11 @@ private:
     {
     };
 
-	UserDefaultAttrPropExt	*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<UserDefaultAttrPropExt>  ext;           // Class extension
+#else
+	UserDefaultAttrPropExt	            *ext;
+#endif
 };
 
 /**
@@ -535,7 +539,11 @@ private:
         string				cl_name;
     };
 
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<AttrExt>     ext;           // Class extension
+#else
 	AttrExt					*ext;
+#endif
 };
 
 /**
@@ -612,7 +620,7 @@ public:
 /**
  * The object desctructor.
  */
-	~SpectrumAttr() {delete ext;}
+	~SpectrumAttr() {}
 //@}
 
 	long 			get_max_x() {return max_x;}
@@ -625,7 +633,11 @@ private:
     {
     };
 
-	SpectrumAttrExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<SpectrumAttrExt>     ext;           // Class extension
+#else
+	SpectrumAttrExt		            *ext;
+#endif
 };
 
 
@@ -711,7 +723,7 @@ public:
 /**
  * The object desctructor.
  */
-	~ImageAttr() {delete ext;}
+	~ImageAttr() {}
 //@}
 
 	long 			get_max_y() {return max_y;}
@@ -724,7 +736,11 @@ private:
     {
     };
 
-	ImageAttrExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<ImageAttrExt>    ext;           // Class extension
+#else
+	ImageAttrExt		        *ext;
+#endif
 };
 
 } // End of Tango namespace

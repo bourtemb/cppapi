@@ -42,6 +42,7 @@
 namespace Tango
 {
 
+#ifndef HAS_LAMBDA_FUNC
 //
 // Binary function objects to be used by the find_if algorithm.
 // The find_if algo. want to have a predicate, this means that the return value
@@ -62,6 +63,7 @@ struct WantedCmd : public binary_function<A1,A2,R>
 		return cmd_ptr->get_lower_name() == tmp_name;
 	}
 };
+#endif
 
 typedef bool (DeviceImpl::*ALLO_PTR)(const CORBA::Any &);
 
@@ -87,7 +89,7 @@ public:
  *
  * The default constructor
  */
-	Command() {ext = new CommandExt();}
+	Command():ext(new CommandExt) {}
 /**
  * Constructs a newly allocated Command object for a command from its
  * name and its input and output parameter types.
@@ -214,7 +216,11 @@ public:
 /**
  * The object desctructor.
  */
+#ifdef HAS_UNIQUE_PTR
+    virtual ~Command() {}
+#else
 	virtual ~Command() {delete ext;}
+#endif
 //@}
 
 /**@name Miscellaneous methods */
@@ -1203,7 +1209,11 @@ private:
 	void alloc_any(CORBA::Any *&);
 	void throw_bad_type(const char *);
 
-	CommandExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<CommandExt>          ext;           // Class extension
+#else
+	CommandExt		                *ext;
+#endif
 };
 
 //=============================================================================
@@ -1241,7 +1251,7 @@ public:
  *
  * The default constructor
  */
-	TemplCommand() {ext = NULL;}
+	TemplCommand():ext(NULL) {}
 
 /**
  * Constructs a newly allocated TemplCommand object for a command with a
@@ -1504,15 +1514,6 @@ public:
 		     Tango::DispLevel level);
 //@}
 
-/**@name Destructor
- * Only one desctructor is defined for this class */
-//@{
-/**
- * The device desctructor.
- */
-	~TemplCommand() {delete ext;}
-//@}
-
 /**@name Miscellaneous methods */
 //@{
 /**
@@ -1574,7 +1575,11 @@ private:
     };
 
 	void (DeviceImpl::*exe_ptr)();
-	TemplCommandExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<TemplCommandExt>     ext;           // Class extension
+#else
+	TemplCommandExt		            *ext;
+#endif
 
 protected:
 /**@name Class data members */
@@ -1904,7 +1909,7 @@ public:
 			  Tango::DispLevel level);
 //@}
 
-	~TemplCommandInOut() {delete ext;}
+	~TemplCommandInOut() {}
 
 /**@name Miscellaneous methods */
 //@{
@@ -1942,7 +1947,11 @@ private:
     };
 
 	OUTARG (DeviceImpl::*exe_ptr_inout)(INARG);
-	TemplCommandInOutExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<TemplCommandInOut>       ext;           // Class extension
+#else
+	TemplCommandInOutExt		        *ext;
+#endif
 };
 
 //+-------------------------------------------------------------------------
@@ -2568,7 +2577,7 @@ public:
 		       Tango::DispLevel level);
 //@}
 
-	~TemplCommandIn() {delete ext;}
+	~TemplCommandIn() {}
 
 /**@name Miscellaneous methods */
 //@{
@@ -2606,7 +2615,11 @@ private:
     };
 
 	void (DeviceImpl::*exe_ptr_in)(INARG);
-	TemplCommandInExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<TemplCommandInExt>    ext;           // Class extension
+#else
+	TemplCommandInExt		        *ext;
+#endif
 };
 
 //+-------------------------------------------------------------------------
@@ -3210,7 +3223,7 @@ public:
 			Tango::DispLevel level);
 //@}
 
-	~TemplCommandOut() {delete ext;}
+	~TemplCommandOut() {}
 
 /**@name Miscellaneous methods */
 //@{
@@ -3249,7 +3262,11 @@ private:
     };
 
 	OUTARG (DeviceImpl::*exe_ptr_out)();
-	TemplCommandOutExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<TemplCommandOutExt>      ext;           // Class extension
+#else
+	TemplCommandOutExt		            *ext;
+#endif
 };
 
 //+-------------------------------------------------------------------------

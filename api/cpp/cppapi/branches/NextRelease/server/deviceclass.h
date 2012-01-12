@@ -450,7 +450,11 @@ private:
 
 	vector<string>			allowed_cmds;
 
-	DeviceClassExt			*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceClassExt>      ext;           // Class extension
+#else
+	DeviceClassExt			        *ext;
+#endif
 };
 
 

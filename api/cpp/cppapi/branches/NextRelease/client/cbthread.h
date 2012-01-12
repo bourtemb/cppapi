@@ -31,26 +31,6 @@
 //
 // $Revision$
 //
-// $Log$
-// Revision 3.4  2010/09/09 13:43:38  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.3  2009/01/21 12:45:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.2  2008/10/06 15:02:17  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.1  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.0  2003/03/25 16:30:45  taurel
-// Change revision number to 3.0 before release 3.0.0 of Tango lib
-//
-// Revision 1.1  2003/03/20 08:56:12  taurel
-// New file to support asynchronous calls
-//
-//
 //=============================================================================
 
 #ifndef _CBTHREAD_H

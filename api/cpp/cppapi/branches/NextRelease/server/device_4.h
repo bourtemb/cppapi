@@ -154,7 +154,7 @@ public:
 /**
  * The device desctructor.
  */
-	virtual ~Device_4Impl() {delete ext_4;}
+	virtual ~Device_4Impl() {}
 //@}
 
 
@@ -345,7 +345,11 @@ private:
         ~Device_4ImplExt() {}
     };
 
-	Device_4ImplExt				*ext_4;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<Device_4ImplExt>     ext_4;           // Class extension
+#else
+	Device_4ImplExt				    *ext_4;
+#endif
 
 };
 

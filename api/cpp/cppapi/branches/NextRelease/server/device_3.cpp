@@ -73,7 +73,7 @@ namespace Tango
 //--------------------------------------------------------------------------
 
 Device_3Impl::Device_3Impl(DeviceClass *device_class,string &dev_name):
-Device_2Impl(device_class,dev_name)
+Device_2Impl(device_class,dev_name),ext_3(new Device_3ImplExt)
 {
     real_ctor();
 }
@@ -81,7 +81,7 @@ Device_2Impl(device_class,dev_name)
 Device_3Impl::Device_3Impl(DeviceClass *device_class,
 			   string &dev_name,
 			   string &desc):
-Device_2Impl(device_class,dev_name,desc)
+Device_2Impl(device_class,dev_name,desc),ext_3(new Device_3ImplExt)
 {
     real_ctor();
 }
@@ -89,7 +89,7 @@ Device_2Impl(device_class,dev_name,desc)
 Device_3Impl::Device_3Impl(DeviceClass *device_class,
 	           	   string &dev_name,string &desc,
 	           	   Tango::DevState dev_state,string &dev_status):
-Device_2Impl(device_class,dev_name,desc,dev_state,dev_status)
+Device_2Impl(device_class,dev_name,desc,dev_state,dev_status),ext_3(new Device_3ImplExt)
 {
     real_ctor();
 }
@@ -99,7 +99,7 @@ Device_3Impl::Device_3Impl(DeviceClass *device_class,
                    const char *desc,
 	           	   Tango::DevState dev_state,
 	           	   const char *dev_status):
-Device_2Impl(device_class,dev_name,desc,dev_state,dev_status)
+Device_2Impl(device_class,dev_name,desc,dev_state,dev_status),ext_3(new Device_3ImplExt)
 {
     real_ctor();
 }
@@ -108,8 +108,6 @@ void Device_3Impl::real_ctor()
 {
     ext->idl_version = 3;
 	add_state_status_attrs();
-
-	ext_3 = new Device_3Impl::Device_3ImplExt();
 
 	init_cmd_poll_period();
 	init_attr_poll_period();

@@ -29,178 +29,7 @@ static const char *RcsId = "$Id$\n$Name$";
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
 //
-// $Log$
-// Revision 3.19  2010/12/08 10:10:54  taurel
-// - Commit after a merge with the bugfixes branch
-//
-// Revision 3.18.2.1  2010/11/26 07:56:12  taurel
-// - Fix date in date cmoputation in the printing stream inserter operators
-// for class DeviceAttribute and associated (history)
-//
-// Revision 3.18  2010/09/09 13:44:06  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.17  2009/04/30 12:25:00  taurel
-// - Fix a bug in the printing utility (Thank's to Jens Kruger)
-//
-// Revision 3.16  2009/01/21 12:45:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.15  2008/10/06 15:02:16  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.14  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.13  2008/09/23 14:38:28  taurel
-// - Commit after the end of DevEncoded data type implementation
-// - The new test suite is also now running fine
-//
-// Revision 3.12  2008/05/20 12:42:30  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.11  2008/03/11 14:36:44  taurel
-// - Apply patches from Frederic Picca about compilation with gcc 4.2
-// Revision 3.10.2.2  2007/11/20 14:39:12  taurel
-// - Add the new way to retrieve command history from polling buffer
-// implemented in Tango V7
-//
-// Revision 3.10.2.1  2007/11/16 14:10:56  taurel
-// - Added a new IDL interface (Device_4)
-// - Added a new way to get attribute history from polling buffer (must faster)
-//
-// Revision 3.10  2007/03/06 08:20:45  taurel
-// - Added 64 bits data types for 64 bits computer...
-//
-// Revision 3.9  2005/05/10 13:56:46  taurel
-// - Error in the Windows change !!
-//
-// Revision 3.8  2005/05/10 13:50:55  taurel
-// - Minor changes for Windows compiler
-//
-// Revision 3.7  2005/04/15 11:35:05  taurel
-// - Changes to support Tango on 64 bits computer
-// - Support for Linux 2.6 kernel with NPTL (Signal management)
-//
-// Revision 3.6  2005/01/13 08:36:37  taurel
-// - Merge trunk with Release_5_0 from brach Release_5_branch
-//
-// Revision 3.5.2.2  2004/10/27 05:58:11  taurel
-// - Some minor changes to compile on all our supported platforms
-//
-// Revision 3.5.2.1  2004/09/15 06:44:43  taurel
-// - Added four new types for attributes (boolean, float, unsigned short and unsigned char)
-// - It is also possible to read state and status as attributes
-// - Fix bug in Database::get_class_property() method (missing ends insertion)
-// - Fix bug in admin device DevRestart command (device name case problem)
-//
-// Revision 3.5  2004/07/07 08:39:56  taurel
-//
-// - Fisrt commit after merge between Trunk and release 4 branch
-// - Add EventData copy ctor, asiignement operator and dtor
-// - Add Database and DeviceProxy::get_alias() method
-// - Add AttributeProxy ctor from "device_alias/attribute_name"
-// - Exception thrown when subscribing two times for exactly yhe same event
-//
-// Revision 3.4  2003/08/21 07:22:02  taurel
-// - End of the implementation of the new way to transfer data for read and
-//   write attributes (better use of exception)
-// - Added Attribute::set_date() and Attribute::set_value_date_quality() methods
-// - Added DeviceAttribute ctors from "const char *"
-// - Enable writing of spectrum and image attributes
-// - Many new DeviceAttribute ctors/inserters to enable easy image and spectrums
-//   attribute writing
-// - Attribute date automatically set in case of attribute quality factor set to INVALID
-// - Change in the polling thread discarding element algo. to support case of polling
-//   several cmd/atts at the same polling period with cmd/attr having a long response time
-// - Take cmd/attr execution time into account in the "Data not updated since" polling
-//   status string
-// - Split "str().c_str()" code in two lines of code. It was the reason of some problem
-//   on Windows device server
-// - Add the possibility to set a cmd/attr polling as "externally triggered". Add method
-//   to send trigger to the polling thread
-//
-// Revision 3.3  2003/07/03 07:37:56  taurel
-// - Change in Tango IDL file : Implement a new way to tranfer data for read_attribute and write_attribute CORBA operation
-// - Handle this new IDL release in DeviceProxy class
-// - New exception methods in DeviceAttribute class
-// - New way to get data out of DeviceAttribute object
-// - Fix bugs in DeviceProxy copy constructor and assignement operator
-// - Change some method names in DeviceDataHistory and DeviceAttributeHistory classes
-// - Change the implementation of the DeviceProxy::write_attribute() method to avoid DeviceAttribute copying
-// - Clean-up how a server is killed via a CTRL-C or a dserver device kill command
-// - Add a server_cleanup() method in the Util class
-// - Win32 : Update debug menu in the server graphical window to support logging feature
-// - Win32 : Display library CVS tag in the "Help->About" sub-window
-//
-// Revision 3.2.2.3  2004/03/02 07:40:23  taurel
-// - Fix compiler warnings (gcc used with -Wall)
-// - Fix bug in DbDatum insertion operator fro vectors
-// - Now support "modulo" as periodic filter
-//
-// Revision 3.2.2.2  2003/12/11 11:47:40  taurel
-// Added CHANGING attribute quality factor
-//
-// Revision 3.2.2.1  2003/09/18 14:07:41  taurel
-// Fixes some bugs:
-//  - Bug fix in DeviceProxy copy constructor and assignement operator
-//  - Change the way how DeviceProxy::write_attribute() is coded
-//  - Added DeviceAttribute ctors from "const char *"
-//  - Split "str().c_str()" in two lines of code. It was the reason of some
-//    problems using Windows VC6
-//
-// Revision 3.2  2003/05/28 14:42:56  taurel
-// Add (conditionaly) autoconf generated include file
-//
-// Revision 3.1  2003/04/03 15:21:56  taurel
-// Added methods to print DeviceData, DeviceAttribute, DeviceDataHistory
-// and DeviceAttributeHistory instance
-//
-// Revision 3.0  2003/03/25 16:30:34  taurel
-// Change revision number to 3.0 before release 3.0.0 of Tango lib
-//
-// Revision 2.4  2003/01/09 12:00:33  taurel
-// - Ported to gcc 3.2
-// - Added ApiUtil::cleanup() and ApiUtil::~ApiUtil() methods
-// - Replace some ORB * by ORB_ptr
-// - Use CORBA::ORB::is_nil() instead of comparing to NULL
-//
-// Revision 2.3  2002/12/16 11:58:37  taurel
-// - Change the underlying ORB fom ORBacus to omniORB
-// - New method get_device_list() in Util class
-// - Util::get_class_list() takes DServer device into account
-// - Util::get_device_by_name() takes DSErver device into account
-// - Util::get_device_list_by_class() takes DServer device into account
-// - New parameter to the attribute::set_value() method to ebnable CORBA to frre memory allocated for the attribute
-//
-// Revision 2.2  2002/10/14 09:32:43  taurel
-// Fix bugs in devapi_base.cpp file :
-// - In read_attribute and read_attributes method of the DeviceProxy class
-//   Do not create sequence the same way if the call is local or remote.
-// - Add reconnection in the Connection::set_timeout_millis method
-// - Add flags to the Connection::set_timeout_millis method
-// - Fix bug in the DeviceProxy constructor when device is not marked as exported
-//   in the database. The constructor was not stateless in this case.
-//
-// Revision 2.1  2002/08/12 12:43:24  taurel
-// Fix bug in DeviceProxy::write_attributes method when writing several
-// attributes in one call. (File devapi_base.cpp)
-//
-// Revision 2.0  2002/06/28 13:43:08  taurel
-// Lot of changes since last releases :
-// 	- Database object managed as a singleton per control system
-// 	- Support all tango device naming syntax (using TANGO_HOST env.
-//  	  variable, without env variable and non database device)
-// 	- No more copy during read_attribute and command_inout
-// 	- Added some missing methods
-// 	- Build an exception class hierarchy
-// 	- Added correct management of device time-out
-// 	- Support all Tango device interface release 2 features
-// 	  (data/attribute comming from polling buffer, polling related methods,
-// 	   command/attribute result history)
-//
-//
-// version 		- $Version$
+// version 		- $Revision$
 //
 
 #if HAVE_CONFIG_H
@@ -242,7 +71,7 @@ DeviceDataHistory::DeviceDataHistory(int n, int *ref,DevCmdHistoryList *ptr):ext
 	err = &((*ptr)[n].errors);
 }
 
-DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceData(source)
+DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceData(source),ext_hist(NULL)
 {
 	fail = source.fail;
 	time = source.time;
@@ -253,6 +82,13 @@ DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceDat
 	if (ref_ctr_ptr != NULL)
 		(*ref_ctr_ptr)++;
 
+#ifdef HAS_UNIQUE_PTR
+    if (source.ext_hist.get() != NULL)
+    {
+        ext_hist.reset(new DeviceDataHistoryExt);
+        *(ext_hist.get()) = *(source.ext_hist.get());
+    }
+#else
 	if (source.ext_hist == NULL)
 		ext_hist = NULL;
 	else
@@ -260,6 +96,7 @@ DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceDat
 		ext_hist = new DeviceDataHistoryExt();
 		*ext_hist = *(source.ext_hist);
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -283,8 +120,9 @@ DeviceDataHistory::~DeviceDataHistory()
 		}
 	}
 
-	if (ext_hist != NULL)
-		delete ext_hist;
+#ifndef HAS_UNIQUE_PTR
+    delete ext_hist;
+#endif
 }
 
 
@@ -301,18 +139,7 @@ DeviceDataHistory & DeviceDataHistory::operator=(const DeviceDataHistory &rval)
 // Assignement of DeviceData class members first
 //
 
-	exceptions_flags = rval.exceptions_flags;
-	any = const_cast<DeviceDataHistory &>(rval).any._retn();
-	if (ext != NULL)
-		delete ext;
-	if (rval.ext != NULL)
-	{
-		ext = new DeviceDataExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
-
+    this->DeviceData::operator=(rval);
 
 //
 // Then, assignement of DeviceDataHistory members
@@ -333,6 +160,15 @@ DeviceDataHistory & DeviceDataHistory::operator=(const DeviceDataHistory &rval)
 	ref_ctr_ptr = rval.ref_ctr_ptr;
 	(*ref_ctr_ptr)++;
 
+#ifdef HAS_UNIQUE_PTR
+   if (rval.ext_hist.get() != NULL)
+    {
+        ext_hist.reset(new DeviceDataHistoryExt);
+        *(ext_hist.get()) = *(rval.ext_hist.get());
+    }
+    else
+        ext_hist.reset();
+#else
 	if (ext_hist != NULL)
 		delete ext_hist;
 	if (rval.ext_hist != NULL)
@@ -342,6 +178,7 @@ DeviceDataHistory & DeviceDataHistory::operator=(const DeviceDataHistory &rval)
 	}
 	else
 		ext_hist = NULL;
+#endif
 
 	return *this;
 }
@@ -727,10 +564,17 @@ DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_3_var &s
 
 
 
-DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & source):DeviceAttribute(source)
+DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & source):DeviceAttribute(source),ext_hist(NULL)
 {
 	fail = source.fail;
 
+#ifdef HAS_UNIQUE_PTR
+    if (source.ext_hist.get() != NULL)
+    {
+        ext_hist.reset(new DeviceAttributeHistoryExt);
+        *(ext_hist.get()) = *(source.ext_hist.get());
+    }
+#else
 	if (source.ext_hist == NULL)
 		ext_hist = NULL;
 	else
@@ -738,6 +582,7 @@ DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & so
 		ext_hist = new DeviceAttributeHistoryExt();
 		*ext_hist = *(source.ext_hist);
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -748,8 +593,9 @@ DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & so
 
 DeviceAttributeHistory::~DeviceAttributeHistory()
 {
-	if (ext_hist != NULL)
-		delete ext_hist;
+#ifndef HAS_UNIQUE_PTR
+    delete ext_hist;
+#endif
 }
 
 
@@ -766,46 +612,23 @@ DeviceAttributeHistory & DeviceAttributeHistory::operator=(const DeviceAttribute
 // First, assignement of DeviceAttribute class members
 //
 
-	exceptions_flags = rval.exceptions_flags;
-	time = rval.time;
-	quality = rval.quality;
-	dim_x = rval.dim_x;
-	dim_y = rval.dim_y;
-	name = rval.name;
-
-	DeviceAttributeHistory &nc_source = const_cast<DeviceAttributeHistory &>(rval);
-	if (nc_source.LongSeq.operator->() != NULL)
-		LongSeq = nc_source.LongSeq._retn();
-	if (nc_source.ShortSeq.operator->() != NULL)
-		ShortSeq = nc_source.ShortSeq._retn();
-	if (nc_source.DoubleSeq.operator->() != NULL)
-		DoubleSeq = nc_source.DoubleSeq._retn();
-	if (nc_source.StringSeq.operator->() != NULL)
-		StringSeq = nc_source.StringSeq._retn();
-	if (nc_source.FloatSeq.operator->() != NULL)
-		FloatSeq = nc_source.FloatSeq._retn();
-	if (nc_source.BooleanSeq.operator->() != NULL)
-		BooleanSeq = nc_source.BooleanSeq._retn();
-	if (nc_source.UShortSeq.operator->() != NULL)
-		UShortSeq = nc_source.UShortSeq._retn();
-	if (nc_source.UCharSeq.operator->() != NULL)
-		UCharSeq = nc_source.UCharSeq._retn();
-
-	if (ext != NULL)
-		delete ext;
-	if (rval.ext != NULL)
-	{
-		ext = new DeviceAttributeExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
+    this->DeviceAttribute::operator=(rval);
 
 //
 // Then, assignement of DeviceAttributeHistory members
 //
 
 	fail = rval.fail;
+
+#ifdef HAS_UNIQUE_PTR
+    if (rval.ext_hist.get() != NULL)
+    {
+        ext_hist.reset(new DeviceAttributeHistoryExt);
+        *(ext_hist.get()) = *(rval.ext_hist.get());
+    }
+    else
+        ext_hist.reset();
+#else
 	if (ext_hist != NULL)
 		delete ext_hist;
 	if (rval.ext_hist != NULL)
@@ -815,6 +638,7 @@ DeviceAttributeHistory & DeviceAttributeHistory::operator=(const DeviceAttribute
 	}
 	else
 		ext_hist = NULL;
+#endif
 
 	return *this;
 }

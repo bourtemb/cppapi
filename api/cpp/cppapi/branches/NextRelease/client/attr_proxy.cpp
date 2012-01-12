@@ -198,8 +198,6 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 		}
 	}
 
-	ext = new AttributeProxyExt();
-
 //
 // Check that the device support this attribute
 //
@@ -213,7 +211,6 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 	catch (Tango::DevFailed &dfe)
 	{
 		delete db_attr;
-		delete ext;
 		delete dev_proxy;
 
 		if (strcmp(dfe.errors[0].reason.in(),"API_AttrNotFound") == 0)
@@ -246,7 +243,7 @@ AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext
 //
 //-----------------------------------------------------------------------------
 
-AttributeProxy::AttributeProxy(const AttributeProxy &prev)
+AttributeProxy::AttributeProxy(const AttributeProxy &prev):ext(NULL)
 {
 
 //
@@ -292,6 +289,12 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 		}
 	}
 
+#ifdef HAS_UNIQUE_PTR
+    if (prev.ext.get() != NULL)
+    {
+        ext.reset(new AttributeProxyExt);
+    }
+#else
 	if (prev.ext != NULL)
 	{
 		ext = new AttributeProxyExt();
@@ -299,6 +302,7 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 	}
 	else
 		ext = NULL;
+#endif
 
 }
 
@@ -357,6 +361,12 @@ AttributeProxy &AttributeProxy::operator=(const AttributeProxy &rval)
 		}
 	}
 
+#ifdef HAS_UNIQUE_PTR
+    if (rval.ext.get() != NULL)
+        ext.reset(new AttributeProxyExt);
+    else
+        ext.reset();
+#else
 	if (rval.ext != NULL)
 	{
 		ext = new AttributeProxyExt();
@@ -364,6 +374,7 @@ AttributeProxy &AttributeProxy::operator=(const AttributeProxy &rval)
 	}
 	else
 		ext = NULL;
+#endif
 
 	return *this;
 }
@@ -779,8 +790,10 @@ AttributeProxy::~AttributeProxy()
 		delete db_attr;
 	if (dev_proxy != NULL)
 		delete dev_proxy;
-	if (ext != NULL)
-		delete ext;
+
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------

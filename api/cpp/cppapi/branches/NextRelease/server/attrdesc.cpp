@@ -62,10 +62,9 @@ namespace Tango
 Attr::Attr(const char *att_name,long att_type,AttrWriteType att_writable,
            const char *assoc)
 :name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),
-      mem(false),mem_init(true)
+mem(false),mem_init(true),ext(new AttrExt)
 {
 	format = Tango::SCALAR;
-	ext = new Attr::AttrExt();
 
 	ext->fire_change_event = false;
 	ext->check_change_event = true;
@@ -107,10 +106,11 @@ Attr::Attr(const char *att_name,long att_type,AttrWriteType att_writable,
 
 Attr::Attr(const char *att_name,long att_type,DispLevel level,
 	   AttrWriteType att_writable, const char *assoc)
-:name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),mem(false)
+:name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),mem(false),
+ext(new AttrExt(level))
 {
 	format = Tango::SCALAR;
-	ext = new Attr::AttrExt(level);
+
 	if (name != "State")
 		check_type();
 
@@ -145,7 +145,9 @@ Attr::Attr(const char *att_name,long att_type,DispLevel level,
 
 Attr::~Attr()
 {
+#ifndef HAS_UNIQUE_PTR
 	delete ext;
+#endif
 }
 
 //+-------------------------------------------------------------------------
@@ -537,4 +539,5 @@ ImageAttr::ImageAttr(const char *att_name,long att_type,Tango::AttrWriteType w_t
 	}
 	max_y = y;
 }
+
 } // End of Tango namespace

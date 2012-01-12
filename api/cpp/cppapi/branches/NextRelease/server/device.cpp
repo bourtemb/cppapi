@@ -87,7 +87,7 @@ extern omni_thread::key_t key;
 DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,const char *d_name,
 		       const char *de,Tango::DevState st,const char *sta)
 :device_name(d_name),desc(de),device_status(sta),
- device_state(st),device_class(cl_ptr)
+ device_state(st),device_class(cl_ptr),ext(new DeviceImplExt(d_name))
 {
     real_ctor();
 }
@@ -95,13 +95,13 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,const char *d_name,
 DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &de,
 		       Tango::DevState st,string &sta)
 :device_name(d_name),desc(de),device_status(sta),
- device_state(st),device_class(cl_ptr)
+ device_state(st),device_class(cl_ptr),ext(new DeviceImplExt(d_name.c_str()))
 {
     real_ctor();
 }
 
 DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name)
-:device_name(d_name),device_class(cl_ptr)
+:device_name(d_name),device_class(cl_ptr),ext(new DeviceImplExt(d_name.c_str()))
 {
 	desc = "A Tango device";
 	device_state = Tango::UNKNOWN;
@@ -111,7 +111,7 @@ DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name)
 }
 
 DeviceImpl::DeviceImpl(DeviceClass *cl_ptr,string &d_name,string &description)
-:device_name(d_name),device_class(cl_ptr)
+:device_name(d_name),device_class(cl_ptr),ext(new DeviceImplExt(d_name.c_str()))
 {
 	desc = description;
 	device_state = Tango::UNKNOWN;
@@ -125,7 +125,7 @@ void DeviceImpl::real_ctor()
 {
     version = DevVersion;
 	blackbox_depth = 0;
-	ext = new DeviceImpl::DeviceImplExt(device_name.c_str());
+
 	ext->device_prev_state = device_state;
 
 //
@@ -412,7 +412,9 @@ DeviceImpl::~DeviceImpl()
 // Delete the extension class instance
 //
 
+#ifndef HAS_UNIQUE_PTR
 	delete ext;
+#endif
 
 //
 // Clear our ptr in the device class vector

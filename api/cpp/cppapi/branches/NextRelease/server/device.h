@@ -3543,7 +3543,11 @@ protected:
 	void init_attr_poll_period();
 	void init_poll_no_db();
 
-	DeviceImplExt		        *ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceImplExt>       ext;           // Class extension
+#else
+	DeviceImplExt		            *ext;
+#endif
 
 	DevVarShortArray			dummy_short_att_value;
 	DevVarLongArray				dummy_long_att_value;

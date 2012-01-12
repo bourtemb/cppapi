@@ -1107,7 +1107,11 @@ private:
 	string						mem_value;
 	struct timeval				write_date;
 
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<WAttributeExt>   w_ext;           // Class extension
+#else
 	WAttributeExt				*w_ext;
+#endif
 };
 
 

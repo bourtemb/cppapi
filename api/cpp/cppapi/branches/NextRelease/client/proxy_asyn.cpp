@@ -882,20 +882,21 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 // Add an error in the error stack in case there is one
 //
 
-				long nb_except = (*dev_attr)[i].ext->err_list.in().length();
+                DevErrorList_var &err_list = (*dev_attr)[i].get_error_list();
+				long nb_except = err_list.in().length();
 				if (nb_except != 0)
 				{
 					TangoSys_OMemStream desc;
 					desc << "Failed to read_attributes on device " << device_name;
 					desc << ", attribute " << (*dev_attr)[i].name << ends;
 
-					(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
-					(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-					(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
+					err_list.inout().length(nb_except + 1);
+					err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+					err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
 
 					string st = desc.str();
-					(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-					(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
+					err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+					err_list[nb_except].severity = Tango::ERR;
 				}
 			}
 			else
@@ -1025,21 +1026,22 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 // Add an error in the error stack in case there is one
 //
 
-			long nb_except = dev_attr->ext->err_list.in().length();
+            DevErrorList_var &err_list = dev_attr->get_error_list();
+			long nb_except = err_list.in().length();
 			if (nb_except != 0)
 			{
 				TangoSys_OMemStream desc;
 				desc << "Failed to read_attributes on device " << device_name;
 				desc << ", attribute " << dev_attr->name << ends;
 
-				dev_attr->ext->err_list.inout().length(nb_except + 1);
-				dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-				dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
+				err_list.inout().length(nb_except + 1);
+				err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+				err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
 
 				string st = desc.str();
-				dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+				err_list[nb_except].desc = CORBA::string_dup(st.c_str());
 
-				dev_attr->ext->err_list[nb_except].severity = Tango::ERR;
+				err_list[nb_except].severity = Tango::ERR;
 			}
 		}
 		else
@@ -1218,20 +1220,21 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 // Add an error in the error stack in case there is one
 //
 
-			long nb_except = (*dev_attr)[i].ext->err_list.in().length();
+            DevErrorList_var &err_list = (*dev_attr)[i].get_error_list();
+			long nb_except = err_list.in().length();
 			if (nb_except != 0)
 			{
 				TangoSys_OMemStream desc;
 				desc << "Failed to read_attributes on device " << device_name;
 				desc << ", attribute " << (*dev_attr)[i].name << ends;
 
-				(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
-				(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-				(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes_reply()");
+				err_list.inout().length(nb_except + 1);
+				err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+				err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes_reply()");
 
 				string st = desc.str();
-				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-				(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
+				err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+				err_list[nb_except].severity = Tango::ERR;
 			}
 		}
 		else
@@ -1395,20 +1398,21 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 // Add an error in the error stack in case there is one
 //
 
-		long nb_except = dev_attr->ext->err_list.in().length();
+        DevErrorList_var &err_list = dev_attr->get_error_list();
+		long nb_except = err_list.in().length();
 		if (nb_except != 0)
 		{
 			TangoSys_OMemStream desc;
 			desc << "Failed to read_attributes on device " << device_name;
 			desc << ", attribute " << dev_attr->name << ends;
 
-			dev_attr->ext->err_list.inout().length(nb_except + 1);
-			dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-			dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
+			err_list.inout().length(nb_except + 1);
+			err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+			err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
 
 			string st = desc.str();
-			dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-			dev_attr->ext->err_list[nb_except].severity = Tango::ERR;
+			err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+			err_list[nb_except].severity = Tango::ERR;
 		}
 	}
 	else

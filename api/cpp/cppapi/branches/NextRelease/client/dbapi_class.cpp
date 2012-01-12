@@ -46,7 +46,7 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DbClass::DbClass(string class_name, Database *class_dbase)
+DbClass::DbClass(string class_name, Database *class_dbase):ext(NULL)
 {
 	name = string(class_name);
 	dbase = class_dbase;
@@ -61,7 +61,7 @@ DbClass::DbClass(string class_name, Database *class_dbase)
 //
 //-----------------------------------------------------------------------------
 
-DbClass::DbClass(string class_name)
+DbClass::DbClass(string class_name):ext(NULL)
 {
 	name = string(class_name);
 	db_ind = ApiUtil::instance()->get_db_ind();

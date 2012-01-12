@@ -287,7 +287,11 @@ private:
 	void add_user_default(vector<AttrProperty> &,vector<AttrProperty> &);
 	void check_associated(long,string &);
 
-	MultiAttributeExt		*ext;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<MultiAttributeExt>           ext;           // Class extension
+#else
+	MultiAttributeExt		                *ext;
+#endif
 };
 
 

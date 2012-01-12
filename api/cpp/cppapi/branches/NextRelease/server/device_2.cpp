@@ -94,7 +94,7 @@ DeviceImpl(device_class,dev_name,desc,dev_state,dev_status),ext_2(NULL)
 
 Device_2Impl::Device_2Impl(DeviceClass *device_class,
 	           	   const char *dev_name,
-			   const char *desc,
+                   const char *desc,
 	           	   Tango::DevState dev_state,
 	           	   const char *dev_status):
 DeviceImpl(device_class,dev_name,desc,dev_state,dev_status),ext_2(NULL)

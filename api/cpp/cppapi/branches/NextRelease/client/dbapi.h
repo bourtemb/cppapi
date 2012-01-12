@@ -46,11 +46,6 @@ class DbDevExportInfo;
 class DbServerInfo;
 class DbHistory;
 
-class DatabaseExt;
-class DbDeviceExt;
-class DbClassExt;
-class DbServerExt;
-class DbDatumExt;
 class FileDatabase;
 class DbServerCache;
 class Util;
@@ -69,15 +64,6 @@ typedef vector<DbDevImportInfo> DbDevImportInfos;
 //                 interface for TANGO database api
 //
 
-class DatabaseExt
-{
-public:
-	DatabaseExt():db_tg(NULL) {};
-
-	Tango::Util 	*db_tg;
-	omni_mutex		map_mutex;
-};
-
 /****************************************************************************************
  * 																						*
  * 					The Database class													*
@@ -93,10 +79,24 @@ private :
 	virtual int get_lock_ctr() {return 0;}
 	virtual void set_lock_ctr(int) {}
 
+    class DatabaseExt
+    {
+    public:
+        DatabaseExt():db_tg(NULL) {};
+
+        Tango::Util 	*db_tg;
+        omni_mutex		map_mutex;
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DatabaseExt>     ext;
+#else
+	DatabaseExt			        *ext;
+#endif
+
 	bool				db_multi_svc;
 	vector<string>		multi_db_port;
 	vector<string>		multi_db_host;
-	DatabaseExt			*ext;
 	FileDatabase 		*filedb;
 	string 				file_name;
 	int					serv_version;
@@ -387,7 +387,17 @@ private :
 	int 		db_ind;
 	bool 		ext_dbase;
 
-	DbDeviceExt	*ext;
+    class DbDeviceExt
+    {
+    public:
+        DbDeviceExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DbDeviceExt>     ext;
+#else
+	DbDeviceExt	                *ext;
+#endif
 
 public :
 	DbDevice(string &);
@@ -452,7 +462,18 @@ private :
 	Database 	*dbase;
 	int 		db_ind;
 	bool 		ext_dbase;
-	DbServerExt	*ext;
+
+    class DbServerExt
+    {
+    public:
+        DbServerExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DbServerExt> ext;
+#else
+	DbServerExt	            *ext;
+#endif
 
 public :
 	DbServer(string);
@@ -479,7 +500,17 @@ private :
 	int 		db_ind;
 	bool 		ext_dbase;
 
-	DbClassExt	*ext;
+    class DbClassExt
+    {
+    public:
+        DbClassExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DbClassExt>  ext;
+#else
+	DbClassExt	            *ext;
+#endif
 
 public :
 	DbClass(string, Database*);
@@ -592,7 +623,17 @@ private :
 	int 				value_size;
 	bitset<numFlags> 	exceptions_flags;
 
-	DbDatumExt			*ext;
+    class DbDatumExt
+    {
+    public:
+        DbDatumExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DbDatumExt>  ext;
+#else
+	DbDatumExt			    *ext;
+#endif
 };
 //
 // DbHistory data object for receiving data history from the
@@ -784,34 +825,6 @@ private:
 	DevVarStringArray		ret_dev_list;
 	DevVarStringArray		ret_obj_att_prop;
 	DevVarStringArray		ret_prop_list;
-};
-
-//
-// Some extension classes
-//
-
-class DbDeviceExt
-{
-public:
-	DbDeviceExt() {};
-};
-
-class DbClassExt
-{
-public:
-	DbClassExt() {};
-};
-
-class DbServerExt
-{
-public:
-	DbServerExt() {};
-};
-
-class DbDatumExt
-{
-public:
-	DbDatumExt() {};
 };
 
 } // End of Tango namespace

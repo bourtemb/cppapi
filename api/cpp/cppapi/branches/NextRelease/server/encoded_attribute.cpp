@@ -232,7 +232,7 @@ void EncodedAttribute::decode_rgb32(DeviceAttribute *attr,int *width,int *height
                             	(const char *)"EncodedAttribute::decode_gray8");
 	}
 
-	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+    DevVarEncodedArray_var &encDataSeq = attr->get_Encoded_data();
 	if (encDataSeq.operator->() == NULL)
 	{
     	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
@@ -334,7 +334,7 @@ void EncodedAttribute::decode_gray8(DeviceAttribute *attr,int *width,int *height
                             	(const char *)"EncodedAttribute::decode_gray8");
 	}
 
-	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	DevVarEncodedArray_var &encDataSeq = attr->get_Encoded_data();
 	if (encDataSeq.operator->() == NULL)
 	{
     	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
@@ -425,7 +425,7 @@ void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *heigh
                             	(const char *)"EncodedAttribute::decode_gray16");
 	}
 
-	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	DevVarEncodedArray_var &encDataSeq = attr->get_Encoded_data();
 	if (encDataSeq.operator->() == NULL)
 	{
     	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
@@ -440,7 +440,7 @@ void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *heigh
 	if( !isGrey )
 	{
     	Except::throw_exception((const char *)"API_WrongFormat",
-                            	(const char *)"Not a grayscale 16bit format",
+                            	(const char *)"Not a grayscale 16 bits format",
                             	(const char *)"EncodedAttribute::decode_gray16");
 	}
 

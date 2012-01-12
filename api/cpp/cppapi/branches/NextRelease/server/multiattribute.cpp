@@ -275,8 +275,6 @@ MultiAttribute::~MultiAttribute()
 {
 	for(unsigned long i = 0;i < attr_list.size();i++)
 		delete attr_list[i];
-
-	delete ext;
 }
 
 //+-------------------------------------------------------------------------

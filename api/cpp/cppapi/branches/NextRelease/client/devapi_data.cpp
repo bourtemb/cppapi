@@ -62,10 +62,18 @@ DeviceData::DeviceData():ext(NULL)
 	exceptions_flags.set(isempty_flag);
 }
 
-DeviceData::DeviceData(const DeviceData & source)
+DeviceData::DeviceData(const DeviceData & source):ext(NULL)
 {
 	exceptions_flags = source.exceptions_flags;
 	any = const_cast<DeviceData &>(source).any._retn();
+
+#ifdef HAS_UNIQUE_PTR
+    if (source.ext.get() != NULL)
+    {
+        ext.reset(new DeviceDataExt);
+        *(ext.get()) = *(source.ext.get());
+    }
+#else
 	if (source.ext != NULL)
 	{
 		ext = new DeviceDataExt();
@@ -73,6 +81,7 @@ DeviceData::DeviceData(const DeviceData & source)
 	}
 	else
 		ext = NULL;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -85,6 +94,16 @@ DeviceData & DeviceData::operator=(const DeviceData &rval)
 {
 	exceptions_flags = rval.exceptions_flags;
 	any = const_cast<DeviceData &>(rval).any._retn();
+
+#ifdef HAS_UNIQUE_PTR
+    if (rval.ext.get() != NULL)
+    {
+        ext.reset(new DeviceDataExt);
+        *(ext.get()) = *(rval.ext.get());
+    }
+    else
+        ext.reset();
+#else
 	if (ext != NULL)
 		delete ext;
 	if (rval.ext != NULL)
@@ -94,6 +113,7 @@ DeviceData & DeviceData::operator=(const DeviceData &rval)
 	}
 	else
 		ext = NULL;
+#endif
 	return *this;
 }
 
@@ -105,8 +125,9 @@ DeviceData & DeviceData::operator=(const DeviceData &rval)
 
 DeviceData::~DeviceData()
 {
-	if (ext != NULL)
-		delete ext;
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------

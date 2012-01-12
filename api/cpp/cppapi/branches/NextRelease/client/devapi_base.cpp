@@ -70,7 +70,7 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-ConnectionExt &ConnectionExt::operator=(const ConnectionExt &rval)
+Connection::ConnectionExt &Connection::ConnectionExt::operator=(const Connection::ConnectionExt &rval)
 {
 	tr_reco  = rval.tr_reco;
 	device_3 = rval.device_3;
@@ -92,10 +92,8 @@ ConnectionExt &ConnectionExt::operator=(const ConnectionExt &rval)
 
 Connection::Connection(ORB *orb_in):pasyn_ctr(0),pasyn_cb_ctr(0),
 				    timeout(CLNT_TIMEOUT),
-				    version(0),source(Tango::CACHE_DEV)
+				    version(0),source(Tango::CACHE_DEV),ext(new ConnectionExt())
 {
-
-	ext = new ConnectionExt();
 
 //
 // Some default init for access control
@@ -131,11 +129,15 @@ Connection::Connection(ORB *orb_in):pasyn_ctr(0),pasyn_cb_ctr(0),
 		ext->user_connect_timeout = ucto;
 }
 
-Connection::Connection(bool dummy)
+Connection::Connection(bool dummy):ext(NULL)
 {
 	if (dummy)
 	{
+#ifdef HAS_UNIQUE_PTR
+        ext.reset(new ConnectionExt());
+#else
 		ext = new ConnectionExt();
+#endif
 	}
 }
 
@@ -147,8 +149,9 @@ Connection::Connection(bool dummy)
 
 Connection::~Connection()
 {
-	if (ext != NULL)
-		delete ext;
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -157,7 +160,7 @@ Connection::~Connection()
 //
 //-----------------------------------------------------------------------------
 
-Connection::Connection(const Connection &sou)
+Connection::Connection(const Connection &sou):ext(NULL)
 {
 	dbase_used = sou.dbase_used;
 	from_env_var = sou.from_env_var;
@@ -185,6 +188,13 @@ Connection::Connection(const Connection &sou)
 	check_acc = sou.check_acc;
 	access = sou.access;
 
+#ifdef HAS_UNIQUE_PTR
+    if (sou.ext.get() != NULL)
+    {
+        ext.reset(new ConnectionExt);
+        *(ext.get()) = *(sou.ext.get());
+    }
+#else
 	if (sou.ext != NULL)
 	{
 		ext = new ConnectionExt();
@@ -192,6 +202,62 @@ Connection::Connection(const Connection &sou)
 	}
 	else
 		ext = NULL;
+#endif
+}
+
+//-----------------------------------------------------------------------------
+//
+// Connection::operator=() - assignement operator
+//
+//-----------------------------------------------------------------------------
+
+Connection &Connection::operator=(const Connection &rval)
+{
+	dbase_used = rval.dbase_used;
+	from_env_var = rval.from_env_var;
+	host = rval.host;
+	port = rval.port;
+	port_num = rval.port_num;
+
+	db_host = rval.db_host;
+	db_port = rval.db_port;
+	db_port_num = rval.db_port_num;
+
+	ior = rval.ior;
+	pasyn_ctr = rval.pasyn_ctr;
+	pasyn_cb_ctr = rval.pasyn_cb_ctr;
+
+	device = rval.device;
+	if (rval.version >= 2)
+		device_2 = rval.device_2;
+
+	timeout = rval.timeout;
+	connection_state = rval.connection_state;
+	version = rval.version;
+	source = rval.source;
+
+	check_acc = rval.check_acc;
+	access = rval.access;
+
+#ifdef HAS_UNIQUE_PTR
+    if (rval.ext.get() != NULL)
+    {
+        ext.reset(new ConnectionExt);
+        *(ext.get()) = *(rval.ext.get());
+    }
+    else
+        ext.reset(NULL);
+#else
+	if (rval.ext != NULL)
+	{
+		ext = new ConnectionExt();
+		*ext = *(rval.ext);
+	}
+	else
+		ext = NULL;
+#endif
+
+    return *this;
 }
 
 //-----------------------------------------------------------------------------
@@ -1257,7 +1323,8 @@ DeviceProxy::DeviceProxy (string &name, CORBA::ORB *orb) : Connection(orb),
 							   db_dev(NULL),
 							   is_alias(false),
 							   adm_device(NULL),
-							   lock_ctr(0)
+							   lock_ctr(0),
+							   ext_proxy(new DeviceProxyExt())
 {
 	real_constructor(name,true);
 }
@@ -1266,7 +1333,8 @@ DeviceProxy::DeviceProxy (const char *na, CORBA::ORB *orb) : Connection(orb),
 							     db_dev(NULL),
 								 is_alias(false),
 							     adm_device(NULL),
-							     lock_ctr(0)
+							     lock_ctr(0),
+                                 ext_proxy(new DeviceProxyExt())
 {
 	string name(na);
 	real_constructor(name,true);
@@ -1276,7 +1344,8 @@ DeviceProxy::DeviceProxy (string &name, bool need_check_acc,CORBA::ORB *orb) : C
 								 db_dev(NULL),
 								 is_alias(false),
 								 adm_device(NULL),
-								 lock_ctr(0)
+								 lock_ctr(0),
+							     ext_proxy(new DeviceProxyExt())
 {
 	real_constructor(name,need_check_acc);
 }
@@ -1285,7 +1354,8 @@ DeviceProxy::DeviceProxy (const char *na, bool need_check_acc,CORBA::ORB *orb) :
 								 db_dev(NULL),
 								 is_alias(false),
 								 adm_device(NULL),
-								 lock_ctr(0)
+								 lock_ctr(0),
+                                 ext_proxy(new DeviceProxyExt())
 {
 	string name(na);
 	real_constructor(name,need_check_acc);
@@ -1295,13 +1365,7 @@ void DeviceProxy::real_constructor (string &name,bool need_check_acc)
 {
 
 //
-// Create the extension class
-//
-
-	ext_proxy = new DeviceProxyExt();
-
-//
-// parse device name
+// Parse device name
 //
 
 	parse_name(name);
@@ -1449,7 +1513,7 @@ void DeviceProxy::real_constructor (string &name,bool need_check_acc)
 //
 //-----------------------------------------------------------------------------
 
-DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou)
+DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou),ext_proxy(NULL)
 {
 
 //
@@ -1493,6 +1557,13 @@ DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou)
 // Copy extension class
 //
 
+#ifdef HAS_UNIQUE_PTR
+    if (sou.ext_proxy.get() != NULL)
+    {
+        ext_proxy.reset(new DeviceProxyExt);
+//        *(ext_proxy.get()) = *(sou.ext_proxy.get());
+    }
+#else
 	if (sou.ext_proxy == NULL)
 		ext_proxy = NULL;
 	else
@@ -1500,6 +1571,7 @@ DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou)
 		ext_proxy = new DeviceProxyExt();
 //		*ext_proxy = *(sou.ext_proxy);
 	}
+#endif
 
 }
 
@@ -1512,37 +1584,38 @@ DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou)
 DeviceProxy &DeviceProxy::operator=(const DeviceProxy &rval)
 {
 
+    this->Connection::operator=(rval);
 //
 // First Connection class members
 //
-	if (dbase_used == true)
-		delete db_dev;
-	dbase_used = rval.dbase_used;
-	from_env_var = rval.from_env_var;
-	host = rval.host;
-	port = rval.port;
-	port_num = rval.port_num;
-	db_host = rval.db_host;
-	db_port = rval.db_port;
-	db_port_num = rval.db_port_num;
-	ior = rval.ior;
-	pasyn_ctr = rval.pasyn_ctr;
-	pasyn_cb_ctr = rval.pasyn_cb_ctr;
-	device = rval.device;
-	device_2 = rval.device_2;
-	timeout = rval.timeout;
-	connection_state = rval.connection_state;
-	version = rval.version;
-	source = rval.source;
-	if (ext != NULL)
-		delete ext;
-	if (rval.ext != NULL)
-	{
-		ext = new ConnectionExt();
-		*ext = *rval.ext;
-	}
-	else
-		ext = NULL;
+//	if (dbase_used == true)
+//		delete db_dev;
+//	dbase_used = rval.dbase_used;
+//	from_env_var = rval.from_env_var;
+//	host = rval.host;
+//	port = rval.port;
+//	port_num = rval.port_num;
+//	db_host = rval.db_host;
+//	db_port = rval.db_port;
+//	db_port_num = rval.db_port_num;
+//	ior = rval.ior;
+//	pasyn_ctr = rval.pasyn_ctr;
+//	pasyn_cb_ctr = rval.pasyn_cb_ctr;
+//	device = rval.device;
+//	device_2 = rval.device_2;
+//	timeout = rval.timeout;
+//	connection_state = rval.connection_state;
+//	version = rval.version;
+//	source = rval.source;
+//	if (ext != NULL)
+//		delete ext;
+//	if (rval.ext != NULL)
+//	{
+//		ext = new ConnectionExt();
+//		*ext = *rval.ext;
+//	}
+//	else
+//		ext = NULL;
 
 //
 // Now DeviceProxy members
@@ -1575,6 +1648,15 @@ DeviceProxy &DeviceProxy::operator=(const DeviceProxy &rval)
 	else
 		adm_device = NULL;
 
+#ifdef HAS_UNIQUE_PTR
+   if (rval.ext_proxy.get() != NULL)
+    {
+        ext_proxy.reset(new DeviceProxyExt);
+//        *(ext_proxy.get()) = *(rval.ext_proxy.get());
+    }
+    else
+        ext_proxy.reset();
+#else
 	if (ext_proxy != NULL)
 		delete ext_proxy;
 	if (rval.ext_proxy != NULL)
@@ -1584,6 +1666,7 @@ DeviceProxy &DeviceProxy::operator=(const DeviceProxy &rval)
 	}
 	else
 		ext_proxy = NULL;
+#endif
 
 	return *this;
 }
@@ -2150,8 +2233,9 @@ DeviceProxy::~DeviceProxy()
 	if (adm_device != NULL)
 		delete adm_device;
 
-	if (ext_proxy != NULL)
-		delete ext_proxy;
+#ifndef HAS_UNIQUE_PTR
+    delete ext_proxy;
+#endif
 }
 
 
@@ -4440,20 +4524,21 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 // Add an error in the error stack in case there is one
 //
 
-			long nb_except = (*dev_attr)[i].ext->err_list.in().length();
+            DevErrorList_var &err_list = (*dev_attr)[i].get_error_list();
+			long nb_except = err_list.in().length();
 			if (nb_except != 0)
 			{
 				TangoSys_OMemStream desc;
 				desc << "Failed to read_attributes on device " << device_name;
 				desc << ", attribute " << (*dev_attr)[i].name << ends;
 
-				(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
-				(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-				(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes()");
+				err_list.inout().length(nb_except + 1);
+				err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+				err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes()");
 
 				string st = desc.str();
-				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-				(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
+				err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+				err_list[nb_except].severity = Tango::ERR;
 			}
 		}
 		else
@@ -4520,20 +4605,21 @@ DeviceAttribute DeviceProxy::read_attribute(string& attr_string)
 // Add an error in the error stack in case there is one
 //
 
-		long nb_except = dev_attr.ext->err_list.in().length();
+        DevErrorList_var &err_list = dev_attr.get_error_list();
+		long nb_except = err_list.in().length();
 		if (nb_except != 0)
 		{
 			TangoSys_OMemStream desc;
 			desc << "Failed to read_attribute on device " << device_name;
 			desc << ", attribute " << dev_attr.name << ends;
 
-			dev_attr.ext->err_list.inout().length(nb_except + 1);
-			dev_attr.ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-			dev_attr.ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
+			err_list.inout().length(nb_except + 1);
+			err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+			err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
 
 			string st = desc.str();
-			dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-			dev_attr.ext->err_list[nb_except].severity = Tango::ERR;
+			err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+			err_list[nb_except].severity = Tango::ERR;
 		}
 	}
 	else
@@ -4599,20 +4685,21 @@ void DeviceProxy::read_attribute(const char *attr_str,DeviceAttribute &dev_attr)
 // Add an error in the error stack in case there is one
 //
 
-		long nb_except = dev_attr.ext->err_list.in().length();
+        DevErrorList_var &err_list = dev_attr.get_error_list();
+		long nb_except = err_list.in().length();
 		if (nb_except != 0)
 		{
 			TangoSys_OMemStream desc;
 			desc << "Failed to read_attribute on device " << device_name;
 			desc << ", attribute " << dev_attr.name << ends;
 
-			dev_attr.ext->err_list.inout().length(nb_except + 1);
-			dev_attr.ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-			dev_attr.ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
+			err_list.inout().length(nb_except + 1);
+			err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+			err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
 
 			string st = desc.str();
-			dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-			dev_attr.ext->err_list[nb_except].severity = Tango::ERR;
+			err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+			err_list[nb_except].severity = Tango::ERR;
 		}
 	}
 	else
@@ -4667,12 +4754,12 @@ void DeviceProxy::write_attributes(vector<DeviceAttribute>& attr_list)
 				attr_value_list[i].value <<= attr_list[i].LongSeq.in();
 			continue;
 		}
-		if (attr_list[i].ext->Long64Seq.operator->() != NULL)
+		if (attr_list[i].get_Long64_data().operator->() != NULL)
 		{
 			if (version >= 4)
-				attr_value_list_4[i].value.long64_att_value(attr_list[i].ext->Long64Seq.in());
+				attr_value_list_4[i].value.long64_att_value(attr_list[i].get_Long64_data().in());
 			else
-				attr_value_list[i].value <<= attr_list[i].ext->Long64Seq.in();
+				attr_value_list[i].value <<= attr_list[i].get_Long64_data().in();
 			continue;
 		}
 		if (attr_list[i].ShortSeq.operator->() != NULL)
@@ -4731,28 +4818,28 @@ void DeviceProxy::write_attributes(vector<DeviceAttribute>& attr_list)
 				attr_value_list[i].value  <<= attr_list[i].UCharSeq.in();
 			continue;
 		}
-		if (attr_list[i].ext->ULongSeq.operator->() != NULL)
+		if (attr_list[i].get_ULong_data().operator->() != NULL)
 		{
 			if (version >= 4)
-				attr_value_list_4[i].value.ulong_att_value(attr_list[i].ext->ULongSeq.in());
+				attr_value_list_4[i].value.ulong_att_value(attr_list[i].get_ULong_data().in());
 			else
-				attr_value_list[i].value <<= attr_list[i].ext->ULongSeq.in();
+				attr_value_list[i].value <<= attr_list[i].get_ULong_data().in();
 			continue;
 		}
-		if (attr_list[i].ext->ULong64Seq.operator->() != NULL)
+		if (attr_list[i].get_ULong64_data().operator->() != NULL)
 		{
 			if (version >= 4)
-				attr_value_list_4[i].value.ulong64_att_value(attr_list[i].ext->ULong64Seq.in());
+				attr_value_list_4[i].value.ulong64_att_value(attr_list[i].get_ULong64_data().in());
 			else
-				attr_value_list[i].value <<= attr_list[i].ext->ULong64Seq.in();
+				attr_value_list[i].value <<= attr_list[i].get_ULong64_data().in();
 			continue;
 		}
-		if (attr_list[i].ext->StateSeq.operator->() != NULL)
+		if (attr_list[i].get_State_data().operator->() != NULL)
 		{
 			if (version >= 4)
-				attr_value_list_4[i].value.state_att_value(attr_list[i].ext->StateSeq.in());
+				attr_value_list_4[i].value.state_att_value(attr_list[i].get_State_data().in());
 			else
-				attr_value_list[i].value <<= attr_list[i].ext->StateSeq.in();
+				attr_value_list[i].value <<= attr_list[i].get_State_data().in();
 			continue;
 		}
 	}
@@ -4913,8 +5000,8 @@ void DeviceProxy::write_attribute(DeviceAttribute &dev_attr)
 
 		if (dev_attr.LongSeq.operator->() != NULL)
 			attr_value_list_4[0].value.long_att_value(dev_attr.LongSeq.in());
-		else if (dev_attr.ext->Long64Seq.operator->() != NULL)
-			attr_value_list_4[0].value.long64_att_value(dev_attr.ext->Long64Seq.in());
+		else if (dev_attr.get_Long64_data().operator->() != NULL)
+			attr_value_list_4[0].value.long64_att_value(dev_attr.get_Long64_data().in());
 		else if (dev_attr.ShortSeq.operator->() != NULL)
 			attr_value_list_4[0].value.short_att_value(dev_attr.ShortSeq.in());
 		else if (dev_attr.DoubleSeq.operator->() != NULL)
@@ -4929,14 +5016,14 @@ void DeviceProxy::write_attribute(DeviceAttribute &dev_attr)
 			attr_value_list_4[0].value.ushort_att_value(dev_attr.UShortSeq.in());
 		else if (dev_attr.UCharSeq.operator->() != NULL)
 			attr_value_list_4[0].value.uchar_att_value(dev_attr.UCharSeq.in());
-		else if (dev_attr.ext->ULongSeq.operator->() != NULL)
-			attr_value_list_4[0].value.ulong_att_value(dev_attr.ext->ULongSeq.in());
-		else if (dev_attr.ext->ULong64Seq.operator->() != NULL)
-			attr_value_list_4[0].value.ulong64_att_value(dev_attr.ext->ULong64Seq.in());
-		else if (dev_attr.ext->StateSeq.operator->() != NULL)
-			attr_value_list_4[0].value.state_att_value(dev_attr.ext->StateSeq.in());
-		else if (dev_attr.ext->EncodedSeq.operator->() != NULL)
-			attr_value_list_4[0].value.encoded_att_value(dev_attr.ext->EncodedSeq.in());
+		else if (dev_attr.get_ULong_data().operator->() != NULL)
+			attr_value_list_4[0].value.ulong_att_value(dev_attr.get_ULong_data().in());
+		else if (dev_attr.get_ULong64_data().operator->() != NULL)
+			attr_value_list_4[0].value.ulong64_att_value(dev_attr.get_ULong64_data().in());
+		else if (dev_attr.get_State_data().operator->() != NULL)
+			attr_value_list_4[0].value.state_att_value(dev_attr.get_State_data().in());
+		else if (dev_attr.get_Encoded_data().operator->() != NULL)
+			attr_value_list_4[0].value.encoded_att_value(dev_attr.get_Encoded_data().in());
 	}
 	else
 	{
@@ -4950,8 +5037,8 @@ void DeviceProxy::write_attribute(DeviceAttribute &dev_attr)
 
 		if (dev_attr.LongSeq.operator->() != NULL)
 			attr_value_list[0].value <<= dev_attr.LongSeq.in();
-		else if (dev_attr.ext->Long64Seq.operator->() != NULL)
-			 attr_value_list[0].value <<= dev_attr.ext->Long64Seq.in();
+		else if (dev_attr.get_Long64_data().operator->() != NULL)
+			 attr_value_list[0].value <<= dev_attr.get_Long64_data().in();
 		else if (dev_attr.ShortSeq.operator->() != NULL)
 			attr_value_list[0].value <<= dev_attr.ShortSeq.in();
 		else if (dev_attr.DoubleSeq.operator->() != NULL)
@@ -4966,12 +5053,12 @@ void DeviceProxy::write_attribute(DeviceAttribute &dev_attr)
 			attr_value_list[0].value  <<= dev_attr.UShortSeq.in();
 		else if (dev_attr.UCharSeq.operator->() != NULL)
 			attr_value_list[0].value  <<= dev_attr.UCharSeq.in();
-		else if (dev_attr.ext->ULongSeq.operator->() != NULL)
-			attr_value_list[0].value <<= dev_attr.ext->ULongSeq.in();
-		else if (dev_attr.ext->ULong64Seq.operator->() != NULL)
-			attr_value_list[0].value <<= dev_attr.ext->ULong64Seq.in();
-		else if (dev_attr.ext->StateSeq.operator->() != NULL)
-			attr_value_list[0].value <<= dev_attr.ext->StateSeq.in();
+		else if (dev_attr.get_ULong_data().operator->() != NULL)
+			attr_value_list[0].value <<= dev_attr.get_ULong_data().in();
+		else if (dev_attr.get_ULong64_data().operator->() != NULL)
+			attr_value_list[0].value <<= dev_attr.get_ULong64_data().in();
+		else if (dev_attr.get_State_data().operator->() != NULL)
+			attr_value_list[0].value <<= dev_attr.get_State_data().in();
 	}
 
 	int ctr = 0;
@@ -7536,8 +7623,8 @@ DeviceAttribute DeviceProxy::write_read_attribute(DeviceAttribute &dev_attr)
 
 	if (dev_attr.LongSeq.operator->() != NULL)
 		attr_value_list[0].value.long_att_value(dev_attr.LongSeq.in());
-	else if (dev_attr.ext->Long64Seq.operator->() != NULL)
-		attr_value_list[0].value.long64_att_value(dev_attr.ext->Long64Seq.in());
+	else if (dev_attr.get_Long64_data().operator->() != NULL)
+		attr_value_list[0].value.long64_att_value(dev_attr.get_Long64_data().in());
 	else if (dev_attr.ShortSeq.operator->() != NULL)
 		attr_value_list[0].value.short_att_value(dev_attr.ShortSeq.in());
 	else if (dev_attr.DoubleSeq.operator->() != NULL)
@@ -7552,14 +7639,14 @@ DeviceAttribute DeviceProxy::write_read_attribute(DeviceAttribute &dev_attr)
 		attr_value_list[0].value.ushort_att_value(dev_attr.UShortSeq.in());
 	else if (dev_attr.UCharSeq.operator->() != NULL)
 		attr_value_list[0].value.uchar_att_value(dev_attr.UCharSeq.in());
-	else if (dev_attr.ext->ULongSeq.operator->() != NULL)
-		attr_value_list[0].value.ulong_att_value(dev_attr.ext->ULongSeq.in());
-	else if (dev_attr.ext->ULong64Seq.operator->() != NULL)
-		attr_value_list[0].value.ulong64_att_value(dev_attr.ext->ULong64Seq.in());
-	else if (dev_attr.ext->StateSeq.operator->() != NULL)
-		attr_value_list[0].value.state_att_value(dev_attr.ext->StateSeq.in());
-	else if (dev_attr.ext->EncodedSeq.operator->() != NULL)
-		attr_value_list[0].value.encoded_att_value(dev_attr.ext->EncodedSeq.in());
+	else if (dev_attr.get_ULong_data().operator->() != NULL)
+		attr_value_list[0].value.ulong_att_value(dev_attr.get_ULong_data().in());
+	else if (dev_attr.get_ULong64_data().operator->() != NULL)
+		attr_value_list[0].value.ulong64_att_value(dev_attr.get_ULong64_data().in());
+	else if (dev_attr.get_State_data().operator->() != NULL)
+		attr_value_list[0].value.state_att_value(dev_attr.get_State_data().in());
+	else if (dev_attr.get_Encoded_data().operator->() != NULL)
+		attr_value_list[0].value.encoded_att_value(dev_attr.get_Encoded_data().in());
 
 	int ctr = 0;
 	AttributeValueList_4_var attr_value_list_4;
@@ -7701,20 +7788,21 @@ DeviceAttribute DeviceProxy::write_read_attribute(DeviceAttribute &dev_attr)
 // Add an error in the error stack in case there is one
 //
 
-	long nb_except = ret_dev_attr.ext->err_list.in().length();
+    DevErrorList_var &err_list = ret_dev_attr.get_error_list();
+	long nb_except = err_list.in().length();
 	if (nb_except != 0)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Failed to write_read_attribute on device " << device_name;
 		desc << ", attribute " << dev_attr.name << ends;
 
-		ret_dev_attr.ext->err_list.inout().length(nb_except + 1);
-		ret_dev_attr.ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-		ret_dev_attr.ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::write_read_attribute()");
+		err_list.inout().length(nb_except + 1);
+		err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+		err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::write_read_attribute()");
 
 		string st = desc.str();
-		ret_dev_attr.ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-		ret_dev_attr.ext->err_list[nb_except].severity = Tango::ERR;
+		err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+		err_list[nb_except].severity = Tango::ERR;
 	}
 
 	return(ret_dev_attr);

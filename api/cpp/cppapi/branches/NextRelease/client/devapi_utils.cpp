@@ -129,8 +129,8 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 
 		for (k = 0;k < nb_elt;k++)
 		{
-			(*ddh)[start - k].ext->w_dim_x = hist_4->w_dims[loop].dim_x;
-			(*ddh)[start - k].ext->w_dim_y = hist_4->w_dims[loop].dim_y;
+			(*ddh)[start - k].set_w_dim_x(hist_4->w_dims[loop].dim_x);
+			(*ddh)[start - k].set_w_dim_y(hist_4->w_dims[loop].dim_y);
 		}
 	}
 
@@ -146,10 +146,11 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 		for (k = 0;k < nb_elt;k++)
 		{
 			(*ddh)[start - k].failed(true);
-			(*ddh)[start - k].ext->err_list->length(hist_4->errors[loop].length());
+			DevErrorList &err_list = (*ddh)[start - k].get_error_list();
+			err_list.length(hist_4->errors[loop].length());
 			for (unsigned int g = 0;g < hist_4->errors[loop].length();g++)
 			{
-				(*ddh)[start - k].ext->err_list[g] = (hist_4->errors[loop])[g];
+				err_list[g] = (hist_4->errors[loop])[g];
 			}
 		}
 	}
@@ -284,8 +285,8 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 
 		int r_dim_x = (*ddh)[loop].dim_x;
 		int r_dim_y = (*ddh)[loop].dim_y;
-		int w_dim_x = (*ddh)[loop].ext->w_dim_x;
-		int w_dim_y = (*ddh)[loop].ext->w_dim_y;
+		int w_dim_x = (*ddh)[loop].get_written_dim_x();
+		int w_dim_y = (*ddh)[loop].get_written_dim_y();
 
 		int data_length;
 		(r_dim_y == 0) ? data_length = r_dim_x : data_length = r_dim_x * r_dim_y;
@@ -315,11 +316,11 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 			break;
 
 			case DEV_LONG64:
-			(*ddh)[loop].ext->Long64Seq = new DevVarLong64Array();
-			(*ddh)[loop].ext->Long64Seq->length(data_length);
+			(*ddh)[loop].set_Long64_data(new DevVarLong64Array());
+			(*ddh)[loop].get_Long64_data()->length(data_length);
 
 			for (ll = 0;ll < data_length;ll++)
-				(*ddh)[loop].ext->Long64Seq[ll] = (*tmp_lg64)[(base - data_length) + ll];
+				((*ddh)[loop].get_Long64_data())[ll] = (*tmp_lg64)[(base - data_length) + ll];
 			break;
 
 			case DEV_FLOAT:
@@ -371,35 +372,35 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 			break;
 
 			case DEV_ULONG:
-			(*ddh)[loop].ext->ULongSeq = new DevVarULongArray();
-			(*ddh)[loop].ext->ULongSeq->length(data_length);
+			(*ddh)[loop].set_ULong_data(new DevVarULongArray());
+			(*ddh)[loop].get_ULong_data()->length(data_length);
 
 			for (ll = 0;ll < data_length;ll++)
-				(*ddh)[loop].ext->ULongSeq[ll] = (*tmp_ulg)[(base - data_length) + ll];
+				((*ddh)[loop].get_ULong_data())[ll] = (*tmp_ulg)[(base - data_length) + ll];
 			break;
 
 			case DEV_ULONG64:
-			(*ddh)[loop].ext->ULong64Seq = new DevVarULong64Array();
-			(*ddh)[loop].ext->ULong64Seq->length(data_length);
+			(*ddh)[loop].set_ULong64_data(new DevVarULong64Array());
+			(*ddh)[loop].get_ULong64_data()->length(data_length);
 
 			for (ll = 0;ll < data_length;ll++)
-				(*ddh)[loop].ext->ULong64Seq[ll] = (*tmp_ulg64)[(base - data_length) + ll];
+				((*ddh)[loop].get_ULong64_data())[ll] = (*tmp_ulg64)[(base - data_length) + ll];
 			break;
 
 			case DEV_STATE:
-			(*ddh)[loop].ext->StateSeq = new DevVarStateArray();
-			(*ddh)[loop].ext->StateSeq->length(data_length);
+			(*ddh)[loop].set_State_data(new DevVarStateArray());
+			(*ddh)[loop].get_State_data()->length(data_length);
 
 			for (ll = 0;ll < data_length;ll++)
-				(*ddh)[loop].ext->StateSeq[ll] = (*tmp_state)[(base - data_length) + ll];
+				((*ddh)[loop].get_State_data())[ll] = (*tmp_state)[(base - data_length) + ll];
 			break;
 
 			case DEV_ENCODED:
-			(*ddh)[loop].ext->EncodedSeq = new DevVarEncodedArray();
-			(*ddh)[loop].ext->EncodedSeq->length(data_length);
+			(*ddh)[loop].set_Encoded_data(new DevVarEncodedArray());
+			(*ddh)[loop].get_Encoded_data()->length(data_length);
 
 			for (ll = 0;ll < data_length;ll++)
-				(*ddh)[loop].ext->EncodedSeq[ll] = (*tmp_enc)[(base - data_length) + ll];
+				((*ddh)[loop].get_Encoded_data())[ll] = (*tmp_enc)[(base - data_length) + ll];
 			break;
 		}
 

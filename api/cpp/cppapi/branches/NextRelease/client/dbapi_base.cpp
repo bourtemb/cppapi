@@ -28,146 +28,6 @@ static const char *RcsId = "$Id$\n$Name$";
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
 //
-// $Log$
-// Revision 3.57  2010/12/09 12:58:43  taurel
-// - Fix another controlled access related bug (in DbDeleteDeviceProperty)
-//
-// Revision 3.56  2010/12/09 12:03:06  taurel
-// - Fix bug in control access. The db device access right were not got from
-// db if it was not he first device on which the access was checked
-//
-// Revision 3.55  2010/10/04 12:16:04  taurel
-// - Fix some double free in case of communication problems with db server
-//
-// Revision 3.54  2010/09/09 13:43:38  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.53  2010/09/09 08:36:19  taurel
-// - Better TANGO_HOST=localhost:xxx management
-//
-// Revision 3.52  2010/08/25 14:25:41  taurel
-// - Support localhost in TANGO_HOST env. variable. Bug 2894469
-//
-// Revision 3.51  2010/08/17 08:55:07  taurel
-// - Added a Database::get_file_name() method
-//
-// Revision 3.50  2010/05/26 09:16:21  taurel
-// - Another commit after merge with the bug fixes branch
-//
-// Revision 3.49  2010/04/12 12:56:24  taurel
-// - Fix a memory leak in the new method get_server_release()
-//
-// Revision 3.48  2010/01/08 08:04:49  taurel
-// - More changes for thread safety
-//
-// Revision 3.47  2010/01/07 08:35:06  taurel
-// - Several change sto improve thread safety of the DeviceProxy, AttributeProxy, ApiUtul and EventConsumer classes
-//
-// Revision 3.46  2009/12/18 14:51:01  taurel
-// - Safety commit before christmas holydays
-// - Many changes to make the DeviceProxy, Database and AttributeProxy
-// classes thread safe (good help from the helgrind tool from valgrind)
-// Revision 3.45.2.3  2010/05/21 09:42:49  taurel
-// - Re-use the same event channel in case of server restart when a file
-// is use as database
-//
-// Revision 3.45.2.2  2010/05/20 12:39:26  taurel
-// - Fixed some memory leaks when using a file as database (-file option)
-//
-// Revision 3.45.2.1  2010/05/18 08:20:09  taurel
-// - Events from device in a DS started with a file as database are now
-// back into operation
-//
-// Revision 3.45  2009/09/22 11:04:45  taurel
-// - Environment variables in file also supported for Windows
-//
-// Revision 3.44  2009/08/27 07:22:43  taurel
-// - Commit after anothre merge with Release_7_0_2-bugfixes branch
-//
-// Revision 3.42.2.1  2009/06/24 06:42:57  taurel
-// - The database host is stored using its FQDN
-//
-// Revision 3.42  2009/04/28 15:40:21  taurel
-// - Fix bug in the fill_server_cache() method. The call to the DB
-// was done twice...
-//
-// Revision 3.41  2009/04/27 09:23:20  jensmeyer
-// Added access right check in Database::is_command_allowed().
-//
-// Revision 3.40  2009/03/20 16:48:05  jlpons
-// Fixed wrong _TG_WINDOWS_ define
-//
-// Revision 3.39  2009/03/20 11:52:06  taurel
-// - Add tangorc files management (for env. variables)
-//
-// Revision 3.38  2009/03/13 09:32:27  taurel
-// - Small changes to fix Windows VC8 warnings in Warning level 3
-//
-// Revision 3.37  2009/02/27 13:24:43  taurel
-// - Small changes for Solaris
-//
-// Revision 3.36  2009/02/23 14:27:53  taurel
-// - Added a DeviceProxy::get_property_list() method
-//
-// Revision 3.35  2009/01/29 16:24:26  taurel
-// - Commit after merge with branch Release_6_1_1-bugfixes
-//
-// Revision 3.27.2.1  2008/11/19 10:57:40  jensmeyer
-// Bug fix in get_device_exported_for_class() to call the correct command
-// name of the database server.
-// Revision 3.34  2009/01/21 12:45:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.33  2008/12/17 09:54:44  taurel
-// - First implementation of attributes sent on the wire using IDL Union
-// instead of IDL Any
-//
-// Revision 3.32  2008/10/06 15:02:16  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.31  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.30  2008/10/01 11:44:34  jensmeyer
-// Corrected in get_device_exported_for_class() the command name used on the
-// database server to DbGetExportdDeviceListForClass.
-//
-// Revision 3.29  2008/06/14 11:28:07  taurel
-// - DevEncoded attribute data type implementation work going on
-//
-// Revision 3.28  2008/05/20 12:42:29  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.27  2008/04/02 15:57:46  taurel
-// - Fix compatibility bug in the Database::get_device_name() method
-// Revision 3.20.2.2  2008/02/07 15:56:58  taurel
-// - First implementation of the Controlled Access done
-//
-// Revision 3.26  2008/03/20 07:37:00  taurel
-// - Last commit before Release 6.1 ?
-//
-// Revision 3.25  2008/03/11 14:36:44  taurel
-// - Apply patches from Frederic Picca about compilation with gcc 4.2
-//
-// Revision 3.24  2008/01/25 15:45:58  taurel
-// - Some changes in the Db cache
-// - A lighter system to shutdown DS in case of dynamic attribute
-//
-// Revision 3.23  2008/01/08 14:32:39  taurel
-// - Fix bug in the unexport_event() method
-// Revision 3.20.2.1  2007/12/19 15:53:07  taurel
-// - Still some work going on for the locking feature
-//
-// Revision 3.22  2008/01/07 07:13:25  taurel
-// - Some tab spacing in services related calls
-//
-// Revision 3.21  2007/12/12 10:15:46  taurel
-// - Db calls during DS startup has a separate timeout and some retries
-//
-// Revision 3.20  2007/11/08 12:00:20  taurel
-// - Add miscellaneous getter methods in the DbServerCache class
-// - The DbDatum::Size() method is now inline
-// - Fix bug in database re-connection timeout management
 //
 
 #if HAVE_CONFIG_H
@@ -195,7 +55,9 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-Database::Database(ORB *orb_in) : Connection(orb_in),access_proxy(NULL),access_checked(false),access_service_defined(false)
+Database::Database(ORB *orb_in) : Connection(orb_in),
+ext(new DatabaseExt),
+access_proxy(NULL),access_checked(false),access_service_defined(false)
 {
 //
 // get host and port from environment variable TANGO_HOST
@@ -205,8 +67,6 @@ Database::Database(ORB *orb_in) : Connection(orb_in),access_proxy(NULL),access_c
 	int ret;
 	filedb = 0;
 	serv_version = 0;
-
-	ext = new DatabaseExt();
 
 	ret = get_env_var(EnvVariable,tango_host_env_var);
 
@@ -232,7 +92,8 @@ Database::Database(ORB *orb_in) : Connection(orb_in),access_proxy(NULL),access_c
 
 #ifdef _TG_WINDOWS_
 Database::Database(ORB *orb_in,string &ds_exec_name,string &ds_inst_name) : Connection(orb_in),
-													access_proxy(NULL),access_checked(false),access_service_defined(false)
+ext(new DatabaseExt),
+access_proxy(NULL),access_checked(false),access_service_defined(false)
 {
 //
 // get host and port from environment variable TANGO_HOST
@@ -240,8 +101,6 @@ Database::Database(ORB *orb_in,string &ds_exec_name,string &ds_inst_name) : Conn
 	char *tango_host_env_c_str;
 	filedb = 0;
 	serv_version = 0;
-
-	ext = new DatabaseExt();
 
 	if (get_tango_host_from_reg(&tango_host_env_c_str,ds_exec_name,ds_inst_name) == -1)
 		tango_host_env_c_str = NULL;
@@ -435,14 +294,13 @@ void Database::check_tango_host(const char *tango_host_env_c_str)
 //
 //-----------------------------------------------------------------------------
 
-Database::Database(string &in_host, int in_port, ORB *orb_in) : Connection(orb_in),access_proxy(NULL),
-														access_checked(false),access_service_defined(false)
+Database::Database(string &in_host, int in_port, ORB *orb_in) : Connection(orb_in),
+ext(new DatabaseExt),
+access_proxy(NULL),access_checked(false),access_service_defined(false)
 {
 	filedb = 0;
 	serv_version = 0;
 	db_multi_svc = false;
-
-	ext = new DatabaseExt();
 
 	host = in_host;
 	db_host = host;
@@ -467,16 +325,15 @@ Database::Database(string &in_host, int in_port, ORB *orb_in) : Connection(orb_i
 	dev_name();
 }
 
-Database::Database(string &name) : Connection(true),access_proxy(NULL),access_checked(false),access_service_defined(false)
+Database::Database(string &name) : Connection(true),
+ext(new DatabaseExt),
+access_proxy(NULL),access_checked(false),access_service_defined(false)
 {
 	file_name = name;
 	filedb = new FileDatabase(file_name);
 	serv_version = 230;
 
 	check_acc = false;
-
-	ext = new DatabaseExt();
-//	dev_name();
 }
 
 //-----------------------------------------------------------------------------
@@ -558,8 +415,9 @@ Database::~Database()
 	if (access_proxy != NULL)
 		delete access_proxy;
 
-	if (ext != NULL)
-		delete ext;
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 #ifdef _TG_WINDOWS_

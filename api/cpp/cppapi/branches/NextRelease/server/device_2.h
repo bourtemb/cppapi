@@ -153,7 +153,7 @@ public:
 /**
  * The device desctructor.
  */
-	virtual ~Device_2Impl() {delete ext_2;}
+	virtual ~Device_2Impl() {}
 //@}
 
 
@@ -323,7 +323,11 @@ private:
     {
     };
 
-	Device_2ImplExt				*ext_2;
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<Device_2ImplExt>     ext_2;           // Class extension
+#else
+	Device_2ImplExt				    *ext_2;
+#endif
 };
 
 } // End of Tango namespace

@@ -78,13 +78,12 @@
 // Include stream header files
 //
 
-#if ((defined _TG_WINDOWS_) || (defined GCC_STD))
-	#include <iostream>
-	#include <sstream>
-	#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
-	#include <memory>
-#endif
+#include <memory>
+
 
 //
 // Include some stdc++ library headers

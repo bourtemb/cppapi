@@ -80,15 +80,8 @@ namespace Tango
 
 WAttribute::WAttribute(vector<AttrProperty> &prop_list,
 		       Attr &tmp_attr,string &dev_name,long idx)
-:Attribute(prop_list,tmp_attr,dev_name,idx),memorized(false),memorized_init(true)
+:Attribute(prop_list,tmp_attr,dev_name,idx),memorized(false),memorized_init(true),w_ext(new WAttributeExt)
 {
-
-//
-// Create the extension class
-//
-
-	w_ext = new WAttribute::WAttributeExt();
-
 
 //
 // Init some data
@@ -173,7 +166,9 @@ WAttribute::WAttribute(vector<AttrProperty> &prop_list,
 
 WAttribute::~WAttribute()
 {
+#ifndef HAS_UNIQUE_PTR
 	delete w_ext;
+#endif
 	CORBA::string_free(str_val);
 	CORBA::string_free(old_str_val);
 //	CORBA::string_free(encoded_val.encoded_format);
@@ -3319,19 +3314,11 @@ bool WAttribute::check_rds_alarm()
 				// check for NAN values
 				if ( data_format == Tango::SCALAR )
 				{
-#ifndef _TG_WINDOWS_
-					if ( isnan(double_array_val[0]) || isnan(tmp_db[0]) )
+					if ( Tango_isnan(double_array_val[0]) || Tango_isnan(tmp_db[0]) )
 					{
 						// send an alarm if only read or set value are NAN
-						if ( !(isnan(double_array_val[0]) && isnan(tmp_db[0])) )
+						if ( !(Tango_isnan(double_array_val[0]) && Tango_isnan(tmp_db[0])) )
 						{
-#else
-					if ( _isnan(double_array_val[0]) || _isnan(tmp_db[0]) )
-					{
-						// send an alarm if only read or set value are NAN
-						if ( !(_isnan(double_array_val[0]) && _isnan(tmp_db[0])) )
-						{
-#endif
 							quality = Tango::ATTR_ALARM;
 							alarm.set(rds);
 							ret = true;
@@ -3341,19 +3328,11 @@ bool WAttribute::check_rds_alarm()
 				}
 				else
 				{
-#ifndef _TG_WINDOWS_
-					if ( isnan(double_array_val[i]) || isnan((*value.db_seq)[i]) )
+					if ( Tango_isnan(double_array_val[i]) || Tango_isnan((*value.db_seq)[i]) )
 					{
 						// send an alarm if only read or set value are NAN
-						if ( !(isnan(double_array_val[i]) && isnan((*value.db_seq)[i])) )
+						if ( !(Tango_isnan(double_array_val[i]) && Tango_isnan((*value.db_seq)[i])) )
 						{
-#else
-					if ( _isnan(double_array_val[i]) || _isnan((*value.db_seq)[i]) )
-					{
-						// send an alarm if only read or set value are NAN
-						if ( !(_isnan(double_array_val[i]) && _isnan((*value.db_seq)[i])) )
-						{
-#endif
 							quality = Tango::ATTR_ALARM;
 							alarm.set(rds);
 							ret = true;
@@ -3383,19 +3362,11 @@ bool WAttribute::check_rds_alarm()
 				// check for NAN values
 				if ( data_format == Tango::SCALAR )
 				{
-#ifndef _TG_WINDOWS_
-					if ( isnan(float_array_val[0]) || isnan(tmp_fl[0]) )
+					if ( Tango_isnan(float_array_val[0]) || Tango_isnan(tmp_fl[0]) )
 					{
 						// send an alarm if only read or set value are NAN
-						if ( !(isnan(float_array_val[0]) && isnan(tmp_fl[0])) )
+						if ( !(Tango_isnan(float_array_val[0]) && Tango_isnan(tmp_fl[0])) )
 						{
-#else
-					if ( _isnan(float_array_val[0]) || _isnan(tmp_fl[0]) )
-					{
-						// send an alarm if only read or set value are NAN
-						if ( !(_isnan(float_array_val[0]) && _isnan(tmp_fl[0])) )
-						{
-#endif
 							quality = Tango::ATTR_ALARM;
 							alarm.set(rds);
 							ret = true;
@@ -3405,19 +3376,11 @@ bool WAttribute::check_rds_alarm()
 				}
 				else
 				{
-#ifndef _TG_WINDOWS_
-					if ( isnan(float_array_val[i]) || isnan((*value.fl_seq)[i]) )
+					if ( Tango_isnan(float_array_val[i]) || Tango_isnan((*value.fl_seq)[i]) )
 					{
 						// send an alarm if only read or set value are NAN
-						if ( !(isnan(float_array_val[i]) && isnan((*value.fl_seq)[i])) )
+						if ( !(Tango_isnan(float_array_val[i]) && Tango_isnan((*value.fl_seq)[i])) )
 						{
-#else
-					if ( _isnan(float_array_val[i]) || _isnan((*value.fl_seq)[i]) )
-					{
-						// send an alarm if only read or set value are NAN
-						if ( !(_isnan(float_array_val[i]) && _isnan((*value.fl_seq)[i])) )
-						{
-#endif
 							quality = Tango::ATTR_ALARM;
 							alarm.set(rds);
 							ret = true;

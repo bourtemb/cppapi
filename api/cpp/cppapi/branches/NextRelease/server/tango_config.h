@@ -116,30 +116,29 @@
 //
 
 #ifndef _TG_WINDOWS_
-    #if __GNUC__ >= 3
-        #if __GNUC__ == 3
-            #if __GNUC_MINOR__ >= 4
-                #define GCC_STD
-            #endif
-        #else
-            #define GCC_STD
-        #endif
-    #else
+    #if __GNUC__ < 3
         #error "Gcc too old to use Tango!"
     #endif
-#endif /* _TG_WINDOWS_ */
+#endif
 
 //
 // Some C++11 feature
+// Unique_ptr -> gcc 4.3
+// Lambda function -> gcc 4.5
 //
 
 #ifndef _TG_WINDOWS_
     #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)))
         #define HAS_UNIQUE_PTR
+        #if __GNUC_MINOR__ > 4
+            #define HAS_LAMBDA_FUNC
+            #define HAS_ISNAN_IN_STD
+        #endif
     #endif
 #else
     #ifdef WIN32_VC10
         #define HAS_UNIQUE_PTR
+        #define HAS_LAMBDA_FUNC
     #endif
 #endif
 
@@ -147,14 +146,14 @@
 // Some helper define
 //
 
-#if ((defined _TG_WINDOWS_) || (defined GCC_STD))
-	#define 	TangoSys_OMemStream	ostringstream
-	#define		TangoSys_MemStream	stringstream
-	#define		TangoSys_Pid		int
-	#define		TangoSys_Cout		ostream
-#endif
+#define 	TangoSys_OMemStream	ostringstream
+#define		TangoSys_MemStream	stringstream
+#define		TangoSys_Pid		int
+#define		TangoSys_Cout		ostream
 
-
+//
+// For Microsoft compilers
+//
 
 #ifdef _TG_WINDOWS_
 	#pragma warning(disable : 4355)
@@ -166,13 +165,27 @@
 #endif
 
 //
+// Define a common isnan call
+//
+
+#ifndef _TG_WINDOWS_
+    #ifdef HAS_ISNAN_IN_STD
+        #define Tango_isnan(A)  std::isnan(A)
+    #else
+        #define Tango_isnan(A) isnan(A)
+    #endif
+#else
+    #define Tango_isnan(A) _isnan(A)
+#endif
+
+//
 // Define a common sleep call
 //
 
 #ifndef _TG_WINDOWS_
-#define Tango_sleep(A) sleep(A);
+    #define Tango_sleep(A) sleep(A)
 #else
-#define Tango_sleep(A) Sleep(A * 1000);
+    #define Tango_sleep(A) Sleep(A * 1000)
 #endif
 
 //
@@ -180,11 +193,11 @@
 //
 
 #ifndef _TG_WINDOWS_
-#define TG_strcasecmp ::strcasecmp
-#define TG_strncasecmp ::strncasecmp
+    #define TG_strcasecmp ::strcasecmp
+    #define TG_strncasecmp ::strncasecmp
 #else
-#define	TG_strcasecmp ::stricmp
-#define TG_strncasecmp ::strnicmp
+    #define	TG_strcasecmp ::stricmp
+    #define TG_strncasecmp ::strnicmp
 #endif
 
 //
@@ -206,8 +219,12 @@
 #ifdef _TG_WINDOWS_
 #define TANGO_UNUSED(var) var
 #else
-	#ifdef __GNUC__
-		#define TANGO_UNUSED(var) var __attribute__ ((unused))
+	#if __GNUC__ > 3
+        #if __GNUC_MINOR__ >= 4
+            #define TANGO_UNUSED(var) var __attribute__ ((unused))
+        #else
+            #define TANGO_UNUSED(var) var
+        #endif
 	#else
 		#define TANGO_UNUSED(var) var
 	#endif

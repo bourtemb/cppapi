@@ -75,14 +75,8 @@ static void lower_cmd_name(string &cmd)
 //
 //-----------------------------------------------------------------------------
 
-DeviceClass::DeviceClass(string &s):name(s)
+DeviceClass::DeviceClass(string &s):name(s),ext(new DeviceClassExt)
 {
-
-//
-// Create the DeviceClassExt instance
-//
-
-	ext = new DeviceClass::DeviceClassExt;
 
 //
 // Create the associated DbClass object
@@ -727,7 +721,9 @@ DeviceClass::~DeviceClass()
 // Delete the class extension object
 //
 
+#ifndef HAS_UNIQUE_PTR
 	delete ext;
+#endif
 
 	cout4 << "Leaving DeviceClass destructor for class " << name << endl;
 }
@@ -1388,8 +1384,20 @@ Command &DeviceClass::get_cmd_by_name(const string &cmd_name)
 {
 	vector<Command *>::iterator pos;
 
+#ifdef HAS_LAMBDA_FUNC
+    pos = find_if(command_list.begin(),command_list.end(),
+                    [&] (Command *cmd)
+                    {
+                        if (cmd_name.size() != cmd->get_lower_name().size())
+                            return false;
+                        string tmp_name(cmd_name);
+                        transform(tmp_name.begin(),tmp_name.end(),tmp_name.begin(),::tolower);
+                        return cmd->get_lower_name() == tmp_name;
+                    });
+#else
 	pos = find_if(command_list.begin(),command_list.end(),
 		      bind2nd(WantedCmd<Command *,const char *,bool>(),cmd_name.c_str()));
+#endif
 
 	if (pos == command_list.end())
 	{
