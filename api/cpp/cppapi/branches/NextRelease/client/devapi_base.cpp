@@ -160,7 +160,7 @@ Connection::~Connection()
 //
 //-----------------------------------------------------------------------------
 
-Connection::Connection(const Connection &sou):ext(nullptr)
+Connection::Connection(const Connection &sou):ext(Tango_NullPtr)
 {
 	dbase_used = sou.dbase_used;
 	from_env_var = sou.from_env_var;

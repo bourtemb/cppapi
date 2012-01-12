@@ -125,6 +125,7 @@
 // Some C++11 feature
 // Unique_ptr -> gcc 4.3
 // Lambda function -> gcc 4.5
+// nullptr -> gcc 4.6
 //
 
 #ifndef _TG_WINDOWS_
@@ -133,6 +134,9 @@
         #if __GNUC_MINOR__ > 4
             #define HAS_LAMBDA_FUNC
             #define HAS_ISNAN_IN_STD
+        #endif
+        #if __GNUC_MINOR__ > 5
+            #define HAS_NULLPTR
         #endif
     #endif
 #else
@@ -180,7 +184,7 @@
 #endif
 
 //
-// Define a common isnan call
+// Define a common NULL constant
 //
 
 #ifdef HAS_NULLPTR
@@ -230,14 +234,10 @@
 #ifdef _TG_WINDOWS_
 #define TANGO_UNUSED(var) var
 #else
-	#if __GNUC__ > 3
-        #if __GNUC_MINOR__ >= 4
-            #define TANGO_UNUSED(var) var __attribute__ ((unused))
-        #else
-            #define TANGO_UNUSED(var) var
-        #endif
-	#else
-		#define TANGO_UNUSED(var) var
+	#if __GNUC__ >= 3 && __GNUC_MINOR__ >= 4
+        #define TANGO_UNUSED(var) var __attribute__ ((unused))
+    #else
+        #define TANGO_UNUSED(var) var
 	#endif
 #endif
 
