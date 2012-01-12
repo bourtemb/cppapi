@@ -1513,7 +1513,7 @@ void DeviceProxy::real_constructor (string &name,bool need_check_acc)
 //
 //-----------------------------------------------------------------------------
 
-DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou),ext_proxy(NULL)
+DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou),ext_proxy(Tango_NullPtr)
 {
 
 //

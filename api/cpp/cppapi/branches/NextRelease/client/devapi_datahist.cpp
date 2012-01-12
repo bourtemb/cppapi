@@ -50,7 +50,7 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DeviceDataHistory::DeviceDataHistory():DeviceData(),ext_hist(NULL)
+DeviceDataHistory::DeviceDataHistory():DeviceData(),ext_hist(Tango_NullPtr)
 {
 	fail = false;
 	err = new DevErrorList();
@@ -58,7 +58,7 @@ DeviceDataHistory::DeviceDataHistory():DeviceData(),ext_hist(NULL)
 	ref_ctr_ptr = NULL;
 }
 
-DeviceDataHistory::DeviceDataHistory(int n, int *ref,DevCmdHistoryList *ptr):ext_hist(NULL)
+DeviceDataHistory::DeviceDataHistory(int n, int *ref,DevCmdHistoryList *ptr):ext_hist(Tango_NullPtr)
 {
 	ref_ctr_ptr = ref;
 	seq_ptr = ptr;
@@ -71,7 +71,7 @@ DeviceDataHistory::DeviceDataHistory(int n, int *ref,DevCmdHistoryList *ptr):ext
 	err = &((*ptr)[n].errors);
 }
 
-DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceData(source),ext_hist(NULL)
+DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceData(source),ext_hist(Tango_NullPtr)
 {
 	fail = source.fail;
 	time = source.time;
@@ -261,13 +261,13 @@ ostream &operator<<(ostream &o_str,DeviceDataHistory &dh)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttributeHistory::DeviceAttributeHistory():DeviceAttribute(),ext_hist(NULL)
+DeviceAttributeHistory::DeviceAttributeHistory():DeviceAttribute(),ext_hist(Tango_NullPtr)
 {
 	fail = false;
 	ext->err_list = new DevErrorList();
 }
 
-DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_var &seq):ext_hist(NULL)
+DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_var &seq):ext_hist(Tango_NullPtr)
 {
 	fail = seq[n].attr_failed;
 
@@ -414,7 +414,7 @@ DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_var &seq
 }
 
 
-DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_3_var &seq):ext_hist(NULL)
+DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_3_var &seq):ext_hist(Tango_NullPtr)
 {
 	fail = seq[n].attr_failed;
 
@@ -564,7 +564,7 @@ DeviceAttributeHistory::DeviceAttributeHistory(int n,DevAttrHistoryList_3_var &s
 
 
 
-DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & source):DeviceAttribute(source),ext_hist(NULL)
+DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & source):DeviceAttribute(source),ext_hist(Tango_NullPtr)
 {
 	fail = source.fail;
 

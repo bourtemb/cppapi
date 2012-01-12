@@ -1345,7 +1345,7 @@ public :
 	DeviceProxy & operator=(const DeviceProxy &);
 	virtual ~DeviceProxy();
 
-	DeviceProxy():Connection((CORBA::ORB *)NULL),db_dev(NULL),adm_device(NULL),ext_proxy(NULL)
+	DeviceProxy():Connection((CORBA::ORB *)NULL),db_dev(NULL),adm_device(NULL),ext_proxy(Tango_NullPtr)
 	{dbase_used = false;}
 
 //

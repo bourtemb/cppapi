@@ -1386,7 +1386,7 @@ Command &DeviceClass::get_cmd_by_name(const string &cmd_name)
 
 #ifdef HAS_LAMBDA_FUNC
     pos = find_if(command_list.begin(),command_list.end(),
-                    [&] (Command *cmd)
+                    [&] (Command *cmd) -> bool
                     {
                         if (cmd_name.size() != cmd->get_lower_name().size())
                             return false;
