@@ -126,11 +126,13 @@
 // Unique_ptr -> gcc 4.3
 // Lambda function -> gcc 4.5
 // nullptr -> gcc 4.6
+// rvalues -> gcc 4.3
 //
 
 #ifndef _TG_WINDOWS_
     #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)))
         #define HAS_UNIQUE_PTR
+        #define HAS_RVALUE
         #if __GNUC_MINOR__ > 4
             #define HAS_LAMBDA_FUNC
             #define HAS_ISNAN_IN_STD
@@ -144,6 +146,7 @@
         #define HAS_UNIQUE_PTR
         #define HAS_LAMBDA_FUNC
         #define HAS_NULLPTR
+        #define HAS_RVALUE
     #endif
 #endif
 

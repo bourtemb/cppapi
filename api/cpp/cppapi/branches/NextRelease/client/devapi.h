@@ -432,6 +432,10 @@ public :
 	DeviceData();
 	DeviceData(const DeviceData &);
 	DeviceData & operator=(const DeviceData &);
+#ifdef HAS_RVALUE
+	DeviceData(DeviceData &&);
+	DeviceData & operator=(DeviceData &&);
+#endif
 	~DeviceData();
 
 	bool is_empty() {return any_is_null();}
@@ -604,6 +608,10 @@ public :
 	DeviceAttribute();
 	DeviceAttribute(const DeviceAttribute&);
 	DeviceAttribute & operator=(const DeviceAttribute &);
+#ifdef HAS_RVALUE
+	DeviceAttribute(DeviceAttribute &&);
+	DeviceAttribute & operator=(DeviceAttribute &&);
+#endif
 
 	void deep_copy(const DeviceAttribute &);
 

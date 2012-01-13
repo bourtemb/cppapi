@@ -62,10 +62,20 @@ DeviceData::DeviceData():ext(Tango_NullPtr)
 	exceptions_flags.set(isempty_flag);
 }
 
+//-----------------------------------------------------------------------------
+//
+// DeviceData::DeviceData() - copy constructor to create DeviceData
+//
+//-----------------------------------------------------------------------------
+
 DeviceData::DeviceData(const DeviceData & source):ext(Tango_NullPtr)
 {
 	exceptions_flags = source.exceptions_flags;
+#ifdef HAS_RVALUE
+	any = source.any;
+#else
 	any = const_cast<DeviceData &>(source).any._retn();
+#endif
 
 #ifdef HAS_UNIQUE_PTR
     if (source.ext.get() != NULL)
@@ -86,6 +96,23 @@ DeviceData::DeviceData(const DeviceData & source):ext(Tango_NullPtr)
 
 //-----------------------------------------------------------------------------
 //
+// DeviceData::DeviceData() - move constructor to create DeviceData
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceData::DeviceData(DeviceData &&source):ext(Tango_NullPtr)
+{
+	exceptions_flags = source.exceptions_flags;
+	any = source.any._retn();
+
+    if (source.ext.get() != NULL)
+        ext = move(source.ext);
+}
+#endif
+
+//-----------------------------------------------------------------------------
+//
 // DeviceData::operator=() - assignement operator
 //
 //-----------------------------------------------------------------------------
@@ -93,7 +120,11 @@ DeviceData::DeviceData(const DeviceData & source):ext(Tango_NullPtr)
 DeviceData & DeviceData::operator=(const DeviceData &rval)
 {
 	exceptions_flags = rval.exceptions_flags;
+#ifdef HAS_RVALUE
+	any = rval.any;
+#else
 	any = const_cast<DeviceData &>(rval).any._retn();
+#endif
 
 #ifdef HAS_UNIQUE_PTR
     if (rval.ext.get() != NULL)
@@ -116,6 +147,27 @@ DeviceData & DeviceData::operator=(const DeviceData &rval)
 #endif
 	return *this;
 }
+
+//-----------------------------------------------------------------------------
+//
+// DeviceData::operator=() - move assignement operator
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceData & DeviceData::operator=(DeviceData &&rval)
+{
+	exceptions_flags = rval.exceptions_flags;
+	any = rval.any._retn();
+
+    if (rval.ext.get() != NULL)
+        ext = move(rval.ext);
+    else
+        ext.reset();
+
+	return *this;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //

@@ -104,6 +104,12 @@ DeviceAttribute::DeviceAttribute():ext(new DeviceAttributeExt)
 	exceptions_flags.set(isempty_flag);
 }
 
+//-----------------------------------------------------------------------------
+//
+// DeviceAttribute::DeviceAttribute() - copy constructor to create DeviceAttribute
+//
+//-----------------------------------------------------------------------------
+
 DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullPtr)
 {
 	name = source.name;
@@ -114,6 +120,16 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullP
 	data_format = source.data_format;
 	time = source.time;
 
+#ifdef HAS_RVALUE
+    LongSeq = source.LongSeq;
+    ShortSeq = source.ShortSeq;
+    DoubleSeq = source.DoubleSeq;
+    StringSeq = source.StringSeq;
+    FloatSeq = source.FloatSeq;
+    BooleanSeq = source.BooleanSeq;
+    UShortSeq = source.UShortSeq;
+    UCharSeq = source.UCharSeq;
+#else
 	DeviceAttribute &nc_source = const_cast<DeviceAttribute &>(source);
 	if (nc_source.LongSeq.operator->() != NULL)
 		LongSeq = nc_source.LongSeq._retn();
@@ -131,6 +147,7 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullP
 		UShortSeq = nc_source.UShortSeq._retn();
 	if (nc_source.UCharSeq.operator->() != NULL)
 		UCharSeq = nc_source.UCharSeq._retn();
+#endif
 
 	d_state = source.d_state;
 	d_state_filled = source.d_state_filled;
@@ -151,6 +168,47 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullP
 		ext = NULL;
 #endif
 }
+
+//-----------------------------------------------------------------------------
+//
+// DeviceAttribute::DeviceAttribute() - move constructor to create DeviceAttribute
+//
+//-----------------------------------------------------------------------------
+
+DeviceAttribute::DeviceAttribute(DeviceAttribute &&source):ext(Tango_NullPtr)
+{
+	name = move(source.name);
+	exceptions_flags = source.exceptions_flags;
+	dim_x = source.dim_x;
+	dim_y = source.dim_y;
+	quality = source.quality;
+	data_format = source.data_format;
+	time = source.time;
+
+	if (source.LongSeq.operator->() != NULL)
+		LongSeq = source.LongSeq._retn();
+	if (source.ShortSeq.operator->() != NULL)
+		ShortSeq = source.ShortSeq._retn();
+	if (source.DoubleSeq.operator->() != NULL)
+		DoubleSeq = source.DoubleSeq._retn();
+	if (source.StringSeq.operator->() != NULL)
+		StringSeq = source.StringSeq._retn();
+	if (source.FloatSeq.operator->() != NULL)
+		FloatSeq = source.FloatSeq._retn();
+	if (source.BooleanSeq.operator->() != NULL)
+		BooleanSeq = source.BooleanSeq._retn();
+	if (source.UShortSeq.operator->() != NULL)
+		UShortSeq = source.UShortSeq._retn();
+	if (source.UCharSeq.operator->() != NULL)
+		UCharSeq = source.UCharSeq._retn();
+
+	d_state = source.d_state;
+	d_state_filled = source.d_state_filled;
+
+    if (source.ext.get() != NULL)
+        ext = move(source.ext);
+}
+
 
 void DeviceAttribute::deep_copy(const DeviceAttribute & source)
 {
@@ -250,6 +308,16 @@ DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 	data_format = rval.data_format;
 	time = rval.time;
 
+#ifdef HAS_RVALUE
+    LongSeq = rval.LongSeq;
+    ShortSeq = rval.ShortSeq;
+    DoubleSeq = rval.DoubleSeq;
+    StringSeq = rval.StringSeq;
+    FloatSeq = rval.FloatSeq;
+    BooleanSeq = rval.BooleanSeq;
+    UShortSeq = rval.UShortSeq;
+    UCharSeq = rval.UCharSeq;
+#else
 	DeviceAttribute &nc_rval = const_cast<DeviceAttribute &>(rval);
 	if (nc_rval.LongSeq.operator->() != NULL)
 		LongSeq = nc_rval.LongSeq._retn();
@@ -267,6 +335,7 @@ DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 		UShortSeq = nc_rval.UShortSeq._retn();
 	if (nc_rval.UCharSeq.operator->() != NULL)
 		UCharSeq = nc_rval.UCharSeq._retn();
+#endif
 
 	d_state = rval.d_state;
 	d_state_filled = rval.d_state_filled;
@@ -290,6 +359,52 @@ DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 	else
 		ext = NULL;
 #endif
+
+	return *this;
+}
+
+//-----------------------------------------------------------------------------
+//
+// DeviceAttribute::operator=() - move assignement operator
+//
+//-----------------------------------------------------------------------------
+
+DeviceAttribute & DeviceAttribute::operator=(DeviceAttribute &&rval)
+{
+	name = move(rval.name);
+	exceptions_flags = rval.exceptions_flags;
+	dim_x = rval.dim_x;
+	dim_y = rval.dim_y;
+	quality = rval.quality;
+	data_format = rval.data_format;
+	time = rval.time;
+
+	if (rval.LongSeq.operator->() != NULL)
+		LongSeq = rval.LongSeq._retn();
+	if (rval.ShortSeq.operator->() != NULL)
+		ShortSeq = rval.ShortSeq._retn();
+	if (rval.DoubleSeq.operator->() != NULL)
+		DoubleSeq = rval.DoubleSeq._retn();
+	if (rval.StringSeq.operator->() != NULL)
+		StringSeq = rval.StringSeq._retn();
+	if (rval.FloatSeq.operator->() != NULL)
+		FloatSeq = rval.FloatSeq._retn();
+	if (rval.BooleanSeq.operator->() != NULL)
+		BooleanSeq = rval.BooleanSeq._retn();
+	if (rval.UShortSeq.operator->() != NULL)
+		UShortSeq = rval.UShortSeq._retn();
+	if (rval.UCharSeq.operator->() != NULL)
+		UCharSeq = rval.UCharSeq._retn();
+
+	d_state = rval.d_state;
+	d_state_filled = rval.d_state_filled;
+
+    if (rval.ext.get() != NULL)
+    {
+        ext = move(rval.ext);
+    }
+    else
+        ext.reset();
 
 	return *this;
 }
