@@ -175,6 +175,7 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullP
 //
 //-----------------------------------------------------------------------------
 
+#ifdef HAS_RVALUE
 DeviceAttribute::DeviceAttribute(DeviceAttribute &&source):ext(Tango_NullPtr)
 {
 	name = move(source.name);
@@ -208,7 +209,7 @@ DeviceAttribute::DeviceAttribute(DeviceAttribute &&source):ext(Tango_NullPtr)
     if (source.ext.get() != NULL)
         ext = move(source.ext);
 }
-
+#endif
 
 void DeviceAttribute::deep_copy(const DeviceAttribute & source)
 {
@@ -369,6 +370,7 @@ DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 //
 //-----------------------------------------------------------------------------
 
+#ifdef HAS_RVALUE
 DeviceAttribute & DeviceAttribute::operator=(DeviceAttribute &&rval)
 {
 	name = move(rval.name);
@@ -408,6 +410,7 @@ DeviceAttribute & DeviceAttribute::operator=(DeviceAttribute &&rval)
 
 	return *this;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 //
