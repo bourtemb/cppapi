@@ -47,8 +47,22 @@
 // to something >= 0x0400. Therefore, in this case, define it in the project
 // setting in the preprocessor definitions....
 //
+// Windows:
+// The Windows VC compilers family defined _WIN32 (always) and _WIN64 
+// (when compiled as 64 bits)
+// The Windows windef.h include file defines the preprocessor WIN32 on top of the
+// _WIN32 one defined by the compiler itself.
+//
+// This means that on Windows 64 bits, we will have BOTH
+//		_WIN32
+//		WIN32
+//		_WIN64
+//
+// Within Tango, Windows include files are included by the "idl/tango.h" include file
+// included by tango.h after this file
+//
 
-#if ((defined WIN32) || (defined WIN64))
+#ifdef _WIN32
 	#define		__WIN32__
 	#define		__x86__
 	#ifndef _WIN32_WINNT
@@ -62,7 +76,7 @@
 // Check Win32 VC release
 //
 
-#if ((defined WIN32) || (defined WIN64))
+#ifdef _WIN32
     #ifdef _MSC_VER
         #if ((_MSC_VER >= 1400)  && (_MSC_VER < 1500))     // VC8+
             #define WIN32_VC8
@@ -81,11 +95,11 @@
 // Please note that on Windows, this file include Windows include file.
 // The Windows Windef.h file defines a Preprocessor WIN32 on top of the
 // _WIN32 one.
-// This measn that on Windows 64 bits, we will have BOTH WIN32 and WIN64
+// This means that on Windows 64 bits, we will have BOTH WIN32 and WIN64
 // defined even if on the compiler command line we define only WIN64
 //
 
-#if ((defined WIN32) || (defined WIN64))
+#ifdef _WIN32
 	#define _TG_WINDOWS_
 #endif
 

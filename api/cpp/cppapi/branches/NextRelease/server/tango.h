@@ -36,11 +36,11 @@
 #define _TANGO_H
 
 //
-// Insert typeinfo file as the first include file (needed for Hp-UX aCC as the
-// first include file)
+// Insert typeinfo file as the first include file
+//
 
 #ifndef TANGO_CLIENT
-	#include <typeinfo>
+//	#include <typeinfo>
 #endif
 
 //
@@ -51,12 +51,6 @@
 
 //
 // Include IDL generated files which includes CORBA include files
-//
-// Please note that on Windows, this file include Windows include file.
-// The Windows Windef.h file defines a Preprocessor WIN32 on top of the
-// _WIN32 one.
-// This measn that on Windows 64 bits, we will have BOTH WIN32 and WIN64
-// defined even if on the compiler command line we define only WIN64
 //
 
 #include <idl/tango.h>
