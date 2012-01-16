@@ -48,7 +48,7 @@
 // setting in the preprocessor definitions....
 //
 // Windows:
-// The Windows VC compilers family defined _WIN32 (always) and _WIN64 
+// The Windows VC compilers family defined _WIN32 (always) and _WIN64
 // (when compiled as 64 bits)
 // The Windows windef.h include file defines the preprocessor WIN32 on top of the
 // _WIN32 one defined by the compiler itself.
@@ -91,12 +91,6 @@
 
 //
 // Define a common preprocessor macros for all Windows (32 or 64 bits)
-//
-// Please note that on Windows, this file include Windows include file.
-// The Windows Windef.h file defines a Preprocessor WIN32 on top of the
-// _WIN32 one.
-// This means that on Windows 64 bits, we will have BOTH WIN32 and WIN64
-// defined even if on the compiler command line we define only WIN64
 //
 
 #ifdef _WIN32

@@ -99,6 +99,23 @@ DeviceDataHistory::DeviceDataHistory(const DeviceDataHistory & source):DeviceDat
 #endif
 }
 
+#ifdef HAS_RVALUE
+DeviceDataHistory::DeviceDataHistory(DeviceDataHistory && source):DeviceData(move(source)),ext_hist(Tango_NullPtr)
+{
+	fail = source.fail;
+	time = source.time;
+	err = source.err._retn();
+
+	seq_ptr = source.seq_ptr;
+	ref_ctr_ptr = source.ref_ctr_ptr;
+
+    if (source.ext_hist.get() != NULL)
+        ext_hist = move(source.ext_hist);
+    else
+        ext_hist.reset();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 //
 // DeviceDataHistory::~DeviceDataHistory() - Destructor
@@ -147,14 +164,21 @@ DeviceDataHistory & DeviceDataHistory::operator=(const DeviceDataHistory &rval)
 
 	fail = rval.fail;
 	time = rval.time;
+#ifdef HAS_RVALUE
+    err = rval.err;
+#else
 	err = const_cast<DeviceDataHistory &>(rval).err._retn();
+#endif
 
-	(*ref_ctr_ptr)--;
-	if (*ref_ctr_ptr == 0)
-	{
-		delete seq_ptr;
-		delete ref_ctr_ptr;
-	}
+    if (ref_ctr_ptr != NULL)
+    {
+        (*ref_ctr_ptr)--;
+        if (*ref_ctr_ptr == 0)
+        {
+            delete seq_ptr;
+            delete ref_ctr_ptr;
+        }
+    }
 
 	seq_ptr = rval.seq_ptr;
 	ref_ctr_ptr = rval.ref_ctr_ptr;
@@ -182,6 +206,63 @@ DeviceDataHistory & DeviceDataHistory::operator=(const DeviceDataHistory &rval)
 
 	return *this;
 }
+
+//-----------------------------------------------------------------------------
+//
+// DeviceDataHistory::operator=() - move assignement operator
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceDataHistory & DeviceDataHistory::operator=(DeviceDataHistory &&rval)
+{
+
+//
+// Assignement of DeviceData class members first
+//
+
+    this->DeviceData::operator=(move(rval));
+
+//
+// Then, assignement of DeviceDataHistory members
+//
+
+	fail = rval.fail;
+	time = rval.time;
+	err = rval.err._retn();
+
+//
+// Decrement old ctr
+//
+    if (ref_ctr_ptr != NULL)
+    {
+        (*ref_ctr_ptr)--;
+        if (*ref_ctr_ptr == 0)
+        {
+            delete seq_ptr;
+            delete ref_ctr_ptr;
+        }
+    }
+
+//
+// Copy ctr (but don't increment it) and ptr
+//
+
+	seq_ptr = rval.seq_ptr;
+	ref_ctr_ptr = rval.ref_ctr_ptr;
+
+//
+// Extension class
+//
+
+    if (rval.ext_hist.get() != NULL)
+        ext_hist = move(rval.ext_hist);
+    else
+        ext_hist.reset();
+
+	return *this;
+}
+#endif
 
 //+-------------------------------------------------------------------------
 //
@@ -585,6 +666,17 @@ DeviceAttributeHistory::DeviceAttributeHistory(const DeviceAttributeHistory & so
 #endif
 }
 
+#ifdef HAS_RVALUE
+DeviceAttributeHistory::DeviceAttributeHistory(DeviceAttributeHistory &&source):DeviceAttribute(move(source)),ext_hist(Tango_NullPtr)
+{
+	fail = source.fail;
+
+    if (source.ext_hist.get() != NULL)
+        ext_hist = move(source.ext_hist);
+
+}
+#endif
+
 //-----------------------------------------------------------------------------
 //
 // DeviceAttributeHistory::~DeviceAttributeHistory() - Destructor
@@ -643,6 +735,30 @@ DeviceAttributeHistory & DeviceAttributeHistory::operator=(const DeviceAttribute
 	return *this;
 }
 
+#ifdef HAS_RVALUE
+DeviceAttributeHistory & DeviceAttributeHistory::operator=(DeviceAttributeHistory &&rval)
+{
+
+//
+// First, assignement of DeviceAttribute class members
+//
+
+    this->DeviceAttribute::operator=(move(rval));
+
+//
+// Then, assignement of DeviceAttributeHistory members
+//
+
+	fail = rval.fail;
+
+    if (rval.ext_hist.get() != NULL)
+        ext_hist = move(rval.ext_hist);
+    else
+        ext_hist.reset();
+
+	return *this;
+}
+#endif
 
 //+-------------------------------------------------------------------------
 //
