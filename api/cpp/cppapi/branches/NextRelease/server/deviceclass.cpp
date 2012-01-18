@@ -684,7 +684,6 @@ DeviceClass::~DeviceClass()
 // Clean-up db (dyn attribute)
 //
 
-
 			if (tg->get_polled_dyn_attr_names().size() != 0)
 				tg->clean_attr_polled_prop();
 			if (tg->get_all_dyn_attr_names().size() != 0)
@@ -773,6 +772,22 @@ void DeviceClass::delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_
 		Device_3Impl *dev_3 = static_cast<Device_3Impl *>(device_list[idx]);
 		dev_3->delete_dev();
 	}
+
+//
+// Wait for CORBA to call the device dtor
+//
+
+    if (device_list[idx] != NULL)
+    {
+        struct timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = 10000000;
+
+        while (device_list[idx] != NULL)
+        {
+            nanosleep(&ts,NULL);
+        }
+    }
 
 	cout4 << "Leaving DeviceClass delete_dev" << endl;
 }

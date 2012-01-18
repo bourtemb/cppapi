@@ -420,14 +420,10 @@ DeviceImpl::~DeviceImpl()
 // Clear our ptr in the device class vector
 //
 
-	Tango::Util *tg = Tango::Util::instance();
-	if (tg->is_svr_shutting_down() != true)
-	{
-		vector<DeviceImpl *> &dev_vect = get_device_class()->get_device_list();
-		vector<DeviceImpl *>::iterator ite = find(dev_vect.begin(),dev_vect.end(),this);
-		if (ite != dev_vect.end())
-			*ite = NULL;
-	}
+    vector<DeviceImpl *> &dev_vect = get_device_class()->get_device_list();
+    vector<DeviceImpl *>::iterator ite = find(dev_vect.begin(),dev_vect.end(),this);
+    if (ite != dev_vect.end())
+        *ite = NULL;
 
 	cout4 << "Leaving DeviceImpl destructor for device " << device_name << endl;
 }
@@ -3078,11 +3074,14 @@ void DeviceImpl::add_attribute(Tango::Attr *new_attr)
 // description :	Remove attribute to the device attribute(s) list
 //
 // argument: in :	- rem_attr: The attribute to be deleted.
+//                  - free_it : Free Attr object flag
+//                  - clean_db : Clean attribute related info in db
 //
 //--------------------------------------------------------------------------
 
-void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it)
+void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it,bool clean_db)
 {
+
 //
 // Take the device monitor in order to protect the attribute list
 //
@@ -3118,10 +3117,6 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it)
 	vector<string> &poll_attr = get_polled_attr();
 	vector<string>::iterator ite_attr;
 
-//
-// convert the attribute name to lowercase
-//
-
 	string  attr_name_low(attr_name);
 	transform(attr_name_low.begin(),attr_name_low.end(),attr_name_low.begin(),::tolower);
 
@@ -3146,16 +3141,33 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it)
 
 		if (tg->is_svr_shutting_down() == true)
 		{
-			adm_dev->rem_obj_polling(&send,false);
-			tg->get_polled_dyn_attr_names().push_back(attr_name_low);
-			if (tg->get_full_polled_att_list().size() == 0)
+
+//
+// There is no need to stop the polling because we are
+// in the server shutdown sequence and the polling is
+// already stopped.
+//
+
+			if (clean_db == true)
 			{
-				tg->get_full_polled_att_list() = poll_attr;
-				tg->get_dyn_att_dev_name() = device_name;
+
+//
+// Memorize the fact that the dynamic polling properties has to be removed from
+// db. The classical attribute properties as well
+//
+
+                tg->get_polled_dyn_attr_names().push_back(attr_name_low);
+                if (tg->get_full_polled_att_list().size() == 0)
+                {
+                    tg->get_full_polled_att_list() = poll_attr;
+                    tg->get_dyn_att_dev_name() = device_name;
+                }
 			}
 		}
 		else
-			adm_dev->rem_obj_polling(&send, true);
+		{
+			adm_dev->rem_obj_polling(&send, clean_db);
+		}
 	}
 
 //
@@ -3172,18 +3184,21 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it)
 // Now remove all configured attribute properties from the database
 //
 
-	if ((tg->is_svr_shutting_down() == false) || (tg->get_db_svr_version() < 400))
-	{
-		Tango::Attribute &att_obj = dev_attr->get_attr_by_name(attr_name.c_str());
-		att_obj.remove_configuration();
-	}
-	else
-	{
-		tg->get_all_dyn_attr_names().push_back(attr_name);
-		if (tg->get_dyn_att_dev_name().size() == 0)
-			tg->get_dyn_att_dev_name() = device_name;
+    if (clean_db == true)
+    {
+        if ((tg->is_svr_shutting_down() == false) || (tg->get_db_svr_version() < 400))
+        {
+            Tango::Attribute &att_obj = dev_attr->get_attr_by_name(attr_name.c_str());
+            att_obj.remove_configuration();
+        }
+        else
+        {
+            tg->get_all_dyn_attr_names().push_back(attr_name);
+            if (tg->get_dyn_att_dev_name().size() == 0)
+                tg->get_dyn_att_dev_name() = device_name;
 
-	}
+        }
+    }
 
 //
 // Remove attribute in MultiClassAttribute in case there is
@@ -3248,25 +3263,27 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it)
 // description :	Remove attribute to the device attribute(s) list
 //
 // argument: in :	- rem_attr: The name of the attribute to be deleted.
+//                  - free_it : Free Attr object flag
+//                  - clean_db : Clean attribute related info in db
 //
 //--------------------------------------------------------------------------
 
-void DeviceImpl::remove_attribute(string &rem_attr_name, bool free_it)
+void DeviceImpl::remove_attribute(string &rem_attr_name, bool free_it,bool clean_db)
 {
 
 	try
 	{
 		Attr &att = device_class->get_class_attr()->get_attr(rem_attr_name);
-		remove_attribute(&att,free_it);
+		remove_attribute(&att,free_it,clean_db);
 	}
-	catch (Tango::DevFailed)
+	catch (Tango::DevFailed &e)
 	{
 		TangoSys_OMemStream o;
 
 		o << "Attribute " << rem_attr_name << " is not defined as attribute for your device.";
 		o << "\nCan't remove it" << ends;
 
-		Except::throw_exception((const char *)"API_AttrNotFound",
+		Except::re_throw_exception(e,(const char *)"API_AttrNotFound",
 					o.str(),
 					(const char *)"Device_Impl::remove_attribute");
 	}
@@ -3728,13 +3745,17 @@ void DeviceImpl::init_attr_poll_period()
 
         for (unsigned int i = 0;i < poll_list.size();i = i+2)
         {
-            Attribute &att = dev_attr->get_attr_by_name(poll_list[i].c_str());
-            stringstream ss;
-            long per;
-            ss << poll_list[i + 1];
-            ss >> per;
-            if (ss)
-               att.set_polling_period(per);
+            try
+            {
+                Attribute &att = dev_attr->get_attr_by_name(poll_list[i].c_str());
+                stringstream ss;
+                long per;
+                ss << poll_list[i + 1];
+                ss >> per;
+                if (ss)
+                   att.set_polling_period(per);
+            }
+            catch (Tango::DevFailed &) {}
         }
 	}
 }

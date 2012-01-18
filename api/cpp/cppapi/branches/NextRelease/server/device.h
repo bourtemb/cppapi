@@ -564,11 +564,13 @@ public:
  * @param rem_attr Pointer to the attribute to be removed
  * @param free_it  Boolean set to true if the object passed as first argument
  *		   must be freed. Default value is false.
+ * @param clean_db  Clean all attributes related information (included polling
+ *         info if the attribute is polled) from database. Default value is true
  * @exception DevFailed
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
- 	void remove_attribute(Attr *rem_attr,bool free_it = false);
+ 	void remove_attribute(Attr *rem_attr,bool free_it = false, bool clean_db = true);
 
 /**
  * Remove one attribute from the device attribute list.
@@ -582,11 +584,13 @@ public:
  * @param rem_attr_name The name of the attribute to be removed
  * @param free_it  Boolean set to true if the object passed as first argument
  *		   must be freed. Default value is false.
+ * @param clean_db  Clean all attributes related information (included polling
+ *         info if the attribute is polled) from database. Default value is true
  * @exception DevFailed
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
- 	void remove_attribute(string &rem_attr_name,bool free_it = false);
+ 	void remove_attribute(string &rem_attr_name,bool free_it = false,bool clean_db = true);
 
 /**
  * Retrieve a polled object from the polled object list.

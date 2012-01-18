@@ -1234,17 +1234,17 @@ void DServer::upd_obj_polling_period(const Tango::DevVarLongStringArray *argin,
 // method : 		DServer::rem_obj_polling()
 //
 // description : 	command to remove an already polled object from the device
-//			polled object list
+//			        polled object list
 //
-// in :			The polling parameters :
-//				device name
-//				object type (command or attribute)
-//				object name
+// in :	- argin: The polling parameters :
+//				    device name
+//				    object type (command or attribute)
+//				    object name
+//      - with_db_upd : Update db flag
 //
 //-----------------------------------------------------------------------------
 
-void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,
-			      bool with_db_upd)
+void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db_upd)
 {
 	NoSyncModelTangoMonitor nosync_mon(this);
 

@@ -8397,11 +8397,12 @@ void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 // method : 		Attribute::remove_configuration()
 //
 // description : 	Remove the attribute configuration from the database.
-// 					This method can be used to clean-up all the configuration of an attribute to come back to
-// 					its default values or the remove all configuration of a dynamic attribute before deleting it.
+// 					This method can be used to clean-up all the configuration
+//                  of an attribute to come back to its default values or the
+//                  remove all configuration of a dynamic attribute before deleting it.
 //
-// 					The method removes all configured attribute properties and removes the attribute from the
-// 					list of polled attributes.
+// 					The method removes all configured attribute properties
+//                  and removes the attribute from the list of polled attributes.
 //--------------------------------------------------------------------------
 
 void Attribute::remove_configuration()
@@ -8410,8 +8411,10 @@ void Attribute::remove_configuration()
 
 	Tango::Util *tg = Tango::Util::instance();
 
+//
 // read all configured properties of the attribute from the database and
 // delete them!
+//
 
 	DbData db_read_data;
 	DbData db_delete_data;
@@ -8472,9 +8475,6 @@ void Attribute::remove_configuration()
 		}
 	}
 }
-
-
-
 
 //+-------------------------------------------------------------------------
 //

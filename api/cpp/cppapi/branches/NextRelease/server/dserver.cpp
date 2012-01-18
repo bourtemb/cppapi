@@ -535,7 +535,6 @@ void DServer::delete_devices()
 // Clean-up db (dyn attribute)
 //
 
-
 					if (tg->get_polled_dyn_attr_names().size() != 0)
 						tg->clean_attr_polled_prop();
 					if (tg->get_all_dyn_attr_names().size() != 0)
