@@ -398,6 +398,7 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 						Attribute &att = dev_attr->get_attr_by_ind(wanted_attr.back().idx_in_multi_attr);
 						att.set_value_flag(false);
 						att.get_when().tv_sec = 0;
+                        att.save_alarm_quality();
 					}
 					else
 					{
@@ -415,6 +416,7 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 							Attribute &att = dev_attr->get_attr_by_ind(wanted_attr.back().idx_in_multi_attr);
 							att.set_value_flag(false);
 							att.get_when().tv_sec = 0;
+                            att.save_alarm_quality();
 						}
 					}
 				}

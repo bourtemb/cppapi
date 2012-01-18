@@ -2027,6 +2027,8 @@ public:
 	bool is_polled(DeviceImpl *);
 	void set_polling_period(long per) {ext->poll_period = per;}
 
+	void save_alarm_quality() {ext->old_quality=quality;ext->old_alarm=alarm;}
+
 #ifndef TANGO_HAS_LOG4TANGO
 	friend ostream &operator<<(ostream &,Attribute &);
 #endif // TANGO_HAS_LOG4TANGO
@@ -2090,6 +2092,8 @@ private:
         bool                notifd_event;                   // Set to true if event required using notifd
         bool                zmq_event;                      // Set to true if event required using ZMQ
         vector<string>      mcast_event;                    // In case of multicasting used for event transport
+        AttrQuality         old_quality;                    // Previous attribute quality
+        bitset<numFlags>    old_alarm;                      // Previous attribute alarm
     };
 
 	void set_data_size();
@@ -2097,6 +2101,7 @@ private:
 	void throw_err_data_type(const char *,string &);
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
 	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &);
+	void log_quality();
 
 	unsigned long 		name_size;
 	string 				name_lower;

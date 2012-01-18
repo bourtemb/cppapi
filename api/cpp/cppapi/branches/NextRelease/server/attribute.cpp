@@ -5448,6 +5448,7 @@ bool Attribute::check_alarm()
 
 	if ( quality != Tango::ATTR_VALID )
 	{
+	    log_quality();
 		return returned;
 	}
 
@@ -5482,6 +5483,8 @@ bool Attribute::check_alarm()
 		if (check_rds_alarm() == true)
 			returned = true;
 	}
+
+    log_quality();
 
 	return returned;
 }
@@ -8514,6 +8517,135 @@ void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 	}
 
 	ext->attr_serial_model=ser_model;
+}
+
+
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::log_quality
+//
+// description :    Send a logging message (on the device) when the attribute
+//                  quality factor changes
+//
+//--------------------------------------------------------------------------
+
+void Attribute::log_quality()
+{
+
+//
+// Set device if not already done
+//
+
+    if (ext->dev == NULL)
+    {
+        Tango::Util *tg = Tango::Util::instance();
+        ext->dev = tg->get_device_by_name(ext->d_name);
+    }
+
+//
+// Log something if the new quality is different than the old one
+//
+
+    if (quality != ext->old_quality)
+    {
+        if (alarm.any() == false)
+        {
+
+//
+// No alarm detected
+//
+
+            switch(quality)
+            {
+                case ATTR_INVALID:
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "INVALID quality for attribute " << name << endl;
+                break;
+
+                case ATTR_CHANGING:
+                if (ext->dev->get_logger()->is_info_enabled())
+                    ext->dev->get_logger()->info_stream() << log4tango::LogInitiator::_begin_log << "CHANGING quality for attribute " << name << endl;
+                break;
+
+                case ATTR_VALID:
+                if (ext->dev->get_logger()->is_info_enabled())
+                    ext->dev->get_logger()->info_stream() << log4tango::LogInitiator::_begin_log << "VALID quality for attribute " << name << endl;
+                break;
+
+                default:
+                break;
+            }
+        }
+        else
+        {
+
+//
+// Different log according to which alarm is set
+//
+
+            if (alarm[min_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MIN ALARM for attribute " << name << endl;
+            }
+            else if (alarm[max_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MAX ALARM for attribute " << name << endl;
+            }
+            else if (alarm[rds] == true)
+            {
+                if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "RDS (Read Different Set) ALARM for attribute " << name << endl;
+            }
+            else if (alarm[min_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MIN WARNING for attribute " << name << endl;
+            }
+            else if (alarm[max_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MAX WARNING for attribute " << name << endl;
+            }
+        }
+    }
+    else
+    {
+
+//
+// The quality is the same but may be the alarm has changed
+//
+
+        if (alarm != ext->old_alarm)
+        {
+            if (alarm[min_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MIN ALARM for attribute " << name << endl;
+            }
+            else if (alarm[max_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MAX ALARM for attribute " << name << endl;
+            }
+            else if (alarm[rds] == true)
+            {
+                if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "RDS (Read Different Set) ALARM for attribute " << name << endl;
+            }
+            else if (alarm[min_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MIN WARNING for attribute " << name << endl;
+            }
+            else if (alarm[max_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MAX WARNING for attribute " << name << endl;
+            }
+        }
+    }
 }
 
 //+-------------------------------------------------------------------------

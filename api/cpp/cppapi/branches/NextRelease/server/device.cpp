@@ -1118,6 +1118,7 @@ Tango::DevState DeviceImpl::dev_state()
 					idx = attr_list[i];
 
 				Attribute &att = dev_attr->get_attr_by_ind(idx);
+				att.save_alarm_quality();
 
 				try
 				{
