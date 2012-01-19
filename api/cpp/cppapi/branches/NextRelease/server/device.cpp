@@ -3679,6 +3679,36 @@ void DeviceImpl::init_attr_poll_period()
 		unsigned long i;
 		for (i = 0;i < attr_list.size();i++)
 		{
+			string &attr_name = attr_list[i]->get_name_lower();
+
+//
+// Special case for state and status attributes
+// They are polled as attribute but they are managed by Pogo as
+// commands (historical reasons). If the polling is set in the
+// state or status defined as command, report this info when they
+// are defined as attributes
+//
+
+            if (attr_name == "state")
+            {
+                Command &state_cmd = device_class->get_cmd_by_name("state");
+                long state_poll_period = state_cmd.get_polling_period();
+                if (state_poll_period != 0)
+                {
+                   attr_list[i]->set_polling_period(state_poll_period);
+                }
+            }
+
+            if (attr_name == "status")
+            {
+                Command &status_cmd = device_class->get_cmd_by_name("status");
+                long status_poll_period = status_cmd.get_polling_period();
+                if (status_poll_period != 0)
+                {
+                   attr_list[i]->set_polling_period(status_poll_period);
+                }
+            }
+
 			long poll_period;
 			poll_period = attr_list[i]->get_polling_period();
 
@@ -3691,8 +3721,6 @@ void DeviceImpl::init_attr_poll_period()
 			{
 				continue;
 			}
-
-			string &attr_name = attr_list[i]->get_name_lower();
 
 //
 // search the attribute in the list of polled attributes

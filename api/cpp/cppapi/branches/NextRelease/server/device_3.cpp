@@ -2491,7 +2491,6 @@ void Device_3Impl::add_state_status_attrs()
 	dev_attr->add_default(prop_list_status,device_name,att_name);
 
 	dev_attr->add_attr(new Attribute(prop_list_status,att_status,device_name,-1));
-
 }
 
 

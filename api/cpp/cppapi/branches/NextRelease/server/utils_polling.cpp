@@ -1335,8 +1335,6 @@ int Util::check_dev_poll(vector<string> &poll_cmd_list,vector<string> &poll_attr
 			iter  = poll_cmd_list.erase(iter,iter + 2);
 			if (iter == poll_cmd_list.end())
 				break;
-			else
-				iter = iter - 2;
 		}
 	}
 
@@ -1376,8 +1374,6 @@ int Util::check_dev_poll(vector<string> &poll_cmd_list,vector<string> &poll_attr
 			iter  = poll_attr_list.erase(iter,iter + 2);
 			if (iter == poll_attr_list.end())
 				break;
-			else
-				iter = iter - 2;
 		}
 	}
 
