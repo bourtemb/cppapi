@@ -779,6 +779,12 @@ void DeviceClass::delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_
 
     if (device_list[idx] != NULL)
     {
+#ifdef _TG_WINDOWS_
+        while (device_list[idx] != NULL)
+        {
+            Sleep(10);
+        }
+#else
         struct timespec ts;
         ts.tv_sec = 0;
         ts.tv_nsec = 10000000;
@@ -787,6 +793,7 @@ void DeviceClass::delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_
         {
             nanosleep(&ts,NULL);
         }
+#endif
     }
 
 	cout4 << "Leaving DeviceClass delete_dev" << endl;
