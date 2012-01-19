@@ -208,6 +208,22 @@ DbServerCache::DbServerCache(Database *db,string &ds_name,string &host)
 
 	prop_indexes(start_idx,stop_idx,ctrl_serv_prop,data_list);
 
+//
+// Tac device import info
+//
+
+    start_idx = stop_idx + 1;
+    if (stop_idx == n_data)
+    {
+        stop_idx = -1;
+    }
+    else
+    {
+        stop_idx = n_data;
+        imp_tac.first_idx = start_idx;
+        imp_tac.last_idx = stop_idx;
+    }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1159,5 +1175,70 @@ void DbServerCache::get_obj_prop_list(DevVarStringArray *in_param,PropEltIdx &ob
 	}
 }
 
+//-----------------------------------------------------------------------------
+//
+//  DbServerCache::import_tac_dev()
+//
+//	This method returns to the caller of the info necessary to import the
+//	TAC device. The returned data are the same than the one returned by
+//  the classical API
+//
+//	This method returns a pointer to a DevVarLongStringArray initilised
+//  with the Tango access control import data
+//-----------------------------------------------------------------------------
+
+const DevVarLongStringArray *DbServerCache::import_tac_dev(string &tac_dev)
+{
+
+//
+// Throw exception if no info in cache
+//
+
+	if (imp_tac.last_idx == -1)
+	{
+		Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
+                                       (const char *)"No TAC device in Db cache",
+                                       (const char *)"DbServerCache::import_tac_dev");
+	}
+
+//
+// Throw exception if the device in cache is not the requested one
+//
+
+    if (tac_dev.size() != strlen((*data_list)[imp_tac.first_idx]))
+    {
+		Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
+                                       (const char *)"Device not available from cache",
+                                       (const char *)"DbServerCache::import_tac_dev");
+    }
+
+    string local_tac_dev(tac_dev);
+    string cache_tac_dev((*data_list)[imp_tac.first_idx]);
+
+    transform(local_tac_dev.begin(),local_tac_dev.end(),local_tac_dev.begin(),::tolower);
+    transform(cache_tac_dev.begin(),cache_tac_dev.end(),cache_tac_dev.begin(),::tolower);
+
+    if (local_tac_dev != cache_tac_dev)
+    {
+        Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
+                                       (const char *)"Device not available from cache",
+                                       (const char *)"DbServerCache::import_tac_dev");
+    }
+
+//
+// Return cache data
+//
+
+	imp_tac_data.lvalue.length(2);
+	imp_tac_data.svalue.length(5);
+
+	imp_tac_data.lvalue[0] = ::atoi((*data_list)[imp_tac.first_idx + 5]);
+	imp_tac_data.lvalue[1] = ::atoi((*data_list)[imp_tac.last_idx - 1]);
+
+	for (int loop = 0;loop < 5;loop++)
+		imp_tac_data.svalue[loop] = CORBA::string_dup((*data_list)[imp_tac.first_idx + loop]);
+
+	return &imp_tac_data;
+}
 
 } // End of Tango namespace

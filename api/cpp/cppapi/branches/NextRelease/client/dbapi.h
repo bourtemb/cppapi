@@ -783,6 +783,7 @@ public:
 	const DevVarStringArray *get_dev_att_property(DevVarStringArray *);
 	const DevVarStringArray *get_obj_property(DevVarStringArray *);
 	const DevVarStringArray *get_device_property_list(DevVarStringArray *);
+	const DevVarLongStringArray *import_tac_dev(string &);
 
 	const EltIdx &get_imp_dat() {return imp_adm;}
 	const EltIdx &get_imp_notifd_event() {return imp_notifd_event;}
@@ -811,6 +812,7 @@ private:
 	EltIdx					imp_adm;
 	EltIdx					imp_notifd_event;
 	EltIdx					imp_adm_event;
+	EltIdx                  imp_tac;
 	PropEltIdx				ctrl_serv_prop;
 	PropEltIdx				DServer_class_prop;
 	PropEltIdx				Default_prop;
@@ -821,6 +823,7 @@ private:
 	DevVarLongStringArray	imp_adm_data;
 	DevVarLongStringArray	imp_notifd_event_data;
 	DevVarLongStringArray	imp_adm_event_data;
+	DevVarLongStringArray	imp_tac_data;
 	DevVarStringArray		ret_obj_prop;
 	DevVarStringArray		ret_dev_list;
 	DevVarStringArray		ret_obj_att_prop;

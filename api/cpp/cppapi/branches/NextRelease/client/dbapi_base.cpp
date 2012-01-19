@@ -629,6 +629,8 @@ DbDevImportInfo Database::import_device(string &dev)
 		access = ACCESS_WRITE;
 
 		send <<= dev.c_str();
+		bool imported_from_cache = false;
+
 		try
 		{
 			if (filedb != 0)
@@ -638,10 +640,40 @@ DbDevImportInfo Database::import_device(string &dev)
 			}
 			else
 			{
-				DeviceData send_name;
-				send_name << dev;
-				CALL_DB_SERVER("DbImportDevice",send_name,received_cmd);
-				received_cmd >> dev_import_list;
+
+//
+// If we are in a server with a valid db_cache (meaning only during
+// device server startup sequence) and if
+// the device to be imported is the TAC device, do the
+// import from the cache.
+// All devices imported in a DS during its startup sequence will
+// be searched first from the cache. This will slow down a litle
+// bit but with this code the TAC device is really imported from the
+// cache instead of from DB itself.
+//
+
+                ApiUtil *au = ApiUtil::instance();
+                if (au->in_server() == true)
+                {
+                    if (ext->db_tg != NULL)
+                    {
+                        try
+                        {
+                            DbServerCache *dsc = ext->db_tg->get_db_cache();
+                            dev_import_list = dsc->import_tac_dev(dev);
+                            imported_from_cache = true;
+                        }
+                        catch (Tango::DevFailed &) {}
+                    }
+                }
+
+                if (imported_from_cache == false)
+                {
+                    DeviceData send_name;
+                    send_name << dev;
+                    CALL_DB_SERVER("DbImportDevice",send_name,received_cmd);
+                    received_cmd >> dev_import_list;
+                }
 			}
 		}
 		catch (Tango::DevFailed &)
@@ -3540,9 +3572,13 @@ DbDatum Database::get_services(string &servname,string &instname)
 			Tango::Util *tg = Tango::Util::instance(false);
 			dsc = tg->get_db_cache();
 		}
-		catch (Tango::DevFailed &)
+		catch (Tango::DevFailed &e)
 		{
-			dsc = NULL;
+            string reason = e.errors[0].reason.in();
+            if (reason == "API_UtilSingletonNotCreated" && ext->db_tg != NULL)
+                dsc = ext->db_tg->get_db_cache();
+            else
+                dsc = NULL;
 		}
 	}
 	else

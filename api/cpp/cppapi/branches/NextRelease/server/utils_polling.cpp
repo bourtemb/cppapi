@@ -263,7 +263,7 @@ void Util::polling_configure()
 //
 
 	unsigned long nb_thread = ext->poll_ths.size();
-	cout4 << "POLLING: " << nb_thread << " threads needed for polling from a pool of " << get_polling_threads_pool_size() << endl;
+	cout4 << "POLLING: " << nb_thread << " thread(s) needed for polling from a pool of " << get_polling_threads_pool_size() << endl;
 	for (unsigned long loop = 0;loop < nb_thread;++loop)
 	{
 		unsigned long nb_cmd = ext->poll_ths[loop]->v_poll_cmd.size();

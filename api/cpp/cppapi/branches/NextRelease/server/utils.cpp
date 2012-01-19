@@ -1668,7 +1668,6 @@ void Util::server_init(TANGO_UNUSED(bool with_window))
 		// extract sub device information before deleting cache!
 			get_sub_dev_diag().get_sub_devices_from_cache();
 
-
 			delete ext->db_cache;
 			ext->db_cache = NULL;
 		}

@@ -383,7 +383,7 @@ void DeviceImpl::poll_object(const string &obj_name,int period,PollObjType type)
                 found = true;
                 stringstream ss;
                 string period_str;
-                ss << -period;
+                ss << period;
                 ss >> period_str;
                 if (ss)
                     (*poll_obj)[i + 1] = period_str;
