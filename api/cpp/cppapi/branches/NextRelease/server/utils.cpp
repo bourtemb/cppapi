@@ -2371,41 +2371,6 @@ void Util::clean_dyn_attr_prop()
 	}
 }
 
-//+----------------------------------------------------------------------------
-//
-// method : 		Util::set_db_svr_version()
-//
-// description : 	Cheack some BD command to guess db server version
-//
-//-----------------------------------------------------------------------------
-
-void Util::set_db_svr_version()
-{
-
-//
-// Is the DbDeleteAllDeviceAttributeProperty command available ?
-//
-
-	try
-	{
-		string dummy_dev_name("a/b/c");
-		DbData db_dat;
-		DbDatum datum("Dummy_att");
-		db_dat.push_back(datum);
-
-		db->delete_all_device_attribute_property(dummy_dev_name,db_dat);
-		ext->db_svr_version = 400;
-	}
-	catch(Tango::DevFailed &e)
-	{
-		if (::strcmp(e.errors[0].reason.in(),"API_CommandNotFound") == 0)
-			ext->db_svr_version = 399;
-		else
-			ext->db_svr_version = 300;
-	}
-}
-
-
 #ifdef _TG_WINDOWS_
 //+----------------------------------------------------------------------------
 //

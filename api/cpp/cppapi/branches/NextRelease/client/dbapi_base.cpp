@@ -85,7 +85,7 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 
 	build_connection();
 
-	get_server_release();
+	set_server_release();
 
 	dev_name();
 }
@@ -122,7 +122,7 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 
 	build_connection();
 
-	get_server_release();
+	set_server_release();
 
 	dev_name();
 }
@@ -320,7 +320,7 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 
 	build_connection();
 
-	get_server_release();
+	set_server_release();
 
 	dev_name();
 }
@@ -362,21 +362,36 @@ void Database::check_access_and_get()
 
 //-----------------------------------------------------------------------------
 //
-// Database::get_server_release() - Check which is the database server release
+// Database::set_server_release() - Check which is the database server release
 //
 //-----------------------------------------------------------------------------
 
-void Database::get_server_release()
+void Database::set_server_release()
 {
+
 	try
 	{
-		DevCmdInfo *cmd_ptr = device->command_query("DbGetDeviceAttributeProperty2");
-		serv_version = 230;
+	    DevCmdInfo *cmd_ptr = device->command_query("DbDeleteAllDeviceAttributeProperty");
+	    serv_version = 400;
 		delete cmd_ptr;
 	}
 	catch (Tango::DevFailed &e)
 	{
-		serv_version = 210;
+		if (::strcmp(e.errors[0].reason.in(),"API_CommandNotFound") == 0)
+		{
+		    try
+		    {
+                DevCmdInfo *cmd_ptr = device->command_query("DbGetDeviceAttributeProperty2");
+                serv_version = 230;
+                delete cmd_ptr;
+		    }
+		    catch (Tango::DevFailed &e)
+		    {
+		        serv_version = 210;
+		    }
+		}
+		else
+            serv_version = 210;
 	}
 }
 
@@ -565,7 +580,7 @@ string Database::get_corba_name(TANGO_UNUSED(bool ch_acc))
 
 void Database::post_reconnection()
 {
-	get_server_release();
+	set_server_release();
 
 	dev_name();
 }
@@ -1236,7 +1251,6 @@ void Database::get_device_attribute_property(string dev, DbData &db_data, DbServ
 // Try  to get property(ies) from cache
 //
 
-		serv_version = 230;
 		try
 		{
 			property_values = db_cache->get_dev_att_property(property_names);
@@ -1784,7 +1798,6 @@ void Database::get_class_attribute_property(string device_class, DbData &db_data
 // Try to get property(ies) from cache
 //
 
-		serv_version = 230;
 		try
 		{
 			property_values = db_cache->get_class_att_property(property_names);

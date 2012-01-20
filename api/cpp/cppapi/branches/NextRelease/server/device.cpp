@@ -3171,22 +3171,13 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it,bool clean
 	}
 
 //
-// Get  Db server version to know if it support the new command to remove
-// all attribute properties in one go
-//
-
-	if (tg->get_db_svr_version() == 0)
-	{
-		tg->set_db_svr_version();
-	}
-
-//
 // Now remove all configured attribute properties from the database
+// Do it in one go if the Db server support this
 //
 
     if (clean_db == true)
     {
-        if ((tg->is_svr_shutting_down() == false) || (tg->get_db_svr_version() < 400))
+        if ((tg->is_svr_shutting_down() == false) || (tg->get_database()->get_server_release() < 400))
         {
             Tango::Attribute &att_obj = dev_attr->get_attr_by_name(attr_name.c_str());
             att_obj.remove_configuration();

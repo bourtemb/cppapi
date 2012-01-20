@@ -775,7 +775,7 @@ private:
     public:
         UtilExt():poll_mon("utils_poll"),ser_model(BY_DEVICE),only_one("process"),
               py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
-              svr_starting(true),svr_stopping(false),db_svr_version(0),poll_pool_size(ULONG_MAX),
+              svr_starting(true),svr_stopping(false),poll_pool_size(ULONG_MAX),
               conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
               endpoint_specified(false),user_pub_hwm(-1)
         {shared_data.cmd_pending=false;shared_data.trigger=false;
@@ -807,7 +807,6 @@ private:
         vector<string>				polled_att_list;		// Full polled att list
         vector<string>				all_dyn_attr;			// All dynamic attr name list
         string						dyn_att_dev_name;		// Device name (use for dyn att clean-up)
-        int							db_svr_version;			// Db server version;
 
         unsigned long				poll_pool_size;			// Polling threads pool size
         vector<string>  			poll_pool_conf;			// Polling threads pool conf.
@@ -878,9 +877,6 @@ public:
 	vector<string> &get_full_polled_att_list() {return ext->polled_att_list;}
 	string &get_dyn_att_dev_name() {return ext->dyn_att_dev_name;}
 	vector<string> &get_all_dyn_attr_names() {return ext->all_dyn_attr;}
-
-	int get_db_svr_version() {return ext->db_svr_version;}
-	void set_db_svr_version();
 
 	void clean_attr_polled_prop();
 	void clean_dyn_attr_prop();

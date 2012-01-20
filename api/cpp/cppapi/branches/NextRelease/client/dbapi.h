@@ -115,7 +115,7 @@ private :
 
 	void check_access();
 	inline string dev_name();
-	void get_server_release();
+	void set_server_release();
 	void check_access_and_get();
 
 public :
@@ -136,6 +136,7 @@ public :
 	void set_access_checked(bool val) {access_checked = val;}
 
 	void set_tango_utils(Tango::Util *ptr) {ext->db_tg=ptr;}
+	int get_server_release() {return serv_version;}
 
 	DevErrorList &get_access_except_errors() {return access_except_errors;}
 	void clear_access_except_errors() {access_except_errors.length(0);}
