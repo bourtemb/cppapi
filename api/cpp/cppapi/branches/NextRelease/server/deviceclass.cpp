@@ -154,6 +154,8 @@ void DeviceClass::get_class_system_resource()
 		db_data.push_back(DbDatum("cvs_tag"));
 		db_data.push_back(DbDatum("cvs_location"));
 		db_data.push_back(DbDatum("AllowedAccessCmd"));
+		db_data.push_back(DbDatum("svn_tag"));
+		db_data.push_back(DbDatum("svn_location"));
 
 		try
 		{
@@ -210,6 +212,11 @@ void DeviceClass::get_class_system_resource()
 		}
 		else
 			db_data[0] >> doc_url;
+
+		if (db_data[4].is_empty() == false)
+			db_data[4] >> ext->svn_tag;
+		if (db_data[5].is_empty() == false)
+			db_data[5] >> ext->svn_location;
 
 	}
 	else

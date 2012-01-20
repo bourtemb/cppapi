@@ -1921,18 +1921,47 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 	string doc_url("Doc URL = ");
 	doc_url = doc_url + device_class->get_doc_url();
-	string &cvs_tag = device_class->get_cvs_tag();
-	if (cvs_tag.size() != 0)
+
+//
+// Add TAG if it exist
+//
+
+	string &svn_tag = device_class->get_svn_tag();
+	if (svn_tag.size() != 0)
 	{
-		doc_url = doc_url + "\nCVS Tag = ";
-		doc_url = doc_url + cvs_tag;
+	    doc_url = doc_url + "\nSVN Tag = ";
+	    doc_url = doc_url + svn_tag;
 	}
-	string &cvs_location = device_class->get_cvs_location();
-	if (cvs_location.size() != 0)
+	else
 	{
-		doc_url = doc_url + "\nCVS Location = ";
-		doc_url = doc_url + cvs_location;
+        string &cvs_tag = device_class->get_cvs_tag();
+        if (cvs_tag.size() != 0)
+        {
+            doc_url = doc_url + "\nCVS Tag = ";
+            doc_url = doc_url + cvs_tag;
+        }
 	}
+
+//
+// Add SCM location if defined
+//
+
+	string &svn_location = device_class->get_svn_location();
+	if (svn_location.size() != 0)
+	{
+	    doc_url = doc_url + "\nSVN Location = ";
+	    doc_url = doc_url + svn_location;
+	}
+	else
+	{
+        string &cvs_location = device_class->get_cvs_location();
+        if (cvs_location.size() != 0)
+        {
+            doc_url = doc_url + "\nCVS Location = ";
+            doc_url = doc_url + cvs_location;
+        }
+	}
+
 	back->doc_url = CORBA::string_dup(doc_url.c_str());
 
 //

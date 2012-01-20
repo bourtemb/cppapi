@@ -412,6 +412,9 @@ public:
 	string &get_cvs_tag() {return ext->cvs_tag;}
 	string &get_cvs_location() {return ext->cvs_location;}
 
+	string &get_svn_tag() {return ext->svn_tag;}
+	string &get_svn_location() {return ext->svn_location;}
+
 	void set_cvs_tag(string &str) {ext->cvs_tag=str;}
 	void set_cvs_location(string &str) {ext->cvs_location=str;}
 
@@ -440,6 +443,8 @@ private:
         string				cvs_location;
         Command * 			default_cmd;
         bool				py_class;
+        string              svn_tag;
+        string              svn_location;
     };
 
 	void get_class_system_resource();

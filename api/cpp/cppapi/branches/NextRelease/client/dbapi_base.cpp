@@ -675,8 +675,11 @@ DbDevImportInfo Database::import_device(string &dev)
                         try
                         {
                             DbServerCache *dsc = ext->db_tg->get_db_cache();
-                            dev_import_list = dsc->import_tac_dev(dev);
-                            imported_from_cache = true;
+                            if (dsc != NULL)
+                            {
+                                dev_import_list = dsc->import_tac_dev(dev);
+                                imported_from_cache = true;
+                            }
                         }
                         catch (Tango::DevFailed &) {}
                     }
