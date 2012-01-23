@@ -788,7 +788,42 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         ev_ctr = ev_cptr_ite->second;
     else
     {
-       cerr << "Can't find event counter for event " << event_name << " in map!" << endl;
+        Attribute &att = device_impl->get_device_attr()->get_attr_by_name(attr_name.c_str());
+        bool print = false;
+
+        if (event_type == "data_ready")
+        {
+            if (att.ext->event_data_ready_subscription != 0)
+                print = true;
+        }
+        else if (event_type == "attr_conf")
+        {
+            if (att.ext->event_attr_conf_subscription != 0)
+                print = true;
+        }
+        else if (event_type == "user_event")
+        {
+            if (att.ext->event_user_subscription != 0)
+                print = true;
+        }
+        else if (event_type == "change")
+        {
+            if (att.ext->event_change_subscription != 0)
+                print = true;
+        }
+        else if (event_type == "periodic")
+        {
+            if (att.ext->event_periodic_subscription != 0)
+                print = true;
+        }
+        else if (event_type == "archive")
+        {
+            if (att.ext->event_archive_subscription != 0)
+                print = true;
+        }
+
+        if (print == true)
+            cerr << "Can't find event counter for event " << event_name << " in map!" << endl;
     }
 
 

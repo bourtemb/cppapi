@@ -405,6 +405,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list)
 	ext->event_periodic_subscription = 0;
 	ext->event_user_subscription = 0;
 	ext->event_attr_conf_subscription = 0;
+	ext->event_data_ready_subscription = 0;
 }
 
 //+-------------------------------------------------------------------------

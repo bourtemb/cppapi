@@ -2033,6 +2033,7 @@ public:
 	friend ostream &operator<<(ostream &,Attribute &);
 #endif // TANGO_HAS_LOG4TANGO
 	friend class EventSupplier;
+	friend class ZmqEventSupplier;
 	friend class DServer;
 
 private:

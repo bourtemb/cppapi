@@ -3177,7 +3177,7 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it,bool clean
 // already stopped.
 //
 
-			if (clean_db == true)
+			if (clean_db == true && Tango::Util::_UseDb == true)
 			{
 
 //
