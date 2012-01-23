@@ -1621,8 +1621,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 ++src;
             }
 
-            char *dest_char;
-            dest_char = (char *)dest;
             for (int loop = 0;loop < remaining;++loop)
             {
                 *dest = *src;
