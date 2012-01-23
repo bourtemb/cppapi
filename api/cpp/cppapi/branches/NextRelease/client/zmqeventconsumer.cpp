@@ -281,10 +281,10 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
                 zmq_msg_init(&mcast_received_event_data);
 
 //cout << "For the muticast event socket number " << loop + 1 << endl;
-                int nbytes = zmq_recvmsg(items[loop].socket,&mcast_received_event_name,0);
-                nbytes = zmq_recvmsg(items[loop].socket,&mcast_received_endian,0);
-                nbytes = zmq_recvmsg(items[loop].socket,&mcast_received_call,0);
-                nbytes = zmq_recvmsg(items[loop].socket,&mcast_received_event_data,0);
+                zmq_recvmsg(items[loop].socket,&mcast_received_event_name,0);
+                zmq_recvmsg(items[loop].socket,&mcast_received_endian,0);
+                zmq_recvmsg(items[loop].socket,&mcast_received_call,0);
+                zmq_recvmsg(items[loop].socket,&mcast_received_event_data,0);
 
                 process_event(mcast_received_event_name,mcast_received_endian,mcast_received_call,mcast_received_event_data);
 
@@ -350,8 +350,6 @@ void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq
 // Extract data from messages
 //
 
-    const ZmqCallInfo *receiv_call;
-
     unsigned char endian = ((char *)received_endian.data())[0];
     string event_name((char *)received_event_name.data(),(size_t)received_event_name.size());
 
@@ -360,7 +358,6 @@ void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq
 
     ZmqCallInfo_var c_info_var = new ZmqCallInfo;
     (ZmqCallInfo &)c_info_var <<= call_info;
-    receiv_call = &c_info_var.in();
 
 //
 // Call the heartbeat method
@@ -1624,9 +1621,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 ++src;
             }
 
-            char *src_char,*dest_char;
+            char *dest_char;
             dest_char = (char *)dest;
-            src_char = dest_char + sizeof(int);
             for (int loop = 0;loop < remaining;++loop)
             {
                 *dest = *src;

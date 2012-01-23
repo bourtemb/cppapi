@@ -1569,9 +1569,8 @@ void Util::upd_polling_prop(vector<DevDbUpd> &upd_devs,DServer *admin_dev)
                         int nb_lines = (length / MaxDevPropLength) + 1;
                         if (nb_lines > 1)
                         {
-                            string::size_type start,len;
+                            string::size_type start;
                             start = 0;
-                            len = MaxDevPropLength;
 
                             for (int i = 0;i < nb_lines;i++)
                             {

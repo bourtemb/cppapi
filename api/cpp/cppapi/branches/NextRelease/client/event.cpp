@@ -197,8 +197,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 
 	if ((api_ptr->in_server() == false) && (api_ptr->is_lock_exit_installed() == false))
 	{
-		int res;
-		res = atexit(leavefunc);
+		atexit(leavefunc);
 		api_ptr->set_lock_exit_installed(true);
 	}
 #endif
