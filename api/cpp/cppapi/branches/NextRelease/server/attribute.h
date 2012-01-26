@@ -2340,6 +2340,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 // Arg list : 	A : property as a string
 //		B : stream
 //		C : storage place
+//      D : default user prop
 //
 
 #define SET_EV_PROP(A,B,C,D) \

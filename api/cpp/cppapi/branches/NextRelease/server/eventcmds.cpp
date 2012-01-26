@@ -537,6 +537,14 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 
 //
+// Check if the client is a new one
+//
+
+    bool new_client = ev->update_connected_client(get_client_ident());
+    if (new_client == true)
+        ev->set_double_send();
+
+//
 // Call common method (common between old and new command)
 //
 

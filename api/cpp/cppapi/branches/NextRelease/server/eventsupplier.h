@@ -242,6 +242,9 @@ public :
     string &get_mcast_event_endpoint(string &);
     void init_event_cptr(string &event_name);
 
+    bool update_connected_client(client_addr *);
+    void set_double_send() {double_send=true;double_send_heartbeat=true;}
+
 protected :
 	ZmqEventSupplier(Util *);
 
@@ -253,6 +256,12 @@ private :
         string                  endpoint;
         zmq::socket_t           *pub_socket;
         bool                    local_client;
+    };
+
+    struct ConnectedClient
+    {
+        client_addr             clnt;
+        int                     date;
     };
 
 	zmq::context_t              zmq_context;            // ZMQ context
@@ -282,6 +291,10 @@ private :
 	string                      event_endpoint;         // event publisher endpoint
 
 	map<string,int>             event_cptr;             // event counter map
+
+	list<ConnectedClient>       con_client;             // Connected clients
+	bool                        double_send;            // Double send flag
+	bool                        double_send_heartbeat;
 
 	void tango_bind(zmq::socket_t *,string &);
 	unsigned char test_endian();

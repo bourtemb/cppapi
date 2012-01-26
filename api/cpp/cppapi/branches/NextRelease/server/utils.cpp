@@ -1170,7 +1170,7 @@ void Util::misc_init()
 #endif
 
 //
-// Check if the user has defined his own publisher hwm (fpr zmq event tuning)
+// Check if the user has defined his own publisher hwm (for zmq event tuning)
 //
 
 	string var;

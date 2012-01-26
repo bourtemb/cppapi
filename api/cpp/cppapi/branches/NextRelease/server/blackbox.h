@@ -55,6 +55,7 @@ CORBA::Boolean get_client_addr(omni::omniInterceptors::serverReceiveRequest_T::i
 class client_addr: public omni_thread::value_t
 {
 public:
+    client_addr() {client_ip[0]='\0';::memset(java_ident,0,sizeof(DevULong64)<<1);}
 	client_addr(const char *addr):client_ident(false),client_pid(0) {strcpy(client_ip,addr);}
 	~client_addr() {};
 

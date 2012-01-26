@@ -60,7 +60,7 @@ ZmqEventSupplier *ZmqEventSupplier::_instance = NULL;
 /************************************************************************/
 
 
-ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),event_pub_sock(NULL)
+ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),event_pub_sock(NULL),double_send(false),double_send_heartbeat(false)
 {
 	_instance = this;
 
@@ -619,90 +619,107 @@ void ZmqEventSupplier::push_heartbeat_event()
 // seconds will be 9 even if in reality it is 9,9
 //
 
+    int nb_event = 1;
+
 	if (delta_time >= 9)
 	{
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): detected heartbeat event for " << heartbeat_event_name << endl;
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): delta _time " << delta_time << endl;
 
+        if (double_send_heartbeat == true)
+        {
+            nb_event = 2;
+            double_send_heartbeat = false;
+        }
+
+        while (nb_event != 0)
+        {
+
 //
 // Create zmq message
 //
 
-        zmq::message_t name_mess(heartbeat_event_name.size());
-        memcpy(name_mess.data(),(void *)heartbeat_event_name.data(),heartbeat_event_name.size());
+            zmq::message_t name_mess(heartbeat_event_name.size());
+            memcpy(name_mess.data(),(void *)heartbeat_event_name.data(),heartbeat_event_name.size());
 
-		bool endian_mess_sent = false;
-		bool call_mess_sent = false;
+            bool endian_mess_sent = false;
+            bool call_mess_sent = false;
 
-		try
-		{
+            try
+            {
 //
 // For debug and logging purposes
 //
 
-            if (omniORB::trace(20))
-            {
-                omniORB::logger log;
-                log << "ZMQ: Pushing some data" << '\n';
-            }
-            if (omniORB::trace(30))
-            {
+                if (nb_event == 1)
                 {
-                    omniORB::logger log;
-                    log << "ZMQ: Event name" << '\n';
-                }
-                omni::giopStream::dumpbuf((unsigned char *)name_mess.data(),name_mess.size());
+                    if (omniORB::trace(20))
+                    {
+                        omniORB::logger log;
+                        log << "ZMQ: Pushing some data" << '\n';
+                    }
+                    if (omniORB::trace(30))
+                    {
+                        {
+                            omniORB::logger log;
+                            log << "ZMQ: Event name" << '\n';
+                        }
+                        omni::giopStream::dumpbuf((unsigned char *)name_mess.data(),name_mess.size());
 
-                {
-                    omniORB::logger log;
-                    log << "ZMQ: Endianess" << '\n';
-                }
-                omni::giopStream::dumpbuf((unsigned char *)endian_mess.data(),endian_mess.size());
+                        {
+                            omniORB::logger log;
+                            log << "ZMQ: Endianess" << '\n';
+                        }
+                        omni::giopStream::dumpbuf((unsigned char *)endian_mess.data(),endian_mess.size());
 
-                {
-                    omniORB::logger log;
-                    log << "ZMQ: Call info" << '\n';
+                        {
+                            omniORB::logger log;
+                            log << "ZMQ: Call info" << '\n';
+                        }
+                        omni::giopStream::dumpbuf((unsigned char *)heartbeat_call_mess.data(),heartbeat_call_mess.size());
+                    }
                 }
-                omni::giopStream::dumpbuf((unsigned char *)heartbeat_call_mess.data(),heartbeat_call_mess.size());
-            }
 
 //
 // Push the event
 //
 
-            heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
-			heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);
-			endian_mess_sent = true;
-			heartbeat_pub_sock->send(heartbeat_call_mess,0);
-			call_mess_sent = true;
+                heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
+                heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);
+                endian_mess_sent = true;
+                heartbeat_pub_sock->send(heartbeat_call_mess,0);
+                call_mess_sent = true;
 
 //
 // For reference counting on zmq messages which do not have a local scope
 //
 
-			endian_mess.copy(&endian_mess_2);
-			heartbeat_call_mess.copy(&heartbeat_call_mess_2);
-		}
-		catch(...)
-		{
-			cout3 << "ZmqEventSupplier::push_heartbeat_event() failed !\n";
-			if (endian_mess_sent == true)
                 endian_mess.copy(&endian_mess_2);
-            if (call_mess_sent == true)
                 heartbeat_call_mess.copy(&heartbeat_call_mess_2);
 
-            TangoSys_OMemStream o;
-            o << "Can't push ZMQ heartbeat event for event ";
-            o << heartbeat_event_name;
-            if (zmq_errno() != 0)
-                o << "\nZmq error: " << zmq_strerror(zmq_errno()) << ends;
-            else
-                o << ends;
+                nb_event--;
+            }
+            catch(...)
+            {
+                cout3 << "ZmqEventSupplier::push_heartbeat_event() failed !\n";
+                if (endian_mess_sent == true)
+                    endian_mess.copy(&endian_mess_2);
+                if (call_mess_sent == true)
+                    heartbeat_call_mess.copy(&heartbeat_call_mess_2);
 
-            Except::throw_exception((const char *)"DServer_Events",
-                                    o.str(),
-                                   (const char *)"ZmqEventSupplier::push_heartbeat_event");
-		}
+                TangoSys_OMemStream o;
+                o << "Can't push ZMQ heartbeat event for event ";
+                o << heartbeat_event_name;
+                if (zmq_errno() != 0)
+                    o << "\nZmq error: " << zmq_strerror(zmq_errno()) << ends;
+                else
+                    o << ends;
+
+                Except::throw_exception((const char *)"DServer_Events",
+                                        o.str(),
+                                       (const char *)"ZmqEventSupplier::push_heartbeat_event");
+            }
+        }
 	}
 }
 
@@ -1015,6 +1032,12 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             }
         }
 
+        if (double_send == true)
+        {
+            send_nb = 2;
+            double_send = false;
+        }
+
 //
 // If we have a multicast socket with also a local client
 // we are obliged to send to times the messages.
@@ -1124,5 +1147,78 @@ cout << "Exception in push !!!!!!!!!!!" << endl;
     }
 }
 
+//+----------------------------------------------------------------------------
+//
+// method : 		ZmqEventSupplier::update_connected_client
+//
+// description :
+//
+//-----------------------------------------------------------------------------
+bool ZmqEventSupplier::update_connected_client(client_addr *cl)
+{
+    bool ret = false;
+
+//
+// Immediately return if client identification not possible
+// (Very old client....)
+//
+
+    if (cl == NULL)
+        return ret;
+
+//
+// First try to find the client in list
+//
+
+    struct timeval now;
+    gettimeofday(&now,NULL);
+
+    list<ConnectedClient>::iterator pos;
+
+#ifdef HAS_LAMBDA_FUNC
+    pos = find_if(con_client.begin(),con_client.end(),
+                  [&] (ConnectedClient &cc) -> bool)
+                  {
+                      return cc.clnt == *cl;
+                  }
+#else
+#endif
+
+//
+// Update date if client in list. Otherwise add client to list
+//
+
+    if (pos != con_client.end())
+        pos->date = now.tv_sec;
+    else
+    {
+        ConnectedClient new_cc;
+        new_cc.clnt = *cl;
+        new_cc.date = now.tv_sec;
+
+        con_client.push_back(new_cc);
+        ret = true;
+    }
+
+//
+// Remove presumly dead client
+//
+
+#ifdef HAS_LAMBDA_FUNC
+    remove_if(con_client.begin(),con_client.end(),
+                    [&] (ConnectedClient &cc) -> bool
+                    {
+                        if (now.tv_sec > (cc.date + 500))
+                            return true;
+                        else
+                            return false;
+                    });
+#else
+//	remove_if(con_client.begin(),con_client.end(),
+//		      bind2nd(WantedCmd<Command *,const char *,bool>(),cmd_name.c_str()));
+#endif
+
+    return ret;
+}
 
 } /* End of Tango namespace */

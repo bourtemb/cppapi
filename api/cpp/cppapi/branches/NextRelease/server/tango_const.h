@@ -42,9 +42,9 @@ namespace Tango
 // Some general interest define
 //
 
-#define     TANGO_VERSION_MAJOR     7
-#define     TANGO_VERSION_MINOR     2
-#define     TANGO_VERSION_PATCH     7
+#define     TANGO_VERSION_MAJOR     8
+#define     TANGO_VERSION_MINOR     0
+#define     TANGO_VERSION_PATCH     0
 
 #define     build_string(s)         #s
 #define     xbuild_string(s)        build_string(s)
@@ -119,8 +119,8 @@ namespace Tango
 #define     PGM_RATE                    80 * 1024
 #define     PGM_IVL                     20 * 1000
 #define     MAX_SOCKET_SUB              10
-#define     PUB_HWM                     100
-#define     SUB_HWM                     100
+#define     PUB_HWM                     1000
+#define     SUB_HWM                     1000
 
 #define     ZMQ_END                     0
 #define     ZMQ_CONNECT_HEARTBEAT       1
