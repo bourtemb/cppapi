@@ -1177,10 +1177,10 @@ bool ZmqEventSupplier::update_connected_client(client_addr *cl)
 
 #ifdef HAS_LAMBDA_FUNC
     pos = find_if(con_client.begin(),con_client.end(),
-                  [&] (ConnectedClient &cc) -> bool)
+                  [&] (ConnectedClient &cc) -> bool
                   {
-                      return cc.clnt == *cl;
-                  }
+                      return (cc.clnt == *cl);
+                  });
 #else
 #endif
 

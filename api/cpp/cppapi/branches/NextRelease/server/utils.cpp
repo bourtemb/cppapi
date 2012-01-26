@@ -1391,31 +1391,6 @@ void Util::server_already_running()
 	cout4 << "Entering Util::server_already_running method" << endl;
 
 //
-// First, sleep a while in order to solve race condition for two
-// servers started at the "same time" and a schedulling happens between
-// the database check and the export device. This system is inherited
-// from what has been implemented for the TACO control system
-//
-
-#ifdef _TG_WINDOWS_
-	pid = _getpid();
-#else
-	pid = getpid();
-#endif
-
-	srand(pid);
-#ifdef _TG_WINDOWS_
-	DWORD backoff;
-	backoff = (DWORD)(1000. * (float)rand() / (float)RAND_MAX);
-//	Sleep(backoff);
-#else
-	struct timespec backoff;
-	backoff.tv_sec = 0;
-	backoff.tv_nsec = (long)(1000000000. * (float)rand() / (float)RAND_MAX);
-//	nanosleep(&backoff,NULL);
-#endif
-
-//
 // Build device name and try to import it from database or from cache if available
 //
 
