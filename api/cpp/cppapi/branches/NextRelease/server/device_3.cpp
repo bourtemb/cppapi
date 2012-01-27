@@ -1695,9 +1695,9 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 			vector<AttIdx>::iterator ite;
 			for(ite = updated_attr.begin();ite != updated_attr.end();++ite)
 			{
+                WAttribute &att = dev_attr->get_w_attr_by_ind((*ite).idx_in_multi_attr);
 				try
 				{
-					WAttribute &att = dev_attr->get_w_attr_by_ind((*ite).idx_in_multi_attr);
 					att.set_value_flag(false);
 					att.set_user_set_write_value(false);
 					vector<Tango::Attr *> &attr_vect = device_class->get_class_attr()->get_attr_list();
@@ -1719,6 +1719,8 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 				catch (Tango::DevFailed &e)
 				{
 					nb_failed++;
+					if (att.get_data_format() == SCALAR)
+                        att.rollback();
 					errs.length(nb_failed);
 					if (values_3 != NULL)
 						errs[nb_failed - 1].name = CORBA::string_dup((*values_3)[(*ite).idx_in_names].name);
