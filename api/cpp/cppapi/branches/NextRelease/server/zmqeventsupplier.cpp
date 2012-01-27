@@ -1154,6 +1154,8 @@ cout << "Exception in push !!!!!!!!!!!" << endl;
 // description :
 //
 //-----------------------------------------------------------------------------
+
+
 bool ZmqEventSupplier::update_connected_client(client_addr *cl)
 {
     bool ret = false;
@@ -1171,7 +1173,15 @@ bool ZmqEventSupplier::update_connected_client(client_addr *cl)
 //
 
     struct timeval now;
+
+#ifdef _TG_WINDOWS_
+    struct _timeb after_win;
+
+    _ftime(&after_win);
+    now.tv_sec = (time_t)after_win.time;
+#else
     gettimeofday(&now,NULL);
+#endif
 
     list<ConnectedClient>::iterator pos;
 
@@ -1182,6 +1192,8 @@ bool ZmqEventSupplier::update_connected_client(client_addr *cl)
                       return (cc.clnt == *cl);
                   });
 #else
+    pos = find_if(con_client.begin(),con_client.end(),
+            bind2nd(WantedClient<ZmqEventSupplier::ConnectedClient,client_addr,bool>(),*cl));
 #endif
 
 //
@@ -1189,7 +1201,9 @@ bool ZmqEventSupplier::update_connected_client(client_addr *cl)
 //
 
     if (pos != con_client.end())
+    {
         pos->date = now.tv_sec;
+    }
     else
     {
         ConnectedClient new_cc;
@@ -1205,17 +1219,15 @@ bool ZmqEventSupplier::update_connected_client(client_addr *cl)
 //
 
 #ifdef HAS_LAMBDA_FUNC
-    remove_if(con_client.begin(),con_client.end(),
-                    [&] (ConnectedClient &cc) -> bool
-                    {
-                        if (now.tv_sec > (cc.date + 500))
-                            return true;
-                        else
-                            return false;
-                    });
+    con_client.remove_if([&] (ConnectedClient &cc) -> bool
+                        {
+                            if (now.tv_sec > (cc.date + 500))
+                                return true;
+                            else
+                                return false;
+                        });
 #else
-//	remove_if(con_client.begin(),con_client.end(),
-//		      bind2nd(WantedCmd<Command *,const char *,bool>(),cmd_name.c_str()));
+   con_client.remove_if(bind2nd(OldClient<ZmqEventSupplier::ConnectedClient,time_t,bool>(),now.tv_sec));
 #endif
 
     return ret;

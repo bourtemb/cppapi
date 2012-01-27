@@ -537,14 +537,6 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 	}
 
 //
-// Check if the client is a new one
-//
-
-    bool new_client = ev->update_connected_client(get_client_ident());
-    if (new_client == true)
-        ev->set_double_send();
-
-//
 // Call common method (common between old and new command)
 //
 
@@ -552,6 +544,14 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
     int rate,ivl;
 
     DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
+
+//
+// Check if the client is a new one
+//
+
+    bool new_client = ev->update_connected_client(get_client_ident());
+    if (new_client == true)
+        ev->set_double_send();
 
 //
 // Create the event publisher socket (if not already done)

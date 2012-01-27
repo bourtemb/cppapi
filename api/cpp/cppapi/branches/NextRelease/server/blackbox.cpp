@@ -340,7 +340,16 @@ void BlackBox::add_cl_ident(const ClntIdent &cl_ident,client_addr *cl_addr)
 	Tango::LockerLanguage cl_lang = cl_ident._d();
 	cl_addr->client_lang = cl_lang;
 	if (cl_lang == Tango::CPP)
+	{
 		cl_addr->client_pid = cl_ident.cpp_clnt();
+		string str(cl_addr->client_ip);
+		if (str.find(":unix:") != string::npos)
+		{
+		    string::size_type pos = str.find(' ');
+		    if (pos != string::npos)
+                cl_addr->client_ip[pos] = '\0';
+		}
+	}
 	else
 	{
 		Tango::JavaClntIdent jci = cl_ident.java_clnt();
@@ -1639,10 +1648,17 @@ bool client_addr::operator==(const client_addr &rhs)
 			const char *rhs_tmp = rhs.client_ip;
 
 			if (strlen(tmp) != strlen(rhs_tmp))
-				return false;
+{
+cout << "Client adr length different" << endl;
+                return false;
+}
 
 			if (strcmp(tmp,rhs_tmp) != 0)
-				return false;
+{
+cout << "Client adr string different" << endl;
+cout << "first one = " << tmp << ", second = " << rhs_tmp << endl;
+                return false;
+}
 		}
 		else
 		{
