@@ -315,7 +315,7 @@ private :
 
 	string                      event_endpoint;         // event publisher endpoint
 
-	map<string,int>             event_cptr;             // event counter map
+	map<string,unsigned int>    event_cptr;             // event counter map
 
 	list<ConnectedClient>       con_client;             // Connected clients
 	bool                        double_send;            // Double send flag

@@ -1487,7 +1487,7 @@ void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
 //
 //-----------------------------------------------------------------------------
 
-void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::message_t &event_data,bool error,const DevLong &ds_ctr)
+void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::message_t &event_data,bool error,const DevULong &ds_ctr)
 {
 
     map_modification_lock.readerIn();
@@ -1520,6 +1520,8 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 
 //
 // Miss some events?
+// Due to LIBZMQ Bug 283, the first event after a process startup is sent two times
+// with the same ctr value. Do not call the user callback for the second times.
 //
 
         bool err_missed_event = false;
@@ -1529,6 +1531,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         {
             err_missed_event = true;
         }
+        else if (missed_event == 0)
+        {
+            map_modification_lock.readerOut();
+            return;
+        }
+
+
         evt_cb.ctr = ds_ctr;
 
 //

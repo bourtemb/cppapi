@@ -290,7 +290,7 @@ typedef struct event_callback_base
 typedef struct event_callback_zmq
 {
     DevLong                         device_idl;
-    DevLong                         ctr;
+    DevULong                        ctr;
 }EventCallBackZmq;
 
 typedef struct event_callback: public EventCallBackBase, public EventCallBackZmq
@@ -507,7 +507,7 @@ private :
 
 	void *run_undetached(void *arg);
 	void push_heartbeat_event(string &);
-    void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevLong &);
+    void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevULong &);
     bool process_ctrl(zmq::message_t &,zmq::pollitem_t *,int &);
     void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
     void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);

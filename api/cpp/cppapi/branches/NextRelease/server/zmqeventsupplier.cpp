@@ -545,7 +545,7 @@ string &ZmqEventSupplier::get_mcast_event_endpoint(string &ev_name)
 
 void ZmqEventSupplier::init_event_cptr(string &event_name)
 {
-    map<string,int>::iterator pos;
+    map<string,unsigned int>::iterator pos;
 
     pos = event_cptr.find(event_name);
     if (pos == event_cptr.end())
@@ -797,8 +797,8 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // Get event cptr and create the event call zmq message
 //
 
-    map<string,int>::iterator ev_cptr_ite;
-    int ev_ctr = 0;
+    map<string,unsigned int>::iterator ev_cptr_ite;
+    unsigned int ev_ctr = 0;
 
     ev_cptr_ite = event_cptr.find(event_name);
     if (ev_cptr_ite != event_cptr.end())
