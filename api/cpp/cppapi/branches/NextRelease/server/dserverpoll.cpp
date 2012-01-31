@@ -542,7 +542,7 @@ void DServer::add_obj_polling(const Tango::DevVarLongStringArray *argin,
 //
 
 	Tango::Util *tg = Tango::Util::instance();
-	DeviceImpl *dev;
+	DeviceImpl *dev = NULL;
 	try
 	{
 		dev = tg->get_device_by_name((argin->svalue)[0]);
@@ -572,7 +572,7 @@ void DServer::add_obj_polling(const Tango::DevVarLongStringArray *argin,
 	transform(obj_type.begin(),obj_type.end(),obj_type.begin(),::tolower);
 	string obj_name((argin->svalue)[2]);
 	transform(obj_name.begin(),obj_name.end(),obj_name.begin(),::tolower);
-	PollObjType type;
+	PollObjType type = Tango::POLL_CMD;
 
 	if (obj_type == PollCommand)
 	{
@@ -976,7 +976,7 @@ void DServer::upd_obj_polling_period(const Tango::DevVarLongStringArray *argin,
 //
 
 	Tango::Util *tg = Tango::Util::instance();
-	DeviceImpl *dev;
+	DeviceImpl *dev = NULL;
 	try
 	{
 		dev = tg->get_device_by_name((argin->svalue)[0]);
@@ -1018,7 +1018,7 @@ void DServer::upd_obj_polling_period(const Tango::DevVarLongStringArray *argin,
 	transform(obj_type.begin(),obj_type.end(),obj_type.begin(),::tolower);
 	string obj_name((argin->svalue)[2]);
 	transform(obj_name.begin(),obj_name.end(),obj_name.begin(),::tolower);
-	PollObjType type;
+	PollObjType type = Tango::POLL_CMD;
 
 	if (obj_type == PollCommand)
 	{
@@ -1269,7 +1269,7 @@ void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db
 //
 
 	Tango::Util *tg = Tango::Util::instance();
-	DeviceImpl *dev;
+	DeviceImpl *dev = NULL;
 	try
 	{
 		dev = tg->get_device_by_name((*argin)[0]);
@@ -1311,7 +1311,7 @@ void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db
 	transform(obj_type.begin(),obj_type.end(),obj_type.begin(),::tolower);
 	string obj_name((*argin)[2]);
 	transform(obj_name.begin(),obj_name.end(),obj_name.begin(),::tolower);
-	PollObjType type;
+	PollObjType type = Tango::POLL_CMD;
 
 	if (obj_type == PollCommand)
 	{

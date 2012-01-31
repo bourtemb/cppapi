@@ -152,57 +152,60 @@ DeviceDataHistory::~DeviceDataHistory()
 DeviceDataHistory & DeviceDataHistory::operator=(const DeviceDataHistory &rval)
 {
 
+    if (this != &rval)
+    {
+
 //
 // Assignement of DeviceData class members first
 //
 
-    this->DeviceData::operator=(rval);
+        this->DeviceData::operator=(rval);
 
 //
 // Then, assignement of DeviceDataHistory members
 //
 
-	fail = rval.fail;
-	time = rval.time;
+        fail = rval.fail;
+        time = rval.time;
 #ifdef HAS_RVALUE
-    err = rval.err;
+        err = rval.err;
 #else
-	err = const_cast<DeviceDataHistory &>(rval).err._retn();
+        err = const_cast<DeviceDataHistory &>(rval).err._retn();
 #endif
 
-    if (ref_ctr_ptr != NULL)
-    {
-        (*ref_ctr_ptr)--;
-        if (*ref_ctr_ptr == 0)
+        if (ref_ctr_ptr != NULL)
         {
-            delete seq_ptr;
-            delete ref_ctr_ptr;
+            (*ref_ctr_ptr)--;
+            if (*ref_ctr_ptr == 0)
+            {
+                delete seq_ptr;
+                delete ref_ctr_ptr;
+            }
         }
-    }
 
-	seq_ptr = rval.seq_ptr;
-	ref_ctr_ptr = rval.ref_ctr_ptr;
-	(*ref_ctr_ptr)++;
+        seq_ptr = rval.seq_ptr;
+        ref_ctr_ptr = rval.ref_ctr_ptr;
+        (*ref_ctr_ptr)++;
 
 #ifdef HAS_UNIQUE_PTR
-   if (rval.ext_hist.get() != NULL)
-    {
-        ext_hist.reset(new DeviceDataHistoryExt);
-        *(ext_hist.get()) = *(rval.ext_hist.get());
-    }
-    else
-        ext_hist.reset();
+        if (rval.ext_hist.get() != NULL)
+        {
+            ext_hist.reset(new DeviceDataHistoryExt);
+            *(ext_hist.get()) = *(rval.ext_hist.get());
+        }
+        else
+            ext_hist.reset();
 #else
-	if (ext_hist != NULL)
-		delete ext_hist;
-	if (rval.ext_hist != NULL)
-	{
-		ext_hist = new DeviceDataHistoryExt();
-		*ext_hist = *(rval.ext_hist);
-	}
-	else
-		ext_hist = NULL;
+        delete ext_hist;
+        if (rval.ext_hist != NULL)
+        {
+            ext_hist = new DeviceDataHistoryExt();
+            *ext_hist = *(rval.ext_hist);
+        }
+        else
+            ext_hist = NULL;
 #endif
+    }
 
 	return *this;
 }
@@ -700,37 +703,39 @@ DeviceAttributeHistory::~DeviceAttributeHistory()
 DeviceAttributeHistory & DeviceAttributeHistory::operator=(const DeviceAttributeHistory &rval)
 {
 
+    if (this != &rval)
+    {
 //
 // First, assignement of DeviceAttribute class members
 //
 
-    this->DeviceAttribute::operator=(rval);
+        this->DeviceAttribute::operator=(rval);
 
 //
 // Then, assignement of DeviceAttributeHistory members
 //
 
-	fail = rval.fail;
+        fail = rval.fail;
 
 #ifdef HAS_UNIQUE_PTR
-    if (rval.ext_hist.get() != NULL)
-    {
-        ext_hist.reset(new DeviceAttributeHistoryExt);
-        *(ext_hist.get()) = *(rval.ext_hist.get());
-    }
-    else
-        ext_hist.reset();
+        if (rval.ext_hist.get() != NULL)
+        {
+            ext_hist.reset(new DeviceAttributeHistoryExt);
+            *(ext_hist.get()) = *(rval.ext_hist.get());
+        }
+        else
+            ext_hist.reset();
 #else
-	if (ext_hist != NULL)
-		delete ext_hist;
-	if (rval.ext_hist != NULL)
-	{
-		ext_hist = new DeviceAttributeHistoryExt();
-		*ext_hist = *(rval.ext_hist);
-	}
-	else
-		ext_hist = NULL;
+        delete ext_hist;
+        if (rval.ext_hist != NULL)
+        {
+            ext_hist = new DeviceAttributeHistoryExt();
+            *ext_hist = *(rval.ext_hist);
+        }
+        else
+            ext_hist = NULL;
 #endif
+    }
 
 	return *this;
 }

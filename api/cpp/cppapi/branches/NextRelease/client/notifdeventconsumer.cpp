@@ -874,7 +874,7 @@ void NotifdEventConsumer::push_structured_event(const CosNotification::Structure
 				DevErrorList errors;
 				bool ev_attr_conf = false;
 				bool ev_attr_ready = false;
-				const DevErrorList *err_ptr;
+				const DevErrorList *err_ptr = NULL;
 
 //
 // Check if the event transmit error

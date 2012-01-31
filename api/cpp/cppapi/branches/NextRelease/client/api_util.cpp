@@ -622,11 +622,9 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 // thread and start it
 //
 
-			if (cb_thread_ptr != NULL)
-			{
-				delete cb_thread_ptr;
-				cb_thread_ptr = NULL;
-			}
+            delete cb_thread_ptr;
+            cb_thread_ptr = NULL;
+
 			cb_thread_cmd.start_thread();
 
 			cb_thread_ptr = new CallBackThread(cb_thread_cmd,asyn_p_table);

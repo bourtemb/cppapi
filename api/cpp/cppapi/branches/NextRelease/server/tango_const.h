@@ -970,6 +970,8 @@ typedef struct _OptAttrProp
  * API_DeviceUnlockable
  * API_DeviceUnlocked
  * API_EventSupplierNotConstructed
+ * API_IncoherentDbData
+ * API_IncoherentDevData
  * API_IncompatibleAttrDataType
  * API_IncompatibleCmdArgumentType
  * API_InitMethodNotFound

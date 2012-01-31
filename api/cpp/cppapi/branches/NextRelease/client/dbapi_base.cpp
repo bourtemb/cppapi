@@ -427,8 +427,7 @@ Database::~Database()
 		delete filedb;
 	}
 
-	if (access_proxy != NULL)
-		delete access_proxy;
+    delete access_proxy;
 
 #ifndef HAS_UNIQUE_PTR
     delete ext;
@@ -514,8 +513,7 @@ void Database::write_filedatabase()
 
 void Database::reread_filedatabase()
 {
-	if (filedb != 0)
-		delete filedb;
+    delete filedb;
 	filedb = new FileDatabase(file_name);
 }
 
@@ -603,7 +601,7 @@ string Database::get_info()
 		received = filedb->DbInfo(send);
 	else
 		CALL_DB_SERVER("DbInfo",send,received);
-	const DevVarStringArray *db_info_list;
+	const DevVarStringArray *db_info_list = NULL;
 	received.inout() >>= db_info_list;
 
 	ostringstream ostream;
@@ -630,7 +628,7 @@ DbDevImportInfo Database::import_device(string &dev)
 	DeviceData received_cmd;
 	Any_var received;
 	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
-	const DevVarLongStringArray *dev_import_list;
+	const DevVarLongStringArray *dev_import_list = NULL;
 
 //
 // Import device is allways possible whatever access rights are
@@ -978,14 +976,23 @@ DbServerInfo Database::get_server_info(string &server)
 	else
 		CALL_DB_SERVER("DbGetServerInfo",send,received);
 
-	const DevVarStringArray *server_info_list;
+	const DevVarStringArray *server_info_list = NULL;
 	received.inout() >>= server_info_list;
 
 	DbServerInfo server_info;
-	server_info.name = string((*server_info_list)[0]);
-	server_info.host = string((*server_info_list)[1]);
-	server_info.mode = atoi((*server_info_list)[2]);
-	server_info.level = atoi((*server_info_list)[3]);
+	if (server_info_list != NULL)
+	{
+        server_info.name = string((*server_info_list)[0]);
+        server_info.host = string((*server_info_list)[1]);
+        server_info.mode = atoi((*server_info_list)[2]);
+        server_info.level = atoi((*server_info_list)[3]);
+	}
+	else
+	{
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                       (const char *)"Incoherent data received from database",
+                                       (const char *)"Database::get_server_info()");
+	}
 
 	return(server_info);
 }
@@ -1000,7 +1007,7 @@ void Database::get_device_property(string dev, DbData &db_data,DbServerCache *db
 {
 	unsigned int i;
 	Any_var received;
-	const DevVarStringArray *property_values;
+	const DevVarStringArray *property_values = NULL;
 
 	check_access_and_get();
 
@@ -1201,7 +1208,7 @@ void Database::get_device_attribute_property(string dev, DbData &db_data, DbServ
 {
 	unsigned int i,j;
 	Any_var received;
-	const DevVarStringArray *property_values;
+	const DevVarStringArray *property_values = NULL;
 
 	check_access_and_get();
 
@@ -1544,7 +1551,7 @@ void Database::delete_device_attribute_property(string dev, DbData &db_data)
 void Database::get_class_property(string device_class, DbData &db_data, DbServerCache *db_cache)
 {
 	unsigned int i;
-	const DevVarStringArray *property_values;
+	const DevVarStringArray *property_values = NULL;
 	Any_var received;
 
 //
@@ -1746,7 +1753,7 @@ void Database::get_class_attribute_property(string device_class, DbData &db_data
 {
 	unsigned int i;
 	Any_var received;
-	const DevVarStringArray *property_values;
+	const DevVarStringArray *property_values = NULL;
 
 	check_access_and_get();
 
@@ -2088,7 +2095,7 @@ DbDatum Database::get_device_name(string &d_server, string &d_class)
 DbDatum Database::get_device_name(string &device_server, string &device_class, DbServerCache *db_cache)
 {
 	Any_var received;
-	const DevVarStringArray *device_names;
+	const DevVarStringArray *device_names = NULL;
 
 	check_access_and_get();
 
@@ -2150,18 +2157,27 @@ DbDatum Database::get_device_exported(string &filter)
 		received = filedb->DbGetDeviceExportedList(send);
 	else
 		CALL_DB_SERVER("DbGetDeviceExportedList",send,received);
-	const DevVarStringArray *device_names;
+	const DevVarStringArray *device_names = NULL;
 	received.inout() >>= device_names;
 
 	DbDatum db_datum;
-	int n_devices;
-	n_devices = device_names->length();
-	db_datum.name = filter;
-	db_datum.value_string.resize(n_devices);
-	for (int i=0; i<n_devices; i++)
-	{
-		db_datum.value_string[i] = (*device_names)[i];
-	}
+    if (device_names == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_device_exported()");
+    }
+    else
+    {
+        int n_devices;
+        n_devices = device_names->length();
+        db_datum.name = filter;
+        db_datum.value_string.resize(n_devices);
+        for (int i=0; i<n_devices; i++)
+        {
+            db_datum.value_string[i] = (*device_names)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -2187,18 +2203,27 @@ DbDatum Database::get_device_member(string &wildcard)
 		received = filedb->DbGetDeviceMemberList(send);
 	else
 		CALL_DB_SERVER("DbGetDeviceMemberList",send,received);
-	const DevVarStringArray *device_member;
+	const DevVarStringArray *device_member = NULL;
 	received.inout() >>= device_member;
 
 	DbDatum db_datum;
-	int n_members;
-	n_members = device_member->length();
-	db_datum.name = wildcard;
-	db_datum.value_string.resize(n_members);
-	for (int i=0; i<n_members; i++)
-	{
-		db_datum.value_string[i] = (*device_member)[i];
-	}
+    if (device_member == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_device_member()");
+    }
+    else
+    {
+        int n_members;
+        n_members = device_member->length();
+        db_datum.name = wildcard;
+        db_datum.value_string.resize(n_members);
+        for (int i=0; i<n_members; i++)
+        {
+            db_datum.value_string[i] = (*device_member)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -2224,18 +2249,28 @@ DbDatum Database::get_device_family(string &wildcard)
 		received = filedb->DbGetDeviceFamilyList(send);
 	else
 		CALL_DB_SERVER("DbGetDeviceFamilyList",send,received);
-	const DevVarStringArray *device_family;
+	const DevVarStringArray *device_family = NULL;
 	received.inout() >>= device_family;
 
 	DbDatum db_datum;
-	int n_familys;
-	n_familys = device_family->length();
-	db_datum.name = wildcard;
-	db_datum.value_string.resize(n_familys);
-	for (int i=0; i<n_familys; i++)
-	{
-		db_datum.value_string[i] = (*device_family)[i];
-	}
+
+    if (device_family == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_device_family()");
+    }
+    else
+    {
+        int n_familys;
+        n_familys = device_family->length();
+        db_datum.name = wildcard;
+        db_datum.value_string.resize(n_familys);
+        for (int i=0; i<n_familys; i++)
+        {
+            db_datum.value_string[i] = (*device_family)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -2262,18 +2297,28 @@ DbDatum Database::get_device_domain(string &wildcard)
 		received = filedb->DbGetDeviceDomainList(send);
 	else
 		CALL_DB_SERVER("DbGetDeviceDomainList",send,received);
-	const DevVarStringArray *device_domain;
+	const DevVarStringArray *device_domain = NULL;
 	received.inout() >>= device_domain;
 
 	DbDatum db_datum;
-	int n_domains;
-	n_domains = device_domain->length();
-	db_datum.name = wildcard;
-	db_datum.value_string.resize(n_domains);
-	for (int i=0; i<n_domains; i++)
-	{
-		db_datum.value_string[i] = (*device_domain)[i];
-	}
+
+    if (device_domain == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_device_domain()");
+    }
+    else
+    {
+        int n_domains;
+        n_domains = device_domain->length();
+        db_datum.name = wildcard;
+        db_datum.value_string.resize(n_domains);
+        for (int i=0; i<n_domains; i++)
+        {
+            db_datum.value_string[i] = (*device_domain)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -2303,7 +2348,7 @@ void Database::get_property(string obj, DbData &db_data,DbServerCache *db_cache)
 {
 	unsigned int i;
 	Any_var received;
-	const DevVarStringArray *property_values;
+	const DevVarStringArray *property_values = NULL;
 
 	{
 		WriterLock guard(Connection::ext->con_to_mon);
@@ -2511,7 +2556,7 @@ void Database::get_device_alias(string alias,string &dev_name)
 		received = filedb->DbGetAliasDevice(send);
 	else
 		CALL_DB_SERVER("DbGetAliasDevice",send,received);
-	const char *dev_name_tmp;
+	const char *dev_name_tmp = NULL;
 	received.inout() >>= dev_name_tmp;
 	dev_name = dev_name_tmp;
 }
@@ -2537,7 +2582,7 @@ void Database::get_alias(string dev_name,string &alias_name)
 		received = filedb->DbGetDeviceAlias(send);
 	else
 		CALL_DB_SERVER("DbGetDeviceAlias",send,received);
-	const char *dev_name_tmp;
+	const char *dev_name_tmp = NULL;
 	received.inout() >>= dev_name_tmp;
 	alias_name = dev_name_tmp;
 }
@@ -2563,9 +2608,17 @@ void Database::get_attribute_alias(string  attr_alias, string &attr_name)
 		received = filedb->DbGetAttributeAlias(send);
 	else
 		CALL_DB_SERVER("DbGetAttributeAlias",send,received);
-	const char* attr_name_tmp;
+	const char* attr_name_tmp = NULL;
 	received.inout() >>= attr_name_tmp;
-	attr_name = attr_name_tmp;
+
+    if (attr_name_tmp == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_attribute_alias()");
+    }
+    else
+        attr_name = attr_name_tmp;
 }
 
 //-----------------------------------------------------------------------------
@@ -2587,18 +2640,28 @@ DbDatum Database::get_device_alias_list(string &alias)
 		received = filedb->DbGetDeviceAliasList(send);
 	else
 		CALL_DB_SERVER("DbGetDeviceAliasList",send,received);
-	const DevVarStringArray *alias_array;
+	const DevVarStringArray *alias_array = NULL;
 	received.inout() >>= alias_array;
 
 	DbDatum db_datum;
-	int n_aliases;
-	n_aliases = alias_array->length();
-	db_datum.name = alias;
-	db_datum.value_string.resize(n_aliases);
-	for (int i=0; i<n_aliases; i++)
-	{
-		db_datum.value_string[i] = (*alias_array)[i];
-	}
+
+    if (alias_array == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_device_alias_list()");
+    }
+    else
+    {
+        int n_aliases;
+        n_aliases = alias_array->length();
+        db_datum.name = alias;
+        db_datum.value_string.resize(n_aliases);
+        for (int i=0; i<n_aliases; i++)
+        {
+            db_datum.value_string[i] = (*alias_array)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -2622,18 +2685,28 @@ DbDatum Database::get_attribute_alias_list(string &alias)
 		received = filedb->DbGetAttributeAliasList(send);
 	else
 		CALL_DB_SERVER("DbGetAttributeAliasList",send,received);
-	const DevVarStringArray *alias_array;
+	const DevVarStringArray *alias_array = NULL;
 	received.inout() >>= alias_array;
 
 	DbDatum db_datum;
-	int n_aliases;
-	n_aliases = alias_array->length();
-	db_datum.name = alias;
-	db_datum.value_string.resize(n_aliases);
-	for (int i=0; i<n_aliases; i++)
-	{
-		db_datum.value_string[i] = (*alias_array)[i];
-	}
+
+    if (alias_array == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_attribute_alias_list()");
+    }
+    else
+    {
+        int n_aliases;
+        n_aliases = alias_array->length();
+        db_datum.name = alias;
+        db_datum.value_string.resize(n_aliases);
+        for (int i=0; i<n_aliases; i++)
+        {
+            db_datum.value_string[i] = (*alias_array)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -2646,18 +2719,27 @@ DbDatum Database::get_attribute_alias_list(string &alias)
 
 DbDatum Database::make_string_array(string name,Any_var &received) {
 
-	const DevVarStringArray *prop_list;
+	const DevVarStringArray *prop_list = NULL;
 	DbDatum db_datum;
 	int n_props;
 
 	received.inout() >>= prop_list;
-	n_props = prop_list->length();
-	db_datum.name = name;
-	db_datum.value_string.resize(n_props);
-	for (int i=0; i<n_props; i++)
-	{
-		db_datum.value_string[i] = (*prop_list)[i];
-	}
+    if (prop_list == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::make_string_array()");
+    }
+    else
+    {
+        n_props = prop_list->length();
+        db_datum.name = name;
+        db_datum.value_string.resize(n_props);
+        for (int i=0; i<n_props; i++)
+        {
+            db_datum.value_string[i] = (*prop_list)[i];
+        }
+    }
 
 	return db_datum;
 
@@ -2807,27 +2889,37 @@ DbDatum Database::get_server_class_list(string &servname)
 
 	CALL_DB_SERVER("DbGetDeviceServerClassList",send,received);
 
-	const DevVarStringArray *prop_list;
+	const DevVarStringArray *prop_list = NULL;
 	received.inout() >>= prop_list;
 
-	// Extract the DServer class
-
 	DbDatum db_datum;
-	int n_props;
-	int nb_classes;
-	n_props = prop_list->length();
-	if(n_props == 0 )
-	  nb_classes = 0;
-	else
-	  nb_classes = n_props - 1;
+    if (prop_list == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_server_class_list()");
+    }
+    else
+    {
 
-	db_datum.name = servname;
-	db_datum.value_string.resize(nb_classes);
-	for (int i=0,j=0; i<n_props; i++)
-	{
-		if( strcmp( (*prop_list)[i] , "DServer" ) !=0 )
-			db_datum.value_string[j++] = (*prop_list)[i];
-	}
+        // Extract the DServer class
+
+        int n_props;
+        int nb_classes;
+        n_props = prop_list->length();
+        if(n_props == 0 )
+          nb_classes = 0;
+        else
+          nb_classes = n_props - 1;
+
+        db_datum.name = servname;
+        db_datum.value_string.resize(nb_classes);
+        for (int i=0,j=0; i<n_props; i++)
+        {
+            if( strcmp( (*prop_list)[i] , "DServer" ) !=0 )
+                db_datum.value_string[j++] = (*prop_list)[i];
+        }
+    }
 
 	return db_datum;
 }
@@ -3129,7 +3221,7 @@ string Database::get_class_for_device(string &devname)
 
 			CALL_DB_SERVER("DbGetClassforDevice",send,received);
 
-			const char *classname;
+			const char *classname = NULL;
 			received.inout() >>= classname;
 			ret_str = classname;
 
@@ -3363,55 +3455,64 @@ void Database::delete_attribute_alias(string &aliasname)
 
 vector<DbHistory> Database::make_history_array(bool is_attribute, Any_var &received) {
 
-	const DevVarStringArray *ret;
+	const DevVarStringArray *ret = NULL;
 	received.inout() >>= ret;
 
 	vector<DbHistory> v;
-	unsigned int	i=0;
-	int		  count=0;
-	int		  offset;
-	string	aName = "";
-	string	pName;
-	string	pDate;
-	string	pCount;
+    if (ret == NULL)
+    {
+        Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::make_history_array()");
+    }
+    else
+    {
+        unsigned int	i=0;
+        int		  count=0;
+        int		  offset;
+        string	aName = "";
+        string	pName;
+        string	pDate;
+        string	pCount;
 
-	while(i<ret->length())
-	{
-		if(is_attribute)
-		{
-			aName = (*ret)[i];
-			pName = (*ret)[i+1];
-			pDate = (*ret)[i+2];
-			pCount = (*ret)[i+3];
-			offset = 4;
-		}
-		else
-		{
-			pName = (*ret)[i];
-			pDate = (*ret)[i+1];
-			pCount = (*ret)[i+2];
-			offset = 3;
-		}
+        while(i<ret->length())
+        {
+            if(is_attribute)
+            {
+                aName = (*ret)[i];
+                pName = (*ret)[i+1];
+                pDate = (*ret)[i+2];
+                pCount = (*ret)[i+3];
+                offset = 4;
+            }
+            else
+            {
+                pName = (*ret)[i];
+                pDate = (*ret)[i+1];
+                pCount = (*ret)[i+2];
+                offset = 3;
+            }
 
-		istringstream istream(pCount);
-		istream >> count;
-		if (!istream)
-		{
-			Except::throw_exception( (const char *)"API_HistoryInvalid",
-					         (const char *)"History format is invalid",
-					         (const char *)"Database::make_history_array()");
-		}
-		vector<string> value;
-		for(int j=0;j<count;j++)
-		 value.push_back( string((*ret)[i+offset+j]) );
+            istringstream istream(pCount);
+            istream >> count;
+            if (!istream)
+            {
+                Except::throw_exception( (const char *)"API_HistoryInvalid",
+                                 (const char *)"History format is invalid",
+                                 (const char *)"Database::make_history_array()");
+            }
+            vector<string> value;
+            for(int j=0;j<count;j++)
+             value.push_back( string((*ret)[i+offset+j]) );
 
-		if (is_attribute)
-			v.push_back(DbHistory(aName,pName,pDate,value));
-		else
-			v.push_back(DbHistory(pName,pDate,value));
+            if (is_attribute)
+                v.push_back(DbHistory(aName,pName,pDate,value));
+            else
+                v.push_back(DbHistory(pName,pDate,value));
 
-		i += (count+offset);
-	}
+            i += (count+offset);
+        }
+    }
 
 	return v;
 }

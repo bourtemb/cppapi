@@ -315,66 +315,71 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev):ext(Tango_NullPtr)
 AttributeProxy &AttributeProxy::operator=(const AttributeProxy &rval)
 {
 
+    if (this != &rval)
+    {
+
 //
 // First Connection call members
 //
-	if (dbase_used == true)
-		delete db_attr;
-	dbase_used = rval.dbase_used;
-	from_env_var = rval.from_env_var;
-	host = rval.host;
-	port = rval.port;
-	port_num = rval.port_num;
-	db_host = rval.db_host;
-	db_port = rval.db_port;
-	db_port_num = rval.db_port_num;
+
+        if (dbase_used == true)
+            delete db_attr;
+        dbase_used = rval.dbase_used;
+        from_env_var = rval.from_env_var;
+        host = rval.host;
+        port = rval.port;
+        port_num = rval.port_num;
+        db_host = rval.db_host;
+        db_port = rval.db_port;
+        db_port_num = rval.db_port_num;
 
 //
 // Now AttributeProxy members
 //
 
-	attr_name = rval.attr_name;
-	device_name = rval.device_name;
+        attr_name = rval.attr_name;
+        device_name = rval.device_name;
 
-	if (dbase_used == true)
-	{
-		if (from_env_var == true)
-		{
-			ApiUtil *ui = ApiUtil::instance();
-			if (ui->in_server() == true)
-			{
-				db_attr = new DbAttribute(attr_name,device_name,Tango::Util::instance()->get_database());
-				dev_proxy = new DeviceProxy(device_name);
-			}
-			else
-			{
-				db_attr = new DbAttribute(attr_name,device_name);
-				dev_proxy = new DeviceProxy(device_name);
-			}
-		}
-		else
-		{
-			string noenv_dev_name(db_host);
-			noenv_dev_name = noenv_dev_name + ":" + db_port + "/" + device_name;
-			dev_proxy = new DeviceProxy(noenv_dev_name);
-			db_attr = new DbAttribute(attr_name,device_name,db_host,db_port);
-		}
-	}
+        if (dbase_used == true)
+        {
+            if (from_env_var == true)
+            {
+                ApiUtil *ui = ApiUtil::instance();
+                if (ui->in_server() == true)
+                {
+                    db_attr = new DbAttribute(attr_name,device_name,Tango::Util::instance()->get_database());
+                    dev_proxy = new DeviceProxy(device_name);
+                }
+                else
+                {
+                    db_attr = new DbAttribute(attr_name,device_name);
+                    dev_proxy = new DeviceProxy(device_name);
+                }
+            }
+            else
+            {
+                string noenv_dev_name(db_host);
+                noenv_dev_name = noenv_dev_name + ":" + db_port + "/" + device_name;
+                dev_proxy = new DeviceProxy(noenv_dev_name);
+                db_attr = new DbAttribute(attr_name,device_name,db_host,db_port);
+            }
+        }
 
 #ifdef HAS_UNIQUE_PTR
-    if (rval.ext.get() != NULL)
-        ext.reset(new AttributeProxyExt);
-    else
-        ext.reset();
+        if (rval.ext.get() != NULL)
+            ext.reset(new AttributeProxyExt);
+        else
+            ext.reset();
 #else
-	if (rval.ext != NULL)
-	{
-		ext = new AttributeProxyExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
+        if (rval.ext != NULL)
+        {
+            ext = new AttributeProxyExt();
+            *ext = *(rval.ext);
+        }
+        else
+            ext = NULL;
 #endif
+    }
 
 	return *this;
 }
@@ -788,8 +793,7 @@ AttributeProxy::~AttributeProxy()
 {
 	if (dbase_used == true)
 		delete db_attr;
-	if (dev_proxy != NULL)
-		delete dev_proxy;
+    delete dev_proxy;
 
 #ifndef HAS_UNIQUE_PTR
     delete ext;

@@ -266,7 +266,7 @@ CORBA::Any *DevStatusCmd::execute(DeviceImpl *device, TANGO_UNUSED(const CORBA::
 // return status string as Any
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -323,7 +323,7 @@ CORBA::Any *DevStateCmd::execute(DeviceImpl *device, TANGO_UNUSED(const CORBA::A
 // return state as Any
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();

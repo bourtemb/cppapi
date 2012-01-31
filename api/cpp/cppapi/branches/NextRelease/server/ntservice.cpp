@@ -488,11 +488,8 @@ stopped_(false)
 
 NTService::~NTService()
 {
-    if(logger_ != 0)
-    {
-		delete logger_;
-		logger_ = 0;
-    }
+    delete logger_;
+    logger_ = 0;
     instance_ = 0;
 }
 

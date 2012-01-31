@@ -656,8 +656,8 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 // alarmed attribute error message to the state attribute error messages
 //
 
-		Tango::DevState d_state;
-		Tango::ConstDevString d_status;
+		Tango::DevState d_state = Tango::UNKNOWN;
+		Tango::ConstDevString d_status = Tango_NullPtr;
 
 		if (state_wanted == true)
 		{
@@ -1861,7 +1861,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 
 	blackbox_ptr->insert_op(Op_Read_Attr_history_3);
 
-	Tango::DevAttrHistoryList_3 *back;
+	Tango::DevAttrHistoryList_3 *back = NULL;
 	vector<PollObj *> &poll_list = get_poll_obj_list();
 	long nb_poll = poll_list.size();
 
@@ -1966,7 +1966,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 {
 	cout4 << "Device_3Impl::info_3 arrived" << endl;
 
-	Tango::DevInfo_3 *back;
+	Tango::DevInfo_3 *back = NULL;
 
 //
 // Allocate memory for the stucture sent back to caller. The ORB will free it
@@ -2069,7 +2069,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 	cout4 << "Device_3Impl::get_attribute_config_3 arrived" << endl;
 
 	long nb_attr = names.length();
-	Tango::AttributeConfigList_3 *back;
+	Tango::AttributeConfigList_3 *back = NULL;
 	bool all_attr = false;
 
 //

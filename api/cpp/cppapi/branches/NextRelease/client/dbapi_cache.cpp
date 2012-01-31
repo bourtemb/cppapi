@@ -814,17 +814,10 @@ int DbServerCache::find_obj(DevString obj_name,int &obj_ind)
 
 DbServerCache::~DbServerCache()
 {
-	if (DServer_class_prop.props_idx != NULL)
-		delete [] DServer_class_prop.props_idx;
-
-	if (Default_prop.props_idx != NULL)
-		delete [] Default_prop.props_idx;
-
-	if (adm_dev_prop.props_idx != NULL)
-		delete [] adm_dev_prop.props_idx;
-
-	if (ctrl_serv_prop.props_idx != NULL)
-		delete [] ctrl_serv_prop.props_idx;
+    delete [] DServer_class_prop.props_idx;
+    delete [] Default_prop.props_idx;
+    delete [] adm_dev_prop.props_idx;
+    delete [] ctrl_serv_prop.props_idx;
 
 	for (int cl_loop = 0;cl_loop < class_nb;cl_loop++)
 	{
@@ -1056,7 +1049,7 @@ void DbServerCache::get_obj_prop_list(DevVarStringArray *in_param,PropEltIdx &ob
 // First analyse the wildcard
 //
 
-	bool before,after,wildcard_used;
+	bool before = false,after = false,wildcard_used;
 	string before_str;
 	string after_str;
 	string wildcard((*in_param)[1]);

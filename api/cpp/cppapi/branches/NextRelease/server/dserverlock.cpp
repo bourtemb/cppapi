@@ -36,43 +36,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // $Revision$
 //
-// $Log$
-// Revision 3.8  2010/09/09 13:45:22  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.7  2009/03/30 15:03:44  taurel
-// - Fix last bugs before Tango 7 ??
-//
-// Revision 3.6  2009/03/18 12:18:43  taurel
-// - Fix warnings reported when compiled with the option -Wall
-//
-// Revision 3.5  2009/01/21 12:49:04  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.4  2008/10/06 15:01:09  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.3  2008/10/03 06:52:31  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.2  2008/09/01 14:48:05  taurel
-// - Some more bugs in locking feature
-//
-// Revision 3.1  2008/05/20 12:44:11  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 1.1.2.4  2008/01/03 16:05:52  taurel
-// - Some changes in locking feature implementation
-//
-// Revision 1.1.2.3  2007/12/20 14:29:01  taurel
-// - Some more work on locking
-//
-// Revision 1.1.2.2  2007/12/19 15:54:47  taurel
-// - Still some work going on for the locking feature
-//
-// Revision 1.1.2.1  2007/11/22 12:33:11  taurel
-// - First part of the device locking implementation
-//
 //-=============================================================================
 
 #if HAVE_CONFIG_H
@@ -219,7 +182,7 @@ Tango::DevLong DServer::un_lock_device(const Tango::DevVarLongStringArray *in_da
 // Get the device and unlock it
 //
 
-	DevLong ctr;
+	DevLong ctr = 0;
 	Tango::Util *tg = Tango::Util::instance();
 
 	for (unsigned int loop = 0;loop < in_data->svalue.length();++loop)
@@ -302,7 +265,7 @@ void DServer::re_lock_devices(const Tango::DevVarStringArray *dev_name_list)
 // Get device ptr
 //
 
-		DeviceImpl *the_dev;
+		DeviceImpl *the_dev = NULL;
 		try
 		{
 			the_dev = tg->get_device_by_name(d_name);

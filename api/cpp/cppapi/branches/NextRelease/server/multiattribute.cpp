@@ -575,7 +575,7 @@ void MultiAttribute::add_attribute(string &dev_name,
 
 	if (tg->_UseDb == true)
 	{
-		long nb_prop;
+		long nb_prop = 0;
 		db_list[ind] >> nb_prop;
 		ind++;
 

@@ -346,10 +346,8 @@ void Logging::init (const std::string& ds_name, // dserver name
 //-----------------------------------------------------------------------------
 void Logging::cleanup (void)
 {
-  if (Tango::_core_logger) {
     delete Tango::_core_logger;
     Tango::_core_logger = 0;
-  }
 }
 
 //+----------------------------------------------------------------------------
@@ -646,7 +644,7 @@ void Logging::remove_logging_target (const Tango::DevVarStringArray *argin)
     // dev_name pattern
     std::string pattern;
     // target type (as int and string)
-    int tg_type;
+    int tg_type = 0;
     std::string tg_type_str;
     // target name or pattern
     std::string tg_name;

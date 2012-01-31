@@ -7878,7 +7878,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 // is detected.
 //
 
-            bool send_event;
+            bool send_event = false;
             if (event_supplier_nd != NULL)
                 send_event = event_supplier_nd->detect_and_push_archive_event(ext->dev,ad,*this,name,except,&now_timeval,true);
             if (event_supplier_zmq != NULL)
@@ -8444,7 +8444,7 @@ void Attribute::remove_configuration()
 	}
 
 
-    long nb_prop;
+    long nb_prop = 0;
     db_read_data[0] >> nb_prop;
 
     for (int k=1; k<(nb_prop + 1); k++)

@@ -1584,89 +1584,60 @@ DeviceProxy::DeviceProxy(const DeviceProxy &sou):Connection(sou),ext_proxy(Tango
 DeviceProxy &DeviceProxy::operator=(const DeviceProxy &rval)
 {
 
-    this->Connection::operator=(rval);
-//
-// First Connection class members
-//
-//	if (dbase_used == true)
-//		delete db_dev;
-//	dbase_used = rval.dbase_used;
-//	from_env_var = rval.from_env_var;
-//	host = rval.host;
-//	port = rval.port;
-//	port_num = rval.port_num;
-//	db_host = rval.db_host;
-//	db_port = rval.db_port;
-//	db_port_num = rval.db_port_num;
-//	ior = rval.ior;
-//	pasyn_ctr = rval.pasyn_ctr;
-//	pasyn_cb_ctr = rval.pasyn_cb_ctr;
-//	device = rval.device;
-//	device_2 = rval.device_2;
-//	timeout = rval.timeout;
-//	connection_state = rval.connection_state;
-//	version = rval.version;
-//	source = rval.source;
-//	if (ext != NULL)
-//		delete ext;
-//	if (rval.ext != NULL)
-//	{
-//		ext = new ConnectionExt();
-//		*ext = *rval.ext;
-//	}
-//	else
-//		ext = NULL;
+    if (this != &rval)
+    {
+        this->Connection::operator=(rval);
 
 //
 // Now DeviceProxy members
 //
 
-	device_name = rval.device_name;
+        device_name = rval.device_name;
 
-	if (dbase_used == true)
-	{
-		if (from_env_var == true)
-		{
-			ApiUtil *ui = ApiUtil::instance();
-			if (ui->in_server() == true)
-				db_dev = new DbDevice(device_name,Tango::Util::instance()->get_database());
-			else
-				db_dev = new DbDevice(device_name);
-		}
-		else
-		{
-			db_dev = new DbDevice(device_name,db_host,db_port);
-		}
-	}
+        if (dbase_used == true)
+        {
+            if (from_env_var == true)
+            {
+                ApiUtil *ui = ApiUtil::instance();
+                if (ui->in_server() == true)
+                    db_dev = new DbDevice(device_name,Tango::Util::instance()->get_database());
+                else
+                    db_dev = new DbDevice(device_name);
+            }
+            else
+            {
+                db_dev = new DbDevice(device_name,db_host,db_port);
+            }
+        }
 
-	if (adm_device != NULL)
-		delete adm_device;
-	if (rval.adm_device != NULL)
-	{
-		adm_device = new DeviceProxy(rval.adm_device->dev_name().c_str());
-	}
-	else
-		adm_device = NULL;
+        delete adm_device;
+
+        if (rval.adm_device != NULL)
+        {
+            adm_device = new DeviceProxy(rval.adm_device->dev_name().c_str());
+        }
+        else
+            adm_device = NULL;
 
 #ifdef HAS_UNIQUE_PTR
-   if (rval.ext_proxy.get() != NULL)
-    {
-        ext_proxy.reset(new DeviceProxyExt);
-//        *(ext_proxy.get()) = *(rval.ext_proxy.get());
-    }
-    else
-        ext_proxy.reset();
+        if (rval.ext_proxy.get() != NULL)
+        {
+            ext_proxy.reset(new DeviceProxyExt);
+//          *(ext_proxy.get()) = *(rval.ext_proxy.get());
+        }
+        else
+            ext_proxy.reset();
 #else
-	if (ext_proxy != NULL)
-		delete ext_proxy;
-	if (rval.ext_proxy != NULL)
-	{
-		ext_proxy = new DeviceProxyExt;
+        delete ext_proxy;
+        if (rval.ext_proxy != NULL)
+        {
+            ext_proxy = new DeviceProxyExt;
 //		*ext_proxy = *(rval.ext_proxy);
-	}
-	else
-		ext_proxy = NULL;
+        }
+        else
+            ext_proxy = NULL;
 #endif
+    }
 
 	return *this;
 }
@@ -2230,8 +2201,7 @@ DeviceProxy::~DeviceProxy()
 // Delete memory
 //
 
-	if (adm_device != NULL)
-		delete adm_device;
+    delete adm_device;
 
 #ifndef HAS_UNIQUE_PTR
     delete ext_proxy;
@@ -4633,9 +4603,9 @@ DeviceAttribute DeviceProxy::read_attribute(string& attr_string)
 
 void DeviceProxy::read_attribute(const char *attr_str,DeviceAttribute &dev_attr)
 {
-	AttributeValueList *attr_value_list;
-	AttributeValueList_3 *attr_value_list_3;
-	AttributeValueList_4 *attr_value_list_4;
+	AttributeValueList *attr_value_list = NULL;
+	AttributeValueList_3 *attr_value_list_3 = NULL;
+	AttributeValueList_4 *attr_value_list_4 = NULL;
 	DevVarStringArray attr_list;
 	int ctr = 0;
 	Tango::DevSource local_source;
@@ -6766,7 +6736,7 @@ int  DeviceProxy::event_queue_size(int event_id)
 						(const char*)"DeviceProxy::event_queue_size()");
 	}
 
-    EventConsumer *ev;
+    EventConsumer *ev = NULL;
     if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
     {
         ev = api_ptr->get_zmq_event_consumer();
@@ -6815,7 +6785,7 @@ bool DeviceProxy::is_event_queue_empty(int event_id)
 						(const char*)"DeviceProxy::is_event_queue_empty()");
 	}
 
-    EventConsumer *ev;
+    EventConsumer *ev = NULL;
     if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
     {
         ev = api_ptr->get_zmq_event_consumer();
@@ -6864,7 +6834,7 @@ TimeVal DeviceProxy::get_last_event_date(int event_id)
 						(const char*)"DeviceProxy::get_last_event_date()");
 	}
 
-    EventConsumer *ev;
+    EventConsumer *ev = NULL;
     if (api_ptr->get_zmq_event_consumer()->get_event_system_for_event_id(event_id) == ZMQ)
     {
         ev = api_ptr->get_zmq_event_consumer();
@@ -7868,7 +7838,7 @@ void DeviceProxy::same_att_name(vector<string> &attr_list,const char *met_name)
 
 void DeviceProxy::local_import(string &local_ior)
 {
-	Tango::Util *tg;
+	Tango::Util *tg = NULL;
 
 //
 // In case of controlled access used, this method is called while the

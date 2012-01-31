@@ -1431,7 +1431,7 @@ Tango::DevVarStringArray *BlackBox::read(long wanted_elt)
 // Read black box elements
 //
 
-	Tango::DevVarStringArray *ret;
+	Tango::DevVarStringArray *ret = NULL;
 	try
 	{
 
@@ -1500,8 +1500,9 @@ void BlackBox::date_ux_to_str(timeval &ux_date,char *str_date)
 	ux_str = ctime(&win_time);
 #else
 	ux_str = ctime((time_t *)&(ux_date.tv_sec));
-	strcpy(unix_date,ux_str);
 #endif
+
+	strcpy(unix_date,ux_str);
 
 /* Copy day */
 

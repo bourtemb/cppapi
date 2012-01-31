@@ -216,7 +216,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
             control_sock->recv(&received_ctrl);
 
             string ret_str;
-            bool ret;
+            bool ret = false;
 
             try
             {
@@ -1561,7 +1561,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // Unmarshal the event data
 //
 
-        long vers;
+        long vers = 0;
         DeviceAttribute *dev_attr = NULL;
 
 //
@@ -2009,7 +2009,7 @@ void ZmqAttrValUnion::operator<<= (TangoCdrMemoryStream& _n)
 // ptr before returning to omniORB
 //
 
-    AttributeDataType _pd__d;
+    AttributeDataType _pd__d = ATT_BOOL;
     (AttributeDataType&)_pd__d <<= _n;
 
     if (_pd__d == ATT_STRING || _pd__d == DEVICE_STATE)

@@ -174,7 +174,7 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 	const Tango::DevVarEncodedArray *tmp_enc;
 
 	long data_type = -1;
-	unsigned int seq_size;
+	unsigned int seq_size = 0;
 
 	CORBA::TypeCode_var ty = hist_4->value.type();
 	if (ty->kind() != tk_null)
@@ -271,7 +271,6 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 // Copy data
 //
 
-
 	int base = seq_size;
 	for (loop = 0;loop < h_depth;loop++)
 	{
@@ -296,7 +295,7 @@ void DeviceProxy::from_hist4_2_AttHistory(DevAttrHistory_4_var &hist_4,vector<De
 // Real copy now
 //
 
-		int ll;
+		int ll = 0;
 		switch (data_type)
 		{
 			case DEV_SHORT:
@@ -509,9 +508,9 @@ void DeviceProxy::from_hist4_2_DataHistory(DevCmdHistory_4_var &hist_4,vector<De
 	const Tango::DevVarDoubleStringArray *tmp_db_str;
 	const Tango::DevVarEncodedArray *tmp_enc;
 
-	unsigned int seq_size;
-	unsigned int seq_size_str;
-	unsigned int seq_size_num;
+	unsigned int seq_size = 0;
+	unsigned int seq_size_str = 0;
+	unsigned int seq_size_num = 0;
 
 	switch (hist_4->cmd_type)
 	{

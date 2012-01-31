@@ -199,7 +199,7 @@ CORBA::Any *DevQueryClassCmd::execute(DeviceImpl *device,TANGO_UNUSED(const CORB
 // return data to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -259,7 +259,7 @@ CORBA::Any *DevQueryDeviceCmd::execute(DeviceImpl *device,TANGO_UNUSED(const COR
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -318,7 +318,7 @@ CORBA::Any *DevQuerySubDeviceCmd::execute(DeviceImpl *device,TANGO_UNUSED(const 
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -755,7 +755,7 @@ CORBA::Any *QueryWizardClassPropertyCmd::execute(DeviceImpl *device,const CORBA:
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -832,7 +832,7 @@ CORBA::Any *QueryWizardDevPropertyCmd::execute(DeviceImpl *device,const CORBA::A
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -888,7 +888,7 @@ CORBA::Any *QueryEventChannelIORCmd::execute(TANGO_UNUSED(DeviceImpl *device),TA
 // Get DS event channel IOR which is stored in the EventSupplier object
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	NotifdEventSupplier *nd_event_supplier;
 	nd_event_supplier = Util::instance()->get_notifd_event_supplier();
 	if (nd_event_supplier == NULL)
@@ -1083,7 +1083,7 @@ CORBA::Any *UnLockDeviceCmd::execute(DeviceImpl *device,const CORBA::Any &in_any
 // return data to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -1151,7 +1151,7 @@ CORBA::Any *DevLockStatusCmd::execute(DeviceImpl *device,const CORBA::Any &in_an
 // return to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -1257,7 +1257,7 @@ CORBA::Any *EventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,const 
 // return to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -1361,7 +1361,7 @@ CORBA::Any *ZmqEventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,con
 // return to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();

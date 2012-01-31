@@ -1720,7 +1720,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 	long nb_cmd = device_class->get_command_list().size();
 	cout4 << nb_cmd << " command(s) for device" << endl;
-	Tango::DevCmdInfoList *back;
+	Tango::DevCmdInfoList *back = NULL;
 
 	try
 	{
@@ -1790,7 +1790,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 {
 	cout4 << "DeviceImpl::command_query arrived" << endl;
 
-	Tango::DevCmdInfo *back;
+	Tango::DevCmdInfo *back = NULL;
 	string cmd(command);
 	transform(cmd.begin(),cmd.end(),cmd.begin(),::tolower);
 
@@ -1883,7 +1883,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 {
 	cout4 << "DeviceImpl::info arrived" << endl;
 
-	Tango::DevInfo *back;
+	Tango::DevInfo *back = NULL;
 
 //
 // Allocate memory for the stucture sent back to caller. The ORB will free it
@@ -2027,7 +2027,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 	AutoTangoMonitor sync(&mon);
 
 	long nb_attr = names.length();
-	Tango::AttributeConfigList *back;
+	Tango::AttributeConfigList *back = NULL;
 	bool all_attr = false;
 
 //
@@ -2341,7 +2341,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 {
 	AutoTangoMonitor sync(this,true);
 
-	Tango::AttributeValueList *back;
+	Tango::AttributeValueList *back = NULL;
 
 	cout4 << "DeviceImpl::read_attributes arrived" << endl;
 
@@ -3405,10 +3405,8 @@ DeviceImpl::DeviceImplExt::~DeviceImplExt()
 	}
 #endif
 
-	if (locker_client != NULL)
-		delete locker_client;
-	if (old_locker_client != NULL)
-		delete old_locker_client;
+    delete locker_client;
+    delete old_locker_client;
 
 }
 

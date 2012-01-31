@@ -304,7 +304,7 @@ DeviceData Connection::command_inout_reply(long id)
 			if (tra->minor() == omni::TRANSIENT_CallTimedout)
 			{
 				CORBA::NVList_ptr req_arg = req.request->arguments();
-				const char *cmd;
+				const char *cmd = NULL;
 				CORBA::NamedValue_ptr nv = req_arg->item(0);
 				*(nv->value()) >>= cmd;
 				char *tmp = CORBA::string_dup(cmd);
@@ -340,7 +340,7 @@ DeviceData Connection::command_inout_reply(long id)
 			Tango::DevFailed ex(*serv_ex);
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -371,7 +371,7 @@ DeviceData Connection::command_inout_reply(long id)
 //
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -564,7 +564,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 			if (tra->minor() == omni::TRANSIENT_CallTimedout)
 			{
 				CORBA::NVList_ptr req_arg = req.request->arguments();
-				const char *cmd;
+				const char *cmd = NULL;
 				CORBA::NamedValue_ptr nv = req_arg->item(0);
 				*(nv->value()) >>= cmd;
 				char *tmp = CORBA::string_dup(cmd);
@@ -599,7 +599,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 			Tango::DevFailed ex(*serv_ex);
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -630,7 +630,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 //
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -2400,7 +2400,7 @@ void DeviceProxy::redo_synch_write_call(TgRequest &req)
 
 DeviceData Connection::redo_synch_cmd(TgRequest &req)
 {
-	const char *cmd_name;
+	const char *cmd_name = NULL;
 	const CORBA::Any *a_ptr;
 
 	try

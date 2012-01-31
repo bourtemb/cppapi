@@ -277,7 +277,7 @@ void Connection::Cb_Cmd_Request(CORBA::Request_ptr req,Tango::CallBack *cb_ptr)
 	errors.length(0);
 
 	CORBA::NVList_ptr req_arg = req->arguments();
-	const char *cmd;
+	const char *cmd = NULL;
 	CORBA::NamedValue_ptr nv = req_arg->item(0);
 	*(nv->value()) >>= cmd;
 

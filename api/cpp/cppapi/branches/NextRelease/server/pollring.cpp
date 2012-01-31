@@ -952,7 +952,7 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 		{
 			if (ring[index].except == NULL)
 			{
-				int data_length;
+				int data_length = 0;
 
 				switch(cmd_type)
 				{
@@ -1015,14 +1015,12 @@ void PollRing::get_cmd_history(long n,Tango::DevCmdHistory_4 *ptr,Tango::CmdArgT
 					(*ring[index].cmd_result) >>= tmp_lg_str;
 					seq_str_size = seq_str_size + tmp_lg_str->svalue.length();
 					seq_number_size = seq_number_size + tmp_lg_str->lvalue.length();
-					data_length = 0;
 					break;
 
 					case DEVVAR_DOUBLESTRINGARRAY:
 					(*ring[index].cmd_result) >>= tmp_db_str;
 					seq_str_size = seq_str_size + tmp_db_str->svalue.length();
 					seq_number_size = seq_number_size + tmp_db_str->dvalue.length();
-					data_length = 0;
 					break;
 
 					default:

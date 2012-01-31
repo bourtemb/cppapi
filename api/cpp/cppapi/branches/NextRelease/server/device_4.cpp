@@ -187,7 +187,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 
 	blackbox_ptr->insert_op(Op_Read_Attr_history_4);
 
-	Tango::DevAttrHistory_4 *back;
+	Tango::DevAttrHistory_4 *back = NULL;
 	vector<PollObj *> &poll_list = get_poll_obj_list();
 	long nb_poll = poll_list.size();
 
@@ -306,7 +306,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 	AutoTangoMonitor sync(&mon);
 
 	cout4 << "Device_4Impl::command_inout_history_4 arrived" << endl;
-	Tango::DevCmdHistory_4 *back;
+	Tango::DevCmdHistory_4 *back = NULL;
 
 	string cmd_str(command);
 
@@ -420,7 +420,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 
 	if ((state_cmd == true) || (status_cmd == true))
 	{
-		Tango::DevAttrHistory_4 *back_attr;
+		Tango::DevAttrHistory_4 *back_attr = NULL;
 		try
 		{
 			back_attr = new Tango::DevAttrHistory_4;

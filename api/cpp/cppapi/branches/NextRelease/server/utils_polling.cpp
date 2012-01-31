@@ -99,7 +99,7 @@ void Util::polling_configure()
 // A loop on each class and each device in class
 //
 
-	int smallest_upd;
+	int smallest_upd = 0;
 	bool first_loop = true;
 
 	for (i = 0;i < tmp_cl_list.size();i++)
@@ -495,7 +495,7 @@ void Util::trigger_attr_polling(Tango::DeviceImpl *dev,const string &name)
 //
 
 			bool deadlock = false;
-			long lock_ctr;
+			long lock_ctr = 0;
 			if (th->id() == dev_mon.get_locking_thread_id())
 			{
 				cout4 << "Possible deadlock detected!" << endl;
@@ -649,7 +649,7 @@ void Util::trigger_cmd_polling(Tango::DeviceImpl *dev,const string &name)
 //
 
 			bool deadlock = false;
-			long lock_ctr;
+			long lock_ctr = 0;
 			if (th->id() == dev_mon.get_locking_thread_id())
 			{
 				cout4 << "Possible deadlock detected!" << endl;
@@ -1065,7 +1065,7 @@ int Util::get_polling_thread_id_by_name(const char *dev_name)
 
 PollingThreadInfo *Util::get_polling_thread_info_by_id(int th_id)
 {
-	PollingThreadInfo *ret_ptr;
+	PollingThreadInfo *ret_ptr = NULL;
 	vector<PollingThreadInfo *>::iterator iter;
 
 	for (iter = ext->poll_ths.begin();iter != ext->poll_ths.end();++iter)

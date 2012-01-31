@@ -1510,8 +1510,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 // delete the event queue when used
 //
 
-				if (esspos->ev_queue != NULL)
-					delete esspos->ev_queue;
+                delete esspos->ev_queue;
 
 //
 // Remove callback entry in vector
@@ -1613,8 +1612,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 								    }
 
 									delete evt_ch.adm_device_proxy;
-									if (evt_ch.channel_monitor != NULL)
-										delete evt_ch.channel_monitor;
+                                    delete evt_ch.channel_monitor;
 								}
 
 								channel_map.erase(chan_pos);
@@ -1658,8 +1656,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 			if ( vpos->event_id == event_id)
 			{
 				// delete the event queue when used
-				if (vpos->ev_queue != NULL)
-					delete vpos->ev_queue;
+                delete vpos->ev_queue;
 
 			   // delete element from vector
 			   event_not_connected.erase(vpos);
@@ -2518,7 +2515,7 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 
 ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
 {
-    ChannelType ret;
+    ChannelType ret = Tango::ZMQ;
     EvCbIte epos;
 	vector<EventSubscribeStruct>::iterator esspos;
 
@@ -2648,8 +2645,7 @@ EventData & EventData::operator=(const EventData &ri)
 
 EventData::~EventData()
 {
-	if (attr_value != NULL)
-		delete attr_value;
+    delete attr_value;
 }
 
 
@@ -2767,8 +2763,7 @@ AttrConfEventData & AttrConfEventData::operator=(const AttrConfEventData &ri)
 
 AttrConfEventData::~AttrConfEventData()
 {
-	if (attr_conf != NULL)
-		delete attr_conf;
+    delete attr_conf;
 }
 
 //+-------------------------------------------------------------------------

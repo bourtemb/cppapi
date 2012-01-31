@@ -301,65 +301,67 @@ long DeviceAttribute::get_nb_written()
 
 DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 {
-	name = rval.name;
-	exceptions_flags = rval.exceptions_flags;
-	dim_x = rval.dim_x;
-	dim_y = rval.dim_y;
-	quality = rval.quality;
-	data_format = rval.data_format;
-	time = rval.time;
+    if (this != &rval)
+    {
+        name = rval.name;
+        exceptions_flags = rval.exceptions_flags;
+        dim_x = rval.dim_x;
+        dim_y = rval.dim_y;
+        quality = rval.quality;
+        data_format = rval.data_format;
+        time = rval.time;
 
 #ifdef HAS_RVALUE
-    LongSeq = rval.LongSeq;
-    ShortSeq = rval.ShortSeq;
-    DoubleSeq = rval.DoubleSeq;
-    StringSeq = rval.StringSeq;
-    FloatSeq = rval.FloatSeq;
-    BooleanSeq = rval.BooleanSeq;
-    UShortSeq = rval.UShortSeq;
-    UCharSeq = rval.UCharSeq;
+        LongSeq = rval.LongSeq;
+        ShortSeq = rval.ShortSeq;
+        DoubleSeq = rval.DoubleSeq;
+        StringSeq = rval.StringSeq;
+        FloatSeq = rval.FloatSeq;
+        BooleanSeq = rval.BooleanSeq;
+        UShortSeq = rval.UShortSeq;
+        UCharSeq = rval.UCharSeq;
 #else
-	DeviceAttribute &nc_rval = const_cast<DeviceAttribute &>(rval);
-	if (nc_rval.LongSeq.operator->() != NULL)
-		LongSeq = nc_rval.LongSeq._retn();
-	if (nc_rval.ShortSeq.operator->() != NULL)
-		ShortSeq = nc_rval.ShortSeq._retn();
-	if (nc_rval.DoubleSeq.operator->() != NULL)
-		DoubleSeq = nc_rval.DoubleSeq._retn();
-	if (nc_rval.StringSeq.operator->() != NULL)
-		StringSeq = nc_rval.StringSeq._retn();
-	if (nc_rval.FloatSeq.operator->() != NULL)
-		FloatSeq = nc_rval.FloatSeq._retn();
-	if (nc_rval.BooleanSeq.operator->() != NULL)
-		BooleanSeq = nc_rval.BooleanSeq._retn();
-	if (nc_rval.UShortSeq.operator->() != NULL)
-		UShortSeq = nc_rval.UShortSeq._retn();
-	if (nc_rval.UCharSeq.operator->() != NULL)
-		UCharSeq = nc_rval.UCharSeq._retn();
+        DeviceAttribute &nc_rval = const_cast<DeviceAttribute &>(rval);
+        if (nc_rval.LongSeq.operator->() != NULL)
+            LongSeq = nc_rval.LongSeq._retn();
+        if (nc_rval.ShortSeq.operator->() != NULL)
+            ShortSeq = nc_rval.ShortSeq._retn();
+        if (nc_rval.DoubleSeq.operator->() != NULL)
+            DoubleSeq = nc_rval.DoubleSeq._retn();
+        if (nc_rval.StringSeq.operator->() != NULL)
+            StringSeq = nc_rval.StringSeq._retn();
+        if (nc_rval.FloatSeq.operator->() != NULL)
+            FloatSeq = nc_rval.FloatSeq._retn();
+        if (nc_rval.BooleanSeq.operator->() != NULL)
+            BooleanSeq = nc_rval.BooleanSeq._retn();
+        if (nc_rval.UShortSeq.operator->() != NULL)
+            UShortSeq = nc_rval.UShortSeq._retn();
+        if (nc_rval.UCharSeq.operator->() != NULL)
+            UCharSeq = nc_rval.UCharSeq._retn();
 #endif
 
-	d_state = rval.d_state;
-	d_state_filled = rval.d_state_filled;
+        d_state = rval.d_state;
+        d_state_filled = rval.d_state_filled;
 
 #ifdef HAS_UNIQUE_PTR
-    if (rval.ext.get() != NULL)
-    {
-        ext.reset(new DeviceAttributeExt);
-        *(ext.get()) = *(rval.ext.get());
-    }
-    else
-        ext.reset();
+        if (rval.ext.get() != NULL)
+        {
+            ext.reset(new DeviceAttributeExt);
+            *(ext.get()) = *(rval.ext.get());
+        }
+        else
+            ext.reset();
 #else
-	if (ext != NULL)
-		delete ext;
-	if (rval.ext != NULL)
-	{
-		ext = new DeviceAttributeExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
+        delete ext;
+        if (rval.ext != NULL)
+        {
+            ext = new DeviceAttributeExt();
+            *ext = *(rval.ext);
+        }
+        else
+            ext = NULL;
 #endif
+    }
 
 	return *this;
 }
@@ -1808,6 +1810,8 @@ int DeviceAttribute::get_type()
 			data_type = Tango::DEV_ENCODED;
 		else if ((ext->StateSeq.operator->() != NULL) || (d_state_filled == true))
 			data_type = Tango::DEV_STATE;
+        else
+            data_type = -1;
 	}
 
 	return data_type;
