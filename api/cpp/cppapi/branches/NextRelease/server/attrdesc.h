@@ -472,32 +472,23 @@ public:
 	bool is_data_ready_event() {return ext->fire_dr_event;}
 //@}
 
-	string 			&get_name() {return name;}
-	Tango::AttrDataFormat 	get_format() {return format;}
-	Tango::AttrWriteType 	get_writable() {return writable;}
-	long 			get_type() {return type;}
-	Tango::DispLevel	get_disp_level() {return ext->disp_level;}
-	long			get_polling_period() {return ext->poll_period;}
-	bool			get_memorized() {return mem;}
-	bool			get_memorized_init() {return mem_init;}
-	string			&get_assoc() {return assoc_name;}
-	const string	&get_cl_name() {return ext->cl_name;}
-	void			set_cl_name(const string &cl) {ext->cl_name = cl;}
-	bool			is_assoc()
-				{
-					if (assoc_name != AssocWritNotSpec)
-						return true;
-					else
-						return false;
-				}
+	string  &get_name() {return name;}
+	Tango::AttrDataFormat get_format() {return format;}
+	Tango::AttrWriteType get_writable() {return writable;}
+	long get_type() {return type;}
+	Tango::DispLevel get_disp_level() {return ext->disp_level;}
+	long get_polling_period() {return ext->poll_period;}
+	bool get_memorized() {return mem;}
+	bool get_memorized_init() {return mem_init;}
+	string	&get_assoc() {return assoc_name;}
+	const string &get_cl_name() {return ext->cl_name;}
+	void set_cl_name(const string &cl) {ext->cl_name = cl;}
+	bool is_assoc() {if (assoc_name != AssocWritNotSpec)return true;else return false;}
 
 	vector<AttrProperty>	&get_class_properties() {return class_properties;}
 	vector<AttrProperty>	&get_user_default_properties() {return user_default_properties;}
-	void 			set_class_properties(vector<AttrProperty> &in_prop)
-				{
-					class_properties = in_prop;
-				}
-	void			check_type();
+	void set_class_properties(vector<AttrProperty> &in_prop) {class_properties=in_prop;}
+	void check_type();
 
 	virtual void read(DeviceImpl *,Attribute &) {};
 	virtual void write(DeviceImpl *,WAttribute &) {};
