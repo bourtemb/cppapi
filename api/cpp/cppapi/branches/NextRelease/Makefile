@@ -53,11 +53,16 @@ MMFLAG =
 
 #Check that we have at least gcc 4.3 (for c++0x features)
 ifdef linux
-GCC_MAJOR_VERSION_GTEQ4 := $(shell expr `c++ -dumpversion | cut -f1 -d.` \>= 4)
+GCC_MAJOR_VERSION_GT4 := $(shell expr `c++ -dumpversion | cut -f1 -d.` \> 4)
+GCC_MAJOR_VERSION_EQ4 := $(shell expr `c++ -dumpversion | cut -f1 -d.` \== 4)
 GCC_MINOR_VERSION_GTEQ3 := $(shell expr `c++ -dumpversion | cut -f2 -d.` \>= 3)
-ifeq ($(GCC_MAJOR_VERSION_GTEQ4),1)
-    ifeq ($(GCC_MINOR_VERSION_GTEQ3),1)
-        CXX11 = -std=c++0x
+ifeq ($(GCC_MAJOR_VERSION_GT4),1)
+    CXX11 = -std=c++0x
+else
+    ifeq ($(GCC_MAJOR_VERSION_EQ4),1)
+        ifeq ($(GCC_MINOR_VERSION_GTEQ3),1)
+            CXX11 = -std=c++0x
+        endif
     endif
 endif
 endif
