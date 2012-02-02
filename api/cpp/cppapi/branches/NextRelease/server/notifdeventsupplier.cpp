@@ -619,7 +619,6 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 
 void NotifdEventSupplier::push_heartbeat_event()
 {
-cout << "Entering NotifdEventSupplier::push_heartbeat_event" << endl;
 	CosNotification::StructuredEvent struct_event;
 	string event, domain_name;
 	time_t delta_time;
@@ -810,7 +809,6 @@ void NotifdEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             vector<string> &filterable_names,vector<double> &filterable_data,vector<string> &filterable_names_lg,vector<long> &filterable_data_lg,
             struct AttributeData &attr_value,string &attr_name,DevFailed *except)
 {
-cout << "Entering NotifdEventSupplier::push_event() method" << endl;
 	CosNotification::StructuredEvent struct_event;
 	string domain_name;
 

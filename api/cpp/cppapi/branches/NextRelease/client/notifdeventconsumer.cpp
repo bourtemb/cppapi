@@ -77,7 +77,6 @@ void NotifdEventConsumer::offer_change(TANGO_UNUSED(const CosNotification::Event
 
 NotifdEventConsumer::NotifdEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_thread((void *)ptr)
 {
-cout << "Entering NotifdEventConsumer ctor" << endl;
 	cout3 << "calling Tango::NotifdEventConsumer::NotifdEventConsumer() \n";
 	orb_ = ptr->get_orb();
 

@@ -297,7 +297,6 @@ void ZmqEventSupplier::create_event_socket()
         if (hwm == -1)
             hwm = admin_dev->zmq_pub_event_hwm;
 
-cout << "Setting HWM to " << hwm << endl;
         event_pub_sock->setsockopt(ZMQ_SNDHWM,&hwm,sizeof(hwm));
 
 //
@@ -446,7 +445,6 @@ void ZmqEventSupplier::create_mcast_socket(string &mcast_data,int rate,McastSock
         }
     }
     ms.endpoint = ms.endpoint + mcast_data;
-cout << "ms.endpoint = " << ms.endpoint << endl;
 
     int linger = 0;
     ms.pub_socket->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
@@ -467,7 +465,6 @@ cout << "ms.endpoint = " << ms.endpoint << endl;
 
     int local_rate = rate;
 
-cout << "Set rate to " << local_rate << endl;
     ms.pub_socket->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
 
 //
@@ -1125,7 +1122,6 @@ if (ret == false)
     }
     catch(...)
     {
-cout << "Exception in push !!!!!!!!!!!" << endl;
         cout3 << "ZmqEventSupplier::push_event() failed !!!!!!!!!!!\n";
         if (endian_mess_sent == true)
             endian_mess.copy(&endian_mess_2);

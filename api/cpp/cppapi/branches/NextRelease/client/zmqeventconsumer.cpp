@@ -280,7 +280,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
                 zmq_msg_init(&mcast_received_call);
                 zmq_msg_init(&mcast_received_event_data);
 
-//cout << "For the muticast event socket number " << loop + 1 << endl;
                 zmq_recvmsg(items[loop].socket,&mcast_received_event_name,0);
                 zmq_recvmsg(items[loop].socket,&mcast_received_endian,0);
                 zmq_recvmsg(items[loop].socket,&mcast_received_call,0);
@@ -633,7 +632,6 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
             start = start + ::strlen(event_name) + 1;
             Tango::DevLong sub_hwm;
             ::memcpy(&sub_hwm,&(tmp_ptr[start]),sizeof(Tango::DevLong));
-cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << endl;
 
 //
 // Connect the socket to the publisher
@@ -653,10 +651,8 @@ cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_
 
             if (connect_pub == true)
             {
-cout << "Set socket HWM to " << sub_hwm << endl;
                 event_sub_sock->setsockopt(ZMQ_RCVHWM,&sub_hwm,sizeof(sub_hwm));
 
-cout << "Connect socket with endpoint: " << endpoint << endl;
                 event_sub_sock->connect(endpoint);
                 connected_pub.push_back(endpoint);
             }
@@ -665,7 +661,6 @@ cout << "Connect socket with endpoint: " << endpoint << endl;
 // Subscribe to the new event
 //
 
-cout << "Zmq subscribe with string: " << event_name << endl;
             event_sub_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
         }
         break;
@@ -724,7 +719,6 @@ cout << "Zmq subscribe with string: " << event_name << endl;
             ::memcpy(&rate,&(tmp_ptr[start]),sizeof(Tango::DevLong));
             start = start + sizeof(Tango::DevLong);
             ::memcpy(&ivl,&(tmp_ptr[start]),sizeof(Tango::DevLong));
-cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_name << " with rate = " << rate << " and ivl = " << ivl << endl;
 
 //
 // Connect the socket to the publisher
@@ -766,11 +760,9 @@ cout << "Connect subscriber to endpoint " << endpoint << " for event " << event_
 //
 
                 int local_rate = rate;
-cout << "Set rate to " << local_rate << endl;
                 tmp_sock->setsockopt(ZMQ_RATE,&local_rate,sizeof(local_rate));
 
                 int local_ivl = ivl;
-cout << "Set IVL to " << local_ivl << endl;
                 tmp_sock->setsockopt(ZMQ_RECOVERY_IVL,&local_ivl,sizeof(local_ivl));
 
                 int linger = 0;
@@ -788,7 +780,6 @@ cout << "Set IVL to " << local_ivl << endl;
 // Subscribe to the new event
 //
 
-cout << "Zmq subscribe with string: " << event_name << endl;
                 tmp_sock->setsockopt(ZMQ_SUBSCRIBE,event_name,::strlen(event_name));
 
 //

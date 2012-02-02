@@ -88,7 +88,6 @@ void client_leavefunc()
 
 void leavefunc()
 {
-cout << "Entering leavefunc function" << endl;
 	// flag to avoid calling client_leavefunc twice
 	static bool already_executed = false;
 
