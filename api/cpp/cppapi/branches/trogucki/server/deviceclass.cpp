@@ -278,7 +278,7 @@ DeviceClass::DeviceClass(string &s):name(s)
 // Give a default value for device type
 //
 
-	type = DescNotSet;
+	type = NotSet;
 
 }
 

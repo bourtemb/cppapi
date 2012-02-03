@@ -2065,9 +2065,10 @@ public:
 private:
 	void set_data_size();
 	void throw_err_format(const char *,string &);
+	void throw_event_err_format(const char *,const string &);
 	void throw_err_data_type(const char *,string &);
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
-	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &);
+	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
 
 	unsigned long 		name_size;
 	string 				name_lower;
@@ -2077,7 +2078,7 @@ private:
 
 protected:
 	virtual void init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name);
-	virtual void init_event_prop(vector<AttrProperty> &prop_list);
+	virtual void init_event_prop(vector<AttrProperty> &prop_list,const string &dev_name,Attr &att);
 	string &get_attr_value(vector<AttrProperty> &prop_list,const char *name);
 	long get_lg_attr_value(vector<AttrProperty> &prop_list,const char *name);
 	virtual bool check_rds_alarm() {return false;}
@@ -2089,6 +2090,8 @@ protected:
     void check_hard_coded_properties(const T &);
 
     void throw_hard_coded_prop(const char *);
+    void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &);
+    void validate_change_properties(const string &,const char *,string &,vector<double> &);
 
 /**@name Class data members */
 //@{
@@ -2330,8 +2333,8 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 // Arg list : 	A : property as a string
 //		B : stream
 //		C : device name
-//		D : DbDatum for db update
-//		E : DbDatum for db delete
+//		D : DbData for db update
+//		E : DbData for db delete
 //		F : Number of prop to update
 //		G : Number of prop to delete
 //		H : Property name
@@ -2342,25 +2345,46 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 
 #define CHECK_PROP(A,B,C,D,E,F,G,H,I) \
 { \
-	bool store_AlrmValueNotSpec = false; \
-	if(TG_strcasecmp(A,AlrmValueNotSpec) == 0) \
+	size_t nb_user = I.size(); \
+	string usr_def_val; \
+	bool user_defaults = false; \
+	bool store_in_db = true; \
+	if (nb_user != 0) \
 	{ \
-		if (I.size() != 0) \
+		int i; \
+		for (i = 0;i < nb_user;i++) \
 		{ \
-			for (unsigned int i = 0;i < I.size();i++) \
-			{ \
-				if (I[i].get_name() == H) \
-				{ \
-					store_AlrmValueNotSpec = true; \
-					break; \
-				} \
-			} \
+			if (I[i].get_name() == H) \
+				break; \
+		} \
+		if (i != nb_user) \
+		{ \
+			user_defaults = true; \
+			usr_def_val = I[i].get_value(); \
 		} \
 	} \
 \
-	if (strcmp(A,NotANumber) != 0) \
+	if(user_defaults) \
 	{ \
-		if(TG_strcasecmp(A,AlrmValueNotSpec) != 0) \
+		if ((TG_strcasecmp(A,NotANumber) == 0) || \
+				(strcmp(A,usr_def_val.c_str()) == 0) || \
+				(strlen(A) == 0)) \
+			store_in_db = false; \
+	} \
+	else \
+	{ \
+		if ((TG_strcasecmp(A,AlrmValueNotSpec) == 0) || \
+				(TG_strcasecmp(A,NotANumber) == 0) || \
+				(strlen(A) == 0)) \
+			store_in_db = false; \
+	} \
+\
+	if(store_in_db) \
+	{ \
+		const char *tmp = A.in(); \
+		if(TG_strcasecmp(A,AlrmValueNotSpec) == 0) \
+			tmp = AlrmValueNotSpec; \
+		else \
 		{ \
 			if ((data_type != Tango::DEV_STRING) && \
 				(data_type != Tango::DEV_BOOLEAN) && \
@@ -2376,54 +2400,53 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				DevULong ulg; \
 				DevULong64 ulg64; \
 \
-				B.seekp(0); \
-				B.seekg(0); \
+				B.str(""); \
 				B.clear(); \
-				B << A << ends; \
+				B << A; \
 				switch (data_type) \
 				{ \
 				case Tango::DEV_SHORT: \
-					if (!(B >> sh)) \
+					if (!(B >> sh && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 \
 				case Tango::DEV_LONG: \
-					if (!(B >> lg)) \
+					if (!(B >> lg && B.eof())) \
 						throw_err_format(H,C); \
 					break;\
 \
 				case Tango::DEV_LONG64: \
-					if (!(B >> lg64)) \
+					if (!(B >> lg64 && B.eof())) \
 						throw_err_format(H,C); \
 					break;\
 \
 				case Tango::DEV_DOUBLE: \
-					if (!(B >> db)) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 \
 				case Tango::DEV_FLOAT: \
-					if (!(B >> fl)) \
+					if (!(B >> fl && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 \
 				case Tango::DEV_USHORT: \
-					if (!(B >> ush)) \
+					if (!(B >> ush && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 \
 				case Tango::DEV_UCHAR: \
-					if (!(B >> sh)) \
+					if (!(B >> sh && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 \
 				case Tango::DEV_ULONG: \
-					if (!(B >> ulg)) \
+					if (!(B >> ulg && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 \
 				case Tango::DEV_ULONG64: \
-					if (!(B >> ulg64)) \
+					if (!(B >> ulg64 && B.eof())) \
 						throw_err_format(H,C); \
 					break; \
 				} \
@@ -2434,148 +2457,19 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 			} \
 		} \
 \
-		if(TG_strcasecmp(A,AlrmValueNotSpec) != 0 || store_AlrmValueNotSpec) \
-		{ \
-			DbDatum max_val(H); \
-			const char *tmp = A.in(); \
-			max_val << tmp; \
-			D.push_back(max_val); \
-			F++; \
-		} \
+		DbDatum dd(H); \
+		dd << tmp; \
+		D.push_back(dd); \
+		F++; \
 	} \
-\
-	if (strcmp(A,NotANumber) == 0 || (TG_strcasecmp(A,AlrmValueNotSpec) == 0 && !store_AlrmValueNotSpec)) \
+	else \
 	{ \
-		DbDatum max_val(H); \
-		E.push_back(max_val); \
+		DbDatum del_dd(H); \
+		E.push_back(del_dd); \
 		G++; \
 	} \
 } \
 
-
-//
-// Define another macro to make code more readable !!
-// Arg list : 	A : property as a string
-//		B : stream
-//		C : device name
-//		D : DbDatum for db update
-//		E : DbDatum for db delete
-//		F : Number of prop to update
-//		G : Number of prop to delete
-//		H : Property name
-//
-// Too many parameters ?
-//
-
-#define CHECK_CH_PROP(A,B,C,D,E,F,G,H) \
-	if ((strcmp(A,AlrmValueNotSpec) != 0) && \
-	    (strcmp(A,NotANumber) != 0)) \
-	{ \
-		B.seekp(0); \
-		B.seekg(0); \
-		B.clear(); \
-		string st(A); \
-		string::size_type pos = st.find(','); \
-		if (pos != string::npos) \
-			replace(st.begin(),st.end(),',',' '); \
-		B << st << ends; \
-		double db1,db2; \
-		if (!(B >> db1)) \
-			throw_err_format(H,C); \
-		if (pos != string::npos) \
-		{ \
-			if (!(B >> db2)) \
-				throw_err_format(H,C); \
-		}\
-		else \
-			db2 = db1; \
-		db1 = fabs(db1); \
-		db2 = fabs(db2); \
-		DbDatum max_val(H); \
-		if (db1 == db2) \
-			max_val << db1; \
-		else \
-		{ \
-			vector<double> vd(2); \
-			vd[0] = db1; \
-			vd[1] = db2; \
-			max_val << vd; \
-		} \
-		D.push_back(max_val); \
-		F++; \
-	} \
-\
-	if ((strcmp(A,NotANumber) == 0) || (TG_strcasecmp(A,AlrmValueNotSpec) == 0)) \
-	{ \
-		DbDatum max_val(H); \
-		E.push_back(max_val); \
-		G++; \
-	}
-
-
-//
-// Oh, a new macro !!
-// Arg list : 	A : property as a string
-//		B : stream
-//		C : storage place
-//
-
-#define SET_EV_PROP(A,B,C,D) \
-	string C##_str(A); \
-	bool C##_valid = true; \
-	if ((strcmp(C##_str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_str.c_str(),AlrmValueNotSpec) == 0)) \
-	{ \
-		if (D.size() != 0) \
-		{ \
-			unsigned int i; \
-			for (i = 0;i < D.size();i++) \
-			{ \
-				if (D[i].get_name() == #C) \
-					break; \
-			} \
-			if (i == D.size()) \
-				C##_valid = false; \
-			else \
-			{ \
-				C##_str = D[i].get_value(); \
-				if ((strcmp(C##_str.c_str(),NotANumber) == 0) || (TG_strcasecmp(C##_str.c_str(),AlrmValueNotSpec) == 0)) \
-					C##_valid = false; \
-			} \
-		} \
-		else \
-			C##_valid = false; \
-	} \
-	if (C##_valid) \
-	{ \
-		if (strcmp(C##_str.c_str(),AlrmValueNotSpec) != 0) \
-		{ \
-			double rel_change_min=INT_MAX, rel_change_max=INT_MAX; \
- 			B.seekp(0); \
-			B.seekg(0); \
-			B.clear(); \
-			string::size_type pos = C##_str.find(','); \
-			if (pos != string::npos) \
-				replace(C##_str.begin(),C##_str.end(),',',' '); \
-			B << C##_str << ends; \
-			B >> rel_change_min; \
-			if (pos != string::npos) \
-				B >> rel_change_max; \
-        		if (fabs(rel_change_min) > 0 && rel_change_min != INT_MAX) \
-			{ \
-				ext->C[0] = -fabs(rel_change_min); \
-				ext->C[1] = fabs(rel_change_min); \
-        		} \
-        		if (rel_change_max > 0 && rel_change_max != INT_MAX) \
-			{ \
-				ext->C[1] = fabs(rel_change_max); \
-        		} \
-		} \
-	} \
-	else \
-	{ \
-		ext->C[0] = INT_MAX; \
-		ext->C[1] = INT_MAX; \
-	}
 
 //
 // Yet another macros !!

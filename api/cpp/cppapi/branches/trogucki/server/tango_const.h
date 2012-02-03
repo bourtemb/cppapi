@@ -61,7 +61,7 @@ namespace Tango
 #define		EnvVariable				"TANGO_HOST"
 #define		WindowsEnvVariable		"TANGO_ROOT"
 #define		DbObjName				"database"
-#define		DescNotSet				"Uninitialised"
+#define		NotSet					"Uninitialised"
 #define		ResNotDefined			"0"
 #define		MessBoxTitle			"Tango Device Server"
 #define		StatusNotSet			"Not initialised"
@@ -91,6 +91,8 @@ namespace Tango
 
 #define		TANGO_PY_MOD_NAME		"_PyTango.pyd"
 #define		DATABASE_CLASS			"DataBase"
+
+#define		TANGO_FLOAT_PRECISION	15
 
 //
 // Event related define
@@ -997,6 +999,7 @@ typedef struct _OptAttrProp
  * API_PolledDeviceNotInPoolMap
  *
  * API_ZmqInitFailed
+ * API_AttrEventProp
  */
 
 } // End of Tango namespace

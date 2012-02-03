@@ -380,6 +380,10 @@ SERVER_INCLUDE =	attrdesc.h \
 
 all:	$(LIBNAME).$(AR_EXT) $(LIBNAME).$(SL_EXT) install_include install_link
 
+
+print:
+	echo "here"
+	
 #
 # Rule for archive libary
 #
