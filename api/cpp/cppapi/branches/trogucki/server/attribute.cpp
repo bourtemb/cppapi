@@ -3203,15 +3203,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("delta_t",dev_name);
 				}
 			}
-	//			if((TG_strcasecmp(conf.att_alarm.delta_val.in(),AlrmValueNotSpec) == 0) ||
-	//					(!user_defaults && ((TG_strcasecmp(conf.att_alarm.delta_val.in(),NotANumber) == 0) ||
-	//										(TG_strcasecmp(conf.att_alarm.delta_val.in(),"") == 0))))
-	//			{
-	//				delta_t_str = old_delta_t_str;
-	//				Tango::Except::throw_exception((const char *)"API_AttrOptProp",
-	//						(const char *)"It is not allowed to set the delta_t property if the delta_val property is not set",
-	//						(const char *)"Attribute::set_properties");
-	//			}
 			delta_t_defined = true;
 		}
 		else

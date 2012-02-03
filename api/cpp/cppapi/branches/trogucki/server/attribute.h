@@ -1866,8 +1866,6 @@ public:
  */
 //@{
 
-	void set_min_alarm_impl(const Tango::attr_range &);
-
 /**
  * Set attribute minimum alarm.
  *
@@ -1890,8 +1888,6 @@ public:
  */
 	template <typename T>
 	void get_min_alarm(T &);
-
-	void set_min_warning_impl(const Tango::attr_range &);
 
 /**
  * Set attribute minimum warning.
@@ -1916,8 +1912,6 @@ public:
 	template <typename T>
 	void get_min_warning(T &);
 
-	void set_max_warning_impl(const Tango::attr_range &);
-
 /**
  * Set attribute maximum warning.
  *
@@ -1940,8 +1934,6 @@ public:
  */
 	template <typename T>
 	void get_max_warning(T &);
-
-	void set_max_alarm_impl(const Tango::attr_range &);
 
 /**
  * Set attribute maximum alarm.
@@ -2069,6 +2061,11 @@ private:
 	void throw_err_data_type(const char *,string &);
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
 	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
+
+	void set_min_alarm_impl(const Tango::attr_range &);
+	void set_min_warning_impl(const Tango::attr_range &);
+	void set_max_warning_impl(const Tango::attr_range &);
+	void set_max_alarm_impl(const Tango::attr_range &);
 
 	unsigned long 		name_size;
 	string 				name_lower;
