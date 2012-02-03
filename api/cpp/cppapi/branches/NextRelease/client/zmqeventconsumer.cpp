@@ -2229,7 +2229,6 @@ DelayEvent::DelayEvent(EventConsumer *ec):released(false),eve_con(NULL)
                 else
                     throw;
             }
-            sender.connect(CTRL_SOCK_ENDPOINT);
 
 //
 // Build message sent to ZMQ main thread
