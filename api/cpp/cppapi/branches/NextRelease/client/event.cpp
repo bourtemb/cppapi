@@ -1059,9 +1059,13 @@ int EventConsumer::subscribe_event (DeviceProxy *device,
 // In case of stateless subscription and if the device is not there,
 // the lock will still be valid when the data will be inserted into the
 // vector of non-connected events
+// Also ask the main ZMQ thread to delay all incoming event until this meethod
+// exit. A dead lock could happen if we don't do this (really experienced!)
 //
 
+    DelayEvent de(this);
 	WriterLock w(map_modification_lock);
+
 	try
 	{
 		int event_id = connect_event (device,attribute,event,callback,ev_queue,filters,event_name);
@@ -1490,6 +1494,12 @@ void EventConsumer::unsubscribe_event(int event_id)
 		}
 	}
 
+//
+// Ask the main ZMQ thread to delay all incoming event until this meethod
+// exit. A dead lock could happen if we don't do this (really experienced!)
+//
+
+    DelayEvent de(this);
 	WriterLock w(map_modification_lock);
 
 //

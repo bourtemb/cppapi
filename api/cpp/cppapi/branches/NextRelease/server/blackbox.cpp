@@ -1649,17 +1649,10 @@ bool client_addr::operator==(const client_addr &rhs)
 			const char *rhs_tmp = rhs.client_ip;
 
 			if (strlen(tmp) != strlen(rhs_tmp))
-{
-cout << "Client adr length different" << endl;
                 return false;
-}
 
 			if (strcmp(tmp,rhs_tmp) != 0)
-{
-cout << "Client adr string different" << endl;
-cout << "first one = " << tmp << ", second = " << rhs_tmp << endl;
                 return false;
-}
 		}
 		else
 		{

@@ -128,6 +128,8 @@ namespace Tango
 #define     ZMQ_CONNECT_EVENT           3
 #define     ZMQ_DISCONNECT_EVENT        4
 #define     ZMQ_CONNECT_MCAST_EVENT     5
+#define     ZMQ_DELAY_EVENT             6
+#define     ZMQ_RELEASE_EVENT           7
 
 //
 // Event when using a file as database stuff
