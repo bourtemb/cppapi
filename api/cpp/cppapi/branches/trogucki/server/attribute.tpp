@@ -9,7 +9,7 @@
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2011
+// Copyright (C) :      2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -36,9 +36,6 @@
 #ifndef _ATTRIBUTE_TPP
 #define _ATTRIBUTE_TPP
 
-
-namespace Tango
-{
 
 //+-------------------------------------------------------------------------
 //
@@ -329,7 +326,5 @@ void Attribute::get_max_alarm(T &max_al)
 
 	memcpy((void *)&max_al,(void *)&max_alarm,sizeof(T));
 }
-
-} // End of Tango namespace
 
 #endif // _ATTRIBUTE_TPP

@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -89,7 +89,7 @@ static OptAttrProp Tango_OptAttrProp[] = {
 //--------------------------------------------------------------------------
 
 MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
-:ext(NULL)
+:ext(Tango_NullPtr)
 {
 	long i;
 	cout4 << "Entering MultiAttribute class constructor for device " << dev_name << endl;
@@ -275,8 +275,6 @@ MultiAttribute::~MultiAttribute()
 {
 	for(unsigned long i = 0;i < attr_list.size();i++)
 		delete attr_list[i];
-
-	delete ext;
 }
 
 //+-------------------------------------------------------------------------
@@ -577,7 +575,7 @@ void MultiAttribute::add_attribute(string &dev_name,
 
 	if (tg->_UseDb == true)
 	{
-		long nb_prop;
+		long nb_prop = 0;
 		db_list[ind] >> nb_prop;
 		ind++;
 

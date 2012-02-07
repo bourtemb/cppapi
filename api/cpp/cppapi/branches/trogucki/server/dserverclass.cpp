@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -199,7 +199,7 @@ CORBA::Any *DevQueryClassCmd::execute(DeviceImpl *device,TANGO_UNUSED(const CORB
 // return data to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -259,7 +259,7 @@ CORBA::Any *DevQueryDeviceCmd::execute(DeviceImpl *device,TANGO_UNUSED(const COR
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -318,7 +318,7 @@ CORBA::Any *DevQuerySubDeviceCmd::execute(DeviceImpl *device,TANGO_UNUSED(const 
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -649,7 +649,7 @@ CORBA::Any *DevSetTraceOutputCmd::execute(TANGO_UNUSED(DeviceImpl *device),TANGO
 	{
 		delete(Tango::Util::instance()->get_trace_output_stream());
 		Tango::Util::instance()->set_trace_output_stream((ofstream *)NULL);
-#if ((defined _WINDOWS) || (defined __SUNPRO_CC) || (defined GCC_STD))
+
 		ostream &tmp_stream = Tango::Util::instance()->get_out();
 
 //
@@ -661,9 +661,7 @@ CORBA::Any *DevSetTraceOutputCmd::execute(TANGO_UNUSED(DeviceImpl *device),TANGO
 		cout.copyfmt(tmp_stream);
 		cout.clear(tmp_stream.rdstate());
 		cout.rdbuf(tmp_stream.rdbuf());
-#else
-		cout = Tango::Util::instance()->get_out();
-#endif
+
 		Tango::Util::instance()->set_trace_output(in_file);
 	}
 	else
@@ -671,13 +669,10 @@ CORBA::Any *DevSetTraceOutputCmd::execute(TANGO_UNUSED(DeviceImpl *device),TANGO
 		ofstream *ofp = new ofstream(in_file_ptr);
 		if (ofp->good())
 		{
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD)
 			cout.copyfmt(*ofp);
 			cout.clear(ofp->rdstate());
 			cout.rdbuf(ofp->rdbuf());
-#else
-			cout = *ofp;
-#endif
+
 			delete(Tango::Util::instance()->get_trace_output_stream());
 			Tango::Util::instance()->set_trace_output(in_file);
 			Tango::Util::instance()->set_trace_output_stream(ofp);
@@ -760,7 +755,7 @@ CORBA::Any *QueryWizardClassPropertyCmd::execute(DeviceImpl *device,const CORBA:
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -837,7 +832,7 @@ CORBA::Any *QueryWizardDevPropertyCmd::execute(DeviceImpl *device,const CORBA::A
 //
 // return data to the caller
 //
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -893,7 +888,7 @@ CORBA::Any *QueryEventChannelIORCmd::execute(TANGO_UNUSED(DeviceImpl *device),TA
 // Get DS event channel IOR which is stored in the EventSupplier object
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	NotifdEventSupplier *nd_event_supplier;
 	nd_event_supplier = Util::instance()->get_notifd_event_supplier();
 	if (nd_event_supplier == NULL)
@@ -1088,7 +1083,7 @@ CORBA::Any *UnLockDeviceCmd::execute(DeviceImpl *device,const CORBA::Any &in_any
 // return data to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -1156,7 +1151,7 @@ CORBA::Any *DevLockStatusCmd::execute(DeviceImpl *device,const CORBA::Any &in_an
 // return to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -1262,7 +1257,7 @@ CORBA::Any *EventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,const 
 // return to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();
@@ -1366,7 +1361,7 @@ CORBA::Any *ZmqEventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,con
 // return to the caller
 //
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();

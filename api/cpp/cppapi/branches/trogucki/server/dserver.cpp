@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -267,7 +267,7 @@ void DServer::init_device()
 // method
 //
 
-					PyLock *lock_ptr;
+					PyLock *lock_ptr = NULL;
 					omni_thread *th;
 
 					if (tg->is_py_ds() == true)
@@ -535,7 +535,6 @@ void DServer::delete_devices()
 // Clean-up db (dyn attribute)
 //
 
-
 					if (tg->get_polled_dyn_attr_names().size() != 0)
 						tg->clean_attr_polled_prop();
 					if (tg->get_all_dyn_attr_names().size() != 0)
@@ -600,7 +599,7 @@ Tango::DevVarStringArray *DServer::query_class()
 	cout4 << "In query_class command" << endl;
 
 	long nb_class = class_list.size();
-	Tango::DevVarStringArray *ret;
+	Tango::DevVarStringArray *ret = NULL;
 
 	try
 	{
@@ -640,7 +639,7 @@ Tango::DevVarStringArray *DServer::query_device()
 	cout4 << "In query_device command" << endl;
 
 	long nb_class = class_list.size();
-	Tango::DevVarStringArray *ret;
+	Tango::DevVarStringArray *ret = NULL;
 	vector<string> vs;
 
 	try
@@ -824,9 +823,9 @@ void DServer::restart(string &d_name)
 //
 
 	client_addr *cl_addr = NULL;
-	client_addr *old_cl_addr;
-	time_t l_date;
-	DevLong l_ctr,l_valid;
+	client_addr *old_cl_addr = NULL;
+	time_t l_date = 0;
+	DevLong l_ctr = 0,l_valid = 0;
 
 	if (dev_to_del->is_device_locked() == true)
 	{
@@ -1105,7 +1104,7 @@ Tango::DevVarStringArray *DServer::query_class_prop(string &class_name)
 	cout4 << "In query_class_prop command" << endl;
 
 	long nb_class = class_list.size();
-	Tango::DevVarStringArray *ret;
+	Tango::DevVarStringArray *ret = NULL;
 
 //
 // Find the wanted class in server and throw exception if not found
@@ -1175,7 +1174,7 @@ Tango::DevVarStringArray *DServer::query_dev_prop(string &class_name)
 	cout4 << "In query_dev_prop command" << endl;
 
 	long nb_class = class_list.size();
-	Tango::DevVarStringArray *ret;
+	Tango::DevVarStringArray *ret = NULL;
 
 //
 // Find the wanted class in server and throw exception if not found
@@ -1713,7 +1712,7 @@ void DServer::mcast_event_for_att(string &dev_name,string &att_name,vector<strin
 	string full_att_name = dev_name + '/' + att_name;
 
 	vector<string>::size_type nb_elt = mcast_event_prop.size();
-	unsigned int ip_adr_ind;
+	unsigned int ip_adr_ind = 0;
 
 	for (unsigned int i = 0;i < nb_elt;++i)
 	{

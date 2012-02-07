@@ -16,7 +16,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -62,10 +62,9 @@ namespace Tango
 Attr::Attr(const char *att_name,long att_type,AttrWriteType att_writable,
            const char *assoc)
 :name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),
-      mem(false),mem_init(true)
+mem(false),mem_init(true),ext(new AttrExt)
 {
 	format = Tango::SCALAR;
-	ext = new AttrExt();
 
 	ext->fire_change_event = false;
 	ext->check_change_event = true;
@@ -107,10 +106,11 @@ Attr::Attr(const char *att_name,long att_type,AttrWriteType att_writable,
 
 Attr::Attr(const char *att_name,long att_type,DispLevel level,
 	   AttrWriteType att_writable, const char *assoc)
-:name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),mem(false)
+:name(att_name),writable(att_writable),type(att_type),assoc_name(assoc),mem(false),
+ext(new AttrExt(level))
 {
 	format = Tango::SCALAR;
-	ext = new AttrExt(level);
+
 	if (name != "State")
 		check_type();
 
@@ -145,7 +145,9 @@ Attr::Attr(const char *att_name,long att_type,DispLevel level,
 
 Attr::~Attr()
 {
+#ifndef HAS_UNIQUE_PTR
 	delete ext;
+#endif
 }
 
 //+-------------------------------------------------------------------------
@@ -339,7 +341,7 @@ void Attr::set_memorized()
 //--------------------------------------------------------------------------
 
 SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,long x)
-:Attr(att_name,att_type),ext(NULL)
+:Attr(att_name,att_type),ext(Tango_NullPtr)
 {
 	format = Tango::SPECTRUM;
 	if (x <= 0)
@@ -368,7 +370,7 @@ SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,long x)
 }
 
 SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,Tango::AttrWriteType w_type,long x)
-:Attr(att_name,att_type,w_type),ext(NULL)
+:Attr(att_name,att_type,w_type),ext(Tango_NullPtr)
 {
 	format = Tango::SPECTRUM;
 	if (x <= 0)
@@ -397,7 +399,7 @@ SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,Tango::AttrWriteTy
 }
 
 SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,long x,DispLevel level)
-:Attr(att_name,att_type,level),ext(NULL)
+:Attr(att_name,att_type,level),ext(Tango_NullPtr)
 {
 	format = Tango::SPECTRUM;
 	if (x <= 0)
@@ -426,7 +428,7 @@ SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,long x,DispLevel l
 }
 
 SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,Tango::AttrWriteType w_type,long x,DispLevel level)
-:Attr(att_name,att_type,level,w_type),ext(NULL)
+:Attr(att_name,att_type,level,w_type),ext(Tango_NullPtr)
 {
 	format = Tango::SPECTRUM;
 	if (x <= 0)
@@ -464,7 +466,7 @@ SpectrumAttr::SpectrumAttr(const char *att_name,long att_type,Tango::AttrWriteTy
 //--------------------------------------------------------------------------
 
 ImageAttr::ImageAttr(const char *att_name,long att_type,long x,long y)
-:SpectrumAttr(att_name,att_type,x),ext(NULL)
+:SpectrumAttr(att_name,att_type,x),ext(Tango_NullPtr)
 {
 	format = Tango::IMAGE;
 	if (y <= 0)
@@ -483,7 +485,7 @@ ImageAttr::ImageAttr(const char *att_name,long att_type,long x,long y)
 
 ImageAttr::ImageAttr(const char *att_name,long att_type,Tango::AttrWriteType w_type,
 		     long x,long y)
-:SpectrumAttr(att_name,att_type,w_type,x),ext(NULL)
+:SpectrumAttr(att_name,att_type,w_type,x),ext(Tango_NullPtr)
 {
 	format = Tango::IMAGE;
 	if (y <= 0)
@@ -502,7 +504,7 @@ ImageAttr::ImageAttr(const char *att_name,long att_type,Tango::AttrWriteType w_t
 
 ImageAttr::ImageAttr(const char *att_name,long att_type,long x,
 		     long y,DispLevel level)
-:SpectrumAttr(att_name,att_type,x,level),ext(NULL)
+:SpectrumAttr(att_name,att_type,x,level),ext(Tango_NullPtr)
 {
 	format = Tango::IMAGE;
 	if (y <= 0)
@@ -521,7 +523,7 @@ ImageAttr::ImageAttr(const char *att_name,long att_type,long x,
 
 ImageAttr::ImageAttr(const char *att_name,long att_type,Tango::AttrWriteType w_type,
 		     long x, long y,DispLevel level)
-:SpectrumAttr(att_name,att_type,w_type,x,level),ext(NULL)
+:SpectrumAttr(att_name,att_type,w_type,x,level),ext(Tango_NullPtr)
 {
 	format = Tango::IMAGE;
 	if (y <= 0)
@@ -537,4 +539,5 @@ ImageAttr::ImageAttr(const char *att_name,long att_type,Tango::AttrWriteType w_t
 	}
 	max_y = y;
 }
+
 } // End of Tango namespace

@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$";
 ///
 ///		original : 7 April 2003
 ///
-// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -88,7 +88,6 @@ void client_leavefunc()
 
 void leavefunc()
 {
-cout << "Entering leavefunc function" << endl;
 	// flag to avoid calling client_leavefunc twice
 	static bool already_executed = false;
 
@@ -197,8 +196,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 
 	if ((api_ptr->in_server() == false) && (api_ptr->is_lock_exit_installed() == false))
 	{
-		int res;
-		res = atexit(leavefunc);
+		atexit(leavefunc);
 		api_ptr->set_lock_exit_installed(true);
 	}
 #endif
@@ -378,9 +376,9 @@ void EventConsumer::attr_to_device(const AttributeValue *attr_value,
 		dev_attr->time = attr_value_3->time;
 		dev_attr->dim_x = attr_value_3->r_dim.dim_x;
 		dev_attr->dim_y = attr_value_3->r_dim.dim_y;
-		dev_attr->ext->w_dim_x = attr_value_3->w_dim.dim_x;
-		dev_attr->ext->w_dim_y = attr_value_3->w_dim.dim_y;
-		dev_attr->ext->err_list = new DevErrorList(attr_value_3->err_list);
+		dev_attr->set_w_dim_x(attr_value_3->w_dim.dim_x);
+		dev_attr->set_w_dim_y(attr_value_3->w_dim.dim_y);
+		dev_attr->set_err_list(new DevErrorList(attr_value_3->err_list));
 	}
 	else
 	{
@@ -439,12 +437,12 @@ void EventConsumer::attr_to_device(const AttributeValue *attr_value,
 					if (tmp_seq_64->release() == true)
 					{
 						tmp_64 = (const_cast<DevVarLong64Array *>(tmp_seq_64))->get_buffer((CORBA::Boolean)true);
-						dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_64,true);
+						dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_64,true));
 					}
 					else
 					{
 						tmp_64 = const_cast<CORBA::LongLong *>(tmp_seq_64->get_buffer());
-						dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_64,false);
+						dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_64,false));
 					}
 					break;
 
@@ -591,12 +589,12 @@ void EventConsumer::attr_to_device(const AttributeValue *attr_value,
 					if (tmp_seq_ulo->release() == true)
 					{
 						tmp_ulo = (const_cast<DevVarULongArray *>(tmp_seq_ulo))->get_buffer((CORBA::Boolean)true);
-						dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,true);
+						dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,true));
 					}
 					else
 					{
 						tmp_ulo = const_cast<CORBA::ULong *>(tmp_seq_ulo->get_buffer());
-						dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
+						dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,false));
 					}
 					break;
 
@@ -610,12 +608,12 @@ void EventConsumer::attr_to_device(const AttributeValue *attr_value,
 					if (tmp_seq_u64->release() == true)
 					{
 						tmp_ulolo = (const_cast<DevVarULong64Array *>(tmp_seq_u64))->get_buffer((CORBA::Boolean)true);
-						dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,true);
+						dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,true));
 					}
 					else
 					{
 						tmp_ulolo = const_cast<CORBA::ULongLong *>(tmp_seq_u64->get_buffer());
-						dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
+						dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,false));
 					}
 					break;
 
@@ -629,12 +627,12 @@ void EventConsumer::attr_to_device(const AttributeValue *attr_value,
 					if (tmp_seq_state->release() == true)
 					{
 						tmp_state = (const_cast<DevVarStateArray *>(tmp_seq_state))->get_buffer((CORBA::Boolean)true);
-						dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,true);
+						dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,true));
 					}
 					else
 					{
 						tmp_state = const_cast<Tango::DevState *>(tmp_seq_state->get_buffer());
-						dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
+						dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,false));
 					}
 					break;
 
@@ -652,9 +650,9 @@ void EventConsumer::attr_to_device(const AttributeValue_4 *attr_value_4,DeviceAt
 	dev_attr->time = attr_value_4->time;
 	dev_attr->dim_x = attr_value_4->r_dim.dim_x;
 	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
-	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
-	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
-	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
+	dev_attr->set_w_dim_x(attr_value_4->w_dim.dim_x);
+	dev_attr->set_w_dim_y(attr_value_4->w_dim.dim_y);
+	dev_attr->set_err_list(new DevErrorList(attr_value_4->err_list));
 
 	if (dev_attr->quality != Tango::ATTR_INVALID)
 	{
@@ -670,9 +668,9 @@ void EventConsumer::attr_to_device(const ZmqAttributeValue_4 *attr_value_4,Devic
 	dev_attr->time = attr_value_4->time;
 	dev_attr->dim_x = attr_value_4->r_dim.dim_x;
 	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
-	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
-	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
-	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
+	dev_attr->set_w_dim_x(attr_value_4->w_dim.dim_x);
+	dev_attr->set_w_dim_y(attr_value_4->w_dim.dim_y);
+	dev_attr->set_err_list(new DevErrorList(attr_value_4->err_list));
 
 	if (dev_attr->quality != Tango::ATTR_INVALID)
 	{
@@ -777,12 +775,12 @@ void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttr
             if (tmp_seq.release() == true)
             {
                 tmp_lolo = (const_cast<DevVarLong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,true);
+                dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_lolo,true));
             }
             else
             {
                 tmp_lolo = const_cast<CORBA::LongLong *>(tmp_seq.get_buffer());
-                dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,false);
+                dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_lolo,false));
             }
         }
         break;
@@ -867,12 +865,12 @@ void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttr
             if (tmp_seq.release() == true)
             {
                 tmp_ulo = (const_cast<DevVarULongArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,true);
+                dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,true));
             }
             else
             {
                 tmp_ulo = const_cast<CORBA::ULong *>(tmp_seq.get_buffer());
-                dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
+                dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,false));
             }
         }
         break;
@@ -885,12 +883,12 @@ void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttr
             if (tmp_seq.release() == true)
             {
                 tmp_ulolo = (const_cast<DevVarULong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,true);
+                dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,true));
             }
             else
             {
                 tmp_ulolo = const_cast<CORBA::ULongLong *>(tmp_seq.get_buffer());
-                dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
+                dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,false));
             }
         }
         break;
@@ -921,12 +919,12 @@ void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttr
             if (tmp_seq.release() == true)
             {
                 tmp_state = (const_cast<DevVarStateArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,true);
+                dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,true));
             }
             else
             {
                 tmp_state = const_cast<Tango::DevState *>(tmp_seq.get_buffer());
-                dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
+                dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,false));
             }
         }
         break;
@@ -948,12 +946,12 @@ void EventConsumer::att_union_to_device(const AttrValUnion *union_ptr,DeviceAttr
             if (tmp_seq.release() == true)
             {
                 tmp_enc = (const_cast<DevVarEncodedArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-                dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,true);
+                dev_attr->set_Encoded_data(new DevVarEncodedArray(max,len,tmp_enc,true));
             }
             else
             {
                 tmp_enc = const_cast<Tango::DevEncoded *>(tmp_seq.get_buffer());
-                dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,false);
+                dev_attr->set_Encoded_data(new DevVarEncodedArray(max,len,tmp_enc,false));
             }
         }
         break;
@@ -1061,9 +1059,13 @@ int EventConsumer::subscribe_event (DeviceProxy *device,
 // In case of stateless subscription and if the device is not there,
 // the lock will still be valid when the data will be inserted into the
 // vector of non-connected events
+// Also ask the main ZMQ thread to delay all incoming event until this meethod
+// exit. A dead lock could happen if we don't do this (really experienced!)
 //
 
+    DelayEvent de(this);
 	WriterLock w(map_modification_lock);
+
 	try
 	{
 		int event_id = connect_event (device,attribute,event,callback,ev_queue,filters,event_name);
@@ -1369,7 +1371,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
         new_event_callback.device_idl = dvlsa->lvalue[1];
     else
         new_event_callback.device_idl = 0;
-    new_event_callback.ctr = 0;
+    new_event_callback.ctr = 1;
 
     new_ess.callback = callback;
     new_ess.ev_queue = ev_queue;
@@ -1492,6 +1494,12 @@ void EventConsumer::unsubscribe_event(int event_id)
 		}
 	}
 
+//
+// Ask the main ZMQ thread to delay all incoming event until this meethod
+// exit. A dead lock could happen if we don't do this (really experienced!)
+//
+
+    DelayEvent de(this);
 	WriterLock w(map_modification_lock);
 
 //
@@ -1511,8 +1519,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 // delete the event queue when used
 //
 
-				if (esspos->ev_queue != NULL)
-					delete esspos->ev_queue;
+                delete esspos->ev_queue;
 
 //
 // Remove callback entry in vector
@@ -1614,8 +1621,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 								    }
 
 									delete evt_ch.adm_device_proxy;
-									if (evt_ch.channel_monitor != NULL)
-										delete evt_ch.channel_monitor;
+                                    delete evt_ch.channel_monitor;
 								}
 
 								channel_map.erase(chan_pos);
@@ -1659,8 +1665,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 			if ( vpos->event_id == event_id)
 			{
 				// delete the event queue when used
-				if (vpos->ev_queue != NULL)
-					delete vpos->ev_queue;
+                delete vpos->ev_queue;
 
 			   // delete element from vector
 			   event_not_connected.erase(vpos);
@@ -2519,7 +2524,7 @@ void EventConsumer::get_fire_sync_event(DeviceProxy *device,CallBack *callback,E
 
 ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
 {
-    ChannelType ret;
+    ChannelType ret = Tango::ZMQ;
     EvCbIte epos;
 	vector<EventSubscribeStruct>::iterator esspos;
 
@@ -2649,8 +2654,7 @@ EventData & EventData::operator=(const EventData &ri)
 
 EventData::~EventData()
 {
-	if (attr_value != NULL)
-		delete attr_value;
+    delete attr_value;
 }
 
 
@@ -2768,8 +2772,7 @@ AttrConfEventData & AttrConfEventData::operator=(const AttrConfEventData &ri)
 
 AttrConfEventData::~AttrConfEventData()
 {
-	if (attr_conf != NULL)
-		delete attr_conf;
+    delete attr_conf;
 }
 
 //+-------------------------------------------------------------------------

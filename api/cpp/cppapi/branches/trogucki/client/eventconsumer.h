@@ -9,7 +9,7 @@
 ///
 ///  author(s) : E.Taurel (taurel@esrf.fr)
 //
-// Copyright (C) :      2011
+// Copyright (C) :      2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -290,7 +290,7 @@ typedef struct event_callback_base
 typedef struct event_callback_zmq
 {
     DevLong                         device_idl;
-    DevLong                         ctr;
+    DevULong                        ctr;
 }EventCallBackZmq;
 
 typedef struct event_callback: public EventCallBackBase, public EventCallBackZmq
@@ -349,6 +349,7 @@ public :
 	void shutdown_keep_alive_thread();
     ChannelType get_event_system_for_event_id(int);
 	virtual void cleanup_EventChannel_map() = 0;
+    virtual void get_subscription_command_name(string &) = 0;
 
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
 	                   CallBack *callback, const vector<string> &filters, bool stateless = false);
@@ -404,7 +405,6 @@ protected :
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &) = 0;
     virtual void disconnect_event(string &) {}
 
-    virtual void get_subscription_command_name(string &) = 0;
     virtual void set_channel_type(EventChannelStruct &) = 0;
 };
 
@@ -429,6 +429,8 @@ public :
 	void disconnect_structured_push_consumer();
 	void offer_change(const CosNotification::EventTypeSeq &,const CosNotification::EventTypeSeq &);
 
+    virtual void get_subscription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
+
 	CORBA::ORB_var 					orb_;
 
 protected :
@@ -436,7 +438,6 @@ protected :
 	virtual void connect_event_channel(string &,Database *,bool,DeviceData &);
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
 
-    virtual void get_subscription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = NOTIFD;}
 
 private :
@@ -468,6 +469,7 @@ public :
     TANGO_IMP_EXP static void cleanup() {if (_instance != NULL){_instance=NULL;}}
 
 	virtual void cleanup_EventChannel_map();
+    virtual void get_subscription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
 
 	enum UserDataEventType
 	{
@@ -483,7 +485,6 @@ protected :
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
     virtual void disconnect_event(string &);
 
-    virtual void get_subscription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
 
 private :
@@ -505,13 +506,30 @@ private :
     AttDataReady_var                        adr;
     DevErrorList_var                        del;
 
+    int                                     old_poll_nb;
+
 	void *run_undetached(void *arg);
 	void push_heartbeat_event(string &);
-    void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevLong &);
+    void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevULong &);
     bool process_ctrl(zmq::message_t &,zmq::pollitem_t *,int &);
     void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
     void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);
     void process_event(zmq_msg_t &,zmq_msg_t &,zmq_msg_t &,zmq_msg_t &);
+
+    friend class DelayEvent;
+};
+
+class DelayEvent
+{
+public:
+    DelayEvent(EventConsumer *);
+    ~DelayEvent();
+
+    void release();
+
+private:
+    bool                released;
+    ZmqEventConsumer    *eve_con;
 };
 
 /********************************************************************************

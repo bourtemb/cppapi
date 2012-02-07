@@ -9,9 +9,9 @@
 #
 ##############################################################################
 
-MAJOR_VERS = 7
-MINOR_VERS = 2
-PATCH_VERS = 7
+MAJOR_VERS = 8
+MINOR_VERS = 0
+PATCH_VERS = 0
 
 ##############################################################################
 #
@@ -37,7 +37,7 @@ endif
 
 ifdef ubuntu
 ifdef dev
-OS=ubuntu904
+OS=ubuntu1010
 else
 OS=ubuntu1004
 endif

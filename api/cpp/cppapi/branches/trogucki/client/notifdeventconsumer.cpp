@@ -11,7 +11,7 @@ static const char *RcsId = "$Id$";
 ///
 ///		original : 16 August 2011
 ///
-// Copyright (C) :      2011
+// Copyright (C) :      2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -77,7 +77,6 @@ void NotifdEventConsumer::offer_change(TANGO_UNUSED(const CosNotification::Event
 
 NotifdEventConsumer::NotifdEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_thread((void *)ptr)
 {
-cout << "Entering NotifdEventConsumer ctor" << endl;
 	cout3 << "calling Tango::NotifdEventConsumer::NotifdEventConsumer() \n";
 	orb_ = ptr->get_orb();
 
@@ -874,7 +873,7 @@ void NotifdEventConsumer::push_structured_event(const CosNotification::Structure
 				DevErrorList errors;
 				bool ev_attr_conf = false;
 				bool ev_attr_ready = false;
-				const DevErrorList *err_ptr;
+				const DevErrorList *err_ptr = NULL;
 
 //
 // Check if the event transmit error

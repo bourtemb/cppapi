@@ -8,7 +8,7 @@
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -42,9 +42,9 @@ namespace Tango
 // Some general interest define
 //
 
-#define     TANGO_VERSION_MAJOR     7
-#define     TANGO_VERSION_MINOR     2
-#define     TANGO_VERSION_PATCH     7
+#define     TANGO_VERSION_MAJOR     8
+#define     TANGO_VERSION_MINOR     0
+#define     TANGO_VERSION_PATCH     0
 
 #define     build_string(s)         #s
 #define     xbuild_string(s)        build_string(s)
@@ -121,8 +121,8 @@ namespace Tango
 #define     PGM_RATE                    80 * 1024
 #define     PGM_IVL                     20 * 1000
 #define     MAX_SOCKET_SUB              10
-#define     PUB_HWM                     100
-#define     SUB_HWM                     100
+#define     PUB_HWM                     1000
+#define     SUB_HWM                     1000
 
 #define     ZMQ_END                     0
 #define     ZMQ_CONNECT_HEARTBEAT       1
@@ -130,6 +130,8 @@ namespace Tango
 #define     ZMQ_CONNECT_EVENT           3
 #define     ZMQ_DISCONNECT_EVENT        4
 #define     ZMQ_CONNECT_MCAST_EVENT     5
+#define     ZMQ_DELAY_EVENT             6
+#define     ZMQ_RELEASE_EVENT           7
 
 //
 // Event when using a file as database stuff
@@ -937,67 +939,65 @@ typedef struct _OptAttrProp
  * strings already used.
  *
  *
- * API_MemoryAllocation
- * API_CommandNotFound
- * API_IncompatibleCmdArgumentType
+ * API_AttrIncorrectDataNumber
+ * API_AttrNoAlarm
+ * API_AttrNotAllowed
+ * API_AttrNotFound
+ * API_AttrNotWritable
+ * API_AttrOptProp
+ * API_AttrValueNotSet
+ * API_AttrWrongDefined
+ * API_AttrWrongMemValue
+ * API_BadConfigurationProperty
  * API_BlackBoxArgument
  * API_BlackBoxEmpty
+ * API_CannotCheckAccessControl
  * API_CannotOpenFile
- * API_SignalOutOfRange
- * API_CantInstallSignal
- * API_CommandNotAllowed
- * API_CantRetrieveClassList
- * API_ClassNotFound
- * API_InitMethodNotFound
- * API_JavaRuntimeSecurityException
- * API_InitThrowsException
- * API_InitNotPublic
- * API_DeviceNotFound
- * API_CmdArgumentTypeNotSupported
- * API_MethodNotFound
- * API_OverloadingNotSupported
- * API_MethodArgument
- * API_AttrWrongDefined
- * API_AttrOptProp
- * API_AttrNotFound
- * API_AttrValueNotSet
- * API_AttrNoAlarm
- * API_AttrNotWritable
- * API_IncompatibleAttrDataType
- * API_WAttrOutsideLimit
- * API_NtDebugWindowError
- * API_CantCreateClassPoa
- * API_CantGetDevObjectId
  * API_CantActivatePOAManager
- * API_DatabaseAccess
- * API_CorbaSysException
- * API_BadConfigurationProperty
- * API_AttrIncorrectDataNumber
- * API_NotSupportedFeature
- * API_AttrNotAllowed
- * API_AttrWrongMemValue
- * API_WizardConfError
- * API_EventSupplierNotConstructed
- * API_CantGetClientIdent
- * API_DeviceLocked
- * API_CannotCheckAccessControl
- * API_SystemCallFailed
-
- * API_DeviceNotLocked
- * API_DeviceUnlocked
- * API_DeviceUnlockable
- * API_WrongLockingStatus
- * API_CantFindLockingThread
- * API_WrongHistoryDataBuffer
- * API_CannotCheckAccessControl
- * API_ReadOnlyMode
- * API_CantStoreDeviceClass
+ * API_CantCreateClassPoa
  * API_CantCreateLockingThread
- *
- * API_PollingThreadNotFound
+ * API_CantFindLockingThread
+ * API_CantGetClientIdent
+ * API_CantGetDevObjectId
+ * API_CantInstallSignal
+ * API_CantRetrieveClassList
+ * API_CantStoreDeviceClass
+ * API_ClassNotFound
+ * API_CmdArgumentTypeNotSupported
+ * API_CommandNotAllowed
+ * API_CommandNotFound
+ * API_CorbaSysException
+ * API_DatabaseAccess
+ * API_DeviceLocked
+ * API_DeviceNotFound
+ * API_DeviceNotLocked
+ * API_DeviceUnlockable
+ * API_DeviceUnlocked
+ * API_EventSupplierNotConstructed
+ * API_IncoherentDbData
+ * API_IncoherentDevData
+ * API_IncompatibleAttrDataType
+ * API_IncompatibleCmdArgumentType
+ * API_InitMethodNotFound
+ * API_InitNotPublic
+ * API_InitThrowsException
+ * API_JavaRuntimeSecurityException
+ * API_MemoryAllocation
+ * API_MethodArgument
+ * API_MethodNotFound
+ * API_NotSupportedFeature
+ * API_NtDebugWindowError
+ * API_OverloadingNotSupported
  * API_PolledDeviceNotInPoolConf
  * API_PolledDeviceNotInPoolMap
- *
+ * API_PollingThreadNotFound
+ * API_ReadOnlyMode
+ * API_SignalOutOfRange
+ * API_SystemCallFailed
+ * API_WAttrOutsideLimit
+ * API_WizardConfError
+ * API_WrongHistoryDataBuffer
+ * API_WrongLockingStatus
  * API_ZmqInitFailed
  * API_AttrEventProp
  */

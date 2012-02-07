@@ -16,7 +16,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -340,7 +340,16 @@ void BlackBox::add_cl_ident(const ClntIdent &cl_ident,client_addr *cl_addr)
 	Tango::LockerLanguage cl_lang = cl_ident._d();
 	cl_addr->client_lang = cl_lang;
 	if (cl_lang == Tango::CPP)
+	{
 		cl_addr->client_pid = cl_ident.cpp_clnt();
+		string str(cl_addr->client_ip);
+		if (str.find(":unix:") != string::npos)
+		{
+		    string::size_type pos = str.find(' ');
+		    if (pos != string::npos)
+                cl_addr->client_ip[pos] = '\0';
+		}
+	}
 	else
 	{
 		Tango::JavaClntIdent jci = cl_ident.java_clnt();
@@ -901,10 +910,15 @@ void BlackBox::get_client_host()
 
 	omni_thread::value_t *ip = th_id->get_value(key);
 	if (ip == NULL)
-		strcpy(box[insert_elt].host_ip_str,"polling");
+    {
+        Tango::Util *tg = Tango::Util::instance();
+        if (tg->is_svr_starting() == true)
+            strcpy(box[insert_elt].host_ip_str,"init");
+        else
+            strcpy(box[insert_elt].host_ip_str,"polling");
+    }
 	else
-		strcpy(box[insert_elt].host_ip_str,
-	       	       ((client_addr *)(ip))->client_ip);
+		strcpy(box[insert_elt].host_ip_str,((client_addr *)(ip))->client_ip);
 }
 
 //+-------------------------------------------------------------------------
@@ -1181,7 +1195,8 @@ void BlackBox::build_info_as_str(long index)
 	bool ipv6=false;
 	if ((box[index].host_ip_str[0] != '\0') &&
 	    (box[index].host_ip_str[0] != 'p') &&
-		(box[index].host_ip_str[5] != 'u'))
+		(box[index].host_ip_str[5] != 'u') &&
+        (box[index].host_ip_str[0] != 'i'))
 	{
 		string omni_addr = box[index].host_ip_str;
 		string::size_type pos;
@@ -1293,10 +1308,34 @@ void BlackBox::build_info_as_str(long index)
 	{
 		Tango::Util *tg = Tango::Util::instance();
 		elt_str = elt_str + "requested from " + tg->get_host_name();
+
+//
+// Add client identification if available
+//
+
+		if (box[index].client_ident == true)
+		{
+			if (box[index].client_lang == Tango::CPP)
+			{
+				elt_str = elt_str + " (CPP/Python client with PID ";
+				TangoSys_MemStream o;
+				o << box[index].client_pid;
+				elt_str = elt_str + o.str() + ")";
+			}
+			else
+			{
+				elt_str = elt_str + " (Java client with main class ";
+				elt_str = elt_str + box[index].java_main_class + ")";
+			}
+		}
 	}
 	else if (box[index].host_ip_str[0] == 'p')
 	{
-		elt_str = elt_str + "requested from polling";
+        elt_str = elt_str + "requested from polling";
+	}
+	else if (box[index].host_ip_str[0] == 'i')
+	{
+        elt_str = elt_str + "requested during device server process init sequence";
 	}
 
 	return;
@@ -1392,7 +1431,7 @@ Tango::DevVarStringArray *BlackBox::read(long wanted_elt)
 // Read black box elements
 //
 
-	Tango::DevVarStringArray *ret;
+	Tango::DevVarStringArray *ret = NULL;
 	try
 	{
 
@@ -1455,13 +1494,14 @@ void BlackBox::date_ux_to_str(timeval &ux_date,char *str_date)
 
 /* Convert UNIX date to a string in UNIX format */
 
-#ifdef WIN32_VC8
-	time_t vc8_time;
-	vc8_time = (time_t)ux_date.tv_sec;
-	ux_str = ctime(&vc8_time);
+#ifdef _TG_WINDOWS_
+	time_t win_time;
+	win_time = (time_t)ux_date.tv_sec;
+	ux_str = ctime(&win_time);
 #else
 	ux_str = ctime((time_t *)&(ux_date.tv_sec));
 #endif
+
 	strcpy(unix_date,ux_str);
 
 /* Copy day */
@@ -1609,10 +1649,10 @@ bool client_addr::operator==(const client_addr &rhs)
 			const char *rhs_tmp = rhs.client_ip;
 
 			if (strlen(tmp) != strlen(rhs_tmp))
-				return false;
+                return false;
 
 			if (strcmp(tmp,rhs_tmp) != 0)
-				return false;
+                return false;
 		}
 		else
 		{

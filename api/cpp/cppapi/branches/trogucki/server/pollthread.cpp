@@ -13,7 +13,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -35,263 +35,6 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // $Revision$
 //
-// $Log$
-// Revision 3.31  2011/01/10 13:55:07  taurel
-// - For periodic and archive/periodic, take time got before the attribute
-// is read to decide if it is time to store data. This time is much
-// more stable than time got after the attribute is read. Reading attribute
-// on some device takes a long and unstabe time.
-//
-// Revision 3.30  2010/09/09 13:46:45  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.29  2010/09/08 12:32:53  taurel
-// - Miscellaneous changes to implement a better timeout management
-// (now manage a user connect timeout with the env. variable TANGOconnectTimeout)
-//
-// Revision 3.28  2010/01/20 07:53:02  taurel
-// - Commit after merge with the Release_7_1_1-bugfixes branch
-//
-// Revision 3.27.2.1  2010/01/18 16:12:40  taurel
-// - Fix polling thread tuning algorithum bug in case of object with very slow polling period (> 100 sec)
-//
-// Revision 3.27  2009/10/23 14:36:27  taurel
-// - Tango 7.1.1
-// - Fix bugs 2880372 and 2881841
-// - Now support event in case of Tango system with multi db server
-// - The polling threads start with polling inactive
-//
-// Revision 3.26  2009/02/16 09:30:37  jensmeyer
-// Modified print_list() method to handle sub device diagnostics.
-//
-// Revision 3.25  2009/02/03 15:17:11  jensmeyer
-// Added the storage of sub device properties on a regular basis of
-// 30 minutes to the heartbeat thread of a device server.
-//
-// Revision 3.24  2009/01/21 12:47:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.23  2009/01/08 14:58:03  taurel
-// - The read_attribute_4 also transfer the client authentification
-//
-// Revision 3.22  2008/10/06 15:01:36  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.21  2008/10/03 06:52:31  taurel
-// - Add some licensing info in each files
-//
-// Revision 3.20  2008/10/02 09:09:47  taurel
-// - First implementation of multiple polling thread(s)
-//
-// Revision 3.19  2008/07/01 07:38:40  taurel
-// - Some more code for a proper implementation of the DevEncoded data type with the new IDL release 4
-//
-// Revision 3.18  2008/05/20 12:44:12  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.17.2.1  2008/05/20 06:17:46  taurel
-// - Last commit before merge with trunk
-// (start the implementation of the new DevEncoded data type)
-//
-// Revision 3.17  2007/05/15 07:46:59  taurel
-// - The polling thread is not configured by a separate thread any more.
-// The Add_obj_polling command now support a delta_t to start the first polling
-//
-// Revision 3.16  2007/04/20 14:41:33  taurel
-// - Ported to Windows 64 bits x64 architecture
-//
-// Revision 3.15  2007/04/16 14:57:42  taurel
-// - Added 3 new attributes data types (DevULong, DevULong64 and DevState)
-// - Ported to omniORB4.1
-// - Increased the MAX_TRANSFER_SIZE to 256 MBytes
-// - Added a new filterable field in the archive event
-//
-// Revision 3.14  2007/03/29 07:09:25  taurel
-// - Change some data types for 64 bits compatibility
-//
-// Revision 3.13  2007/03/02 09:44:03  jensmeyer
-// Corrected the use of detect_and_push event methods. Uses now the _3 methods
-// for idl_vers>3 everywhere.
-//
-// Revision 3.12  2006/05/18 08:51:56  taurel
-// - Miscellaneous changes due to Python device server ported to Windows
-// - Fix some bugs discovered by Windows VC8 using the test suite
-// - Update Windows resource file include path
-// - Fix some Windows VC8 warnings
-//
-// Revision 3.11  2006/04/13 13:31:44  taurel
-// Several changes:
-// - A new DeviceImpl::push_event() method to push USER event with State as data
-// - Fix bug in polling thread POLL_IUPD_PERIOD. The new polling period was applied only after the following poll still done with the old polling period
-// - It is now possible to update polling period of polled objects from a polled attribute or command
-//
-// Revision 3.10  2006/01/27 14:27:10  taurel
-// - Fix a severe incompatibility problem introduced by all the modifs done for
-// PY DS
-// - Duplicate some EventSupplier class methods (instead of using template) in order to be able to generate Tango shared library on Suse 9.3
-//
-// Revision 3.9  2006/01/20 08:22:29  taurel
-// - Added necessary changes to support Device server written in Python
-//
-// Revision 3.8  2005/07/20 14:40:47  taurel
-// - Fix bug in polling thread out of sync error. Time threshold to generate
-// event heartbeat error changed from 10 to 11. Fix some comments
-//
-// Revision 3.7  2005/06/29 08:31:19  taurel
-// - Last commit before release 5.2 ?
-//
-// Revision 3.6  2005/01/13 08:30:00  taurel
-// - Merge trunk with Release_5_0 from brach Release_5_branch
-//
-// Revision 3.5.2.8  2004/12/06 14:39:29  taurel
-// - Polling starts in a separate thread
-// - For Windows : Polling thread cmd/attr measurement used PerformanceCounter
-// - Fix bug in pollext.h in methods to externally fill polling buffer
-//
-// Revision 3.5.2.7  2004/11/09 09:57:49  taurel
-// - Fix one memory leak and some minor changes
-// - Force database file writing when server exit
-// - Some minor changes for the -file option for WIN32
-//
-// Revision 3.5.2.6  2004/11/04 09:46:39  taurel
-// - Add a tuning method in the polling thread
-// - Some minor fixes to pass test suite
-//
-// Revision 3.5.2.5  2004/10/27 05:59:47  taurel
-// - Some minor changes to compile on all our supported platforms
-//
-// Revision 3.5.2.4  2004/10/22 11:26:33  taurel
-// Added warning alarm
-// Change attribute config. It now includes alarm and event parameters
-// Array attribute property now supported
-// subscribe_event throws exception for change event if they are not correctly configured
-// Change in the polling thread: The event heartbeat has its own work in the work list
-// Also add some event_unregister
-// Fix order in which classes are destructed
-// Fix bug in asynchronous mode (PUSH_CALLBACK). The callback thread ate all the CPU
-// Change in the CORBA info call for the device type
-//
-// Revision 3.5.2.3  2004/09/27 09:10:06  taurel
-// - Changes to allow reading state and/or status as attributes
-//
-// Revision 3.5.2.2  2004/08/26 07:34:45  taurel
-// - Implement a way to directly fills command or attribute polling buffer
-//
-// Revision 3.5.2.1  2004/08/19 07:44:59  taurel
-// - Replace server low level database access call by Database class method call
-// - Split device monitor in 3 : 1 to protect harware access, 1 to protect cache access and one mutex for device black box
-//
-// Revision 3.5  2004/07/07 08:40:12  taurel
-//
-// - Fisrt commit after merge between Trunk and release 4 branch
-// - Add EventData copy ctor, asiignement operator and dtor
-// - Add Database and DeviceProxy::get_alias() method
-// - Add AttributeProxy ctor from "device_alias/attribute_name"
-// - Exception thrown when subscribing two times for exactly yhe same event
-//
-// Revision 3.4  2003/08/21 07:24:37  taurel
-// - End of the implementation of the new way to transfer data for read and
-//   write attributes (better use of exception)
-// - Added Attribute::set_date() and Attribute::set_value_date_quality() methods
-// - Added DeviceAttribute ctors from "const char *"
-// - Enable writing of spectrum and image attributes
-// - Many new DeviceAttribute ctors/inserters to enable easy image and spectrums
-//   attribute writing
-// - Attribute date automatically set in case of attribute quality factor set to INVALID
-// - Change in the polling thread discarding element algo. to support case of polling
-//   several cmd/atts at the same polling period with cmd/attr having a long response time
-// - Take cmd/attr execution time into account in the "Data not updated since" polling
-//   status string
-// - Split "str().c_str()" code in two lines of code. It was the reason of some problem
-//   on Windows device server
-// - Add the possibility to set a cmd/attr polling as "externally triggered". Add method
-//   to send trigger to the polling thread
-//
-// Revision 3.3  2003/07/03 07:40:51  taurel
-// - Change in Tango IDL file : Implement a new way to tranfer data for read_attribute and write_attribute CORBA operation
-// - Handle this new IDL release in DeviceProxy class
-// - New exception methods in DeviceAttribute class
-// - New way to get data out of DeviceAttribute object
-// - Fix bugs in DeviceProxy copy constructor and assignement operator
-// - Change some method names in DeviceDataHistory and DeviceAttributeHistory classes
-// - Change the implementation of the DeviceProxy::write_attribute() method to avoid DeviceAttribute copying
-// - Clean-up how a server is killed via a CTRL-C or a dserver device kill command
-// - Add a server_cleanup() method in the Util class
-// - Win32 : Update debug menu in the server graphical window to support logging feature
-// - Win32 : Display library CVS tag in the "Help->About" sub-window
-//
-// Revision 3.2.2.7  2004/04/23 09:24:55  taurel
-// - Just a change in comment
-//
-// Revision 3.2.2.6  2004/03/09 16:36:37  taurel
-// - Added HP aCC port (thanks to Claudio from Elettra)
-// - Some last small bugs fixes
-//
-// Revision 3.2.2.5  2004/02/06 11:58:51  taurel
-// - Many changes in the event system
-//
-// Revision 3.2.2.4  2004/01/20 08:32:37  taurel
-// -First commit after merge with the event branch and work on the AttributeProxy class
-// - Fix bug in the stream "clear()" method usage when used with gcc 3.3
-//
-// Revision 3.2.2.3  2003/12/10 16:08:56  taurel
-// Last commit before merging with the event branch.
-// Revision 3.0.2.4  2003/11/16 22:10:43  andy_gotz
-// New version which defines 4 types of events - change, quality, periodic and
-// archive. Code has been factorised to reduce redundancy. Minimum and maximum
-// changes are supported. Event period is taken into account. Relative and
-// absolute changes are detected. Whole sequence is taken into account when
-// determining change.
-//
-// Revision 3.2.2.2  2003/10/03 13:34:26  taurel
-// - Fix bug for device server started without database, with device name specified on command line using mix of upper and lower cases
-// - It's now possible to send a command to the polling thread from itself
-// - Add a release lock if the insert into the polling buffer failed
-//
-// Revision 3.2.2.1  2003/09/30 11:49:25  taurel
-// Add some changes foreseen for release 4.1 and already implemented on
-// the trunck into this release 4.0 branch
-//
-// Revision 3.2  2003/05/28 14:55:10  taurel
-// Add the include (conditionally) of the include files generated by autoconf
-//
-// Revision 3.1  2003/05/16 08:46:16  taurel
-// Many changes for release 3.0.1. The most important ones are :
-// - Timeout are backs
-// - Multiple db servers (change in TANGO_HOST syntax)
-// - Added methods to print DeviceData, DeviceDataHistory, DeviceAttribute and DeviceAttributeHistory instances
-// - Attributes name stored in blackbox
-// - Remove check if a class is created without any device
-// - It's now possible to create a DeviceProxy from its alias name
-// - Command, attribute names are case insensitive
-// - Change parameters of some DeviceProxy logging methods
-// - Change parameters of DeviceProxy asynchronous replies calls
-// - New serialization model in device server (no serialization model)
-// - Win32 (2000) device server service does not exit at loggoff anymore
-// - Miscellaneous bug fixes
-// Revision 3.0.2.3  2003/04/15 19:01:55  andy_gotz
-// added heartbeat on client and server side; cleaned up cout's
-//
-// Revision 3.0.2.2  2003/04/13 22:12:17  andy_gotz
-// added heartbeat; polling starts automatically on subscription
-//
-// Revision 3.0.2.1  2003/04/08 13:12:52  andy_gotz
-// first version of TANGO events
-//
-// Revision 3.0  2003/03/25 16:44:10  taurel
-// Many changes for Tango release 3.0 including
-// - Added full logging features
-// - Added asynchronous calls
-// - Host name of clients now stored in black-box
-// - Three serialization model in DS
-// - Fix miscellaneous bugs
-// - Ported to gcc 3.2
-// - Added ApiUtil::cleanup() and destructor methods
-// - Some internal cleanups
-// - Change the way how TangoMonitor class is implemented. It's a recursive
-//   mutex
-//
-//
 //-============================================================================
 
 #if HAVE_CONFIG_H
@@ -308,11 +51,7 @@ static const char *RcsId = "$Id$\n$Name$";
 	#include <sys/time.h>
 #endif
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-	#include <iomanip>
-#else
-	#include <iomanip.h>
-#endif
+#include <iomanip>
 
 extern omni_thread::key_t key_py_data;
 namespace Tango
@@ -787,6 +526,7 @@ void PollThread::execute_cmd()
 				compute_new_date(now,local_cmd.new_upd);
 				tmp_work.wake_up_date = now;
 				insert_in_list(tmp_work);
+				tune_ctr = 0;
 			}
 			else
 			{
@@ -1024,7 +764,7 @@ void PollThread::one_more_poll()
 	}
 
 //
-// For case where the plling thread itself modify the polling
+// For case where the polling thread itself modify the polling
 // period of the object it already polls
 //
 
@@ -1205,7 +945,7 @@ void PollThread::insert_in_list(WorkItem &new_work)
 // argument: In :	- from_needed : Set to true if the delta between
 //					work should be at least equal to the
 //					time needed to execute the previous work
-//			- min_delta : Min. delta between polling works
+//			        - min_delta : Min. delta between polling works
 //				      when from_needed is false
 //
 //--------------------------------------------------------------------------

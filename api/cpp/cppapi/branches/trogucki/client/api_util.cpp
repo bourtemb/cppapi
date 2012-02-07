@@ -6,7 +6,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // programmer 	- Emmanuel Taurel (taurel@esrf.fr)
 //
-// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -54,11 +54,9 @@ static const char *RcsId = "$Id$\n$Name$";
 
 #else
 #include <ws2tcpip.h>
-#endif
-
-#ifdef WIN32_VC8
 #include <process.h>
 #endif
+
 
 namespace Tango
 {
@@ -74,7 +72,7 @@ omni_mutex ApiUtil::inst_mutex;
 //
 //-----------------------------------------------------------------------------
 
-ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
+ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false),ext(new ApiUtilExt)
 {
 	_orb = CORBA::ORB::_nil();
 
@@ -86,12 +84,6 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 		in_serv = true;
 	else
 		in_serv = false;
-
-//
-// Create the extension class
-//
-
-	ext = new ApiUtilExt();
 
 //
 // Create the Asynchronous polling request Id generator
@@ -116,7 +108,7 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 // Get the process PID
 //
 
-#ifdef WIN32_VC8
+#ifdef _TG_WINDOWS_
 	ext->cl_pid = _getpid();
 #else
 	ext->cl_pid = getpid();
@@ -184,7 +176,12 @@ ApiUtil::~ApiUtil()
 //
 
 	bool event_was_used = false;
+
+#ifdef HAS_UNIQUE_PTR
+	if (ext.get() != NULL)
+#else
 	if (ext != NULL)
+#endif
 	{
 		if ((ext->notifd_event_consumer != NULL) || (ext->zmq_event_consumer != NULL))
 		{
@@ -193,7 +190,9 @@ ApiUtil::~ApiUtil()
 			NotifdEventConsumer::cleanup();
 			ZmqEventConsumer::cleanup();
 		}
+#ifndef HAS_UNIQUE_PTR
 		delete ext;
+#endif
 	}
 
 //
@@ -628,11 +627,9 @@ void ApiUtil::set_asynch_cb_sub_model(cb_sub_model mode)
 // thread and start it
 //
 
-			if (cb_thread_ptr != NULL)
-			{
-				delete cb_thread_ptr;
-				cb_thread_ptr = NULL;
-			}
+            delete cb_thread_ptr;
+            cb_thread_ptr = NULL;
+
 			cb_thread_cmd.start_thread();
 
 			cb_thread_ptr = new CallBackThread(cb_thread_cmd,asyn_p_table);
@@ -790,9 +787,9 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 		dev_attr->time = attr_value_3->time;
 		dev_attr->dim_x = attr_value_3->r_dim.dim_x;
 		dev_attr->dim_y = attr_value_3->r_dim.dim_y;
-		dev_attr->ext->w_dim_x = attr_value_3->w_dim.dim_x;
-		dev_attr->ext->w_dim_y = attr_value_3->w_dim.dim_y;
-		dev_attr->ext->err_list = new DevErrorList(attr_value_3->err_list);
+		dev_attr->set_w_dim_x(attr_value_3->w_dim.dim_x);
+		dev_attr->set_w_dim_y(attr_value_3->w_dim.dim_y);
+		dev_attr->set_err_list(new DevErrorList(attr_value_3->err_list));
 	}
 	else
 	{
@@ -851,12 +848,12 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 				if (tmp_seq_64->release() == true)
 				{
 					tmp_lolo = (const_cast<DevVarLong64Array *>(tmp_seq_64))->get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,true);
+					dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_lolo,true));
 				}
 				else
 				{
 					tmp_lolo = const_cast<CORBA::LongLong *>(tmp_seq_64->get_buffer());
-					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,false);
+					dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_lolo,false));
 				}
 				break;
 
@@ -1003,12 +1000,12 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 				if (tmp_seq_ulo->release() == true)
 				{
 					tmp_ulo = (const_cast<DevVarULongArray *>(tmp_seq_ulo))->get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,true);
+					dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,true));
 				}
 				else
 				{
 					tmp_ulo = const_cast<CORBA::ULong *>(tmp_seq_ulo->get_buffer());
-					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
+					dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,false));
 				}
 				break;
 
@@ -1022,12 +1019,12 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 				if (tmp_seq_u64->release() == true)
 				{
 					tmp_ulolo = (const_cast<DevVarULong64Array *>(tmp_seq_u64))->get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,true);
+					dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,true));
 				}
 				else
 				{
 					tmp_ulolo = const_cast<CORBA::ULongLong *>(tmp_seq_u64->get_buffer());
-					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
+					dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,false));
 				}
 				break;
 
@@ -1041,12 +1038,12 @@ void ApiUtil::attr_to_device(const AttributeValue *attr_value,
 				if (tmp_seq_state->release() == true)
 				{
 					tmp_state = (const_cast<DevVarStateArray *>(tmp_seq_state))->get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,true);
+					dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,true));
 				}
 				else
 				{
 					tmp_state = const_cast<Tango::DevState *>(tmp_seq_state->get_buffer());
-					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
+					dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,false));
 				}
 				break;
 
@@ -1081,9 +1078,9 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 	dev_attr->time = attr_value_4->time;
 	dev_attr->dim_x = attr_value_4->r_dim.dim_x;
 	dev_attr->dim_y = attr_value_4->r_dim.dim_y;
-	dev_attr->ext->w_dim_x = attr_value_4->w_dim.dim_x;
-	dev_attr->ext->w_dim_y = attr_value_4->w_dim.dim_y;
-	dev_attr->ext->err_list = new DevErrorList(attr_value_4->err_list);
+	dev_attr->set_w_dim_x(attr_value_4->w_dim.dim_x);
+	dev_attr->set_w_dim_y(attr_value_4->w_dim.dim_y);
+	dev_attr->set_err_list(new DevErrorList(attr_value_4->err_list));
 
 	if (dev_attr->quality != Tango::ATTR_INVALID)
 	{
@@ -1151,12 +1148,12 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				if (tmp_seq.release() == true)
 				{
 					tmp_lolo = (const_cast<DevVarLong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,true);
+					dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_lolo,true));
 				}
 				else
 				{
 					tmp_lolo = const_cast<CORBA::LongLong *>(tmp_seq.get_buffer());
-					dev_attr->ext->Long64Seq = new DevVarLong64Array(max,len,tmp_lolo,false);
+					dev_attr->set_Long64_data(new DevVarLong64Array(max,len,tmp_lolo,false));
 				}
 			}
 			break;
@@ -1241,12 +1238,12 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				if (tmp_seq.release() == true)
 				{
 					tmp_ulo = (const_cast<DevVarULongArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,true);
+					dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,true));
 				}
 				else
 				{
 					tmp_ulo = const_cast<CORBA::ULong *>(tmp_seq.get_buffer());
-					dev_attr->ext->ULongSeq = new DevVarULongArray(max,len,tmp_ulo,false);
+					dev_attr->set_ULong_data(new DevVarULongArray(max,len,tmp_ulo,false));
 				}
 			}
 			break;
@@ -1259,12 +1256,12 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				if (tmp_seq.release() == true)
 				{
 					tmp_ulolo = (const_cast<DevVarULong64Array &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,true);
+					dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,true));
 				}
 				else
 				{
 					tmp_ulolo = const_cast<CORBA::ULongLong *>(tmp_seq.get_buffer());
-					dev_attr->ext->ULong64Seq = new DevVarULong64Array(max,len,tmp_ulolo,false);
+					dev_attr->set_ULong64_data(new DevVarULong64Array(max,len,tmp_ulolo,false));
 				}
 			}
 			break;
@@ -1295,12 +1292,12 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				if (tmp_seq.release() == true)
 				{
 					tmp_state = (const_cast<DevVarStateArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,true);
+					dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,true));
 				}
 				else
 				{
 					tmp_state = const_cast<Tango::DevState *>(tmp_seq.get_buffer());
-					dev_attr->ext->StateSeq = new DevVarStateArray(max,len,tmp_state,false);
+					dev_attr->set_State_data(new DevVarStateArray(max,len,tmp_state,false));
 				}
 			}
 			break;
@@ -1320,12 +1317,12 @@ void ApiUtil::attr_to_device(const AttributeValue_4 *attr_value_4,TANGO_UNUSED(l
 				if (tmp_seq.release() == true)
 				{
 					tmp_enc = (const_cast<DevVarEncodedArray &>(tmp_seq)).get_buffer((CORBA::Boolean)true);
-					dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,true);
+					dev_attr->set_Encoded_data(new DevVarEncodedArray(max,len,tmp_enc,true));
 				}
 				else
 				{
 					tmp_enc = const_cast<Tango::DevEncoded *>(tmp_seq.get_buffer());
-					dev_attr->ext->EncodedSeq = new DevVarEncodedArray(max,len,tmp_enc,false);
+					dev_attr->set_Encoded_data(new DevVarEncodedArray(max,len,tmp_enc,false));
 				}
 			}
 			break;
@@ -1371,16 +1368,16 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue_4 &a
 		att.value.ushort_att_value(dev_attr.UShortSeq.in());
 	else if (dev_attr.UCharSeq.operator->() != NULL)
 		att.value.uchar_att_value(dev_attr.UCharSeq.in());
-	else if (dev_attr.ext->Long64Seq.operator->() != NULL)
-		att.value.long64_att_value(dev_attr.ext->Long64Seq.in());
-	else if (dev_attr.ext->ULongSeq.operator->() != NULL)
-		att.value.ulong_att_value(dev_attr.ext->ULongSeq.in());
-	else if (dev_attr.ext->ULong64Seq.operator->() != NULL)
-		att.value.ulong64_att_value(dev_attr.ext->ULong64Seq.in());
-	else if (dev_attr.ext->StateSeq.operator->() != NULL)
-		att.value.state_att_value(dev_attr.ext->StateSeq.in());
-	else if (dev_attr.ext->EncodedSeq.operator->() != NULL)
-		att.value.encoded_att_value(dev_attr.ext->EncodedSeq.in());
+	else if (dev_attr.get_Long64_data().operator->() != NULL)
+		att.value.long64_att_value(dev_attr.get_Long64_data().in());
+	else if (dev_attr.get_ULong_data().operator->() != NULL)
+		att.value.ulong_att_value(dev_attr.get_ULong_data().in());
+	else if (dev_attr.get_ULong64_data().operator->() != NULL)
+		att.value.ulong64_att_value(dev_attr.get_ULong64_data().in());
+	else if (dev_attr.get_State_data().operator->() != NULL)
+		att.value.state_att_value(dev_attr.get_State_data().in());
+	else if (dev_attr.get_Encoded_data().operator->() != NULL)
+		att.value.encoded_att_value(dev_attr.get_Encoded_data().in());
 }
 
 void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue &att,string &d_name)
@@ -1408,15 +1405,15 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue &att
 		att.value <<= dev_attr.UShortSeq.in();
 	else if (dev_attr.UCharSeq.operator->() != NULL)
 		att.value  <<= dev_attr.UCharSeq.in();
-	else if (dev_attr.ext->Long64Seq.operator->() != NULL)
-		att.value  <<= dev_attr.ext->Long64Seq.in();
-	else if (dev_attr.ext->ULongSeq.operator->() != NULL)
-		att.value  <<= dev_attr.ext->ULongSeq.in();
-	else if (dev_attr.ext->ULong64Seq.operator->() != NULL)
-		att.value  <<= dev_attr.ext->ULong64Seq.in();
-	else if (dev_attr.ext->StateSeq.operator->() != NULL)
-		att.value  <<= dev_attr.ext->StateSeq.in();
-	else if (dev_attr.ext->EncodedSeq.operator->() != NULL)
+	else if (dev_attr.get_Long64_data().operator->() != NULL)
+		att.value  <<= dev_attr.get_Long64_data().in();
+	else if (dev_attr.get_ULong_data().operator->() != NULL)
+		att.value  <<= dev_attr.get_ULong_data().in();
+	else if (dev_attr.get_ULong64_data().operator->() != NULL)
+		att.value  <<= dev_attr.get_ULong64_data().in();
+	else if (dev_attr.get_State_data().operator->() != NULL)
+		att.value  <<= dev_attr.get_State_data().in();
+	else if (dev_attr.get_Encoded_data().operator->() != NULL)
 	{
 		TangoSys_OMemStream desc;
 		desc << "Device " << d_name;

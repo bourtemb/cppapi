@@ -10,7 +10,7 @@ static const char *RcsId = "$Id$";
 //
 // author(s) :		E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -31,55 +31,6 @@ static const char *RcsId = "$Id$";
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
 // $Revision$
-//
-// $Log$
-// Revision 3.14  2010/09/09 13:43:38  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 3.13  2009/03/30 15:02:58  taurel
-// - Fix last bugs before Tango 7 ??
-//
-// Revision 3.12  2009/03/13 09:32:27  taurel
-// - Small changes to fix Windows VC8 warnings in Warning level 3
-//
-// Revision 3.11  2009/02/23 14:27:53  taurel
-// - Added a DeviceProxy::get_property_list() method
-//
-// Revision 3.10  2009/01/21 12:45:15  taurel
-// - Change CopyRights for 2009
-//
-// Revision 3.9  2008/10/06 15:02:16  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 3.8  2008/10/02 16:09:25  taurel
-// - Add some licensing information in each files...
-//
-// Revision 3.7  2008/06/14 11:28:07  taurel
-// - DevEncoded attribute data type implementation work going on
-//
-// Revision 3.6  2008/05/20 12:42:29  taurel
-// - Commit after merge with release 7 branch
-//
-// Revision 3.5  2008/03/11 14:36:44  taurel
-// - Apply patches from Frederic Picca about compilation with gcc 4.2
-// Revision 3.2.2.1  2008/02/07 15:56:58  taurel
-// - First implementation of the Controlled Access done
-//
-// Revision 3.4  2008/01/25 15:45:58  taurel
-// - Some changes in the Db cache
-// - A lighter system to shutdown DS in case of dynamic attribute
-//
-// Revision 3.3  2008/01/08 14:33:52  taurel
-// - strcasecmp() is not named like this on Windows !!
-//
-// Revision 3.2  2007/10/17 13:42:04  taurel
-// - Bug found in Db server cache
-//
-// Revision 3.1  2007/10/16 08:25:47  taurel
-// - Add management of the TC connection establishment timeout for DB access
-// - Add DB server cache in DS used during DS startup sequence
-// - Comment out the sleep time during DS startup sequence
-//
 //
 //-============================================================================
 
@@ -256,6 +207,22 @@ DbServerCache::DbServerCache(Database *db,string &ds_name,string &host)
 //
 
 	prop_indexes(start_idx,stop_idx,ctrl_serv_prop,data_list);
+
+//
+// Tac device import info
+//
+
+    start_idx = stop_idx + 1;
+    if (stop_idx == n_data)
+    {
+        stop_idx = -1;
+    }
+    else
+    {
+        stop_idx = n_data;
+        imp_tac.first_idx = start_idx;
+        imp_tac.last_idx = stop_idx;
+    }
 
 }
 
@@ -847,17 +814,10 @@ int DbServerCache::find_obj(DevString obj_name,int &obj_ind)
 
 DbServerCache::~DbServerCache()
 {
-	if (DServer_class_prop.props_idx != NULL)
-		delete [] DServer_class_prop.props_idx;
-
-	if (Default_prop.props_idx != NULL)
-		delete [] Default_prop.props_idx;
-
-	if (adm_dev_prop.props_idx != NULL)
-		delete [] adm_dev_prop.props_idx;
-
-	if (ctrl_serv_prop.props_idx != NULL)
-		delete [] ctrl_serv_prop.props_idx;
+    delete [] DServer_class_prop.props_idx;
+    delete [] Default_prop.props_idx;
+    delete [] adm_dev_prop.props_idx;
+    delete [] ctrl_serv_prop.props_idx;
 
 	for (int cl_loop = 0;cl_loop < class_nb;cl_loop++)
 	{
@@ -1089,7 +1049,7 @@ void DbServerCache::get_obj_prop_list(DevVarStringArray *in_param,PropEltIdx &ob
 // First analyse the wildcard
 //
 
-	bool before,after,wildcard_used;
+	bool before = false,after = false,wildcard_used;
 	string before_str;
 	string after_str;
 	string wildcard((*in_param)[1]);
@@ -1208,5 +1168,70 @@ void DbServerCache::get_obj_prop_list(DevVarStringArray *in_param,PropEltIdx &ob
 	}
 }
 
+//-----------------------------------------------------------------------------
+//
+//  DbServerCache::import_tac_dev()
+//
+//	This method returns to the caller of the info necessary to import the
+//	TAC device. The returned data are the same than the one returned by
+//  the classical API
+//
+//	This method returns a pointer to a DevVarLongStringArray initilised
+//  with the Tango access control import data
+//-----------------------------------------------------------------------------
+
+const DevVarLongStringArray *DbServerCache::import_tac_dev(string &tac_dev)
+{
+
+//
+// Throw exception if no info in cache
+//
+
+	if (imp_tac.last_idx == -1)
+	{
+		Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
+                                       (const char *)"No TAC device in Db cache",
+                                       (const char *)"DbServerCache::import_tac_dev");
+	}
+
+//
+// Throw exception if the device in cache is not the requested one
+//
+
+    if (tac_dev.size() != strlen((*data_list)[imp_tac.first_idx]))
+    {
+		Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
+                                       (const char *)"Device not available from cache",
+                                       (const char *)"DbServerCache::import_tac_dev");
+    }
+
+    string local_tac_dev(tac_dev);
+    string cache_tac_dev((*data_list)[imp_tac.first_idx]);
+
+    transform(local_tac_dev.begin(),local_tac_dev.end(),local_tac_dev.begin(),::tolower);
+    transform(cache_tac_dev.begin(),cache_tac_dev.end(),cache_tac_dev.begin(),::tolower);
+
+    if (local_tac_dev != cache_tac_dev)
+    {
+        Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
+                                       (const char *)"Device not available from cache",
+                                       (const char *)"DbServerCache::import_tac_dev");
+    }
+
+//
+// Return cache data
+//
+
+	imp_tac_data.lvalue.length(2);
+	imp_tac_data.svalue.length(5);
+
+	imp_tac_data.lvalue[0] = ::atoi((*data_list)[imp_tac.first_idx + 5]);
+	imp_tac_data.lvalue[1] = ::atoi((*data_list)[imp_tac.last_idx - 1]);
+
+	for (int loop = 0;loop < 5;loop++)
+		imp_tac_data.svalue[loop] = CORBA::string_dup((*data_list)[imp_tac.first_idx + loop]);
+
+	return &imp_tac_data;
+}
 
 } // End of Tango namespace

@@ -8,7 +8,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 		- February 2002
 //
-// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -49,13 +49,13 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttributeExt &DeviceAttributeExt::operator=(const DeviceAttributeExt &rval)
+DeviceAttribute::DeviceAttributeExt &DeviceAttribute::DeviceAttributeExt::operator=(const DeviceAttribute::DeviceAttributeExt &rval)
 {
 	err_list = rval.err_list;
 	w_dim_x = rval.w_dim_x;
 	w_dim_y = rval.w_dim_y;
 
-	DeviceAttributeExt &nc_source = const_cast<DeviceAttributeExt &>(rval);
+	DeviceAttribute::DeviceAttributeExt &nc_source = const_cast<DeviceAttribute::DeviceAttributeExt &>(rval);
 	if (nc_source.Long64Seq.operator->() != NULL)
 		Long64Seq = nc_source.Long64Seq._retn();
 	if (nc_source.ULongSeq.operator->() != NULL)
@@ -70,7 +70,7 @@ DeviceAttributeExt &DeviceAttributeExt::operator=(const DeviceAttributeExt &rval
 	return *this;
 }
 
-void DeviceAttributeExt::deep_copy(const DeviceAttributeExt &rval)
+void DeviceAttribute::DeviceAttributeExt::deep_copy(const DeviceAttribute::DeviceAttributeExt &rval)
 {
 	err_list = rval.err_list;
 	w_dim_x = rval.w_dim_x;
@@ -89,7 +89,7 @@ void DeviceAttributeExt::deep_copy(const DeviceAttributeExt &rval)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute()
+DeviceAttribute::DeviceAttribute():ext(new DeviceAttributeExt)
 {
 	name = "Name not set";
 	dim_x = 0;
@@ -102,10 +102,15 @@ DeviceAttribute::DeviceAttribute()
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const DeviceAttribute & source)
+//-----------------------------------------------------------------------------
+//
+// DeviceAttribute::DeviceAttribute() - copy constructor to create DeviceAttribute
+//
+//-----------------------------------------------------------------------------
+
+DeviceAttribute::DeviceAttribute(const DeviceAttribute & source):ext(Tango_NullPtr)
 {
 	name = source.name;
 	exceptions_flags = source.exceptions_flags;
@@ -115,6 +120,16 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source)
 	data_format = source.data_format;
 	time = source.time;
 
+#ifdef HAS_RVALUE
+    LongSeq = source.LongSeq;
+    ShortSeq = source.ShortSeq;
+    DoubleSeq = source.DoubleSeq;
+    StringSeq = source.StringSeq;
+    FloatSeq = source.FloatSeq;
+    BooleanSeq = source.BooleanSeq;
+    UShortSeq = source.UShortSeq;
+    UCharSeq = source.UCharSeq;
+#else
 	DeviceAttribute &nc_source = const_cast<DeviceAttribute &>(source);
 	if (nc_source.LongSeq.operator->() != NULL)
 		LongSeq = nc_source.LongSeq._retn();
@@ -132,10 +147,18 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source)
 		UShortSeq = nc_source.UShortSeq._retn();
 	if (nc_source.UCharSeq.operator->() != NULL)
 		UCharSeq = nc_source.UCharSeq._retn();
+#endif
 
 	d_state = source.d_state;
 	d_state_filled = source.d_state_filled;
 
+#ifdef HAS_UNIQUE_PTR
+    if (source.ext.get() != NULL)
+    {
+        ext.reset(new DeviceAttributeExt);
+        *(ext.get()) = *(source.ext.get());
+    }
+#else
 	if (source.ext != NULL)
 	{
 		ext = new DeviceAttributeExt();
@@ -143,7 +166,50 @@ DeviceAttribute::DeviceAttribute(const DeviceAttribute & source)
 	}
 	else
 		ext = NULL;
+#endif
 }
+
+//-----------------------------------------------------------------------------
+//
+// DeviceAttribute::DeviceAttribute() - move constructor to create DeviceAttribute
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceAttribute::DeviceAttribute(DeviceAttribute &&source):ext(Tango_NullPtr)
+{
+	name = move(source.name);
+	exceptions_flags = source.exceptions_flags;
+	dim_x = source.dim_x;
+	dim_y = source.dim_y;
+	quality = source.quality;
+	data_format = source.data_format;
+	time = source.time;
+
+	if (source.LongSeq.operator->() != NULL)
+		LongSeq = source.LongSeq._retn();
+	if (source.ShortSeq.operator->() != NULL)
+		ShortSeq = source.ShortSeq._retn();
+	if (source.DoubleSeq.operator->() != NULL)
+		DoubleSeq = source.DoubleSeq._retn();
+	if (source.StringSeq.operator->() != NULL)
+		StringSeq = source.StringSeq._retn();
+	if (source.FloatSeq.operator->() != NULL)
+		FloatSeq = source.FloatSeq._retn();
+	if (source.BooleanSeq.operator->() != NULL)
+		BooleanSeq = source.BooleanSeq._retn();
+	if (source.UShortSeq.operator->() != NULL)
+		UShortSeq = source.UShortSeq._retn();
+	if (source.UCharSeq.operator->() != NULL)
+		UCharSeq = source.UCharSeq._retn();
+
+	d_state = source.d_state;
+	d_state_filled = source.d_state_filled;
+
+    if (source.ext.get() != NULL)
+        ext = move(source.ext);
+}
+#endif
 
 void DeviceAttribute::deep_copy(const DeviceAttribute & source)
 {
@@ -167,6 +233,15 @@ void DeviceAttribute::deep_copy(const DeviceAttribute & source)
 	d_state = source.d_state;
 	d_state_filled = source.d_state_filled;
 
+#ifdef HAS_UNIQUE_PTR
+    if (source.ext.get() != NULL)
+    {
+        ext.reset(new DeviceAttributeExt);
+        ext.get()->deep_copy(*(source.ext.get()));
+    }
+    else
+        ext.reset();
+#else
 	if (source.ext != NULL)
 	{
 		if (ext == NULL)
@@ -175,6 +250,7 @@ void DeviceAttribute::deep_copy(const DeviceAttribute & source)
 	}
 	else
 		ext = NULL;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -225,7 +301,81 @@ long DeviceAttribute::get_nb_written()
 
 DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 {
-	name = rval.name;
+    if (this != &rval)
+    {
+        name = rval.name;
+        exceptions_flags = rval.exceptions_flags;
+        dim_x = rval.dim_x;
+        dim_y = rval.dim_y;
+        quality = rval.quality;
+        data_format = rval.data_format;
+        time = rval.time;
+
+#ifdef HAS_RVALUE
+        LongSeq = rval.LongSeq;
+        ShortSeq = rval.ShortSeq;
+        DoubleSeq = rval.DoubleSeq;
+        StringSeq = rval.StringSeq;
+        FloatSeq = rval.FloatSeq;
+        BooleanSeq = rval.BooleanSeq;
+        UShortSeq = rval.UShortSeq;
+        UCharSeq = rval.UCharSeq;
+#else
+        DeviceAttribute &nc_rval = const_cast<DeviceAttribute &>(rval);
+        if (nc_rval.LongSeq.operator->() != NULL)
+            LongSeq = nc_rval.LongSeq._retn();
+        if (nc_rval.ShortSeq.operator->() != NULL)
+            ShortSeq = nc_rval.ShortSeq._retn();
+        if (nc_rval.DoubleSeq.operator->() != NULL)
+            DoubleSeq = nc_rval.DoubleSeq._retn();
+        if (nc_rval.StringSeq.operator->() != NULL)
+            StringSeq = nc_rval.StringSeq._retn();
+        if (nc_rval.FloatSeq.operator->() != NULL)
+            FloatSeq = nc_rval.FloatSeq._retn();
+        if (nc_rval.BooleanSeq.operator->() != NULL)
+            BooleanSeq = nc_rval.BooleanSeq._retn();
+        if (nc_rval.UShortSeq.operator->() != NULL)
+            UShortSeq = nc_rval.UShortSeq._retn();
+        if (nc_rval.UCharSeq.operator->() != NULL)
+            UCharSeq = nc_rval.UCharSeq._retn();
+#endif
+
+        d_state = rval.d_state;
+        d_state_filled = rval.d_state_filled;
+
+#ifdef HAS_UNIQUE_PTR
+        if (rval.ext.get() != NULL)
+        {
+            ext.reset(new DeviceAttributeExt);
+            *(ext.get()) = *(rval.ext.get());
+        }
+        else
+            ext.reset();
+#else
+        delete ext;
+        if (rval.ext != NULL)
+        {
+            ext = new DeviceAttributeExt();
+            *ext = *(rval.ext);
+        }
+        else
+            ext = NULL;
+#endif
+    }
+
+	return *this;
+}
+
+//-----------------------------------------------------------------------------
+//
+// DeviceAttribute::operator=() - move assignement operator
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceAttribute & DeviceAttribute::operator=(DeviceAttribute &&rval)
+{
+	name = move(rval.name);
 	exceptions_flags = rval.exceptions_flags;
 	dim_x = rval.dim_x;
 	dim_y = rval.dim_y;
@@ -233,39 +383,36 @@ DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 	data_format = rval.data_format;
 	time = rval.time;
 
-	DeviceAttribute &nc_rval = const_cast<DeviceAttribute &>(rval);
-	if (nc_rval.LongSeq.operator->() != NULL)
-		LongSeq = nc_rval.LongSeq._retn();
-	if (nc_rval.ShortSeq.operator->() != NULL)
-		ShortSeq = nc_rval.ShortSeq._retn();
-	if (nc_rval.DoubleSeq.operator->() != NULL)
-		DoubleSeq = nc_rval.DoubleSeq._retn();
-	if (nc_rval.StringSeq.operator->() != NULL)
-		StringSeq = nc_rval.StringSeq._retn();
-	if (nc_rval.FloatSeq.operator->() != NULL)
-		FloatSeq = nc_rval.FloatSeq._retn();
-	if (nc_rval.BooleanSeq.operator->() != NULL)
-		BooleanSeq = nc_rval.BooleanSeq._retn();
-	if (nc_rval.UShortSeq.operator->() != NULL)
-		UShortSeq = nc_rval.UShortSeq._retn();
-	if (nc_rval.UCharSeq.operator->() != NULL)
-		UCharSeq = nc_rval.UCharSeq._retn();
+	if (rval.LongSeq.operator->() != NULL)
+		LongSeq = rval.LongSeq._retn();
+	if (rval.ShortSeq.operator->() != NULL)
+		ShortSeq = rval.ShortSeq._retn();
+	if (rval.DoubleSeq.operator->() != NULL)
+		DoubleSeq = rval.DoubleSeq._retn();
+	if (rval.StringSeq.operator->() != NULL)
+		StringSeq = rval.StringSeq._retn();
+	if (rval.FloatSeq.operator->() != NULL)
+		FloatSeq = rval.FloatSeq._retn();
+	if (rval.BooleanSeq.operator->() != NULL)
+		BooleanSeq = rval.BooleanSeq._retn();
+	if (rval.UShortSeq.operator->() != NULL)
+		UShortSeq = rval.UShortSeq._retn();
+	if (rval.UCharSeq.operator->() != NULL)
+		UCharSeq = rval.UCharSeq._retn();
 
 	d_state = rval.d_state;
 	d_state_filled = rval.d_state_filled;
 
-	if (ext != NULL)
-		delete ext;
-	if (rval.ext != NULL)
-	{
-		ext = new DeviceAttributeExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
+    if (rval.ext.get() != NULL)
+    {
+        ext = move(rval.ext);
+    }
+    else
+        ext.reset();
 
 	return *this;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -273,7 +420,7 @@ DeviceAttribute & DeviceAttribute::operator=(const DeviceAttribute &rval)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string &new_name, short datum)
+DeviceAttribute::DeviceAttribute(string &new_name, short datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -286,10 +433,9 @@ DeviceAttribute::DeviceAttribute(string &new_name, short datum)
 	ShortSeq = new(DevVarShortArray);
 	ShortSeq->length(1);
 	ShortSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, short datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, short datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -302,7 +448,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, short datum)
 	ShortSeq = new(DevVarShortArray);
 	ShortSeq->length(1);
 	ShortSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -311,7 +456,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, short datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, DevLong datum)
+DeviceAttribute::DeviceAttribute(string& new_name, DevLong datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -321,13 +466,12 @@ DeviceAttribute::DeviceAttribute(string& new_name, DevLong datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	LongSeq  = new(DevVarLongArray);
 	LongSeq->length(1);
 	LongSeq[0] = datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, DevLong datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, DevLong datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -337,7 +481,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevLong datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	LongSeq  = new(DevVarLongArray);
 	LongSeq->length(1);
 	LongSeq[0] = datum;
@@ -349,7 +492,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevLong datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, DevLong64 datum)
+DeviceAttribute::DeviceAttribute(string& new_name, DevLong64 datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -359,13 +502,12 @@ DeviceAttribute::DeviceAttribute(string& new_name, DevLong64 datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->Long64Seq  = new(DevVarLong64Array);
 	ext->Long64Seq->length(1);
 	ext->Long64Seq[0] = datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, DevLong64 datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, DevLong64 datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -375,7 +517,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevLong64 datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->Long64Seq  = new(DevVarLong64Array);
 	ext->Long64Seq->length(1);
 	ext->Long64Seq[0] = datum;
@@ -387,7 +528,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevLong64 datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, double datum)
+DeviceAttribute::DeviceAttribute(string& new_name, double datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -400,10 +541,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, double datum)
 	DoubleSeq  = new(DevVarDoubleArray);
 	DoubleSeq->length(1);
 	DoubleSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, double datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, double datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -416,7 +556,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, double datum)
 	DoubleSeq  = new(DevVarDoubleArray);
 	DoubleSeq->length(1);
 	DoubleSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -425,7 +564,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, double datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, string& datum)
+DeviceAttribute::DeviceAttribute(string& new_name, string& datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -438,10 +577,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, string& datum)
 	StringSeq = new(DevVarStringArray);
 	StringSeq->length(1);
 	StringSeq[0] = string_dup(datum.c_str());
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, string& datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, string& datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -454,10 +592,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, string& datum)
 	StringSeq = new(DevVarStringArray);
 	StringSeq->length(1);
 	StringSeq[0] = string_dup(datum.c_str());
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, const char *datum)
+DeviceAttribute::DeviceAttribute(string& new_name, const char *datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -470,10 +607,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, const char *datum)
 	StringSeq = new(DevVarStringArray);
 	StringSeq->length(1);
 	StringSeq[0] = string_dup(datum);
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, const char *datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, const char *datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -486,7 +622,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, const char *datum)
 	StringSeq = new(DevVarStringArray);
 	StringSeq->length(1);
 	StringSeq[0] = string_dup(datum);
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -495,7 +630,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, const char *datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, float datum)
+DeviceAttribute::DeviceAttribute(string& new_name, float datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -508,10 +643,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, float datum)
 	FloatSeq  = new(DevVarFloatArray);
 	FloatSeq->length(1);
 	FloatSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, float datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, float datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -524,7 +658,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, float datum)
 	FloatSeq  = new(DevVarFloatArray);
 	FloatSeq->length(1);
 	FloatSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -533,7 +666,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, float datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, bool datum)
+DeviceAttribute::DeviceAttribute(string& new_name, bool datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -546,10 +679,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, bool datum)
 	BooleanSeq  = new(DevVarBooleanArray);
 	BooleanSeq->length(1);
 	BooleanSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, bool datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, bool datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -562,7 +694,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, bool datum)
 	BooleanSeq  = new(DevVarBooleanArray);
 	BooleanSeq->length(1);
 	BooleanSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -571,7 +702,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, bool datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, unsigned short datum)
+DeviceAttribute::DeviceAttribute(string& new_name, unsigned short datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -584,10 +715,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, unsigned short datum)
 	UShortSeq = new(DevVarUShortArray);
 	UShortSeq->length(1);
 	UShortSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, unsigned short datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, unsigned short datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -600,7 +730,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, unsigned short datum)
 	UShortSeq = new(DevVarUShortArray);
 	UShortSeq->length(1);
 	UShortSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -609,7 +738,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, unsigned short datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, unsigned char datum)
+DeviceAttribute::DeviceAttribute(string& new_name, unsigned char datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -622,10 +751,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, unsigned char datum)
 	UCharSeq  = new(DevVarCharArray);
 	UCharSeq->length(1);
 	UCharSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, unsigned char datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, unsigned char datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -638,7 +766,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, unsigned char datum)
 	UCharSeq  = new(DevVarCharArray);
 	UCharSeq->length(1);
 	UCharSeq[0] = datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -647,7 +774,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, unsigned char datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, DevULong datum)
+DeviceAttribute::DeviceAttribute(string& new_name, DevULong datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -657,13 +784,12 @@ DeviceAttribute::DeviceAttribute(string& new_name, DevULong datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULongSeq  = new(DevVarULongArray);
 	ext->ULongSeq->length(1);
 	ext->ULongSeq[0] = datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, DevULong datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, DevULong datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -673,7 +799,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevULong datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULongSeq  = new(DevVarULongArray);
 	ext->ULongSeq->length(1);
 	ext->ULongSeq[0] = datum;
@@ -685,7 +810,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevULong datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, DevULong64 datum)
+DeviceAttribute::DeviceAttribute(string& new_name, DevULong64 datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -695,13 +820,12 @@ DeviceAttribute::DeviceAttribute(string& new_name, DevULong64 datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULong64Seq  = new(DevVarULong64Array);
 	ext->ULong64Seq->length(1);
 	ext->ULong64Seq[0] = datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, DevULong64 datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, DevULong64 datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -711,7 +835,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevULong64 datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULong64Seq  = new(DevVarULong64Array);
 	ext->ULong64Seq->length(1);
 	ext->ULong64Seq[0] = datum;
@@ -723,7 +846,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevULong64 datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, DevState datum)
+DeviceAttribute::DeviceAttribute(string& new_name, DevState datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -733,13 +856,12 @@ DeviceAttribute::DeviceAttribute(string& new_name, DevState datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->StateSeq  = new(DevVarStateArray);
 	ext->StateSeq->length(1);
 	ext->StateSeq[0] = datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, DevState datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, DevState datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -749,7 +871,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevState datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->StateSeq  = new(DevVarStateArray);
 	ext->StateSeq->length(1);
 	ext->StateSeq[0] = datum;
@@ -761,7 +882,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevState datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string &new_name, DevEncoded &datum)
+DeviceAttribute::DeviceAttribute(string &new_name, DevEncoded &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -771,14 +892,13 @@ DeviceAttribute::DeviceAttribute(string &new_name, DevEncoded &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->EncodedSeq  = new(DevVarEncodedArray);
 	ext->EncodedSeq->length(1);
 	ext->EncodedSeq[0] = datum;
 
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, DevEncoded &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, DevEncoded &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = 1;
@@ -788,7 +908,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevEncoded &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->EncodedSeq  = new(DevVarEncodedArray);
 	ext->EncodedSeq->length(1);
 	ext->EncodedSeq[0] = datum;
@@ -799,7 +918,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, DevEncoded &datum)
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<short> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<short> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -811,10 +930,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<short> &datum)
 	exceptions_flags.set(isempty_flag);
 	ShortSeq = new(DevVarShortArray);
 	ShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -826,10 +944,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum)
 	exceptions_flags.set(isempty_flag);
 	ShortSeq = new(DevVarShortArray);
 	ShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<short> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<short> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -841,10 +958,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<short> &datum,int x,in
 	exceptions_flags.set(isempty_flag);
 	ShortSeq = new(DevVarShortArray);
 	ShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -856,7 +972,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum,int 
 	exceptions_flags.set(isempty_flag);
 	ShortSeq = new(DevVarShortArray);
 	ShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -865,7 +980,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<short> &datum,int 
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -875,12 +990,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	LongSeq = new(DevVarLongArray);
 	LongSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -890,12 +1004,11 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	LongSeq = new(DevVarLongArray);
 	LongSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -905,12 +1018,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong> &datum,int x,
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	LongSeq = new(DevVarLongArray);
 	LongSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -920,7 +1032,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum,in
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	LongSeq = new(DevVarLongArray);
 	LongSeq.inout() << datum;
 }
@@ -931,7 +1042,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong> &datum,in
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong64> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong64> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -941,12 +1052,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong64> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->Long64Seq = new(DevVarLong64Array);
 	ext->Long64Seq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -956,12 +1066,11 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->Long64Seq = new(DevVarLong64Array);
 	ext->Long64Seq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong64> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong64> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -971,12 +1080,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevLong64> &datum,int 
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->Long64Seq = new(DevVarLong64Array);
 	ext->Long64Seq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -986,7 +1094,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum,
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->Long64Seq = new(DevVarLong64Array);
 	ext->Long64Seq.inout() << datum;
 }
@@ -997,7 +1104,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevLong64> &datum,
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<double> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<double> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1009,10 +1116,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<double> &datum)
 	exceptions_flags.set(isempty_flag);
 	DoubleSeq = new(DevVarDoubleArray);
 	DoubleSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1024,10 +1130,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum)
 	exceptions_flags.set(isempty_flag);
 	DoubleSeq = new(DevVarDoubleArray);
 	DoubleSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<double> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<double> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1039,10 +1144,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<double> &datum,int x,i
 	exceptions_flags.set(isempty_flag);
 	DoubleSeq = new(DevVarDoubleArray);
 	DoubleSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1054,7 +1158,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum,int
 	exceptions_flags.set(isempty_flag);
 	DoubleSeq = new(DevVarDoubleArray);
 	DoubleSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 
@@ -1064,7 +1167,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<double> &datum,int
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<string> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<string> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1076,10 +1179,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<string> &datum)
 	exceptions_flags.set(isempty_flag);
 	StringSeq = new(DevVarStringArray);
 	StringSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1091,10 +1193,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum)
 	exceptions_flags.set(isempty_flag);
 	StringSeq = new(DevVarStringArray);
 	StringSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<string> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<string> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1106,10 +1207,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<string> &datum,int x,i
 	exceptions_flags.set(isempty_flag);
 	StringSeq = new(DevVarStringArray);
 	StringSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1121,7 +1221,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum,int
 	exceptions_flags.set(isempty_flag);
 	StringSeq = new(DevVarStringArray);
 	StringSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -1130,7 +1229,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<string> &datum,int
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<float> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<float> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1142,10 +1241,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<float> &datum)
 	exceptions_flags.set(isempty_flag);
 	FloatSeq = new(DevVarFloatArray);
 	FloatSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1157,10 +1255,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum)
 	exceptions_flags.set(isempty_flag);
 	FloatSeq = new(DevVarFloatArray);
 	FloatSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<float> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<float> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1172,10 +1269,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<float> &datum,int x,in
 	exceptions_flags.set(isempty_flag);
 	FloatSeq = new(DevVarFloatArray);
 	FloatSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1187,7 +1283,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum,int 
 	exceptions_flags.set(isempty_flag);
 	FloatSeq = new(DevVarFloatArray);
 	FloatSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -1196,7 +1291,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<float> &datum,int 
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<bool> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<bool> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1208,10 +1303,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<bool> &datum)
 	exceptions_flags.set(isempty_flag);
 	BooleanSeq = new(DevVarBooleanArray);
 	BooleanSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1223,10 +1317,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum)
 	exceptions_flags.set(isempty_flag);
 	BooleanSeq = new(DevVarBooleanArray);
  	BooleanSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<bool> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<bool> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1238,10 +1331,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<bool> &datum,int x,int
 	exceptions_flags.set(isempty_flag);
 	BooleanSeq = new(DevVarBooleanArray);
 	BooleanSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1253,7 +1345,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum,int x
 	exceptions_flags.set(isempty_flag);
 	BooleanSeq = new(DevVarBooleanArray);
 	BooleanSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 
@@ -1263,7 +1354,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<bool> &datum,int x
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned short> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned short> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1275,10 +1366,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned short> &datum
 	exceptions_flags.set(isempty_flag);
 	UShortSeq = new(DevVarUShortArray);
 	UShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1290,10 +1380,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &d
 	exceptions_flags.set(isempty_flag);
 	UShortSeq = new(DevVarUShortArray);
 	UShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned short> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned short> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1305,10 +1394,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned short> &datum
 	exceptions_flags.set(isempty_flag);
 	UShortSeq = new(DevVarUShortArray);
 	UShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1320,7 +1408,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &d
 	exceptions_flags.set(isempty_flag);
 	UShortSeq = new(DevVarUShortArray);
 	UShortSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -1329,7 +1416,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned short> &d
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned char> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned char> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1341,10 +1428,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned char> &datum)
 	exceptions_flags.set(isempty_flag);
 	UCharSeq = new(DevVarCharArray);
 	UCharSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1356,10 +1442,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &da
 	exceptions_flags.set(isempty_flag);
 	UCharSeq = new(DevVarCharArray);
 	UCharSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned char> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned char> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1371,10 +1456,9 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<unsigned char> &datum,
 	exceptions_flags.set(isempty_flag);
 	UCharSeq = new(DevVarCharArray);
 	UCharSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1386,7 +1470,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &da
 	exceptions_flags.set(isempty_flag);
 	UCharSeq = new(DevVarCharArray);
 	UCharSeq.inout() << datum;
-	ext = new DeviceAttributeExt();
 }
 
 //-----------------------------------------------------------------------------
@@ -1395,7 +1478,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<unsigned char> &da
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1405,12 +1488,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULongSeq = new(DevVarULongArray);
 	ext->ULongSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1420,12 +1502,11 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULongSeq = new(DevVarULongArray);
 	ext->ULongSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1435,12 +1516,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong> &datum,int x
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULongSeq = new(DevVarULongArray);
 	ext->ULongSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1450,7 +1530,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum,i
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULongSeq = new(DevVarULongArray);
 	ext->ULongSeq.inout() << datum;
 }
@@ -1461,7 +1540,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong> &datum,i
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong64> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong64> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1471,12 +1550,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong64> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULong64Seq = new(DevVarULong64Array);
 	ext->ULong64Seq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1486,12 +1564,11 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULong64Seq = new(DevVarULong64Array);
 	ext->ULong64Seq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong64> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong64> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1501,12 +1578,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevULong64> &datum,int
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULong64Seq = new(DevVarULong64Array);
 	ext->ULong64Seq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1516,7 +1592,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->ULong64Seq = new(DevVarULong64Array);
 	ext->ULong64Seq.inout() << datum;
 }
@@ -1528,7 +1603,7 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevULong64> &datum
 //
 //-----------------------------------------------------------------------------
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevState> &datum)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevState> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1538,12 +1613,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevState> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->StateSeq = new(DevVarStateArray);
 	ext->StateSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = datum.size();
@@ -1553,12 +1627,11 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum)
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->StateSeq = new(DevVarStateArray);
 	ext->StateSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(string& new_name, vector<DevState> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(string& new_name, vector<DevState> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1568,12 +1641,11 @@ DeviceAttribute::DeviceAttribute(string& new_name, vector<DevState> &datum,int x
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->StateSeq = new(DevVarStateArray);
 	ext->StateSeq.inout() << datum;
 }
 
-DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum,int x,int y)
+DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum,int x,int y):ext(new DeviceAttributeExt)
 {
 	name = new_name;
 	dim_x = x;
@@ -1583,7 +1655,6 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum,i
 	d_state_filled = false;
 	exceptions_flags.set(failed_flag);
 	exceptions_flags.set(isempty_flag);
-	ext = new DeviceAttributeExt();
 	ext->StateSeq = new(DevVarStateArray);
 	ext->StateSeq.inout() << datum;
 }
@@ -1596,8 +1667,9 @@ DeviceAttribute::DeviceAttribute(const char *new_name, vector<DevState> &datum,i
 
 DeviceAttribute::~DeviceAttribute()
 {
-	if (ext != NULL)
-		delete ext;
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1738,6 +1810,8 @@ int DeviceAttribute::get_type()
 			data_type = Tango::DEV_ENCODED;
 		else if ((ext->StateSeq.operator->() != NULL) || (d_state_filled == true))
 			data_type = Tango::DEV_STATE;
+        else
+            data_type = -1;
 	}
 
 	return data_type;

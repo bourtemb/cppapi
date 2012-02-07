@@ -123,7 +123,7 @@
 				PrecompiledHeaderFile=".\Debug/tango_static.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName="$(PREFIX)\win32\lib\vc9\tangod.7.2.7.pdb"
+				ProgramDataBaseFileName="$(PREFIX)\win32\lib\vc9\tangod.8.0.0.pdb"
 				WarningLevel="2"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -270,11 +270,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\event.h"
+				RelativePath="..\..\..\client\event.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\server\eventcmds.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\client\eventconsumer.h"
 				>
 			</File>
 			<File
@@ -931,6 +935,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\server\dev_poll.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\client\devapi_attr.cpp"
 				>
 				<FileConfiguration
@@ -1283,28 +1291,8 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\event.cpp"
+				RelativePath="..\..\..\client\event.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\server\eventcmds.cpp"
@@ -1331,11 +1319,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\server\eventkeepalive.cpp"
+				RelativePath="..\..\..\client\eventkeepalive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\eventqueue.cpp"
+				RelativePath="..\..\..\client\eventqueue.cpp"
 				>
 			</File>
 			<File
@@ -1567,7 +1555,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\server\notifdeventconsumer.cpp"
+				RelativePath="..\..\..\client\notifdeventconsumer.cpp"
 				>
 			</File>
 			<File
@@ -1971,7 +1959,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\server\zmqeventconsumer.cpp"
+				RelativePath="..\..\..\client\zmqeventconsumer.cpp"
 				>
 			</File>
 			<File

@@ -11,7 +11,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          J. Meyer
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -32,46 +32,6 @@ static const char *RcsId = "$Id$\n$Name$";
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
 // $Revision$
-//
-// $Log$
-// Revision 1.11  2010/09/09 13:46:00  taurel
-// - Add year 2010 in Copyright notice
-//
-// Revision 1.10  2009/03/20 11:53:28  taurel
-// - Fix some compiler warnings
-//
-// Revision 1.9  2009/03/18 12:18:45  taurel
-// - Fix warnings reported when compiled with the option -Wall
-//
-// Revision 1.8  2009/01/30 09:18:09  taurel
-// - End of first implementation of Data Ready event
-//
-// Revision 1.7  2009/01/29 15:25:41  taurel
-// - First implementation of the Data Ready event
-//
-// Revision 1.6  2009/01/21 12:49:03  taurel
-// - Change CopyRights for 2009
-//
-// Revision 1.5  2008/10/06 15:01:09  taurel
-// - Changed the licensing info from GPL to LGPL
-//
-// Revision 1.4  2008/10/03 06:52:31  taurel
-// - Add some licensing info in each files
-//
-// Revision 1.3  2008/09/15 12:31:09  jensmeyer
-// Added an eventqueue reading method to call the usual callback method
-// when reading event data from the queue.
-//
-// Revision 1.2  2008/09/15 08:50:53  jensmeyer
-// Corrections when attributes are not yet available during subscription.
-//
-// Revision 1.1  2008/09/15 07:24:08  jensmeyer
-// Added event queues for event reception.
-// To clean-up event.cpp two new files have been added
-// evnetkeepalive.cpp and eventqueue.cpp.
-//
-// Revision 1.1  2008/07/25 13:40:23  meyer
-// Initial revision
 //
 //
 //============================================================================

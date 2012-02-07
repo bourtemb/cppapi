@@ -4,28 +4,10 @@
 
 include Make.rules
 
-
-ifdef _solaris
-ifdef gcc
-CC = c++
-AR = /usr/ccs/bin/ar rv
-AR_SL = $(CC) -fPIC -shared -ldl
-VERS_OPT = -Wl,-h,
-SL_EXT = so
-else
-CC = /opt/SUNWspro/bin/CC
-AR = $(CC) -xar -o
-AR_SL = $(CC) -mt -G -lCstd -ldl
-VERS_OPT = -h
-SL_EXT = so
-endif
-endif
-
-
 ifdef linux
 CC = c++
 AR = ar rv
-AR_SL = $(CC) -fPIC -shared -ldl
+AR_SL = $(CC) -fPIC -shared -ldl -Wl,-z,now
 VERS_OPT = -Wl,-soname,
 SL_EXT = so
 #
@@ -74,32 +56,29 @@ INCLUDE_DIRS = -I$(CLIENT_SRC) \
 #------------------------------------------------------------------
 MMFLAG =
 
-ifdef _solaris
-ifdef gcc
-CXXFLAGS = -O2 -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
-CXXFLAGS_SL = $(CXXFLAGS) -fPIC
+#Check that we have at least gcc 4.3 (for c++0x features)
+ifdef linux
+GCC_MAJOR_VERSION_GT4 := $(shell expr `c++ -dumpversion | cut -f1 -d.` \> 4)
+GCC_MAJOR_VERSION_EQ4 := $(shell expr `c++ -dumpversion | cut -f1 -d.` \== 4)
+GCC_MINOR_VERSION_GTEQ3 := $(shell expr `c++ -dumpversion | cut -f2 -d.` \>= 3)
+ifeq ($(GCC_MAJOR_VERSION_GT4),1)
+    CXX11 = -std=c++0x
 else
-BASE_CXXFLAGS = -mt -D_POSIX_PTHREAD_SEMANTICS -D_TANGO_LIB \
-	   	  -DOMNI_UNLOADABLE_STUBS \
-	        -xregs=no%appl $(INCLUDE_DIRS)
-BASE_CXXFLAGS_SL = $(BASE_CXXFLAGS) -KPIC
-ifdef debug
-CXXFLAGS = $(BASE_CXXFLAGS) -g
-CXXFLAGS_SL = $(BASE_CXXFLAGS_SL) -g
-else
-CXXFLAGS = $(BASE_CXXFLAGS)
-CXXFLAGS_SL = $(BASE_CXXFLAGS_SL)
-endif
+    ifeq ($(GCC_MAJOR_VERSION_EQ4),1)
+        ifeq ($(GCC_MINOR_VERSION_GTEQ3),1)
+            CXX11 = -std=c++0x
+        endif
+    endif
 endif
 endif
 
 ifdef linux
 ifdef debug
-FLAGS = -g -Wall -Wextra -D_REENTRANT -DOMNI_UNLOADABLE_STUBS $(INCLUDE_DIRS)
+FLAGS = -g -Wall -Wextra $(CXX11) -D_REENTRANT -DOMNI_UNLOADABLE_STUBS -D_FORTIFY_SOURCE=2 -O1 $(INCLUDE_DIRS)
 #FLAGS    = -g -D_REENTRANT -D_TANGO_LIB $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 else
 SILENT_MODE = -D_TANGO_LIB
-FLAGS    = -O2 -D_REENTRANT  $(SILENT_MODE) $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
+FLAGS    = -O2 $(CXX11) -D_REENTRANT $(SILENT_MODE) $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS -D_FORTIFY_SOURCE=2
 #FLAGS    = -O2 -D_REENTRANT $(INCLUDE_DIRS) -DOMNI_UNLOADABLE_STUBS
 endif
 
@@ -143,6 +122,7 @@ SERVER_OBJS = 	$(OBJS_DIR)/device.o \
 		$(OBJS_DIR)/device_3.o \
 		$(OBJS_DIR)/device_4.o \
 		$(OBJS_DIR)/dev_event.o \
+		$(OBJS_DIR)/dev_poll.o \
 		$(OBJS_DIR)/deviceclass.o \
 		$(OBJS_DIR)/command.o \
 		$(OBJS_DIR)/dserversignal.o \
@@ -175,15 +155,11 @@ SERVER_OBJS = 	$(OBJS_DIR)/device.o \
 		$(OBJS_DIR)/coutappender.o \
 		$(OBJS_DIR)/tangoappender.o \
 		$(OBJS_DIR)/tangorollingfileappender.o \
-		$(OBJS_DIR)/event.o \
 		$(OBJS_DIR)/eventsupplier.o \
         $(OBJS_DIR)/notifdeventsupplier.o \
-        $(OBJS_DIR)/notifdeventconsumer.o \
         $(OBJS_DIR)/zmqeventsupplier.o \
-        $(OBJS_DIR)/zmqeventconsumer.o \
 		$(OBJS_DIR)/eventcmds.o \
 		$(OBJS_DIR)/eventqueue.o \
-		$(OBJS_DIR)/eventkeepalive.o \
 		$(OBJS_DIR)/utils_polling.o \
 		$(OBJS_DIR)/utils_shut.o \
 		$(OBJS_DIR)/subdev_diag.o \
@@ -220,7 +196,11 @@ CLIENT_OBJS = 	$(OBJS_DIR)/dbapi_base.o \
 		$(OBJS_DIR)/dbapi_attribute.o \
 		$(OBJS_DIR)/attr_proxy.o \
 		$(OBJS_DIR)/apiexcept.o \
-		$(OBJS_DIR)/filedatabase.o
+		$(OBJS_DIR)/filedatabase.o \
+		$(OBJS_DIR)/event.o \
+        $(OBJS_DIR)/notifdeventconsumer.o \
+        $(OBJS_DIR)/zmqeventconsumer.o \
+		$(OBJS_DIR)/eventkeepalive.o
 
 IDL_OBJS_SL =	$(OBJS_DIR_SL)/tangoSK.so.o \
 		$(OBJS_DIR_SL)/tangoDynSK.so.o
@@ -230,6 +210,7 @@ SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
 		$(OBJS_DIR_SL)/device_3.so.o \
 		$(OBJS_DIR_SL)/device_4.so.o \
 		$(OBJS_DIR_SL)/dev_event.so.o \
+		$(OBJS_DIR_SL)/dev_poll.so.o \
 		$(OBJS_DIR_SL)/deviceclass.so.o \
 		$(OBJS_DIR_SL)/command.so.o \
 		$(OBJS_DIR_SL)/dserversignal.so.o \
@@ -262,15 +243,11 @@ SERVER_OBJS_SL =$(OBJS_DIR_SL)/device.so.o \
 	  	$(OBJS_DIR_SL)/coutappender.so.o \
 	  	$(OBJS_DIR_SL)/tangoappender.so.o \
 	  	$(OBJS_DIR_SL)/tangorollingfileappender.so.o \
-		$(OBJS_DIR_SL)/event.so.o \
 		$(OBJS_DIR_SL)/eventsupplier.so.o \
         $(OBJS_DIR_SL)/notifdeventsupplier.so.o \
-        $(OBJS_DIR_SL)/notifdeventconsumer.so.o \
         $(OBJS_DIR_SL)/zmqeventsupplier.so.o \
-        $(OBJS_DIR_SL)/zmqeventconsumer.so.o \
 		$(OBJS_DIR_SL)/eventcmds.so.o \
 		$(OBJS_DIR_SL)/eventqueue.so.o \
-		$(OBJS_DIR_SL)/eventkeepalive.so.o \
 		$(OBJS_DIR_SL)/utils_polling.so.o \
 		$(OBJS_DIR_SL)/utils_shut.so.o \
 		$(OBJS_DIR_SL)/subdev_diag.so.o \
@@ -307,7 +284,11 @@ CLIENT_OBJS_SL = $(OBJS_DIR_SL)/dbapi_base.so.o \
 		$(OBJS_DIR_SL)/dbapi_attribute.so.o \
 		$(OBJS_DIR_SL)/attr_proxy.so.o \
 		$(OBJS_DIR_SL)/apiexcept.so.o \
-		$(OBJS_DIR_SL)/filedatabase.so.o
+		$(OBJS_DIR_SL)/filedatabase.so.o \
+		$(OBJS_DIR_SL)/event.so.o \
+        $(OBJS_DIR_SL)/notifdeventconsumer.so.o \
+        $(OBJS_DIR_SL)/zmqeventconsumer.so.o \
+		$(OBJS_DIR_SL)/eventkeepalive.so.o
 
 IDL_INCLUDE    = 	tango.h
 
@@ -324,7 +305,9 @@ CLIENT_INCLUDE =	apiexcept.h \
 			devasyn.h \
 			filedatabase.h \
 			group.h \
-			accessproxy.h
+			accessproxy.h \
+			eventconsumer.h \
+			event.h
 
 SERVER_INCLUDE =	attrdesc.h \
 			attribute.h \
@@ -345,8 +328,6 @@ SERVER_INCLUDE =	attrdesc.h \
 			dserver.h \
 			dserverclass.h \
 			dserversignal.h \
-			event.h \
-			eventconsumer.h \
 			eventsupplier.h \
 			except.h \
 			log4tango.h \
@@ -369,6 +350,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			tangoappender.h \
 			tangorollingfileappender.h \
 			utils.h \
+			utils.tpp \
 			w32win.h \
 			w_attribute.h \
 			subdev_diag.h \
@@ -381,9 +363,6 @@ SERVER_INCLUDE =	attrdesc.h \
 all:	$(LIBNAME).$(AR_EXT) $(LIBNAME).$(SL_EXT) install_include install_link
 
 
-print:
-	echo "here"
-	
 #
 # Rule for archive libary
 #

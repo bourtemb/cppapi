@@ -11,7 +11,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -157,25 +157,18 @@ Util *Util::instance(bool exit)
 //
 //-----------------------------------------------------------------------------
 
-#if ((defined __SUNPRO_CC) || (defined GCC_STD))
-Util::Util(int argc,char *argv[]):cl_list_ptr(NULL)
-# ifndef TANGO_HAS_LOG4TANGO
-    ,cout_tmp(cout.rdbuf())
-# endif
-#elif (defined _TG_WINDOWS_)
-Util::Util(int argc,char *argv[]):cl_list_ptr(NULL),mon("Windows startup")
+#ifdef _TG_WINDOWS
+Util::Util(int argc,char *argv[]):cl_list_ptr(NULL),mon("Windows startup"),ext(new UtilExt)
 # ifndef TANGO_HAS_LOG4TANGO
     ,cout_tmp(cout.rdbuf())
 # endif
 #else
-Util::Util(int argc,char *argv[]):cl_list_ptr(NULL)
+Util::Util(int argc,char *argv[]):cl_list_ptr(NULL),ext(new UtilExt)
+# ifndef TANGO_HAS_LOG4TANGO
+    ,cout_tmp(cout.rdbuf())
+# endif
 #endif
 {
-//
-// Create the UtilExt instance
-//
-
-	ext = new UtilExt;
 
 //
 // Do the job
@@ -333,12 +326,8 @@ void Util::effective_job(int argc,char *argv[])
   		trace_output = InitialOutput;
 		file_stream = NULL;
 
-# if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 		cout_tmp.copyfmt(cout);
 		cout_tmp.clear(cout.rdstate());
-# else
-		cout_tmp = cout;
-# endif
 #endif // TANGO_HAS_LOG4TANGO
 
 //
@@ -504,16 +493,11 @@ void Util::create_CORBA_objects()
 //
 //-----------------------------------------------------------------------------
 
-Util::Util(HINSTANCE hInst,int nCmdShow):cl_list_ptr(NULL),mon("Windows startup")
+Util::Util(HINSTANCE hInst,int nCmdShow):cl_list_ptr(NULL),mon("Windows startup"),ext(new UtilExt)
 #ifndef TANGO_HAS_LOG4TANGO
   ,cout_tmp(cout.rdbuf())
 #endif
 {
-//
-// Create the UtilExt instance
-//
-
-	ext = new UtilExt;
 
 //
 // This method should be called from a Windows graphic program
@@ -1151,47 +1135,23 @@ void Util::misc_init()
 
 	TangoSys_OMemStream o;
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
-	#ifdef _TG_WINDOWS_
+#ifdef _TG_WINDOWS_
 	pid = _getpid();
-	#else
-		#ifdef __linux
-	pid = DServerSignal::instance()->get_sig_thread_pid();
-		#else
-	pid = getpid();
-		#endif
-	#endif
-
-	o << pid << ends;
-	pid_str = o.str();
 #else
-	#ifdef __linux
-		pid = DServerSignal::instance()->get_sig_thread_pid();
-	#else
-		pid = getpid();
-	#endif
+	pid = DServerSignal::instance()->get_sig_thread_pid();
+#endif
 
 	o << pid << ends;
 	pid_str = o.str();
-	o.rdbuf()->freeze(false);
-#endif
 
 //
 // Convert Tango version number to string (for device export)
 //
 
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
 	o.seekp(0,ios_base::beg);
 	o.clear();
 	o << DevVersion << ends;
 	version_str = o.str();
-#else
-	o.rdbuf()->seekoff(0,ios::beg,ios::in | ios::out);
-	o.clear();
-	o << DevVersion << ends;
-	version_str = o.str();
-	o.rdbuf()->freeze(false);
-#endif
 
 //
 // Init server version to a default value
@@ -1205,13 +1165,12 @@ void Util::misc_init()
 
 #ifdef _TG_WINDOWS_
 	main_win_text = "TANGO collaboration\n";
-	main_win_text = main_win_text + "(ALBA / DESY / ELETTRA / ESRF / SOLEIL )\n";
-	main_win_text = main_win_text + "CORBA based device server\n";
+	main_win_text = main_win_text + "(ALBA / DESY / ELETTRA / ESRF / FRMII / MAX-LAB / SOLEIL )\n";
 	main_win_text = main_win_text + "Developped by Tango team";
 #endif
 
 //
-// Check if the user has defined his own publisher hwm (fpr zmq event tuning)
+// Check if the user has defined his own publisher hwm (for zmq event tuning)
 //
 
 	string var;
@@ -1260,17 +1219,11 @@ void Util::init_host_name()
   			struct addrinfo hints;
 
 			memset(&hints,0,sizeof(struct addrinfo));
+
   			hints.ai_family    = AF_UNSPEC;		// supports both IPv4 and IPv6
   			hints.ai_socktype  = SOCK_STREAM;
   			hints.ai_flags = AI_NUMERICHOST;	// inhibits resolution of node parameter if it is not a numeric network address
-
-#ifdef _TG_WINDOWS_
-			hints.ai_flags	   |= AI_ADDRCONFIG;
-#else
-#ifdef GCC_HAS_AI_ADDRCONFIG
-  			hints.ai_flags     |= AI_ADDRCONFIG;
-#endif
-#endif
+  			hints.ai_flags |= AI_ADDRCONFIG;
 
   			struct addrinfo	*info, *ptr;
 			char tmp_host[NI_MAXHOST];
@@ -1436,31 +1389,6 @@ void Util::server_already_running()
 {
 
 	cout4 << "Entering Util::server_already_running method" << endl;
-
-//
-// First, sleep a while in order to solve race condition for two
-// servers started at the "same time" and a schedulling happens between
-// the database check and the export device. This system is inherited
-// from what has been implemented for the TACO control system
-//
-
-#ifdef _TG_WINDOWS_
-	pid = _getpid();
-#else
-	pid = getpid();
-#endif
-
-	srand(pid);
-#ifdef _TG_WINDOWS_
-	DWORD backoff;
-	backoff = (DWORD)(1000. * (float)rand() / (float)RAND_MAX);
-//	Sleep(backoff);
-#else
-	struct timespec backoff;
-	backoff.tv_sec = 0;
-	backoff.tv_nsec = (long)(1000000000. * (float)rand() / (float)RAND_MAX);
-//	nanosleep(&backoff,NULL);
-#endif
 
 //
 // Build device name and try to import it from database or from cache if available
@@ -1714,7 +1642,6 @@ void Util::server_init(TANGO_UNUSED(bool with_window))
 		{
 		// extract sub device information before deleting cache!
 			get_sub_dev_diag().get_sub_devices_from_cache();
-
 
 			delete ext->db_cache;
 			ext->db_cache = NULL;
@@ -2418,41 +2345,6 @@ void Util::clean_dyn_attr_prop()
 		db->delete_all_device_attribute_property(ext->dyn_att_dev_name,send_data);
 	}
 }
-
-//+----------------------------------------------------------------------------
-//
-// method : 		Util::set_db_svr_version()
-//
-// description : 	Cheack some BD command to guess db server version
-//
-//-----------------------------------------------------------------------------
-
-void Util::set_db_svr_version()
-{
-
-//
-// Is the DbDeleteAllDeviceAttributeProperty command available ?
-//
-
-	try
-	{
-		string dummy_dev_name("a/b/c");
-		DbData db_dat;
-		DbDatum datum("Dummy_att");
-		db_dat.push_back(datum);
-
-		db->delete_all_device_attribute_property(dummy_dev_name,db_dat);
-		ext->db_svr_version = 400;
-	}
-	catch(Tango::DevFailed &e)
-	{
-		if (::strcmp(e.errors[0].reason.in(),"API_CommandNotFound") == 0)
-			ext->db_svr_version = 399;
-		else
-			ext->db_svr_version = 300;
-	}
-}
-
 
 #ifdef _TG_WINDOWS_
 //+----------------------------------------------------------------------------

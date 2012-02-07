@@ -14,7 +14,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // author(s) :          E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -106,7 +106,7 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 // Create the extension class and init some of its members
 //
 
-	ext = new AttributeExt();
+	ext = new Attribute::AttributeExt();
 	ext->idx_in_attr = idx;
 	ext->d_name = dev_name;
 	ext->dev = NULL;
@@ -505,6 +505,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	ext->event_periodic_subscription = 0;
 	ext->event_user_subscription = 0;
 	ext->event_attr_conf_subscription = 0;
+	ext->event_data_ready_subscription = 0;
 }
 
 //+-------------------------------------------------------------------------
@@ -1289,16 +1290,16 @@ void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,Min
 
 bool Attribute::is_polled()
 {
-	Tango::Util *tg = Util::instance();
-	if ( ext->dev == NULL )
-	{
-		ext->dev = tg->get_device_by_name(ext->d_name);
-	}
+    Tango::Util *tg = Util::instance();
+    if ( ext->dev == NULL )
+    {
+        ext->dev = tg->get_device_by_name(ext->d_name);
+    }
 
-	string att_name(get_name());
-	transform(att_name.begin(),att_name.end(),att_name.begin(),::tolower);
+	string &att_name = get_name_lower();
 
 	vector<string> &attr_list = ext->dev->get_polled_attr();
+
 	for (unsigned int i = 0;i < attr_list.size();i = i+2)
 	{
 
@@ -1356,6 +1357,15 @@ bool Attribute::is_polled()
 	return false;
 }
 
+bool Attribute::is_polled(DeviceImpl *the_dev)
+{
+    if ((the_dev != NULL) && (ext->dev == NULL))
+    {
+        ext->dev = the_dev;
+    }
+
+    return is_polled();
+}
 
 //+-------------------------------------------------------------------------
 //
@@ -7568,6 +7578,7 @@ bool Attribute::check_alarm()
 
 	if ( quality != Tango::ATTR_VALID )
 	{
+	    log_quality();
 		return returned;
 	}
 
@@ -7602,6 +7613,8 @@ bool Attribute::check_alarm()
 		if (check_rds_alarm() == true)
 			returned = true;
 	}
+
+    log_quality();
 
 	return returned;
 }
@@ -9994,7 +10007,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 // is detected.
 //
 
-            bool send_event;
+            bool send_event = false;
             if (event_supplier_nd != NULL)
                 send_event = event_supplier_nd->detect_and_push_archive_event(ext->dev,ad,*this,name,except,&now_timeval,true);
             if (event_supplier_zmq != NULL)
@@ -10514,11 +10527,12 @@ void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 // method : 		Attribute::remove_configuration()
 //
 // description : 	Remove the attribute configuration from the database.
-// 					This method can be used to clean-up all the configuration of an attribute to come back to
-// 					its default values or the remove all configuration of a dynamic attribute before deleting it.
+// 					This method can be used to clean-up all the configuration
+//                  of an attribute to come back to its default values or the
+//                  remove all configuration of a dynamic attribute before deleting it.
 //
-// 					The method removes all configured attribute properties and removes the attribute from the
-// 					list of polled attributes.
+// 					The method removes all configured attribute properties
+//                  and removes the attribute from the list of polled attributes.
 //--------------------------------------------------------------------------
 
 void Attribute::remove_configuration()
@@ -10527,8 +10541,10 @@ void Attribute::remove_configuration()
 
 	Tango::Util *tg = Tango::Util::instance();
 
+//
 // read all configured properties of the attribute from the database and
 // delete them!
+//
 
 	DbData db_read_data;
 	DbData db_delete_data;
@@ -10557,7 +10573,7 @@ void Attribute::remove_configuration()
 	}
 
 
-    long nb_prop;
+    long nb_prop = 0;
     db_read_data[0] >> nb_prop;
 
     for (int k=1; k<(nb_prop + 1); k++)
@@ -10589,9 +10605,6 @@ void Attribute::remove_configuration()
 		}
 	}
 }
-
-
-
 
 //+-------------------------------------------------------------------------
 //
@@ -10634,6 +10647,135 @@ void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 	}
 
 	ext->attr_serial_model=ser_model;
+}
+
+
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::log_quality
+//
+// description :    Send a logging message (on the device) when the attribute
+//                  quality factor changes
+//
+//--------------------------------------------------------------------------
+
+void Attribute::log_quality()
+{
+
+//
+// Set device if not already done
+//
+
+    if (ext->dev == NULL)
+    {
+        Tango::Util *tg = Tango::Util::instance();
+        ext->dev = tg->get_device_by_name(ext->d_name);
+    }
+
+//
+// Log something if the new quality is different than the old one
+//
+
+    if (quality != ext->old_quality)
+    {
+        if (alarm.any() == false)
+        {
+
+//
+// No alarm detected
+//
+
+            switch(quality)
+            {
+                case ATTR_INVALID:
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "INVALID quality for attribute " << name << endl;
+                break;
+
+                case ATTR_CHANGING:
+                if (ext->dev->get_logger()->is_info_enabled())
+                    ext->dev->get_logger()->info_stream() << log4tango::LogInitiator::_begin_log << "CHANGING quality for attribute " << name << endl;
+                break;
+
+                case ATTR_VALID:
+                if (ext->dev->get_logger()->is_info_enabled())
+                    ext->dev->get_logger()->info_stream() << log4tango::LogInitiator::_begin_log << "VALID quality for attribute " << name << endl;
+                break;
+
+                default:
+                break;
+            }
+        }
+        else
+        {
+
+//
+// Different log according to which alarm is set
+//
+
+            if (alarm[min_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MIN ALARM for attribute " << name << endl;
+            }
+            else if (alarm[max_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MAX ALARM for attribute " << name << endl;
+            }
+            else if (alarm[rds] == true)
+            {
+                if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "RDS (Read Different Set) ALARM for attribute " << name << endl;
+            }
+            else if (alarm[min_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MIN WARNING for attribute " << name << endl;
+            }
+            else if (alarm[max_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MAX WARNING for attribute " << name << endl;
+            }
+        }
+    }
+    else
+    {
+
+//
+// The quality is the same but may be the alarm has changed
+//
+
+        if (alarm != ext->old_alarm)
+        {
+            if (alarm[min_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MIN ALARM for attribute " << name << endl;
+            }
+            else if (alarm[max_level] == true)
+            {
+                if (ext->dev->get_logger()->is_error_enabled())
+                    ext->dev->get_logger()->error_stream() << log4tango::LogInitiator::_begin_log << "MAX ALARM for attribute " << name << endl;
+            }
+            else if (alarm[rds] == true)
+            {
+                if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "RDS (Read Different Set) ALARM for attribute " << name << endl;
+            }
+            else if (alarm[min_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MIN WARNING for attribute " << name << endl;
+            }
+            else if (alarm[max_warn] == true)
+            {
+               if (ext->dev->get_logger()->is_warn_enabled())
+                    ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "MAX WARNING for attribute " << name << endl;
+            }
+        }
+    }
 }
 
 //+-------------------------------------------------------------------------

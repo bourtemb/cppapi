@@ -8,7 +8,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 	- August 2002
 //
-// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -304,7 +304,7 @@ DeviceData Connection::command_inout_reply(long id)
 			if (tra->minor() == omni::TRANSIENT_CallTimedout)
 			{
 				CORBA::NVList_ptr req_arg = req.request->arguments();
-				const char *cmd;
+				const char *cmd = NULL;
 				CORBA::NamedValue_ptr nv = req_arg->item(0);
 				*(nv->value()) >>= cmd;
 				char *tmp = CORBA::string_dup(cmd);
@@ -340,7 +340,7 @@ DeviceData Connection::command_inout_reply(long id)
 			Tango::DevFailed ex(*serv_ex);
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -371,7 +371,7 @@ DeviceData Connection::command_inout_reply(long id)
 //
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -564,7 +564,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 			if (tra->minor() == omni::TRANSIENT_CallTimedout)
 			{
 				CORBA::NVList_ptr req_arg = req.request->arguments();
-				const char *cmd;
+				const char *cmd = NULL;
 				CORBA::NamedValue_ptr nv = req_arg->item(0);
 				*(nv->value()) >>= cmd;
 				char *tmp = CORBA::string_dup(cmd);
@@ -599,7 +599,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 			Tango::DevFailed ex(*serv_ex);
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -630,7 +630,7 @@ DeviceData Connection::command_inout_reply(long id,long call_timeout)
 //
 
 			CORBA::NVList_ptr req_arg = req.request->arguments();
-			const char *cmd;
+			const char *cmd = NULL;
 			CORBA::NamedValue_ptr nv = req_arg->item(0);
 			*(nv->value()) >>= cmd;
 			char *tmp = CORBA::string_dup(cmd);
@@ -882,25 +882,21 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id)
 // Add an error in the error stack in case there is one
 //
 
-				long nb_except = (*dev_attr)[i].ext->err_list.in().length();
+                DevErrorList_var &err_list = (*dev_attr)[i].get_error_list();
+				long nb_except = err_list.in().length();
 				if (nb_except != 0)
 				{
 					TangoSys_OMemStream desc;
 					desc << "Failed to read_attributes on device " << device_name;
 					desc << ", attribute " << (*dev_attr)[i].name << ends;
 
-					(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
-					(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-					(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+					err_list.inout().length(nb_except + 1);
+					err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+					err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute()");
+
 					string st = desc.str();
-					(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-					char *tmp_str = desc.str();
-					(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-					delete[] tmp_str;
-#endif
-					(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
+					err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+					err_list[nb_except].severity = Tango::ERR;
 				}
 			}
 			else
@@ -1030,25 +1026,22 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id)
 // Add an error in the error stack in case there is one
 //
 
-			long nb_except = dev_attr->ext->err_list.in().length();
+            DevErrorList_var &err_list = dev_attr->get_error_list();
+			long nb_except = err_list.in().length();
 			if (nb_except != 0)
 			{
 				TangoSys_OMemStream desc;
 				desc << "Failed to read_attributes on device " << device_name;
 				desc << ", attribute " << dev_attr->name << ends;
 
-				dev_attr->ext->err_list.inout().length(nb_except + 1);
-				dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-				dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+				err_list.inout().length(nb_except + 1);
+				err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+				err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
+
 				string st = desc.str();
-				dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-				char *tmp_str = desc.str();
-				dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-				delete[] tmp_str;
-#endif
-				dev_attr->ext->err_list[nb_except].severity = Tango::ERR;
+				err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+
+				err_list[nb_except].severity = Tango::ERR;
 			}
 		}
 		else
@@ -1227,25 +1220,21 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes_reply(long id,long call_ti
 // Add an error in the error stack in case there is one
 //
 
-			long nb_except = (*dev_attr)[i].ext->err_list.in().length();
+            DevErrorList_var &err_list = (*dev_attr)[i].get_error_list();
+			long nb_except = err_list.in().length();
 			if (nb_except != 0)
 			{
 				TangoSys_OMemStream desc;
 				desc << "Failed to read_attributes on device " << device_name;
 				desc << ", attribute " << (*dev_attr)[i].name << ends;
 
-				(*dev_attr)[i].ext->err_list.inout().length(nb_except + 1);
-				(*dev_attr)[i].ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-				(*dev_attr)[i].ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+				err_list.inout().length(nb_except + 1);
+				err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+				err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attributes_reply()");
+
 				string st = desc.str();
-				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-				char *tmp_str = desc.str();
-				(*dev_attr)[i].ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-				delete[] tmp_str;
-#endif
-				(*dev_attr)[i].ext->err_list[nb_except].severity = Tango::ERR;
+				err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+				err_list[nb_except].severity = Tango::ERR;
 			}
 		}
 		else
@@ -1409,25 +1398,21 @@ DeviceAttribute *DeviceProxy::read_attribute_reply(long id,long call_timeout)
 // Add an error in the error stack in case there is one
 //
 
-		long nb_except = dev_attr->ext->err_list.in().length();
+        DevErrorList_var &err_list = dev_attr->get_error_list();
+		long nb_except = err_list.in().length();
 		if (nb_except != 0)
 		{
 			TangoSys_OMemStream desc;
 			desc << "Failed to read_attributes on device " << device_name;
 			desc << ", attribute " << dev_attr->name << ends;
 
-			dev_attr->ext->err_list.inout().length(nb_except + 1);
-			dev_attr->ext->err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
-			dev_attr->ext->err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
-#if ((defined _TG_WINDOWS_) || (defined __SUNPRO_CC) || (defined GCC_STD))
+			err_list.inout().length(nb_except + 1);
+			err_list[nb_except].reason = CORBA::string_dup("API_AttributeFailed");
+			err_list[nb_except].origin = CORBA::string_dup("DeviceProxy::read_attribute_reply()");
+
 			string st = desc.str();
-			dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(st.c_str());
-#else
-			char *tmp_str = desc.str();
-			dev_attr->ext->err_list[nb_except].desc = CORBA::string_dup(tmp_str);
-			delete[] tmp_str;
-#endif
-			dev_attr->ext->err_list[nb_except].severity = Tango::ERR;
+			err_list[nb_except].desc = CORBA::string_dup(st.c_str());
+			err_list[nb_except].severity = Tango::ERR;
 		}
 	}
 	else
@@ -2415,7 +2400,7 @@ void DeviceProxy::redo_synch_write_call(TgRequest &req)
 
 DeviceData Connection::redo_synch_cmd(TgRequest &req)
 {
-	const char *cmd_name;
+	const char *cmd_name = NULL;
 	const CORBA::Any *a_ptr;
 
 	try

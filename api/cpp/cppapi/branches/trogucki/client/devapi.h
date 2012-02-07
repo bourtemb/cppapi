@@ -3,7 +3,7 @@
 // devapi.h - include file for TANGO device api
 //
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -45,6 +45,7 @@ namespace Tango {
 
 //
 // forward declarations
+//
 
 class DeviceData;
 class DeviceAttribute;
@@ -58,90 +59,19 @@ class NotifdEventConsumer;
 class ZmqEventConsumer;
 class CallBack;
 class AttributeProxy;
-
-class ApiUtilExt;
-class DeviceDataExt;
-class DeviceDataHistoryExt;
-class DeviceAttributeExt;
-class DeviceAttributeHistoryExt;
-class ConnectionExt;
-class DeviceProxyExt;
-class AttributeProxyExt;
-
 class TangoMonitor;
 
+//
+// Some typedef
+//
+
 typedef vector<DbDatum> DbData;
-
-class DeviceAttributeExt
-{
-public:
-	DeviceAttributeExt():w_dim_x(0),w_dim_y(0) {};
-	DeviceAttributeExt & operator=(const DeviceAttributeExt &);
-
-	void deep_copy(const DeviceAttributeExt &);
-
-	DevErrorList_var		err_list;
-	long 					w_dim_x;
-	long					w_dim_y;
-
-	DevVarLong64Array_var	Long64Seq;
-	DevVarULongArray_var	ULongSeq;
-	DevVarULong64Array_var	ULong64Seq;
-	DevVarStateArray_var	StateSeq;
-	DevVarEncodedArray_var	EncodedSeq;
-};
-
-class ConnectionExt
-{
-public:
-	ConnectionExt():tr_reco(true),prev_failed(false),prev_failed_t0(0.0),user_connect_timeout(-1),tango_host_localhost(false) {}
-	~ConnectionExt() {}
-	ConnectionExt & operator=(const ConnectionExt &);
-
-	bool				tr_reco;
-	Tango::Device_3_var device_3;
-
-	bool			  	prev_failed;
-	double		  		prev_failed_t0;
-
-	Tango::Device_4_var	device_4;
-	omni_mutex			adm_dev_mutex;
-	omni_mutex			asyn_mutex;
-	ReadersWritersLock	con_to_mon;
-
-	int					user_connect_timeout;
-	bool				tango_host_localhost;
-};
-
-class DeviceProxyExt
-{
-public:
-	DeviceProxyExt() {};
-
-	omni_mutex			lock_mutex;
-};
-
-class ApiUtilExt
-{
-public:
-	ApiUtilExt():notifd_event_consumer(NULL),cl_pid(0),user_connect_timeout(-1),
-                 zmq_event_consumer(NULL),user_sub_hwm(-1) {};
-
-	NotifdEventConsumer *notifd_event_consumer;
-	TangoSys_Pid		cl_pid;
-	int					user_connect_timeout;
-	ZmqEventConsumer    *zmq_event_consumer;
-	vector<string>      host_ip_adrs;
-	DevLong             user_sub_hwm;
-};
-
 
 typedef union
 {
 	TangoSys_Pid	LockerPid;
 	unsigned long	UUID[4];
 }LockerId;
-
 
 struct LockerInfo
 {
@@ -200,8 +130,6 @@ struct _DeviceInfo
 
 typedef _DeviceInfo DeviceInfo;
 
-
-
 struct _DeviceAttributeConfig
 {
 	string 			name;
@@ -238,7 +166,6 @@ struct _AttributeInfo : public DeviceAttributeConfig
 
 typedef _AttributeInfo AttributeInfo;
 typedef vector<AttributeInfo> AttributeInfoList;
-
 
 struct _AttributeAlarmInfo
 {
@@ -319,6 +246,10 @@ enum cb_sub_model
 	PUSH_CALLBACK,
 	PULL_CALLBACK
 };
+
+//
+// Some define
+//
 
 #define 	CONNECTION_OK		1
 #define 	CONNECTION_NOTOK	0
@@ -450,11 +381,30 @@ public:
 	map<string,LockingThread>	lock_threads;
 
 private:
+    class ApiUtilExt
+    {
+    public:
+        ApiUtilExt():notifd_event_consumer(NULL),cl_pid(0),user_connect_timeout(-1),
+                     zmq_event_consumer(NULL),user_sub_hwm(-1) {};
+
+        NotifdEventConsumer *notifd_event_consumer;
+        TangoSys_Pid		cl_pid;
+        int					user_connect_timeout;
+        ZmqEventConsumer    *zmq_event_consumer;
+        vector<string>      host_ip_adrs;
+        DevLong             user_sub_hwm;
+    };
+
 	TANGO_IMP static ApiUtil 	*_instance;
-	ApiUtilExt					*ext; 		// Class extension
 	static omni_mutex			inst_mutex;
 	bool						exit_lock_installed;
 	bool						reset_already_executed_flag;
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<ApiUtilExt>      ext;
+#else
+	ApiUtilExt					*ext; 		// Class extension
+#endif
 };
 
 /****************************************************************************************
@@ -482,6 +432,10 @@ public :
 	DeviceData();
 	DeviceData(const DeviceData &);
 	DeviceData & operator=(const DeviceData &);
+#ifdef HAS_RVALUE
+	DeviceData(DeviceData &&);
+	DeviceData & operator=(DeviceData &&);
+#endif
 	~DeviceData();
 
 	bool is_empty() {return any_is_null();}
@@ -613,7 +567,18 @@ protected :
 
 	bitset<numFlags> 	exceptions_flags;
 
-	DeviceDataExt		*ext;			// Class extension
+private:
+    class DeviceDataExt
+    {
+    public:
+        DeviceDataExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceDataExt>   ext;
+#else
+	DeviceDataExt		        *ext;			// Class extension
+#endif
 };
 
 
@@ -643,6 +608,10 @@ public :
 	DeviceAttribute();
 	DeviceAttribute(const DeviceAttribute&);
 	DeviceAttribute & operator=(const DeviceAttribute &);
+#ifdef HAS_RVALUE
+	DeviceAttribute(DeviceAttribute &&);
+	DeviceAttribute & operator=(DeviceAttribute &&);
+#endif
 
 	void deep_copy(const DeviceAttribute &);
 
@@ -738,7 +707,6 @@ public :
 	int 				dim_x;
 	int 				dim_y;
 	TimeVal 			time;
-	DeviceAttributeExt	*ext;		// Class extension
 
 	string &get_name() {return name;}
 	AttrQuality &get_quality() {return quality;}
@@ -761,6 +729,22 @@ public :
 	bool has_failed() {DevErrorList *tmp;if ((tmp=ext->err_list.operator->())==NULL)return false;
 	                   else{if (tmp->length() != 0)return true;else return false;}}
 	const DevErrorList &get_err_stack() {return ext->err_list.in();}
+
+	DevVarEncodedArray_var &get_Encoded_data() const {return ext->EncodedSeq;}
+	DevVarLong64Array_var &get_Long64_data() const {return ext->Long64Seq;}
+	DevVarULongArray_var &get_ULong_data() const {return ext->ULongSeq;}
+	DevVarULong64Array_var &get_ULong64_data() const {return ext->ULong64Seq;}
+	DevVarStateArray_var &get_State_data() const {return ext->StateSeq;}
+    DevErrorList_var &get_error_list() {return ext->err_list;}
+
+    void set_w_dim_x(int val) {ext->w_dim_x = val;}
+    void set_w_dim_y(int val) {ext->w_dim_y = val;}
+    void set_err_list(DevErrorList *ptr) {ext->err_list = ptr;}
+    void set_Encoded_data(DevVarEncodedArray *ptr) {ext->EncodedSeq = ptr;}
+    void set_Long64_data(DevVarLong64Array *ptr) {ext->Long64Seq = ptr;}
+    void set_ULong_data(DevVarULongArray *ptr) {ext->ULongSeq = ptr;}
+    void set_ULong64_data(DevVarULong64Array *ptr) {ext->ULong64Seq = ptr;}
+    void set_State_data(DevVarStateArray *ptr) {ext->StateSeq = ptr;}
 
 	void exceptions(bitset<numFlags> fl) {exceptions_flags = fl;}
 	bitset<numFlags> exceptions() {return exceptions_flags;}
@@ -977,6 +961,32 @@ protected :
 	bool check_for_data();
 	bool check_wrong_type_exception();
 	int  check_set_value_size(int seq_length);
+
+protected:
+    class DeviceAttributeExt
+    {
+    public:
+        DeviceAttributeExt():w_dim_x(0),w_dim_y(0) {};
+        DeviceAttributeExt & operator=(const DeviceAttributeExt &);
+
+        void deep_copy(const DeviceAttributeExt &);
+
+        DevErrorList_var		err_list;
+        long 					w_dim_x;
+        long					w_dim_y;
+
+        DevVarLong64Array_var	Long64Seq;
+        DevVarULongArray_var	ULongSeq;
+        DevVarULong64Array_var	ULong64Seq;
+        DevVarStateArray_var	StateSeq;
+        DevVarEncodedArray_var	EncodedSeq;
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceAttributeExt>  ext;
+#else
+	DeviceAttributeExt	            *ext;		// Class extension
+#endif
 };
 
 
@@ -999,6 +1009,10 @@ public :
 	DeviceDataHistory(int, int *,DevCmdHistoryList *);
 	DeviceDataHistory(const DeviceDataHistory &);
 	DeviceDataHistory & operator=(const DeviceDataHistory &);
+#ifdef HAS_RVALUE
+	DeviceDataHistory(DeviceDataHistory &&);
+	DeviceDataHistory &operator=(DeviceDataHistory &&);
+#endif
 
 	~DeviceDataHistory();
 
@@ -1025,7 +1039,17 @@ protected:
 	int 				*ref_ctr_ptr;
 
 private:
-	DeviceDataHistoryExt	*ext_hist;		// Class extension
+    class DeviceDataHistoryExt
+    {
+    public:
+        DeviceDataHistoryExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceDataHistoryExt>    ext_hist;
+#else
+	DeviceDataHistoryExt	            *ext_hist;		// Class extension
+#endif
 };
 
 typedef vector<DeviceDataHistory> DeviceDataHistoryList;
@@ -1043,6 +1067,10 @@ public :
 	DeviceAttributeHistory(int, DevAttrHistoryList_3_var &);
 	DeviceAttributeHistory(const DeviceAttributeHistory &);
 	DeviceAttributeHistory & operator=(const DeviceAttributeHistory &);
+#ifdef HAS_RVALUE
+	DeviceAttributeHistory(DeviceAttributeHistory &&);
+	DeviceAttributeHistory &operator=(DeviceAttributeHistory &&);
+#endif
 
 	~DeviceAttributeHistory();
 
@@ -1062,7 +1090,17 @@ protected:
 	char 				compatibility_padding[16];
 
 private:
-	DeviceAttributeHistoryExt	*ext_hist;	// Class extension
+    class DeviceAttributeHistoryExt
+    {
+    public:
+        DeviceAttributeHistoryExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceAttributeHistoryExt>   ext_hist;
+#else
+	DeviceAttributeHistoryExt	            *ext_hist;	// Class extension
+#endif
 };
 
 
@@ -1108,8 +1146,6 @@ protected :
 	virtual int get_lock_ctr()=0;
 	virtual void set_lock_ctr(int)=0;
 
-	ConnectionExt		*ext; 	// Class extension
-
 	DeviceData redo_synch_cmd(TgRequest &);
 
 	int get_env_var(const char *,string &);
@@ -1128,6 +1164,34 @@ protected :
 	void remove_asyn_cb_request(Connection *,CORBA::Request_ptr);
 	long get_pasyn_cb_ctr();
 
+    class ConnectionExt
+    {
+    public:
+        ConnectionExt():tr_reco(true),prev_failed(false),prev_failed_t0(0.0),user_connect_timeout(-1),tango_host_localhost(false) {}
+        ~ConnectionExt() {}
+        ConnectionExt & operator=(const ConnectionExt &);
+
+        bool				tr_reco;
+        Tango::Device_3_var device_3;
+
+        bool			  	prev_failed;
+        double		  		prev_failed_t0;
+
+        Tango::Device_4_var	device_4;
+        omni_mutex			adm_dev_mutex;
+        omni_mutex			asyn_mutex;
+        ReadersWritersLock	con_to_mon;
+
+        int					user_connect_timeout;
+        bool				tango_host_localhost;
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<ConnectionExt>   ext;
+#else
+	ConnectionExt		        *ext; 	// Class extension
+#endif
+
 public :
 	virtual string dev_name()=0;
 
@@ -1135,6 +1199,7 @@ public :
 	Connection(bool dummy);
 	virtual ~Connection();
 	Connection(const Connection &);
+	Connection & operator=(const Connection &);
 
 	string &get_db_host() {return db_host;}
 	string &get_db_port() {return db_port;}
@@ -1273,7 +1338,19 @@ protected :
 	void same_att_name(vector<string> &,const char *);
 
 private:
-	DeviceProxyExt		*ext_proxy;		// Class extension
+    class DeviceProxyExt
+    {
+    public:
+        DeviceProxyExt() {};
+
+        omni_mutex			lock_mutex;
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceProxyExt>  ext_proxy;
+#else
+	DeviceProxyExt		        *ext_proxy;		// Class extension
+#endif
 
 public :
 	DeviceProxy(string &name, CORBA::ORB *orb=NULL);
@@ -1284,7 +1361,7 @@ public :
 	DeviceProxy & operator=(const DeviceProxy &);
 	virtual ~DeviceProxy();
 
-	DeviceProxy():Connection((CORBA::ORB *)NULL),db_dev(NULL),adm_device(NULL),ext_proxy(NULL)
+	DeviceProxy():Connection((CORBA::ORB *)NULL),db_dev(NULL),adm_device(NULL),ext_proxy(Tango_NullPtr)
 	{dbase_used = false;}
 
 //
@@ -1495,10 +1572,20 @@ private :
 	string  			db_port;        // DB port
 	int     			db_port_num;    // DB port (as number)
 
-	AttributeProxyExt	*ext;     		// Class extension
-
 	void real_constructor(string &);
 	void ctor_from_dp(const DeviceProxy *,string &);
+
+    class AttributeProxyExt
+    {
+    public:
+        AttributeProxyExt() {};
+    };
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<AttributeProxyExt>   ext;
+#else
+	AttributeProxyExt	            *ext;     		// Class extension
+#endif
 
 public :
 	AttributeProxy(string &name);
@@ -1795,7 +1882,7 @@ inline int DeviceProxy::subscribe_event (const string &attr_name, EventType even
 		}
 
 ///
-/// 					Small utility classes
+/// 				Small utility classes
 ///					---------------------
 
 
@@ -1805,36 +1892,6 @@ public:
 	AutoConnectTimeout(unsigned int to) {omniORB::setClientConnectTimeout((CORBA::ULong)to);}
 	~AutoConnectTimeout() {omniORB::setClientConnectTimeout(0);}
 };
-
-
-///
-/// Some extension classes
-///
-
-class DeviceDataExt
-{
-public:
-	DeviceDataExt() {};
-};
-
-class DeviceDataHistoryExt
-{
-public:
-	DeviceDataHistoryExt() {};
-};
-
-class DeviceAttributeHistoryExt
-{
-public:
-	DeviceAttributeHistoryExt() {};
-};
-
-class AttributeProxyExt
-{
-public:
-	AttributeProxyExt() {};
-};
-
 
 } // End of Tango namespace
 

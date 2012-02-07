@@ -10,7 +10,7 @@ static const char *RcsId = "$Id$";
 //
 // $Author$
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -169,15 +169,22 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //
 // Check if the request comes from a Tango 6 client (without client identification)
 // If true, the event has to be sent using AttributeValue_3 data structure
+// If cl is NULL, this means that the call is local (Two tango classes within the
+// same process and with events between device from class 1 and device from classs 2)
 //
 
 	client_addr *cl = get_client_ident();
 	int cl_release;
 
-	if (cl->client_ident == true)
-		cl_release = 4;
-	else
-		cl_release = 3;
+    if (cl == NULL)
+        cl_release = 4;
+    else
+    {
+        if (cl->client_ident == true)
+            cl_release = 4;
+        else
+            cl_release = 3;
+    }
 
 	if (action == "subscribe")
 	{
@@ -537,6 +544,14 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
     int rate,ivl;
 
     DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
+
+//
+// Check if the client is a new one
+//
+
+    bool new_client = ev->update_connected_client(get_client_ident());
+    if (new_client == true)
+        ev->set_double_send();
 
 //
 // Create the event publisher socket (if not already done)

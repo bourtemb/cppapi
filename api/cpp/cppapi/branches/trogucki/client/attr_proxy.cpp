@@ -6,7 +6,7 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // original 		- July 2003
 //
-// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -58,12 +58,12 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-AttributeProxy::AttributeProxy (string &name):dev_proxy(NULL),ext(NULL)
+AttributeProxy::AttributeProxy (string &name):dev_proxy(NULL),ext(Tango_NullPtr)
 {
 	real_constructor(name);
 }
 
-AttributeProxy::AttributeProxy (const char *na):dev_proxy(NULL),ext(NULL)
+AttributeProxy::AttributeProxy (const char *na):dev_proxy(NULL),ext(Tango_NullPtr)
 {
 	string name(na);
 	real_constructor(name);
@@ -198,8 +198,6 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 		}
 	}
 
-	ext = new AttributeProxyExt();
-
 //
 // Check that the device support this attribute
 //
@@ -213,7 +211,6 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 	catch (Tango::DevFailed &dfe)
 	{
 		delete db_attr;
-		delete ext;
 		delete dev_proxy;
 
 		if (strcmp(dfe.errors[0].reason.in(),"API_AttrNotFound") == 0)
@@ -228,13 +225,13 @@ void AttributeProxy::ctor_from_dp(const DeviceProxy *dev_ptr,string &att_name)
 	}
 }
 
-AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,const char *att_name):ext(NULL)
+AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,const char *att_name):ext(Tango_NullPtr)
 {
 	string att_na(att_name);
 	ctor_from_dp(dev_ptr,att_na);
 }
 
-AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext(NULL)
+AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext(Tango_NullPtr)
 {
 	ctor_from_dp(dev_ptr,att_name);
 }
@@ -246,7 +243,7 @@ AttributeProxy::AttributeProxy (const DeviceProxy *dev_ptr,string &att_name):ext
 //
 //-----------------------------------------------------------------------------
 
-AttributeProxy::AttributeProxy(const AttributeProxy &prev)
+AttributeProxy::AttributeProxy(const AttributeProxy &prev):ext(Tango_NullPtr)
 {
 
 //
@@ -292,6 +289,12 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 		}
 	}
 
+#ifdef HAS_UNIQUE_PTR
+    if (prev.ext.get() != NULL)
+    {
+        ext.reset(new AttributeProxyExt);
+    }
+#else
 	if (prev.ext != NULL)
 	{
 		ext = new AttributeProxyExt();
@@ -299,6 +302,7 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 	}
 	else
 		ext = NULL;
+#endif
 
 }
 
@@ -311,59 +315,71 @@ AttributeProxy::AttributeProxy(const AttributeProxy &prev)
 AttributeProxy &AttributeProxy::operator=(const AttributeProxy &rval)
 {
 
+    if (this != &rval)
+    {
+
 //
 // First Connection call members
 //
-	if (dbase_used == true)
-		delete db_attr;
-	dbase_used = rval.dbase_used;
-	from_env_var = rval.from_env_var;
-	host = rval.host;
-	port = rval.port;
-	port_num = rval.port_num;
-	db_host = rval.db_host;
-	db_port = rval.db_port;
-	db_port_num = rval.db_port_num;
+
+        if (dbase_used == true)
+            delete db_attr;
+        dbase_used = rval.dbase_used;
+        from_env_var = rval.from_env_var;
+        host = rval.host;
+        port = rval.port;
+        port_num = rval.port_num;
+        db_host = rval.db_host;
+        db_port = rval.db_port;
+        db_port_num = rval.db_port_num;
 
 //
 // Now AttributeProxy members
 //
 
-	attr_name = rval.attr_name;
-	device_name = rval.device_name;
+        attr_name = rval.attr_name;
+        device_name = rval.device_name;
 
-	if (dbase_used == true)
-	{
-		if (from_env_var == true)
-		{
-			ApiUtil *ui = ApiUtil::instance();
-			if (ui->in_server() == true)
-			{
-				db_attr = new DbAttribute(attr_name,device_name,Tango::Util::instance()->get_database());
-				dev_proxy = new DeviceProxy(device_name);
-			}
-			else
-			{
-				db_attr = new DbAttribute(attr_name,device_name);
-				dev_proxy = new DeviceProxy(device_name);
-			}
-		}
-		else
-		{
-			string noenv_dev_name(db_host);
-			noenv_dev_name = noenv_dev_name + ":" + db_port + "/" + device_name;
-			dev_proxy = new DeviceProxy(noenv_dev_name);
-			db_attr = new DbAttribute(attr_name,device_name,db_host,db_port);
-		}
-	}
+        if (dbase_used == true)
+        {
+            if (from_env_var == true)
+            {
+                ApiUtil *ui = ApiUtil::instance();
+                if (ui->in_server() == true)
+                {
+                    db_attr = new DbAttribute(attr_name,device_name,Tango::Util::instance()->get_database());
+                    dev_proxy = new DeviceProxy(device_name);
+                }
+                else
+                {
+                    db_attr = new DbAttribute(attr_name,device_name);
+                    dev_proxy = new DeviceProxy(device_name);
+                }
+            }
+            else
+            {
+                string noenv_dev_name(db_host);
+                noenv_dev_name = noenv_dev_name + ":" + db_port + "/" + device_name;
+                dev_proxy = new DeviceProxy(noenv_dev_name);
+                db_attr = new DbAttribute(attr_name,device_name,db_host,db_port);
+            }
+        }
 
-	if (rval.ext != NULL)
-	{
-		ext = new AttributeProxyExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
+#ifdef HAS_UNIQUE_PTR
+        if (rval.ext.get() != NULL)
+            ext.reset(new AttributeProxyExt);
+        else
+            ext.reset();
+#else
+        if (rval.ext != NULL)
+        {
+            ext = new AttributeProxyExt();
+            *ext = *(rval.ext);
+        }
+        else
+            ext = NULL;
+#endif
+    }
 
 	return *this;
 }
@@ -777,10 +793,11 @@ AttributeProxy::~AttributeProxy()
 {
 	if (dbase_used == true)
 		delete db_attr;
-	if (dev_proxy != NULL)
-		delete dev_proxy;
-	if (ext != NULL)
-		delete ext;
+    delete dev_proxy;
+
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------

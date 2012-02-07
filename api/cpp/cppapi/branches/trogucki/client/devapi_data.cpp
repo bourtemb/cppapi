@@ -7,7 +7,7 @@ static const char *RcsId = "$Id$";
 //
 // original 		- March 2001
 //
-// Copyright (C) :      2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -47,7 +47,7 @@ namespace Tango
 //
 //-----------------------------------------------------------------------------
 
-DeviceData::DeviceData():ext(NULL)
+DeviceData::DeviceData():ext(Tango_NullPtr)
 {
 //
 // For omniORB, it is necessary to do the ORB::init before creating the Any.
@@ -62,10 +62,28 @@ DeviceData::DeviceData():ext(NULL)
 	exceptions_flags.set(isempty_flag);
 }
 
-DeviceData::DeviceData(const DeviceData & source)
+//-----------------------------------------------------------------------------
+//
+// DeviceData::DeviceData() - copy constructor to create DeviceData
+//
+//-----------------------------------------------------------------------------
+
+DeviceData::DeviceData(const DeviceData & source):ext(Tango_NullPtr)
 {
 	exceptions_flags = source.exceptions_flags;
+#ifdef HAS_RVALUE
+	any = source.any;
+#else
 	any = const_cast<DeviceData &>(source).any._retn();
+#endif
+
+#ifdef HAS_UNIQUE_PTR
+    if (source.ext.get() != NULL)
+    {
+        ext.reset(new DeviceDataExt);
+        *(ext.get()) = *(source.ext.get());
+    }
+#else
 	if (source.ext != NULL)
 	{
 		ext = new DeviceDataExt();
@@ -73,7 +91,25 @@ DeviceData::DeviceData(const DeviceData & source)
 	}
 	else
 		ext = NULL;
+#endif
 }
+
+//-----------------------------------------------------------------------------
+//
+// DeviceData::DeviceData() - move constructor to create DeviceData
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceData::DeviceData(DeviceData &&source):ext(Tango_NullPtr)
+{
+	exceptions_flags = source.exceptions_flags;
+	any = source.any._retn();
+
+    if (source.ext.get() != NULL)
+        ext = move(source.ext);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -83,19 +119,58 @@ DeviceData::DeviceData(const DeviceData & source)
 
 DeviceData & DeviceData::operator=(const DeviceData &rval)
 {
-	exceptions_flags = rval.exceptions_flags;
-	any = const_cast<DeviceData &>(rval).any._retn();
-	if (ext != NULL)
-		delete ext;
-	if (rval.ext != NULL)
-	{
-		ext = new DeviceDataExt();
-		*ext = *(rval.ext);
-	}
-	else
-		ext = NULL;
+    if (this != &rval)
+    {
+        exceptions_flags = rval.exceptions_flags;
+#ifdef HAS_RVALUE
+        any = rval.any;
+#else
+        any = const_cast<DeviceData &>(rval).any._retn();
+#endif
+
+#ifdef HAS_UNIQUE_PTR
+        if (rval.ext.get() != NULL)
+        {
+            ext.reset(new DeviceDataExt);
+            *(ext.get()) = *(rval.ext.get());
+        }
+        else
+            ext.reset();
+#else
+        delete ext;
+
+        if (rval.ext != NULL)
+        {
+            ext = new DeviceDataExt();
+            *ext = *(rval.ext);
+        }
+        else
+            ext = NULL;
+#endif
+    }
 	return *this;
 }
+
+//-----------------------------------------------------------------------------
+//
+// DeviceData::operator=() - move assignement operator
+//
+//-----------------------------------------------------------------------------
+
+#ifdef HAS_RVALUE
+DeviceData & DeviceData::operator=(DeviceData &&rval)
+{
+	exceptions_flags = rval.exceptions_flags;
+	any = rval.any._retn();
+
+    if (rval.ext.get() != NULL)
+        ext = move(rval.ext);
+    else
+        ext.reset();
+
+	return *this;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -105,8 +180,9 @@ DeviceData & DeviceData::operator=(const DeviceData &rval)
 
 DeviceData::~DeviceData()
 {
-	if (ext != NULL)
-		delete ext;
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +220,7 @@ bool DeviceData::any_is_null()
 
 int DeviceData::get_type()
 {
-	int data_type;
+	int data_type = 0;
 
 	if (any_is_null() == true)
 		return -1;
@@ -550,7 +626,7 @@ bool DeviceData::operator >> (string& datum)
 {
 	bool ret;
 
-	const char *c_string;
+	const char *c_string = NULL;
 	ret = (any >>= c_string);
 	if (ret == false)
 	{
@@ -636,7 +712,7 @@ bool DeviceData::operator >> (vector<unsigned char>& datum)
 {
 	bool ret;
 
-	const DevVarCharArray *char_array;
+	const DevVarCharArray *char_array = NULL;
 	ret = (any.inout() >>= char_array);
 	if (ret == false)
 	{
@@ -653,11 +729,20 @@ bool DeviceData::operator >> (vector<unsigned char>& datum)
 	}
 	else
 	{
-		datum.resize(char_array->length());
-		for (unsigned int i=0; i<char_array->length(); i++)
-		{
-			datum[i] = (*char_array)[i];
-		}
+	    if (char_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(char_array->length());
+            for (unsigned int i=0; i<char_array->length(); i++)
+            {
+                datum[i] = (*char_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -701,7 +786,7 @@ bool DeviceData::operator >> (vector<short>& datum)
 {
 	bool ret;
 
-	const DevVarShortArray *short_array;
+	const DevVarShortArray *short_array = NULL;
 	ret = (any.inout() >>= short_array);
 	if (ret == false)
 	{
@@ -718,11 +803,20 @@ bool DeviceData::operator >> (vector<short>& datum)
 	}
 	else
 	{
-		datum.resize(short_array->length());
-		for (unsigned int i=0; i<short_array->length(); i++)
-		{
-			datum[i] = (*short_array)[i];
-		}
+	    if (short_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(short_array->length());
+            for (unsigned int i=0; i<short_array->length(); i++)
+            {
+                datum[i] = (*short_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -767,7 +861,7 @@ bool DeviceData::operator >> (vector<unsigned short>& datum)
 {
 	bool ret = true;
 
-	const DevVarUShortArray *ushort_array;
+	const DevVarUShortArray *ushort_array = NULL;
 	ret = (any.inout() >>= ushort_array);
 	if (ret == false)
 	{
@@ -784,11 +878,20 @@ bool DeviceData::operator >> (vector<unsigned short>& datum)
 	}
 	else
 	{
-		datum.resize(ushort_array->length());
-		for (unsigned int i=0; i<ushort_array->length(); i++)
-		{
-			datum[i] = (*ushort_array)[i];
-		}
+	    if (ushort_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(ushort_array->length());
+            for (unsigned int i=0; i<ushort_array->length(); i++)
+            {
+                datum[i] = (*ushort_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -832,7 +935,7 @@ bool DeviceData::operator >> (vector<DevLong>& datum)
 {
 	bool ret = true;
 
-	const DevVarLongArray *long_array;
+	const DevVarLongArray *long_array = NULL;
 
 	ret = (any.inout() >>= long_array);
 	if (ret == false)
@@ -850,11 +953,20 @@ bool DeviceData::operator >> (vector<DevLong>& datum)
 	}
 	else
 	{
-		datum.resize(long_array->length());
-		for (unsigned int i=0; i<long_array->length(); i++)
-		{
-			datum[i] = (*long_array)[i];
-		}
+	    if (long_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(long_array->length());
+            for (unsigned int i=0; i<long_array->length(); i++)
+            {
+                datum[i] = (*long_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -898,7 +1010,7 @@ bool DeviceData::operator >> (vector<DevULong>& datum)
 {
 	bool ret = true;
 
-	const DevVarULongArray *ulong_array;
+	const DevVarULongArray *ulong_array = NULL;
 
 	ret = (any.inout() >>= ulong_array);
 	if (ret == false)
@@ -916,11 +1028,20 @@ bool DeviceData::operator >> (vector<DevULong>& datum)
 	}
 	else
 	{
-		datum.resize(ulong_array->length());
-		for (unsigned int i=0; i<ulong_array->length(); i++)
-		{
-			datum[i] = (*ulong_array)[i];
-		}
+	    if (ulong_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(ulong_array->length());
+            for (unsigned int i=0; i<ulong_array->length(); i++)
+            {
+                datum[i] = (*ulong_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1021,7 +1142,7 @@ bool DeviceData::operator >> (vector<DevLong64>& datum)
 {
 	bool ret = true;
 
-	const DevVarLong64Array *ll_array;
+	const DevVarLong64Array *ll_array = NULL;
 	ret = (any.inout() >>= ll_array);
 	if (ret == false)
 	{
@@ -1038,11 +1159,20 @@ bool DeviceData::operator >> (vector<DevLong64>& datum)
 	}
 	else
 	{
-		datum.resize(ll_array->length());
-		for (unsigned int i=0; i<ll_array->length(); i++)
-		{
-			datum[i] = (*ll_array)[i];
-		}
+	    if (ll_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(ll_array->length());
+            for (unsigned int i=0; i<ll_array->length(); i++)
+            {
+                datum[i] = (*ll_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1057,7 +1187,7 @@ bool DeviceData::operator >> (vector<DevULong64>& datum)
 {
 	bool ret = true;
 
-	const DevVarULong64Array *ull_array;
+	const DevVarULong64Array *ull_array = NULL;
 	ret = (any.inout() >>= ull_array);
 	if (ret == false)
 	{
@@ -1074,11 +1204,20 @@ bool DeviceData::operator >> (vector<DevULong64>& datum)
 	}
 	else
 	{
-		datum.resize(ull_array->length());
-		for (unsigned int i=0; i<ull_array->length(); i++)
-		{
-			datum[i] = (*ull_array)[i];
-		}
+	    if (ull_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(ull_array->length());
+            for (unsigned int i=0; i<ull_array->length(); i++)
+            {
+                datum[i] = (*ull_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1093,7 +1232,7 @@ bool DeviceData::operator >> (vector<float>& datum)
 {
 	bool ret = true;
 
-	const DevVarFloatArray *float_array;
+	const DevVarFloatArray *float_array = NULL;
 	ret = (any.inout() >>= float_array);
 	if (ret == false)
 	{
@@ -1110,11 +1249,20 @@ bool DeviceData::operator >> (vector<float>& datum)
 	}
 	else
 	{
-		datum.resize(float_array->length());
-		for (unsigned int i=0; i<float_array->length(); i++)
-		{
-			datum[i] = (*float_array)[i];
-		}
+	    if (float_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(float_array->length());
+            for (unsigned int i=0; i<float_array->length(); i++)
+            {
+                datum[i] = (*float_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1157,7 +1305,7 @@ bool DeviceData::operator >> (const DevVarFloatArray* &datum)
 bool DeviceData::operator >> (vector<double>& datum)
 {
 	bool ret = true;
-	const DevVarDoubleArray *double_array;
+	const DevVarDoubleArray *double_array = NULL;
 
 	ret = (any.inout() >>= double_array);
 	if (ret == false)
@@ -1175,11 +1323,20 @@ bool DeviceData::operator >> (vector<double>& datum)
 	}
 	else
 	{
-		datum.resize(double_array->length());
-		for (unsigned int i=0; i<double_array->length(); i++)
-		{
-			datum[i] = (*double_array)[i];
-		}
+	    if (double_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(double_array->length());
+            for (unsigned int i=0; i<double_array->length(); i++)
+            {
+                datum[i] = (*double_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1222,7 +1379,7 @@ bool DeviceData::operator >> (const DevVarDoubleArray* &datum)
 bool DeviceData::operator >> (vector<string>& datum)
 {
 	bool ret;
-	const DevVarStringArray *string_array;
+	const DevVarStringArray *string_array = NULL;
 
 	ret = (any.inout() >>= string_array);
 	if (ret == false)
@@ -1240,11 +1397,20 @@ bool DeviceData::operator >> (vector<string>& datum)
 	}
 	else
 	{
-		datum.resize(string_array->length());
-		for (unsigned int i=0; i<string_array->length(); i++)
-		{
-			datum[i] = (*string_array)[i];
-		}
+	    if (string_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.resize(string_array->length());
+            for (unsigned int i=0; i<string_array->length(); i++)
+            {
+                datum[i] = (*string_array)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1313,7 +1479,7 @@ bool DeviceData::operator >> (const DevEncoded* &datum)
 bool DeviceData::operator >> (DevEncoded &datum)
 {
     bool ret = true;
-    const DevEncoded *tmp_enc;
+    const DevEncoded *tmp_enc = NULL;
 	ret = (any.inout() >>= tmp_enc);
 	if (ret == false)
 	{
@@ -1330,12 +1496,21 @@ bool DeviceData::operator >> (DevEncoded &datum)
 	}
 	else
 	{
-		datum.encoded_data.length(tmp_enc->encoded_data.length());
-		for (unsigned int i=0; i<tmp_enc->encoded_data.length(); i++)
-		{
-			datum.encoded_data[i] = tmp_enc->encoded_data[i];
-		}
-		datum.encoded_format = CORBA::string_dup(tmp_enc->encoded_format);
+	    if (tmp_enc == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            datum.encoded_data.length(tmp_enc->encoded_data.length());
+            for (unsigned int i=0; i<tmp_enc->encoded_data.length(); i++)
+            {
+                datum.encoded_data[i] = tmp_enc->encoded_data[i];
+            }
+            datum.encoded_format = CORBA::string_dup(tmp_enc->encoded_format);
+        }
 	}
 	return ret;
 }
@@ -1549,7 +1724,7 @@ bool DeviceData::extract(vector<DevLong> &long_datum, vector<string>& string_dat
 {
 	bool ret;
 	unsigned int i;
-	const DevVarLongStringArray *long_string_array;
+	const DevVarLongStringArray *long_string_array = NULL;
 	ret = (any.inout() >>= long_string_array);
 	if (ret == false)
 	{
@@ -1566,16 +1741,25 @@ bool DeviceData::extract(vector<DevLong> &long_datum, vector<string>& string_dat
 	}
 	else
 	{
-		long_datum.resize(long_string_array->lvalue.length());
-		for (i=0; i<long_datum.size(); i++)
-		{
-			long_datum[i] = (long_string_array->lvalue)[i];
-		}
-		string_datum.resize(long_string_array->svalue.length());
-		for (i=0; i<string_datum.size(); i++)
-		{
-			string_datum[i] = (long_string_array->svalue)[i];
-		}
+	    if (long_string_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            long_datum.resize(long_string_array->lvalue.length());
+            for (i=0; i<long_datum.size(); i++)
+            {
+                long_datum[i] = (long_string_array->lvalue)[i];
+            }
+            string_datum.resize(long_string_array->svalue.length());
+            for (i=0; i<string_datum.size(); i++)
+            {
+                string_datum[i] = (long_string_array->svalue)[i];
+            }
+        }
 	}
 	return ret;
 }
@@ -1643,7 +1827,7 @@ bool DeviceData::extract (vector<double> &double_datum, vector<string>& string_d
 {
 	bool ret;
 	unsigned int i;
-	const DevVarDoubleStringArray *double_string_array;
+	const DevVarDoubleStringArray *double_string_array = NULL;
 	ret = (any.inout() >>= double_string_array);
 	if (ret == false)
 	{
@@ -1660,16 +1844,25 @@ bool DeviceData::extract (vector<double> &double_datum, vector<string>& string_d
 	}
 	else
 	{
-		double_datum.resize(double_string_array->dvalue.length());
-		for (i=0; i<double_datum.size(); i++)
-		{
-			double_datum[i] = (double_string_array->dvalue)[i];
-		}
-		string_datum.resize(double_string_array->svalue.length());
-		for (i=0; i<string_datum.size(); i++)
-		{
-			string_datum[i] = (double_string_array->svalue)[i];
-		}
+	    if (double_string_array == NULL)
+	    {
+            ApiDataExcept::throw_exception((const char *)"API_IncoherentDevData",
+                                       (const char *)"Incoherent data received from server",
+                                       (const char *)"DeviceData::operator>>");
+	    }
+        else
+        {
+            double_datum.resize(double_string_array->dvalue.length());
+            for (i=0; i<double_datum.size(); i++)
+            {
+                double_datum[i] = (double_string_array->dvalue)[i];
+            }
+            string_datum.resize(double_string_array->svalue.length());
+            for (i=0; i<string_datum.size(); i++)
+            {
+                string_datum[i] = (double_string_array->svalue)[i];
+            }
+        }
 	}
 	return ret;
 }

@@ -1,14 +1,14 @@
-//=============================================================================	
+//=============================================================================
 //
 // file :		Deviceclass.h
 //
-// description :	Include file for the DeviceClass root class. 
+// description :	Include file for the DeviceClass root class.
 //
 // project :		TANGO
 //
 // author(s) :		E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -19,12 +19,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -53,29 +53,12 @@ class DServer;
 //			The DeviceClass class
 //
 //
-// description : 	This class will act as root class for all other 
-//			DeviceClass classes. Its job is to define all Device 
-//			class related properties and methods which exist only 
-//			once e.g. the command list.	
+// description : 	This class will act as root class for all other
+//			DeviceClass classes. Its job is to define all Device
+//			class related properties and methods which exist only
+//			once e.g. the command list.
 //
 //=============================================================================
-
-class DeviceClassExt
-{
-public:
-	DeviceClassExt():only_one("class"),default_cmd(NULL),py_class(false) {};
-	
-	vector<string>		nodb_name_list;
-	
-	TangoMonitor		only_one;
-	
-	string				cvs_tag;
-	string				cvs_location;
-	
-	Command * 			default_cmd;
-	bool				py_class;
-
-};
 
 /**
  * Base class for all TANGO device-class class. A TANGO device-class class is
@@ -96,7 +79,7 @@ class
 {
 	friend class Tango::AutoTangoMonitor;
 public:
-	
+
 /**@name Destructor
  * Only one desctructor is defined for this class */
 //@{
@@ -147,7 +130,7 @@ public:
  *
  */
 	virtual void attribute_factory(vector<Attr *> &) {};
-		
+
 /**
  * Create device(s).
  *
@@ -156,13 +139,13 @@ public:
  * in a vector of device
  *
  * @param dev_list The device name list
- * @exception DevFailed This method does not throw exception but a 
+ * @exception DevFailed This method does not throw exception but a
  * redefined method can.
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
 	virtual void device_factory(const Tango::DevVarStringArray *dev_list) = 0;
-	
+
 /**
  * Create device(s) name list (for no database device server).
  *
@@ -171,10 +154,10 @@ public:
  * The default method does nothing.
  *
  * @param list Reference to the device name list
- */	
-	
+ */
+
 	virtual void device_name_factory(vector<string> &) {};
-	
+
 /**
  * Delete device.
  *
@@ -183,10 +166,10 @@ public:
  * database
  *
  * @param dev_name Reference to the device name
- */	
-	
+ */
+
 	void device_destroyer(const string &dev_name);
-	
+
 /**
  * Delete device.
  *
@@ -195,12 +178,12 @@ public:
  * database
  *
  * @param dev_name Reference to the device name
- */	
-	
+ */
+
 	void device_destroyer(const char *dev_name);
-	
+
 //@}
-	
+
 /**@name Get/Set object members.
  * These methods allows the external world to get/set DeviceImpl instance
  * data members
@@ -228,7 +211,7 @@ public:
  * Get the device object vector.
  *
  * @return A reference to the device vector
- */	
+ */
 	vector<DeviceImpl *> &get_device_list() {return device_list;}
 /**
  * Get the command object vector.
@@ -237,11 +220,17 @@ public:
  */
 	vector<Command *> &get_command_list() {return command_list;}
 /**
+ * Get a reference to a command object.
+ *
+ * @return A reference to the command object
+ */
+	Command &get_cmd_by_name(const string &);
+/**
  * Get a pointer to the associated DbClass object.
  *
  * @return Pointer to the DbClas object
  */
- 	
+
 	DbClass *get_db_class() {return db_class;}
 /**
  * Get a pointer to the class attributes object
@@ -262,7 +251,7 @@ public:
  */
 	void set_type(const char *dev_type) {type = dev_type;}
 //@}
-	
+
 
 /**@name Signal related methods
  * These methods allow a signal management at device level */
@@ -299,7 +288,7 @@ public:
  */
 	void register_signal(long signo,bool own_handler = false);
 #endif
-	
+
 /**
  * Unregister a signal.
  *
@@ -315,7 +304,7 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	void unregister_signal(long signo);
-	
+
 /**
  * Signal handler.
  *
@@ -325,39 +314,10 @@ public:
  *
  * @param signo The signal number
  */
-	virtual void signal_handler(long signo);	
+	virtual void signal_handler(long signo);
 
 //@}
 
-	vector<string> &get_nodb_name_list() {return ext->nodb_name_list;}
-	void set_memorized_values(bool flag, long idx = 0,bool from_init = false);
-
-	void add_wiz_dev_prop(string &name,string &desc,string &def);
-	void add_wiz_dev_prop(string &name,string &desc);
-	
-	void add_wiz_class_prop(string &name,string &desc,string &def);
-	void add_wiz_class_prop(string &name,string &desc);
-		
-	vector<string> &get_wiz_class_prop() {return wiz_class_prop;}
-	vector<string> &get_wiz_dev_prop() {return wiz_dev_prop;}
-	
-	string &get_cvs_tag() {return ext->cvs_tag;}
-	string &get_cvs_location() {return ext->cvs_location;}
-	
-	void set_cvs_tag(string &str) {ext->cvs_tag=str;}
-	void set_cvs_location(string &str) {ext->cvs_location=str;}
-	
-	void add_device(DeviceImpl *dev) {device_list.push_back(dev);}
-	void delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_poa);
-
-	bool is_py_class() {return ext->py_class;}	
-	void set_py_class(bool py) {ext->py_class=py;}
-	virtual void delete_class() {}
-	void get_mcast_event(DServer *);
-	
-	bool is_command_allowed(const char *);
-	
-					
 protected:
 /**@name Constructor
  Only one constructot for this class which is a singleton */
@@ -372,12 +332,12 @@ protected:
 //@}
 
 /**@name Miscellaneous protected methods */
-//@{	
+//@{
 /**
  * Export a device.
  *
  * Associate the servant to a CORBA object and send device network parameter
- * to TANGO database. The main parameter sent to database is the CORBA 
+ * to TANGO database. The main parameter sent to database is the CORBA
  * object stringified device IOR.
  *
  * @param dev The device to be exported (CORBA servant)
@@ -387,9 +347,9 @@ protected:
  * @exception DevFailed If the command sent to the database failed.
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
- */	
+ */
 	void export_device(DeviceImpl *dev,const char* corba_dev_name = "Unused");
-	
+
 /**
  * Set a Tango classs default command
  *
@@ -399,12 +359,10 @@ protected:
  * By default, there is no default class
  *
  * @param cmd The command object
- */	
+ */
 
 	void set_default_command(Command *cmd) {ext->default_cmd = cmd;}
-//@}	
-	Command *get_default_command() {return ext->default_cmd;}
-
+//@}
 
 /**@name Class data members */
 //@{
@@ -437,18 +395,71 @@ protected:
  */
  	MultiClassAttribute		*class_attr;
 //@}
-	
-private:	
+
+public:
+	vector<string> &get_nodb_name_list() {return ext->nodb_name_list;}
+	void set_memorized_values(bool flag, long idx = 0,bool from_init = false);
+
+	void add_wiz_dev_prop(string &name,string &desc,string &def);
+	void add_wiz_dev_prop(string &name,string &desc);
+
+	void add_wiz_class_prop(string &name,string &desc,string &def);
+	void add_wiz_class_prop(string &name,string &desc);
+
+	vector<string> &get_wiz_class_prop() {return wiz_class_prop;}
+	vector<string> &get_wiz_dev_prop() {return wiz_dev_prop;}
+
+	string &get_cvs_tag() {return ext->cvs_tag;}
+	string &get_cvs_location() {return ext->cvs_location;}
+
+	string &get_svn_tag() {return ext->svn_tag;}
+	string &get_svn_location() {return ext->svn_location;}
+
+	void set_cvs_tag(string &str) {ext->cvs_tag=str;}
+	void set_cvs_location(string &str) {ext->cvs_location=str;}
+
+	void add_device(DeviceImpl *dev) {device_list.push_back(dev);}
+	void delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_poa);
+
+	bool is_py_class() {return ext->py_class;}
+	void set_py_class(bool py) {ext->py_class=py;}
+	virtual void delete_class() {}
+	void get_mcast_event(DServer *);
+
+	bool is_command_allowed(const char *);
+
+protected:
+	Command *get_default_command() {return ext->default_cmd;}
+
+private:
+    class DeviceClassExt
+    {
+    public:
+        DeviceClassExt():only_one("class"),default_cmd(NULL),py_class(false) {};
+
+        vector<string>		nodb_name_list;
+        TangoMonitor		only_one;
+        string				cvs_tag;
+        string				cvs_location;
+        Command * 			default_cmd;
+        bool				py_class;
+        string              svn_tag;
+        string              svn_location;
+    };
+
 	void get_class_system_resource();
 	void throw_mem_value(DeviceImpl *,Attribute &);
-	
+
 	vector<string>			wiz_class_prop;
 	vector<string>			wiz_dev_prop;
-	
+
 	vector<string>			allowed_cmds;
-		
-	DeviceClassExt			*ext;
-	
+
+#ifdef HAS_UNIQUE_PTR
+    unique_ptr<DeviceClassExt>      ext;           // Class extension
+#else
+	DeviceClassExt			        *ext;
+#endif
 };
 
 

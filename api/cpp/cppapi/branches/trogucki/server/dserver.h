@@ -11,7 +11,7 @@
 //
 // author(s) :          A.Gotz + E.Taurel
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -122,6 +122,7 @@ public :
 
 	TANGO_IMP_EXP static void register_class_factory(ClassFactoryFuncPtr f_ptr) {class_factory_func_ptr = f_ptr;}
 	void _add_class(DeviceClass *dc) {this->add_class(dc);}
+	void _create_cpp_class(const char *c1,const char *c2) {this->create_cpp_class(c1,c2);}
 
 	void mcast_event_for_att(string &,string &,vector<string> &);
 

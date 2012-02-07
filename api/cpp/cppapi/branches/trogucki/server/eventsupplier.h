@@ -12,7 +12,7 @@
 ///
 /// 		original : 7 April 2003
 //
-// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2003,2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -223,6 +223,31 @@ private :
 #define     LARGE_DATA_THRESHOLD    2048
 #define     LARGE_DATA_THRESHOLD_ENCODED   LARGE_DATA_THRESHOLD * 4
 
+#ifndef HAS_LAMBDA_FUNC
+template <typename A1,typename A2,typename R>
+struct WantedClient : public binary_function<A1,A2,R>
+{
+	R operator() (A1 conn_client, A2 client) const
+	{
+		return conn_client.clnt == client;
+	}
+};
+
+template <typename A1,typename A2,typename R>
+struct OldClient : public binary_function<A1,A2,R>
+{
+	R operator() (A1 conn_client, A2 ti) const
+	{
+        if (ti > (conn_client.date + 500))
+        {
+            return true;
+        }
+        else
+            return false;
+	}
+};
+#endif
+
 class ZmqEventSupplier : public EventSupplier
 {
 public :
@@ -242,6 +267,9 @@ public :
     string &get_mcast_event_endpoint(string &);
     void init_event_cptr(string &event_name);
 
+    bool update_connected_client(client_addr *);
+    void set_double_send() {double_send=true;double_send_heartbeat=true;}
+
 protected :
 	ZmqEventSupplier(Util *);
 
@@ -253,6 +281,12 @@ private :
         string                  endpoint;
         zmq::socket_t           *pub_socket;
         bool                    local_client;
+    };
+
+    struct ConnectedClient
+    {
+        client_addr             clnt;
+        time_t                  date;
     };
 
 	zmq::context_t              zmq_context;            // ZMQ context
@@ -281,7 +315,11 @@ private :
 
 	string                      event_endpoint;         // event publisher endpoint
 
-	map<string,int>             event_cptr;             // event counter map
+	map<string,unsigned int>    event_cptr;             // event counter map
+
+	list<ConnectedClient>       con_client;             // Connected clients
+	bool                        double_send;            // Double send flag
+	bool                        double_send_heartbeat;
 
 	void tango_bind(zmq::socket_t *,string &);
 	unsigned char test_endian();

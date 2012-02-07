@@ -8,7 +8,7 @@
 //
 // author(s) :          N.Leclercq
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //						European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -922,15 +922,6 @@ bool Group::contains (const std::string& n, bool fwd)
   omni_mutex_lock guard(elements_mutex);
 #endif
   return (find_i(n, fwd) != 0) ? true : false;
-}
-//-----------------------------------------------------------------------------
-bool Group::is_enabled (const std::string& device_name, bool fwd) 
-{
-#ifdef TANGO_GROUP_HAS_THREAD_SAFE_IMPL
-  omni_mutex_lock guard(elements_mutex);
-#endif
-  GroupElement * ge = this->find_i(device_name, fwd);
-  return ge ? ge->is_enabled() : false;
 }
 //-----------------------------------------------------------------------------
 GroupElement* Group::find_i (const std::string& n, bool fwd)

@@ -1,4 +1,4 @@
-///=============================================================================	
+///=============================================================================
 //
 // file :		encoded_attribute.cpp
 //
@@ -8,7 +8,7 @@
 //
 // author(s) :		JL Pons
 //
-// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011
+// Copyright (C) :      2004,2005,2006,2007,2008,2009,2010,2011,2012
 //                      European Synchrotron Radiation Facility
 //                      BP 220, Grenoble 38043
 //                      FRANCE
@@ -19,12 +19,12 @@
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // Tango is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 //
@@ -42,7 +42,7 @@ using namespace Tango;
 
 // ----------------------------------------------------------------------------
 
-EncodedAttribute::EncodedAttribute():manage_exclusion(false),ext(NULL) {
+EncodedAttribute::EncodedAttribute():manage_exclusion(false),ext(Tango_NullPtr) {
 
   buffer_array = (unsigned char **)calloc(1,sizeof(unsigned char *));
   buffer_array[0] = NULL;
@@ -54,7 +54,7 @@ EncodedAttribute::EncodedAttribute():manage_exclusion(false),ext(NULL) {
   buf_elt_nb = 1;
 }
 
-EncodedAttribute::EncodedAttribute(int si,bool excl):manage_exclusion(excl),ext(NULL) {
+EncodedAttribute::EncodedAttribute(int si,bool excl):manage_exclusion(excl),ext(Tango_NullPtr) {
 
   buffer_array = (unsigned char **)calloc(si,sizeof(unsigned char *));
   buffSize_array = (int *)calloc(si,sizeof(int));
@@ -66,7 +66,7 @@ EncodedAttribute::EncodedAttribute(int si,bool excl):manage_exclusion(excl),ext(
   format = NULL;
   index = 0;
   buf_elt_nb = si;
-  
+
   if (manage_exclusion == true)
   	mutex_array = new omni_mutex[si];
 }
@@ -90,7 +90,7 @@ void EncodedAttribute::encode_jpeg_gray8(unsigned char *gray8,int width,int heig
 
   if (manage_exclusion == true)
   	mutex_array[index].lock();
-	
+
   SAFE_FREE(buffer_array[index]);
   buffSize_array[index] = 0;
   format = (char *)JPEG_GRAY8;
@@ -104,7 +104,7 @@ void EncodedAttribute::encode_jpeg_rgb32(unsigned char *rgb32,int width,int heig
 
   if (manage_exclusion == true)
   	mutex_array[index].lock();
-	
+
   SAFE_FREE(buffer_array[index]);
   buffSize_array[index] = 0;
   format = (char *)JPEG_RGB;
@@ -118,7 +118,7 @@ void EncodedAttribute::encode_jpeg_rgb24(unsigned char *rgb24,int width,int heig
 
   if (manage_exclusion == true)
   	mutex_array[index].lock();
-	
+
   SAFE_FREE(buffer_array[index]);
   buffSize_array[index] = 0;
   format = (char *)JPEG_RGB;
@@ -131,10 +131,10 @@ void EncodedAttribute::encode_jpeg_rgb24(unsigned char *rgb24,int width,int heig
 void EncodedAttribute::encode_gray8(unsigned char *gray8,int width,int height) {
 
   int newSize = width*height + 4;
-  
+
   if (manage_exclusion == true)
   	mutex_array[index].lock();
-	
+
   if( newSize!=buffSize_array[index] ) {
     SAFE_FREE(buffer_array[index]);
     buffer_array[index] = (unsigned char *)malloc(newSize);
@@ -142,7 +142,7 @@ void EncodedAttribute::encode_gray8(unsigned char *gray8,int width,int height) {
   }
 
   format = (char *)GRAY8;
-  
+
   // Store image dimension (big endian)
   unsigned char *tmp_ptr = buffer_array[index];
   tmp_ptr[0] = (unsigned char)( (width>>8) & 0xFF );
@@ -160,10 +160,10 @@ void EncodedAttribute::encode_gray8(unsigned char *gray8,int width,int height) {
 void EncodedAttribute::encode_gray16(unsigned short *gray16,int width,int height) {
 
   int newSize = width*height*2 + 4;
-  
+
   if (manage_exclusion == true)
   	mutex_array[index].lock();
-	
+
   if( newSize!=buffSize_array[index] ) {
     SAFE_FREE(buffer_array[index]);
     buffer_array[index] = (unsigned char *)malloc(newSize);
@@ -171,7 +171,7 @@ void EncodedAttribute::encode_gray16(unsigned short *gray16,int width,int height
   }
 
   format = (char *)GRAY16;
-  
+
   // Store image dimension (big endian)
   unsigned char *tmp_ptr = buffer_array[index];
   tmp_ptr[0] = (unsigned char)( (width>>8) & 0xFF );
@@ -197,10 +197,10 @@ void EncodedAttribute::encode_gray16(unsigned short *gray16,int width,int height
 void EncodedAttribute::encode_rgb24(unsigned char *rgb24,int width,int height) {
 
   int newSize = width*height*3 + 4;
-  
+
   if (manage_exclusion == true)
   	mutex_array[index].lock();
-	
+
   if( newSize!=buffSize_array[index] ) {
     SAFE_FREE(buffer_array[index]);
     buffer_array[index] = (unsigned char *)malloc(newSize);
@@ -208,7 +208,7 @@ void EncodedAttribute::encode_rgb24(unsigned char *rgb24,int width,int height) {
   }
 
   format = (char *)RGB24;
-  
+
   // Store image dimension (big endian)
   unsigned char *tmp_ptr = buffer_array[index];
   tmp_ptr[0] = (unsigned char)( (width>>8) & 0xFF );
@@ -226,19 +226,19 @@ void EncodedAttribute::encode_rgb24(unsigned char *rgb24,int width,int height) {
 void EncodedAttribute::decode_rgb32(DeviceAttribute *attr,int *width,int *height,unsigned char **rgb32)
 {
  	if (attr->is_empty())
-	{  
+	{
     	Except::throw_exception((const char *)"API_WrongFormat",
                             	(const char *)"Attribute contains no data",
                             	(const char *)"EncodedAttribute::decode_gray8");
 	}
 
-	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+    DevVarEncodedArray_var &encDataSeq = attr->get_Encoded_data();
 	if (encDataSeq.operator->() == NULL)
-	{   
+	{
     	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
       			(const char*)"Cannot extract, data in DeviceAttribute object is not DevEncoded",
-      			(const char*)"EncodedAttribute::decode_gray8");  
-	}  
+      			(const char*)"EncodedAttribute::decode_gray8");
+	}
 
 	string local_format(encDataSeq.in()[0].encoded_format);
 
@@ -262,7 +262,7 @@ void EncodedAttribute::decode_rgb32(DeviceAttribute *attr,int *width,int *height
 
 	if( isRGB )
 	{
-    
+
     	// Get width and height
     	int wh = ((int)rawBuff[0] & 0xFF);
     	int wl = ((int)rawBuff[1] & 0xFF);
@@ -275,7 +275,7 @@ void EncodedAttribute::decode_rgb32(DeviceAttribute *attr,int *width,int *height
     	int iHeight = hh | hl;
 
     	unsigned char *data = new unsigned char[iWidth*iHeight*4];
-    
+
     	// Convert to RGB32
     	int srcIdx = 4;
     	int dstIdx = 0;
@@ -328,19 +328,19 @@ void EncodedAttribute::decode_gray8(DeviceAttribute *attr,int *width,int *height
 {
 
  	if (attr->is_empty())
-	{  
+	{
     	Except::throw_exception((const char *)"API_WrongFormat",
                             	(const char *)"Attribute contains no data",
                             	(const char *)"EncodedAttribute::decode_gray8");
 	}
 
-	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	DevVarEncodedArray_var &encDataSeq = attr->get_Encoded_data();
 	if (encDataSeq.operator->() == NULL)
-	{   
+	{
     	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
       			(const char*)"Cannot extract, data in DeviceAttribute object is not DevEncoded",
-      			(const char*)"EncodedAttribute::decode_gray8");  
-	}  
+      			(const char*)"EncodedAttribute::decode_gray8");
+	}
 
 	string local_format(encDataSeq.in()[0].encoded_format);
 
@@ -364,7 +364,7 @@ void EncodedAttribute::decode_gray8(DeviceAttribute *attr,int *width,int *height
 
 	if( isGrey )
 	{
-    
+
     	// Get width and height
     	int wh = ((int)rawBuff[0] & 0xFF);
     	int wl = ((int)rawBuff[1] & 0xFF);
@@ -419,19 +419,19 @@ void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *heigh
 {
 
  	if (attr->is_empty())
-	{  
+	{
     	Except::throw_exception((const char *)"API_WrongFormat",
                             	(const char *)"Attribute contains no data",
                             	(const char *)"EncodedAttribute::decode_gray16");
 	}
 
-	DevVarEncodedArray_var &encDataSeq = attr->ext->EncodedSeq;
+	DevVarEncodedArray_var &encDataSeq = attr->get_Encoded_data();
 	if (encDataSeq.operator->() == NULL)
-	{   
+	{
     	ApiDataExcept::throw_exception((const char*)"API_IncompatibleAttrArgumentType",
       			(const char*)"Cannot extract, data in DeviceAttribute object is not DevEncoded",
-      			(const char*)"EncodedAttribute::decode_gray16");  
-	}  
+      			(const char*)"EncodedAttribute::decode_gray16");
+	}
 
 	string local_format(encDataSeq.in()[0].encoded_format);
 
@@ -440,7 +440,7 @@ void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *heigh
 	if( !isGrey )
 	{
     	Except::throw_exception((const char *)"API_WrongFormat",
-                            	(const char *)"Not a grayscale 16bit format",
+                            	(const char *)"Not a grayscale 16 bits format",
                             	(const char *)"EncodedAttribute::decode_gray16");
 	}
 
@@ -452,7 +452,7 @@ void EncodedAttribute::decode_gray16(DeviceAttribute *attr,int *width,int *heigh
 
 	if( isGrey )
 	{
-    
+
     	// Get width and height
     	int wh = ((int)rawBuff[0] & 0xFF);
     	int wl = ((int)rawBuff[1] & 0xFF);
