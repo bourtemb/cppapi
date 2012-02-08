@@ -36,6 +36,8 @@
 #ifndef _ATTRIBUTE_TPP
 #define _ATTRIBUTE_TPP
 
+namespace Tango
+{
 
 //+-------------------------------------------------------------------------
 //
@@ -136,21 +138,70 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 		str << (short)new_min_alarm; // to represent the numeric value
 	else
 		str << new_min_alarm;
-	string min_alarm_str;
-	min_alarm_str = str.str();
+	string min_alarm_tmp_str;
+	min_alarm_tmp_str = str.str();
 
 //
-// Make a copy of min alarm value in binary format
-//
-	Attr_CheckVal min_alarm_bin;
-	memcpy((void *)&min_alarm_bin, (void *)&new_min_alarm, sizeof(T));
-
-//
-// Extract min alarm type information and execute the code of the setter implementation
+// Check type validity
 //
 
-	attr_range min_alarm_range(min_alarm_bin, min_alarm_str, ranges_type2const<T>::enu, ranges_type2const<T>::str, sizeof(T));
-	set_min_alarm_impl(min_alarm_range);
+	if (data_type != ranges_type2const<T>::enu)
+	{
+		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					  (const char *)err_msg.c_str(),
+					  (const char *)"Attribute::set_min_alarm()");
+	}
+
+//
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
+//
+// Store the new alarm locally
+//
+
+	Attr_CheckVal old_min_alarm;
+	memcpy((void *)&old_min_alarm, (void *)&min_alarm, sizeof(T));
+	memcpy((void *)&min_alarm, (void *)&new_min_alarm, sizeof(T));
+
+//
+// Then, update database
+//
+
+	if (Tango::Util::_UseDb == true)
+	{
+		try
+		{
+			upd_att_prop_db(min_alarm,"min_alarm");
+		}
+		catch (Tango::DevFailed &)
+		{
+			memcpy((void *)&min_alarm, (void *)&old_min_alarm, sizeof(T));
+			throw;
+		}
+	}
+
+//
+// Set the min_warn flag
+//
+
+	alarm_conf.set(min_level);
+
+//
+// Store new value as a string
+//
+
+	min_alarm_str = min_alarm_tmp_str;
+
+//
+// Push a att conf event
+//
+
+	get_att_device()->push_att_conf_event(this);
 }
 
 template <typename T>
@@ -175,6 +226,106 @@ void Attribute::get_min_alarm(T &min_al)
 }
 
 template <typename T>
+void Attribute::set_max_alarm(const T &new_max_alarm)
+{
+
+//
+// Store new max alarm as a string
+//
+
+	TangoSys_MemStream str;
+	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+		str << (short)new_max_alarm; // to represent the numeric value
+	else
+		str << new_max_alarm;
+	string max_alarm_tmp_str;
+	max_alarm_tmp_str = str.str();
+
+//
+// Check type validity
+//
+
+	if (data_type != ranges_type2const<T>::enu)
+	{
+		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					  (const char *)err_msg.c_str(),
+					  (const char *)"Attribute::set_max_alarm()");
+	}
+
+//
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
+//
+// Store the new alarm locally
+//
+
+	Attr_CheckVal old_max_alarm;
+	memcpy((void *)&old_max_alarm, (void *)&max_alarm, sizeof(T));
+	memcpy((void *)&max_alarm, (void *)&new_max_alarm, sizeof(T));
+
+//
+// Then, update database
+//
+
+	if (Tango::Util::_UseDb == true)
+	{
+		try
+		{
+			upd_att_prop_db(max_alarm,"max_alarm");
+		}
+		catch (Tango::DevFailed &)
+		{
+			memcpy((void *)&max_alarm, (void *)&old_max_alarm, sizeof(T));
+			throw;
+		}
+	}
+
+//
+// Set the max_warn flag
+//
+
+	alarm_conf.set(max_level);
+
+//
+// Store new value as a string
+//
+
+	max_alarm_str = max_alarm_tmp_str;
+
+//
+// Push a att conf event
+//
+
+	get_att_device()->push_att_conf_event(this);
+}
+
+template <typename T>
+void Attribute::get_max_alarm(T &max_al)
+{
+	if (data_type != ranges_type2const<T>::enu)
+	{
+		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					  (const char *)err_msg.c_str(),
+					  (const char *)"Attribute::get_max_alarm()");
+	}
+
+	if (!alarm_conf[max_level])
+	{
+		Except::throw_exception((const char *)"API_AttrNotAllowed",
+					(const char *)"Maximum alarm not defined for this attribute",
+					(const char *)"Attribute::get_max_alarm()");
+	}
+
+	memcpy((void *)&max_al,(void *)&max_alarm,sizeof(T));
+}
+
+template <typename T>
 void Attribute::set_min_warning(const T &new_min_warning)
 {
 
@@ -187,21 +338,70 @@ void Attribute::set_min_warning(const T &new_min_warning)
 		str << (short)new_min_warning; // to represent the numeric value
 	else
 		str << new_min_warning;
-	string min_warning_str;
-	min_warning_str = str.str();
+	string min_warning_tmp_str;
+	min_warning_tmp_str = str.str();
 
 //
-// Make a copy of min warning value in binary format
-//
-	Attr_CheckVal min_warning_bin;
-	memcpy((void *)&min_warning_bin, (void *)&new_min_warning, sizeof(T));
-
-//
-// Extract min warning type information and execute the code of the setter implementation
+// Check type validity
 //
 
-	attr_range min_warninig_range(min_warning_bin, min_warning_str, ranges_type2const<T>::enu, ranges_type2const<T>::str, sizeof(T));
-	set_min_warning_impl(min_warninig_range);
+	if (data_type != ranges_type2const<T>::enu)
+	{
+		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+				      (const char *)err_msg.c_str(),
+				      (const char *)"Attribute::set_min_warning()");
+	}
+
+//
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
+//
+// Store the new warning locally
+//
+
+	Attr_CheckVal old_min_warning;
+	memcpy((void *)&old_min_warning, (void *)&min_warning, sizeof(T));
+	memcpy((void *)&min_warning, (void *)&new_min_warning, sizeof(T));
+
+//
+// Then, update database
+//
+
+	if (Tango::Util::_UseDb == true)
+	{
+		try
+		{
+			upd_att_prop_db(min_warning,"min_warning");
+		}
+		catch (Tango::DevFailed &)
+		{
+			memcpy((void *)&min_warning, (void *)&old_min_warning, sizeof(T));
+			throw;
+		}
+	}
+
+//
+// Set the min_warn flag
+//
+
+	alarm_conf.set(min_warn);
+
+//
+// Store new value as a string
+//
+
+	min_warning_str = min_warning_tmp_str;
+
+//
+// Push a att conf event
+//
+
+	get_att_device()->push_att_conf_event(this);
 }
 
 template <typename T>
@@ -238,21 +438,70 @@ void Attribute::set_max_warning(const T &new_max_warning)
 		str << (short)new_max_warning; // to represent the numeric value
 	else
 		str << new_max_warning;
-	string max_warning_str;
-	max_warning_str = str.str();
+	string max_warning_tmp_str;
+	max_warning_tmp_str = str.str();
 
 //
-// Make a copy of max warning value in binary format
-//
-	Attr_CheckVal max_warning_bin;
-	memcpy((void *)&max_warning_bin, (void *)&new_max_warning, sizeof(T));
-
-//
-// Extract max warning type information and execute the code of the setter implementation
+// Check type validity
 //
 
-	attr_range max_warninig_range(max_warning_bin, max_warning_str, ranges_type2const<T>::enu, ranges_type2const<T>::str, sizeof(T));
-	set_max_warning_impl(max_warninig_range);
+	if (data_type != ranges_type2const<T>::enu)
+	{
+		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					  (const char *)err_msg.c_str(),
+					  (const char *)"Attribute::set_max_warning()");
+	}
+
+//
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
+//
+// Store the new warning locally
+//
+
+	Attr_CheckVal old_max_warning;
+	memcpy((void *)&old_max_warning, (void *)&max_warning, sizeof(T));
+	memcpy((void *)&max_warning, (void *)&new_max_warning, sizeof(T));
+
+//
+// Then, update database
+//
+
+	if (Tango::Util::_UseDb == true)
+	{
+		try
+		{
+			upd_att_prop_db(max_warning,"max_warning");
+		}
+		catch (Tango::DevFailed &)
+		{
+			memcpy((void *)&max_warning, (void *)&old_max_warning, sizeof(T));
+			throw;
+		}
+	}
+
+//
+// Set the max_warn flag
+//
+
+	alarm_conf.set(max_warn);
+
+//
+// Store new value as a string
+//
+
+	max_warning_str = max_warning_tmp_str;
+
+//
+// Push a att conf event
+//
+
+	get_att_device()->push_att_conf_event(this);
 }
 
 template <typename T>
@@ -276,55 +525,5 @@ void Attribute::get_max_warning(T &max_war)
 	memcpy((void *)&max_war,(void *)&max_warning,sizeof(T));
 }
 
-template <typename T>
-void Attribute::set_max_alarm(const T &new_max_alarm)
-{
-
-//
-// Store new max alarm as a string
-//
-
-	TangoSys_MemStream str;
-	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
-		str << (short)new_max_alarm; // to represent the numeric value
-	else
-		str << new_max_alarm;
-	string max_alarm_str;
-	max_alarm_str = str.str();
-
-//
-// Make a copy of max alarm value in binary format
-//
-	Attr_CheckVal max_alarm_bin;
-	memcpy((void *)&max_alarm_bin, (void *)&new_max_alarm, sizeof(T));
-
-//
-// Extract max alarm type information and execute the code of the setter implementation
-//
-
-	attr_range max_alarm_range(max_alarm_bin, max_alarm_str, ranges_type2const<T>::enu, ranges_type2const<T>::str, sizeof(T));
-	set_max_alarm_impl(max_alarm_range);
-}
-
-template <typename T>
-void Attribute::get_max_alarm(T &max_al)
-{
-	if (data_type != ranges_type2const<T>::enu)
-	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
-		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
-					  (const char *)err_msg.c_str(),
-					  (const char *)"Attribute::get_max_alarm()");
-	}
-
-	if (!alarm_conf[max_level])
-	{
-		Except::throw_exception((const char *)"API_AttrNotAllowed",
-					(const char *)"Maximum alarm not defined for this attribute",
-					(const char *)"Attribute::get_max_alarm()");
-	}
-
-	memcpy((void *)&max_al,(void *)&max_alarm,sizeof(T));
-}
-
+} // End of Tango namespace
 #endif // _ATTRIBUTE_TPP
