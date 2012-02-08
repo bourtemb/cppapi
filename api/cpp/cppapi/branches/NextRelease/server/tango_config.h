@@ -138,15 +138,25 @@
 //
 
 #ifndef _TG_WINDOWS_
-    #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)))
-        #define HAS_UNIQUE_PTR
-        #define HAS_RVALUE
-        #if __GNUC_MINOR__ > 4
-            #define HAS_LAMBDA_FUNC
-            #define HAS_ISNAN_IN_STD
-        #endif
-        #if __GNUC_MINOR__ > 5
-            #define HAS_NULLPTR
+    #if defined(__GNUC__)
+        #if __GNUC__ == 4
+            #if __GNUC_MINOR__ > 2
+                #define HAS_UNIQUE_PTR
+                #define HAS_RVALUE
+            #endif
+            #if __GNUC_MINOR__ > 4
+                #define HAS_LAMBDA_FUNC
+                #define HAS_ISNAN_IN_STD
+            #endif
+            #if __GNUC_MINOR__ > 5
+                #define HAS_NULLPTR
+            #endif
+        #elif __GNUC__ > 4
+                #define HAS_UNIQUE_PTR
+                #define HAS_RVALUE
+                #define HAS_LAMBDA_FUNC
+                #define HAS_ISNAN_IN_STD
+                #define HAS_NULLPTR
         #endif
     #endif
 #else

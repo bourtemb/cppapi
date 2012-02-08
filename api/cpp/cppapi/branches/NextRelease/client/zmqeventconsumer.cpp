@@ -2204,7 +2204,7 @@ DelayEvent::DelayEvent(EventConsumer *ec):released(false),eve_con(NULL)
 // retry the connect call
 // I have tried with a yield call but it still failed in some cases
 // (when running the DS with a file as database  for instance)
-// Replace the yield with a 10 mS sleep !!!
+// Replace the yield with a 15 mS sleep !!!
 //
 
             try
@@ -2218,11 +2218,11 @@ DelayEvent::DelayEvent(EventConsumer *ec):released(false),eve_con(NULL)
 #ifndef _TG_WINDOWS_
                     struct timespec ts;
                     ts.tv_sec = 0;
-                    ts.tv_nsec = 10000000;
+                    ts.tv_nsec = 15000000;
 
                     nanosleep(&ts,NULL);
 #else
-                    Sleep(10);
+                    Sleep(20);
 #endif
                     sender.connect(CTRL_SOCK_ENDPOINT);
                 }
@@ -2337,7 +2337,7 @@ void DelayEvent::release()
 
             Except::throw_exception((const char *)"API_ZmqFailed",
                             o.str(),
-                            (const char *)"DelayEvent::DelayEvent");
+                            (const char *)"DelayEvent::release");
         }
 
 //
