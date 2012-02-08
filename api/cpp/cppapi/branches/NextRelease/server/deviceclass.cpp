@@ -123,7 +123,7 @@ DeviceClass::DeviceClass(string &s):name(s),ext(new DeviceClassExt)
 // Give a default value for device type
 //
 
-	type = DescNotSet;
+	type = NotSet;
 
 }
 

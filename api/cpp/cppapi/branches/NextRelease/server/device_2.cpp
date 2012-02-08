@@ -1010,12 +1010,12 @@ throw (Tango::DevFailed, CORBA::SystemException)
 			if (str_in.size() != 0)
 				tmp.in_type_desc = CORBA::string_dup(str_in.c_str());
 			else
-				tmp.in_type_desc = CORBA::string_dup(DescNotSet);
+				tmp.in_type_desc = CORBA::string_dup(NotSet);
 			string &str_out = (device_class->get_command_list())[i]->get_out_type_desc();
 			if (str_out.size() != 0)
 				tmp.out_type_desc = CORBA::string_dup(str_out.c_str());
 			else
-				tmp.out_type_desc = CORBA::string_dup(DescNotSet);
+				tmp.out_type_desc = CORBA::string_dup(NotSet);
 
 			(*back)[i] = tmp;
 		}
@@ -1101,12 +1101,12 @@ throw (Tango::DevFailed, CORBA::SystemException)
 			if (str_in.size() != 0)
 				back->in_type_desc = CORBA::string_dup(str_in.c_str());
 			else
-				back->in_type_desc = CORBA::string_dup(DescNotSet);
+				back->in_type_desc = CORBA::string_dup(NotSet);
 			string &str_out = (device_class->get_command_list())[i]->get_out_type_desc();
 			if (str_out.size() != 0)
 				back->out_type_desc = CORBA::string_dup(str_out.c_str());
 			else
-				back->out_type_desc = CORBA::string_dup(DescNotSet);
+				back->out_type_desc = CORBA::string_dup(NotSet);
 			break;
 		}
 	}

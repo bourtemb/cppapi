@@ -2836,7 +2836,7 @@ DeviceInfo const &DeviceProxy::info()
 				_info.server_host = dev_info->server_host;
 				_info.server_version = dev_info->server_version;
 				_info.doc_url = dev_info->doc_url;
-				_info.dev_type = DescNotSet;
+				_info.dev_type = NotSet;
 			}
 			ctr = 2;
 		}

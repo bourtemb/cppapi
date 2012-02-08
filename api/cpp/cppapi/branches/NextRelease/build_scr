@@ -177,6 +177,7 @@ then
 else
 	MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $CLEAN $LIBNAME install_include install_link"
 
+# branch dependent path:
 	cd NextRelease
 fi
 

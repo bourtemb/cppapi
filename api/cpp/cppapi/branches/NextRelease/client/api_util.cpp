@@ -176,7 +176,12 @@ ApiUtil::~ApiUtil()
 //
 
 	bool event_was_used = false;
+
+#ifdef HAS_UNIQUE_PTR
+	if (ext.get() != NULL)
+#else
 	if (ext != NULL)
+#endif
 	{
 		if ((ext->notifd_event_consumer != NULL) || (ext->zmq_event_consumer != NULL))
 		{

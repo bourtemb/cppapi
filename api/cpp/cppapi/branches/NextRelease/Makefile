@@ -33,8 +33,13 @@ IDL_SRC    = server/idl
 JPG_SRC    = server/jpeg
 JPG_SRC_MMX	=	server/jpeg_mmx
 
+ifdef prefix
 OBJS_DIR = 	objs/$(BIN_DIR)
 OBJS_DIR_SL = 	objs_sl/$(BIN_DIR)
+else
+OBJS_DIR = 	objs/$(BIN_DIR)
+OBJS_DIR_SL = 	objs_sl/$(BIN_DIR)
+endif
 
 
 INCLUDE_DIRS = -I$(CLIENT_SRC) \
@@ -356,6 +361,7 @@ SERVER_INCLUDE =	attrdesc.h \
 
 all:	$(LIBNAME).$(AR_EXT) $(LIBNAME).$(SL_EXT) install_include install_link
 
+
 #
 # Rule for archive libary
 #
@@ -470,7 +476,7 @@ $(LIBNAME).$(SL_EXT):	$(IDL_OBJS_SL) $(SERVER_OBJS_SL) $(CLIENT_OBJS_SL)
 	-lomnithread    			\
 	-lCOS4
 
-# library verioning is not handled the same way under MacOSX
+# library versioning is not handled the same way under MacOSX
 install_link:
 	d=`pwd`
 	cd $(INSTALL_BASE)/$(LIB_DIR); \

@@ -275,7 +275,7 @@ bool DbDatum::operator >> (short &datum)
 void DbDatum::operator << (unsigned char datum)
 {
 	ostringstream ostream;
-	ostream << datum;
+	ostream << (short)datum; // to accept only numbers
 
 	value_string.resize(1);
 	value_string[0] = string(ostream.str());
@@ -623,7 +623,7 @@ bool DbDatum::operator >> (DevULong64 &datum)
 void DbDatum::operator << (float datum)
 {
 	ostringstream ostream;
-	ostream << datum;
+	ostream << std::setprecision(TANGO_FLOAT_PRECISION) << datum;
 
 	value_string.resize(1);
 	value_string[0] = string(ostream.str());
@@ -681,7 +681,7 @@ bool DbDatum::operator >> (float& datum)
 void DbDatum::operator << (double datum)
 {
 	ostringstream ostream;
-	ostream << setprecision(15) << datum;
+	ostream << setprecision(TANGO_FLOAT_PRECISION) << datum;
 
 	value_string.resize(1);
 	value_string[0] = string(ostream.str());
@@ -712,7 +712,7 @@ bool DbDatum::operator >> (double& datum)
 	else
 	{
 		istringstream istream(value_string[0]);
-		istream >> std::setprecision(15) >> datum;
+		istream >> std::setprecision(TANGO_FLOAT_PRECISION) >> datum;
 		if (!istream)
 		{
 			if (exceptions_flags.test(wrongtype_flag))
@@ -1288,7 +1288,7 @@ void DbDatum::operator << (vector<float>& datum)
 	value_string.resize(datum.size());
 	for (unsigned int i=0; i<datum.size(); i++)
 	{
-		ostream << datum[i];
+		ostream << std::setprecision(TANGO_FLOAT_PRECISION) << datum[i];
 		value_string[i] = ostream.str();
 		ostream.str("");
 	}
@@ -1360,7 +1360,7 @@ void DbDatum::operator << (vector<double>& datum)
 
 	for (unsigned int i=0; i<datum.size(); i++)
 	{
-		ostream << datum[i];
+		ostream << std::setprecision(TANGO_FLOAT_PRECISION) << datum[i];
 		value_string[i] = ostream.str();
 		ostream.str("");
 	}
@@ -1398,7 +1398,7 @@ bool DbDatum::operator >> (vector<double>& datum)
 		{
 			iostream.seekp (0); iostream.seekg(0); iostream.clear();
 			iostream << value_string[i] << ends;
-			iostream >> std::setprecision(15) >> datum[i];
+			iostream >> std::setprecision(TANGO_FLOAT_PRECISION) >> datum[i];
 			if (!iostream)
 			{
 				if (exceptions_flags.test(wrongtype_flag))

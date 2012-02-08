@@ -125,6 +125,7 @@
 	#include <device_4.h>
 	#include <command.h>
 	#include <dserver.h>
+	#include <attribute.tpp>
 #endif
 
 #include <event.h>
