@@ -148,7 +148,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 // Get device reference
 //
 
-	DeviceImpl *dev_impl;
+	DeviceImpl *dev_impl = NULL;
 	try
 	{
 		dev_impl = tg->get_device_by_name(dev_name);

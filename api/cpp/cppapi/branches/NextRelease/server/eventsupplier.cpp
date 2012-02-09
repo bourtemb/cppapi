@@ -80,7 +80,7 @@ EventSupplier::EventSupplier(Util *tg)
 //
 // method : 		EventSupplier::detect_and_push_events()
 //
-// description : 	Method to detect if there it is necessary
+// description : 	Method to detect if it is necessary
 //			        to push an event
 //
 // argument : in :	device_impl : The device

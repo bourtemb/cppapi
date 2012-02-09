@@ -2331,7 +2331,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 	bool store_in_db = true; \
 	if (nb_user != 0) \
 	{ \
-		int i; \
+		size_t i; \
 		for (i = 0;i < nb_user;i++) \
 		{ \
 			if (I[i].get_name() == H) \
@@ -2375,7 +2375,6 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				double db; \
 				float fl; \
 				unsigned short ush; \
-				unsigned char uch; \
 				DevLong64 lg64; \
 				DevULong ulg; \
 				DevULong64 ulg64; \

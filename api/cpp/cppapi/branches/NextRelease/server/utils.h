@@ -1028,7 +1028,7 @@ private:
 inline CORBA::Any *return_empty_any(const char *cmd)
 {
 
-	CORBA::Any *out_any;
+	CORBA::Any *out_any = NULL;
 	try
 	{
 		out_any = new CORBA::Any();

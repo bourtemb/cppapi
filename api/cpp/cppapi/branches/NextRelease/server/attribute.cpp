@@ -224,7 +224,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	ext->zmq_event = false;
 
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
-	long nb_user = def_user_prop.size();
+	size_t nb_user = def_user_prop.size();
 
 //
 // Init min and max relative change for change event
@@ -254,7 +254,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 		{
 			if (nb_user != 0)
 			{
-				int i;
+				size_t i;
 				for (i = 0;i < nb_user;i++)
 				{
 					if (def_user_prop[i].get_name() == "rel_change")
@@ -302,7 +302,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 		{
 			if (nb_user != 0)
 			{
-				int i;
+				size_t i;
 				for (i = 0;i < nb_user;i++)
 				{
 					if (def_user_prop[i].get_name() == "abs_change")
@@ -350,7 +350,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 		{
 			if (nb_user != 0)
 			{
-				int i;
+				size_t i;
 				for (i = 0;i < nb_user;i++)
 				{
 					if (def_user_prop[i].get_name() == "archive_rel_change")
@@ -398,7 +398,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 		{
 			if (nb_user != 0)
 			{
-				int i;
+				size_t i;
 				for (i = 0;i < nb_user;i++)
 				{
 					if (def_user_prop[i].get_name() == "archive_abs_change")
@@ -1719,7 +1719,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
-	long nb_user = def_user_prop.size();
+	size_t nb_user = def_user_prop.size();
 
 //
 // First the description
@@ -1737,7 +1737,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "description")
@@ -1773,7 +1773,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "label")
@@ -1809,7 +1809,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "unit")
@@ -1845,7 +1845,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "standard_unit")
@@ -1881,7 +1881,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "display_unit")
@@ -1917,7 +1917,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "format")
@@ -1957,7 +1957,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "min_value")
@@ -2129,7 +2129,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "max_value")
@@ -2304,7 +2304,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "min_alarm")
@@ -2458,7 +2458,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "max_alarm")
@@ -2672,7 +2672,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
-	long nb_user = def_user_prop.size();
+	size_t nb_user = def_user_prop.size();
 
 //
 // The min_warning case
@@ -2693,7 +2693,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "min_warning")
@@ -2850,7 +2850,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "max_warning")
@@ -3007,7 +3007,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "delta_val")
@@ -3165,7 +3165,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "delta_t")
@@ -3267,7 +3267,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "rel_change")
@@ -3308,7 +3308,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "abs_change")
@@ -3349,7 +3349,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "archive_rel_change")
@@ -3390,7 +3390,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "archive_abs_change")
@@ -3440,7 +3440,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "event_period")
@@ -3492,7 +3492,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		// set user default value if defined, otherwise use the library defaults
 		if (nb_user != 0)
 		{
-			int i;
+			size_t i;
 			for (i = 0;i < nb_user;i++)
 			{
 				if (def_user_prop[i].get_name() == "archive_period")
@@ -3748,7 +3748,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	bool store_in_db = true;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "delta_t")
@@ -3834,7 +3834,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "rel_change")
@@ -3961,7 +3961,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "abs_change")
@@ -4088,7 +4088,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "archive_rel_change")
@@ -4215,7 +4215,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "archive_abs_change")
@@ -4341,7 +4341,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	store_in_db = true;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "event_period")
@@ -4408,7 +4408,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	store_in_db = true;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "archive_period")
@@ -4571,7 +4571,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	user_defaults = false;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "description")
@@ -4635,7 +4635,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	user_defaults = false;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "label")
@@ -4699,7 +4699,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	user_defaults = false;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "unit")
@@ -4763,7 +4763,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	user_defaults = false;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "standard_unit")
@@ -4827,7 +4827,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	user_defaults = false;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "display_unit")
@@ -4891,7 +4891,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	user_defaults = false;
 	if (nb_user != 0)
 	{
-		int i;
+		size_t i;
 		for (i = 0;i < nb_user;i++)
 		{
 			if (def_user_prop[i].get_name() == "format")

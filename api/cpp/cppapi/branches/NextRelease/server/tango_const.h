@@ -903,6 +903,7 @@ enum ChannelType
 
 typedef struct _SendEventType
 {
+	_SendEventType() : change(false), archive(false), periodic(false) { };
 	bool change;
 	bool archive;
 	bool periodic;
@@ -939,6 +940,7 @@ typedef struct _OptAttrProp
  * strings already used.
  *
  *
+ * API_AttrEventProp
  * API_AttrIncorrectDataNumber
  * API_AttrNoAlarm
  * API_AttrNotAllowed
@@ -999,7 +1001,6 @@ typedef struct _OptAttrProp
  * API_WrongHistoryDataBuffer
  * API_WrongLockingStatus
  * API_ZmqInitFailed
- * API_AttrEventProp
  */
 
 } // End of Tango namespace
