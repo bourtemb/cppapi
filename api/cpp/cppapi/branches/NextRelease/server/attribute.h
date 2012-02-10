@@ -436,53 +436,6 @@ public:
  */
 	long get_polling_period() {return ext->poll_period;}
 /**
- * Get attribute properties.
- *
- * This method initialise the fields of a AttributeConfig object with the
- * attribute properties value
- *
- * @param conf A AttributeConfig object.
- */
-	void get_properties(Tango::AttributeConfig &conf);
-/**
- * Get attribute properties version 2.
- *
- * This method initialise the fields of a AttributeConfig_2 object with the
- * attribute properties value
- *
- * @param conf A AttributeConfig_2 object.
- */
-	void get_properties_2(Tango::AttributeConfig_2 &conf);
-/**
- * Get attribute properties version 3.
- *
- * This method initialise the fields of a AttributeConfig_3 object with the
- * attribute properties value
- *
- * @param conf A AttributeConfig_3 object.
- */
-	void get_properties_3(Tango::AttributeConfig_3 &conf);
-/**
- * Set attribute properties.
- *
- * This method set the attribute properties value with the content
- * of the fileds in the AttributeConfig object
- *
- * @param conf A AttributeConfig object.
- * @param dev The device pointer.
- */
-	void set_properties(const Tango::AttributeConfig &conf,Tango::DeviceImpl *dev);
-/**
- * Set attribute properties version 3.
- *
- * This method set the attribute properties value with the content
- * of the fileds in the AttributeConfig_3 object
- *
- * @param conf A AttributeConfig_3 object.
- * @param dev The device pointer.
- */
-	void set_properties(const Tango::AttributeConfig_3 &conf,Tango::DeviceImpl *dev);
-/**
  * Set attribute serialization model
  *
  * This method allows the user to choose the attribute serialization
@@ -2072,6 +2025,12 @@ public:
 //
 // methods not usable for the external world (outside the lib)
 //
+
+    void get_properties(Tango::AttributeConfig &conf);
+	void get_properties_2(Tango::AttributeConfig_2 &conf);
+	void get_properties_3(Tango::AttributeConfig_3 &conf);
+	void set_properties(const Tango::AttributeConfig &conf,Tango::DeviceImpl *dev);
+	void set_properties(const Tango::AttributeConfig_3 &conf,Tango::DeviceImpl *dev);
 
 	virtual void set_rvalue() {};
 	void delete_seq();
