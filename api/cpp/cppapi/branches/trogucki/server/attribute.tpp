@@ -125,21 +125,21 @@ void Attribute::check_hard_coded_properties(const T &user_conf)
     }
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::set_min_alarm()
+//
+// description : 	Sets minimum alarm attribute property
+//					Throws exception in case the data type of provided
+//					property does not match the attribute data type
+//
+// in :	new_min_alarm : The minimum alarm property to be set
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::set_min_alarm(const T &new_min_alarm)
 {
-
-//
-// Store new min alarm as a string
-//
-
-	TangoSys_MemStream str;
-	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
-		str << (short)new_min_alarm; // to represent the numeric value
-	else
-		str << new_min_alarm;
-	string min_alarm_tmp_str;
-	min_alarm_tmp_str = str.str();
 
 //
 // Check type validity
@@ -152,6 +152,18 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_min_alarm()");
 	}
+
+//
+// Store new min alarm as a string
+//
+
+	TangoSys_MemStream str;
+	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+		str << (short)new_min_alarm; // to represent the numeric value
+	else
+		str << new_min_alarm;
+	string min_alarm_tmp_str;
+	min_alarm_tmp_str = str.str();
 
 //
 // Get the monitor protecting device att config
@@ -204,6 +216,21 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 	get_att_device()->push_att_conf_event(this);
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::get_min_alarm()
+//
+// description :	Gets attribute's minimum alarm value and assigns it
+//					to the variable provided as a parameter
+//					Throws exception in case the data type of provided
+//					parameter does not match the attribute data type
+//					or if minimum alarm is not defined
+//
+// in :	min_al : The variable to be assigned the attribute's
+//					minimum alarm value
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::get_min_alarm(T &min_al)
 {
@@ -225,21 +252,21 @@ void Attribute::get_min_alarm(T &min_al)
 	memcpy((void *)&min_al,(void *)&min_alarm,sizeof(T));
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::set_max_alarm()
+//
+// description : 	Sets maximum alarm attribute property
+//					Throws exception in case the data type of provided
+//					property does not match the attribute data type
+//
+// in :	new_max_alarm : The maximum alarm property to be set
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::set_max_alarm(const T &new_max_alarm)
 {
-
-//
-// Store new max alarm as a string
-//
-
-	TangoSys_MemStream str;
-	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
-		str << (short)new_max_alarm; // to represent the numeric value
-	else
-		str << new_max_alarm;
-	string max_alarm_tmp_str;
-	max_alarm_tmp_str = str.str();
 
 //
 // Check type validity
@@ -252,6 +279,18 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_alarm()");
 	}
+
+//
+// Store new max alarm as a string
+//
+
+	TangoSys_MemStream str;
+	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+		str << (short)new_max_alarm; // to represent the numeric value
+	else
+		str << new_max_alarm;
+	string max_alarm_tmp_str;
+	max_alarm_tmp_str = str.str();
 
 //
 // Get the monitor protecting device att config
@@ -304,6 +343,21 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 	get_att_device()->push_att_conf_event(this);
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::get_max_alarm()
+//
+// description :	Gets attribute's maximum alarm value and assigns it
+//					to the variable provided as a parameter
+//					Throws exception in case the data type of provided
+//					parameter does not match the attribute data type
+//					or if maximum alarm is not defined
+//
+// in :	max_al : The variable to be assigned the attribute's
+//					maximum alarm value
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::get_max_alarm(T &max_al)
 {
@@ -325,21 +379,21 @@ void Attribute::get_max_alarm(T &max_al)
 	memcpy((void *)&max_al,(void *)&max_alarm,sizeof(T));
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::set_min_warning()
+//
+// description : 	Sets minimum warning attribute property
+//					Throws exception in case the data type of provided
+//					property does not match the attribute data type
+//
+// in :	new_min_warning : The minimum warning property to be set
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::set_min_warning(const T &new_min_warning)
 {
-
-//
-// Store new min warning as a string
-//
-
-	TangoSys_MemStream str;
-	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
-		str << (short)new_min_warning; // to represent the numeric value
-	else
-		str << new_min_warning;
-	string min_warning_tmp_str;
-	min_warning_tmp_str = str.str();
 
 //
 // Check type validity
@@ -352,6 +406,18 @@ void Attribute::set_min_warning(const T &new_min_warning)
 				      (const char *)err_msg.c_str(),
 				      (const char *)"Attribute::set_min_warning()");
 	}
+
+//
+// Store new min warning as a string
+//
+
+	TangoSys_MemStream str;
+	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+		str << (short)new_min_warning; // to represent the numeric value
+	else
+		str << new_min_warning;
+	string min_warning_tmp_str;
+	min_warning_tmp_str = str.str();
 
 //
 // Get the monitor protecting device att config
@@ -404,6 +470,21 @@ void Attribute::set_min_warning(const T &new_min_warning)
 	get_att_device()->push_att_conf_event(this);
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::get_min_warning()
+//
+// description :	Gets attribute's minimum warning value and assigns it
+//					to the variable provided as a parameter
+//					Throws exception in case the data type of provided
+//					parameter does not match the attribute data type
+//					or if minimum warning is not defined
+//
+// in :	min_war : The variable to be assigned the attribute's
+//					minimum warning value
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::get_min_warning(T &min_war)
 {
@@ -425,21 +506,21 @@ void Attribute::get_min_warning(T &min_war)
 	memcpy((void *)&min_war,(void *)&min_warning,sizeof(T));
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::set_max_warning()
+//
+// description : 	Sets maximum warning attribute property
+//					Throws exception in case the data type of provided
+//					property does not match the attribute data type
+//
+// in :	new_maximum_warning : The maximum warning property to be set
+//
+//--------------------------------------------------------------------------
+
 template <typename T>
 void Attribute::set_max_warning(const T &new_max_warning)
 {
-
-//
-// Store new max warning as a string
-//
-
-	TangoSys_MemStream str;
-	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
-		str << (short)new_max_warning; // to represent the numeric value
-	else
-		str << new_max_warning;
-	string max_warning_tmp_str;
-	max_warning_tmp_str = str.str();
 
 //
 // Check type validity
@@ -452,6 +533,18 @@ void Attribute::set_max_warning(const T &new_max_warning)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_warning()");
 	}
+
+//
+// Store new max warning as a string
+//
+
+	TangoSys_MemStream str;
+	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+		str << (short)new_max_warning; // to represent the numeric value
+	else
+		str << new_max_warning;
+	string max_warning_tmp_str;
+	max_warning_tmp_str = str.str();
 
 //
 // Get the monitor protecting device att config
@@ -503,6 +596,21 @@ void Attribute::set_max_warning(const T &new_max_warning)
 
 	get_att_device()->push_att_conf_event(this);
 }
+
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::get_max_warning()
+//
+// description :	Gets attribute's maximum warning value and assigns it
+//					to the variable provided as a parameter
+//					Throws exception in case the data type of provided
+//					parameter does not match the attribute data type
+//					or if maximum warning is not defined
+//
+// in :	max_war : The variable to be assigned the attribute's
+//					maximum warning value
+//
+//--------------------------------------------------------------------------
 
 template <typename T>
 void Attribute::get_max_warning(T &max_war)
