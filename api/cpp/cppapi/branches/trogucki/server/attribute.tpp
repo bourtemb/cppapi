@@ -154,6 +154,22 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 	}
 
 //
+//	Check coherence with max_alarm
+//
+
+	if(alarm_conf.test(max_level))
+	{
+		T max_alarm_tmp;
+		memcpy((void *) &max_alarm_tmp, (const void *) &max_alarm, sizeof(T));
+		if(new_min_alarm >= max_alarm_tmp)
+		{
+			Except::throw_exception((const char *)"API_IncoherentValue",
+						  (const char *)"Value of min_alarm is grater than or equal to max_alarm",
+						  (const char *)"Attribute::set_min_alarm()");
+		}
+	}
+
+//
 // Store new min alarm as a string
 //
 
@@ -278,6 +294,22 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_alarm()");
+	}
+
+//
+//	Check coherence with min_alarm
+//
+
+	if(alarm_conf.test(min_level))
+	{
+		T min_alarm_tmp;
+		memcpy((void *) &min_alarm_tmp, (const void *) &min_alarm, sizeof(T));
+		if(new_max_alarm <= min_alarm_tmp)
+		{
+			Except::throw_exception((const char *)"API_IncoherentValue",
+						  (const char *)"Value of max_alarm is lower than or equal to min_alarm",
+						  (const char *)"Attribute::set_max_alarm()");
+		}
 	}
 
 //
@@ -408,6 +440,22 @@ void Attribute::set_min_warning(const T &new_min_warning)
 	}
 
 //
+//	Check coherence with max_warning
+//
+
+	if(alarm_conf.test(max_warn))
+	{
+		T max_warning_tmp;
+		memcpy((void *) &max_warning_tmp, (const void *) &max_warning, sizeof(T));
+		if(new_min_warning >= max_warning_tmp)
+		{
+			Except::throw_exception((const char *)"API_IncoherentValue",
+						  (const char *)"Value of min_warning is grater than or equal to max_warning",
+						  (const char *)"Attribute::set_min_warning()");
+		}
+	}
+
+//
 // Store new min warning as a string
 //
 
@@ -532,6 +580,22 @@ void Attribute::set_max_warning(const T &new_max_warning)
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_warning()");
+	}
+
+//
+//	Check coherence with min_warning
+//
+
+	if(alarm_conf.test(min_warn))
+	{
+		T min_warning_tmp;
+		memcpy((void *) &min_warning_tmp, (const void *) &min_warning, sizeof(T));
+		if(new_max_warning <= min_warning_tmp)
+		{
+			Except::throw_exception((const char *)"API_IncoherentValue",
+						  (const char *)"Value of max_warning is lower than or equal to min_warning",
+						  (const char *)"Attribute::set_max_warning()");
+		}
 	}
 
 //
