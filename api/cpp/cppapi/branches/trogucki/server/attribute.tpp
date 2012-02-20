@@ -140,7 +140,6 @@ void Attribute::check_hard_coded_properties(const T &user_conf)
 template <typename T>
 void Attribute::set_min_alarm(const T &new_min_alarm)
 {
-
 //
 // Check type validity
 //
@@ -200,16 +199,66 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 // Then, update database
 //
 
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "min_alarm")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+
 	if (Tango::Util::_UseDb == true)
 	{
-		try
+		if(user_defaults && min_alarm_tmp_str == usr_def_val)
 		{
-			upd_att_prop_db(min_alarm,"min_alarm");
+			DbDatum attr_dd(name), prop_dd("min_alarm");
+			DbData db_data;
+			db_data.push_back(attr_dd);
+			db_data.push_back(prop_dd);
+
+			Tango::Util *tg = Tango::Util::instance();
+			bool retry = true;
+			while (retry == true)
+			{
+				try
+				{
+					tg->get_database()->delete_device_attribute_property(ext->d_name,db_data);
+					retry = false;
+				}
+				catch (CORBA::COMM_FAILURE)
+				{
+					tg->get_database()->reconnect(true);
+				}
+			}
 		}
-		catch (Tango::DevFailed &)
+		else
 		{
-			memcpy((void *)&min_alarm, (void *)&old_min_alarm, sizeof(T));
-			throw;
+			try
+			{
+				upd_att_prop_db(min_alarm,"min_alarm");
+			}
+			catch (Tango::DevFailed &)
+			{
+				memcpy((void *)&min_alarm, (void *)&old_min_alarm, sizeof(T));
+				throw;
+			}
 		}
 	}
 
@@ -343,16 +392,66 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 // Then, update database
 //
 
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "max_alarm")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+
 	if (Tango::Util::_UseDb == true)
 	{
-		try
+		if(user_defaults && max_alarm_tmp_str == usr_def_val)
 		{
-			upd_att_prop_db(max_alarm,"max_alarm");
+			DbDatum attr_dd(name), prop_dd("max_alarm");
+			DbData db_data;
+			db_data.push_back(attr_dd);
+			db_data.push_back(prop_dd);
+
+			Tango::Util *tg = Tango::Util::instance();
+			bool retry = true;
+			while (retry == true)
+			{
+				try
+				{
+					tg->get_database()->delete_device_attribute_property(ext->d_name,db_data);
+					retry = false;
+				}
+				catch (CORBA::COMM_FAILURE)
+				{
+					tg->get_database()->reconnect(true);
+				}
+			}
 		}
-		catch (Tango::DevFailed &)
+		else
 		{
-			memcpy((void *)&max_alarm, (void *)&old_max_alarm, sizeof(T));
-			throw;
+			try
+			{
+				upd_att_prop_db(max_alarm,"max_alarm");
+			}
+			catch (Tango::DevFailed &)
+			{
+				memcpy((void *)&max_alarm, (void *)&old_max_alarm, sizeof(T));
+				throw;
+			}
 		}
 	}
 
@@ -374,7 +473,6 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 
 	get_att_device()->push_att_conf_event(this);
 }
-
 //+-------------------------------------------------------------------------
 //
 // method : 		Attribute::get_max_alarm()
@@ -486,16 +584,66 @@ void Attribute::set_min_warning(const T &new_min_warning)
 // Then, update database
 //
 
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "min_warning")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+
 	if (Tango::Util::_UseDb == true)
 	{
-		try
+		if(user_defaults && min_warning_tmp_str == usr_def_val)
 		{
-			upd_att_prop_db(min_warning,"min_warning");
+			DbDatum attr_dd(name), prop_dd("min_warning");
+			DbData db_data;
+			db_data.push_back(attr_dd);
+			db_data.push_back(prop_dd);
+
+			Tango::Util *tg = Tango::Util::instance();
+			bool retry = true;
+			while (retry == true)
+			{
+				try
+				{
+					tg->get_database()->delete_device_attribute_property(ext->d_name,db_data);
+					retry = false;
+				}
+				catch (CORBA::COMM_FAILURE)
+				{
+					tg->get_database()->reconnect(true);
+				}
+			}
 		}
-		catch (Tango::DevFailed &)
+		else
 		{
-			memcpy((void *)&min_warning, (void *)&old_min_warning, sizeof(T));
-			throw;
+			try
+			{
+				upd_att_prop_db(min_warning,"min_warning");
+			}
+			catch (Tango::DevFailed &)
+			{
+				memcpy((void *)&min_warning, (void *)&old_min_warning, sizeof(T));
+				throw;
+			}
 		}
 	}
 
@@ -629,16 +777,66 @@ void Attribute::set_max_warning(const T &new_max_warning)
 // Then, update database
 //
 
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "max_warning")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+
 	if (Tango::Util::_UseDb == true)
 	{
-		try
+		if(user_defaults && max_warning_tmp_str == usr_def_val)
 		{
-			upd_att_prop_db(max_warning,"max_warning");
+			DbDatum attr_dd(name), prop_dd("max_warning");
+			DbData db_data;
+			db_data.push_back(attr_dd);
+			db_data.push_back(prop_dd);
+
+			Tango::Util *tg = Tango::Util::instance();
+			bool retry = true;
+			while (retry == true)
+			{
+				try
+				{
+					tg->get_database()->delete_device_attribute_property(ext->d_name,db_data);
+					retry = false;
+				}
+				catch (CORBA::COMM_FAILURE)
+				{
+					tg->get_database()->reconnect(true);
+				}
+			}
 		}
-		catch (Tango::DevFailed &)
+		else
 		{
-			memcpy((void *)&max_warning, (void *)&old_max_warning, sizeof(T));
-			throw;
+			try
+			{
+				upd_att_prop_db(max_warning,"max_warning");
+			}
+			catch (Tango::DevFailed &)
+			{
+				memcpy((void *)&max_warning, (void *)&old_max_warning, sizeof(T));
+				throw;
+			}
 		}
 	}
 
@@ -695,6 +893,45 @@ void Attribute::get_max_warning(T &max_war)
 	}
 
 	memcpy((void *)&max_war,(void *)&max_warning,sizeof(T));
+}
+
+
+template <typename T>
+void Attribute::get_all_properties(Tango::MultiProp<T> &props)
+{
+	AttributeConfig_3 conf;
+	get_properties_3(conf);
+
+	props.label = conf.label;
+	props.description = conf.description;
+	props.unit = conf.unit;
+	props.standard_unit = conf.standard_unit;
+	props.display_unit = conf.display_unit;
+	props.format = conf.format;
+	props.min_alarm = conf.att_alarm.min_alarm;
+	props.max_alarm = conf.att_alarm.max_alarm;
+	props.min_value = conf.min_value;
+	props.max_value = conf.max_value;
+	props.min_warning = conf.att_alarm.min_warning;
+	props.max_warning = conf.att_alarm.max_warning;
+	props.delta_t = conf.att_alarm.delta_t;
+	props.delta_val = conf.att_alarm.delta_val;
+	props.event_period = conf.event_prop.per_event.period;
+	props.archive_period = conf.event_prop.arch_event.period;
+	props.rel_change = conf.event_prop.ch_event.rel_change;
+	props.abs_change = conf.event_prop.ch_event.abs_change;
+	props.archive_rel_change = conf.event_prop.arch_event.rel_change;
+	props.archive_abs_change = conf.event_prop.arch_event.abs_change;
+}
+
+template <typename T>
+void Attribute::set_all_properties(Tango::MultiProp<T> &props)
+{
+	if(props.min_alarm.is_val())
+		set_min_alarm(props.min_alarm.get_val());
+	else if(props.min_alarm.is_str())
+		set_min_alarm(props.min_alarm.get_str());
+
 }
 
 } // End of Tango namespace

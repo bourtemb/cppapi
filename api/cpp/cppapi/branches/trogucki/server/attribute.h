@@ -83,7 +83,122 @@ struct ranges_const2type
 		typedef type Type; \
 		static string str; \
 	}; \
-	string ranges_const2type<Tango::constant>::str = #type; \
+	string ranges_const2type<Tango::constant>::str = #type;
+
+
+template <typename T>
+class Prop
+{
+public:
+		Prop() {}
+		Prop(T &value) : val(value), is_value(true), is_string(false) {}
+		Prop(const string &value_str) : str(value_str), is_string(true), is_value(false) {}
+		Prop & operator=(const T &value)
+		{
+			val = value;
+			is_value = true;
+			is_string = false;
+			return *this;
+		}
+		Prop & operator=(const char *value_str)
+		{
+			str = value_str;
+			is_string = true;
+			is_value = false;
+			return *this;
+		}
+		Prop & operator=(const string &value_str)
+		{
+			str = value_str;
+			is_string = true;
+			is_value = false;
+			return *this;
+		}
+		T get_val() {return val;}
+		string &get_str() {return str;}
+		void set_val(T value) {val = value; is_value = true; is_string = false;}
+		void set_str(string &value_str) {val = value_str; is_string = true; is_value = false;}
+		bool is_val() {return is_value;}
+		bool is_str() {return is_string;}
+private:
+        T val;
+        string str;
+        bool is_value;
+        bool is_string;
+};
+
+template <typename T>
+struct DoubleProp
+{
+public:
+	DoubleProp() {}
+	DoubleProp(vector<T> &value) : val(value), is_value(true), is_string(false) {}
+	DoubleProp(const string &value_str) : str(value_str), is_string(true), is_value(false) {}
+	DoubleProp & operator=(const vector<T> &value)
+	{
+		val = value;
+		is_value = true;
+		is_string = false;
+		return *this;
+	}
+	DoubleProp & operator=(const T &value)
+	{
+		val.push_back(value);
+		is_value = true;
+		is_string = false;
+		return *this;
+	}
+	DoubleProp & operator=(const char *value_str)
+	{
+		str = value_str;
+		is_string = true;
+		is_value = false;
+		return *this;
+	}
+	DoubleProp & operator=(const string &value_str)
+	{
+		str = value_str;
+		is_string = true;
+		is_value = false;
+		return *this;
+	}
+	vector<T> get_val() {return val;}
+	string &get_str() {return str;}
+	void set_val(vector<T> value) {val = value; is_value = true; is_string = false;}
+	void set_str(string &value_str) {val = value_str; is_string = true; is_value = false;}
+	bool is_val() {return is_value;}
+	bool is_str() {return is_string;}
+private:
+        vector<T> val;
+        string str;
+        bool is_value;
+        bool is_string;
+};
+
+template <typename T>
+struct MultiProp
+{
+		string 					label;
+		string 					description;
+		string 					unit;
+		string 					standard_unit;
+		string 					display_unit;
+		string 					format;
+        struct Prop<T>          min_alarm;
+        struct Prop<T>          max_alarm;
+        struct Prop<T>          min_value;
+        struct Prop<T>          max_value;
+        struct Prop<T>          min_warning;
+        struct Prop<T>          max_warning;
+        struct Prop<T>          delta_t;
+        struct Prop<T>          delta_val;
+        struct Prop<T>          event_period;
+        struct Prop<T>          archive_period;
+        struct DoubleProp<T>	rel_change;
+        struct DoubleProp<T>	abs_change;
+        struct DoubleProp<T>	archive_rel_change;
+        struct DoubleProp<T>	archive_abs_change;
+};
 
 //
 // Binary function objects to be used by the find_if algorithm.
@@ -462,6 +577,26 @@ public:
  * @param conf A AttributeConfig_3 object.
  */
 	void get_properties_3(Tango::AttributeConfig_3 &conf);
+/**
+ * Get all modifiable attribute properties in one call.
+ *
+ * This method initializes the members of a MultiProp object with the modifiable
+ * attribute properties values
+ *
+ * @param props A MultiProp object.
+ */
+	template <typename T>
+	void get_all_properties(Tango::MultiProp<T> &props);
+/**
+ * Set all modifiable attribute properties in one call.
+ *
+ * This method sets the modifiable attribute properties with the values
+ * provided as members of MultiProps object
+ *
+ * @param props A MultiProp object.
+ */
+	template <typename T>
+	void set_all_properties(Tango::MultiProp<T> &props);
 /**
  * Set attribute properties.
  *
@@ -1811,6 +1946,10 @@ public:
 	template <typename T>
 	void set_min_alarm(const T &);
 
+	void set_min_alarm(char *);
+	void set_min_alarm(const char *);
+	void set_min_alarm(const string &);
+
 /**
  * Get attribute minimum alarm or throw an exception if the attribute
  * does not have the minimum alarm
@@ -1833,6 +1972,10 @@ public:
  */
 	template <typename T>
 	void set_max_alarm(const T &);
+
+	void set_max_alarm(char *);
+	void set_max_alarm(const char *);
+	void set_max_alarm(const string &);
 
 /**
  * Get attribute maximum alarm or throw an exception if the attribute
@@ -1857,6 +2000,10 @@ public:
 	template <typename T>
 	void set_min_warning(const T &);
 
+	void set_min_warning(char *);
+	void set_min_warning(const char *);
+	void set_min_warning(const string &);
+
 /**
  * Get attribute minimum warning or throw an exception if the attribute
  * does not have the minimum warning set
@@ -1879,6 +2026,10 @@ public:
  */
 	template <typename T>
 	void set_max_warning(const T &);
+
+	void set_max_warning(char *);
+	void set_max_warning(const char *);
+	void set_max_warning(const string &);
 
 /**
  * Get attribute maximum warning or throw an exception if the attribute
