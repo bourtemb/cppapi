@@ -123,6 +123,9 @@ public :
 	Database(string &host, int port, CORBA::ORB *orb=NULL);
 	Database(string &file);
 
+	Database(const Database &);
+	Database & operator=(const Database &);
+
 	void write_filedatabase();
 	void reread_filedatabase();
 	void write_event_channel_ior_filedatabase(string &);

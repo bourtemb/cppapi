@@ -9334,18 +9334,21 @@ void Attribute::fire_change_event(DevFailed *except)
                 send_event = event_supplier_nd->detect_and_push_change_event(ext->dev,ad,*this,name,except,true);
             if (event_supplier_zmq != NULL)
             {
-                if (send_event == true)
+                if (event_supplier_nd != NULL)
                 {
-                    vector<string> f_names;
-                    vector<double> f_data;
-                    vector<string> f_names_lg;
-                    vector<long> f_data_lg;
+                    if (send_event == true)
+                    {
+                        vector<string> f_names;
+                        vector<double> f_data;
+                        vector<string> f_names_lg;
+                        vector<long> f_data_lg;
 
-                    event_supplier_zmq->push_event(ext->dev,"change",f_names,f_data,f_names_lg,f_data_lg,ad,name,except);
+                        event_supplier_zmq->push_event(ext->dev,"change",f_names,f_data,f_names_lg,f_data_lg,ad,name,except);
+                    }
                 }
+                else
+                    event_supplier_zmq->detect_and_push_change_event(ext->dev,ad,*this,name,except,true);
             }
-            else
-                event_supplier_zmq->detect_and_push_change_event(ext->dev,ad,*this,name,except,true);
 		}
 		else
 		{
@@ -9731,7 +9734,8 @@ void Attribute::fire_archive_event(DevFailed *except)
                         event_supplier_zmq->push_event(ext->dev,"archive",f_names,f_data,f_names_lg,f_data_lg,ad,name,except);
                     }
                 }
-                event_supplier_zmq->detect_and_push_archive_event(ext->dev,ad,*this,name,except,&now_timeval,true);
+                else
+                    event_supplier_zmq->detect_and_push_archive_event(ext->dev,ad,*this,name,except,&now_timeval,true);
             }
 		}
 		else

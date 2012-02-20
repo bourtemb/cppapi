@@ -1357,6 +1357,7 @@ public :
 	DeviceProxy(string &name, bool ch_access, CORBA::ORB *orb=NULL);
 	DeviceProxy(const char *, bool ch_access, CORBA::ORB *orb=NULL);
 	DeviceProxy(const char *, CORBA::ORB *orb=NULL);
+
 	DeviceProxy(const DeviceProxy &);
 	DeviceProxy & operator=(const DeviceProxy &);
 	virtual ~DeviceProxy();
