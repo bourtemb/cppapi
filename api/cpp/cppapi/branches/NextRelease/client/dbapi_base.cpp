@@ -444,7 +444,7 @@ Database &Database::operator=(const Database &rval)
         else
             ext.reset();
 #else
-        delete ext_proxy;
+        delete ext;
         if (rval.ext != NULL)
         {
             ext = new DatabaseExt;
