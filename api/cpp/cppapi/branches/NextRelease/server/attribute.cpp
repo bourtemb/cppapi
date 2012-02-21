@@ -7290,6 +7290,13 @@ bool Attribute::check_alarm()
 	}
 
 //
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
+//
 // If some alarm are defined on level, check attribute level
 //
 

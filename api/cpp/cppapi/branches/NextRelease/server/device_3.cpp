@@ -873,6 +873,10 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 								if ((w_type == Tango::READ_WRITE) || (w_type == Tango::READ_WITH_WRITE))
 									dev_attr->add_write_value(att);
 
+//
+// Check attribute alarm
+//
+
 								if ((att.is_alarmed().any() == true) && (qual != Tango::ATTR_INVALID))
 									att.check_alarm();
 							}
@@ -1514,8 +1518,10 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 	string last_associated_device = sub.get_associated_device();
 	sub.set_associated_device(get_name());
 
+//
 // Catch all execeptions to set back the associated device after
 // execution
+//
 
 	try
 	{
