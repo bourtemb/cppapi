@@ -204,6 +204,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
             heartbeat_sub_sock->recv(&received_call);
 
             process_heartbeat(received_event_name,received_endian,received_call);
+
+            items[1].revents = 0;
         }
 
 //
@@ -243,6 +245,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
                 break;
             }
+            items[0].revents = 0;
         }
 
 //
@@ -257,6 +260,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
             event_sub_sock->recv(&received_event_data);
 
             process_event(received_event_name,received_endian,received_call,received_event_data);
+
+            items[2].revents = 0;
         }
 
 //
@@ -291,6 +296,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
                 zmq_msg_close(&mcast_received_endian);
                 zmq_msg_close(&mcast_received_call);
                 zmq_msg_close(&mcast_received_event_data);
+
+                items[loop].revents = 0;
             }
         }
 
@@ -515,7 +522,9 @@ void ZmqEventConsumer::process_event(zmq_msg_t &received_event_name,zmq_msg_t &r
 // description : 	Process task when something has been received by the control
 //                  socket
 //
-// args: - in: - received_ctrl : The received data
+// args: - received_ctrl :  The received data
+//       - poll_list :      The ZMQ poll ed item list
+//       - poll_nb :        The item number in previous list
 //
 // This method returns true if the calling thread has to exit (because a
 // ZMQ_END command has been received). Otherwise, it returns false

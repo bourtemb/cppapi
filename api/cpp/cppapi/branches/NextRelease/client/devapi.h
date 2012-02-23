@@ -1523,8 +1523,8 @@ public :
 
 	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *);
 	virtual int subscribe_event(const string &attr_name, EventType event, CallBack *,bool stateless);
-	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size,
-	                   bool stateless = false);
+	virtual int subscribe_event(const string &attr_name, EventType event, int event_queue_size,bool stateless = false);
+
 	virtual void unsubscribe_event(int event_id);
 //
 // Methods to access data in event queues
@@ -1667,12 +1667,14 @@ public :
 // Event methods
 //
 
-	virtual int subscribe_event (EventType event, CallBack *,
-	                    const vector<string> &filters);
-	virtual int subscribe_event (EventType event, CallBack *,
-	                    const vector<string> &filters, bool stateless);
-	virtual int subscribe_event (EventType event, int event_queue_size,
-	                    const vector<string> &filters, bool stateless = false);
+	virtual int subscribe_event (EventType event, CallBack *,const vector<string> &filters); // For compatibility
+	virtual int subscribe_event (EventType event, CallBack *,const vector<string> &filters, bool stateless); // For compatibility
+	virtual int subscribe_event (EventType event, int event_queue_size,const vector<string> &filters, bool stateless = false); // For compatibility
+
+	virtual int subscribe_event (EventType event, CallBack *);
+	virtual int subscribe_event (EventType event, CallBack *,bool stateless);
+	virtual int subscribe_event (EventType event, int event_queue_size, bool stateless = false);
+
 	virtual void unsubscribe_event (int ev_id) {dev_proxy->unsubscribe_event(ev_id);}
 
 //

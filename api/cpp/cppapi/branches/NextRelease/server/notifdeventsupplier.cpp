@@ -185,6 +185,13 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 
 	Database *db = tg->get_database();
 
+//
+// For compatibility reason, search in database first with a fqdn name
+// If nothing is found in DB and if the provided name is a FQDN, redo the
+// search with a canonical name. In case the DbCache, is used, this algo
+// is implemented in the stored procedure
+//
+
 	if (Util::_FileDb == false)
 	{
 		try
@@ -195,7 +202,27 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 			}
 			else
 			{
-				received = db->import_event(factory_name);
+                try
+                {
+                    received = db->import_event(factory_name);
+                }
+                catch (Tango::DevFailed &e)
+                {
+                    string reason(e.errors[0].reason.in());
+                    if (reason == "DB_DeviceNotDefined")
+                    {
+                        string::size_type pos = factory_name.find('.');
+                        if (pos != string::npos)
+                        {
+                            string factory_name_canon = factory_name.substr(0,pos);
+                            received = db->import_event(factory_name_canon);
+                        }
+                        else
+                            throw;
+                    }
+                    else
+                        throw;
+                }
 			}
 		}
 		catch (...)
@@ -246,9 +273,9 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 		catch (Tango::DevFailed &)
 		{
 			cerr << "Failed to import EventChannelFactory from the Device Server property file" << endl;
-			cerr << "Event will not be generated" << endl;
+			cerr << "Notifd event will not be generated" << endl;
 			cout << "Failed to import EventChannelFactory from the Device Server property file" << endl;
-			cout << "Event will not be generated" << endl;
+			cout << "Notifd event will not be generated" << endl;
 
 			EventSystemExcept::throw_exception((const char*)"API_NotificationServiceFailed",
 				(const char*)"Failed to import the EventChannelFactory from the Device Server property file",
@@ -314,8 +341,8 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 // compiled with -D_TANGO_LIB)
 //
 
-		cerr << "Failed to narrow the EventChannelFactory - events will not be generated (hint: start the notifd daemon on this host)" << endl;
-		cout << "Failed to narrow the EventChannelFactory - events will not be generated (hint: start the notifd daemon on this host)" << endl;
+		cerr << "Failed to narrow the EventChannelFactory - Notifd events will not be generated (hint: start the notifd daemon on this host)" << endl;
+		cout << "Failed to narrow the EventChannelFactory - Notifd events will not be generated (hint: start the notifd daemon on this host)" << endl;
 
 		EventSystemExcept::throw_exception((const char*)"API_NotificationServiceFailed",
 			(const char*)"Failed to narrow the EventChannelFactory, make sure the notifd process is running on this host",

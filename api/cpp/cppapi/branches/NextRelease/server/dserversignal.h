@@ -152,13 +152,7 @@ private:
 #endif
 
 #if (defined __linux || defined __darwin__ || defined __freebsd__)
-	static inline bool auth_signal(long s)
-	{
-		if ((s==SIGUSR1) || (s==SIGUSR2))
-			return false;
-		else
-			return true;
-	}
+	static inline bool auth_signal(TANGO_UNUSED(long s)) {return true;}
 #endif
 
 #ifdef _TG_WINDOWS_
