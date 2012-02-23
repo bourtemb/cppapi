@@ -1174,7 +1174,7 @@ void Util::misc_init()
 //
 
 	string var;
-	if (ApiUtil::get_env_var("TANGO_PUB_HWM",var) == 0)
+	if (ApiUtil::get_env_var("TANGO_DS_EVENT_BUFFER_HWM",var) == 0)
 	{
 		int pub_hwm = -1;
 		istringstream iss(var);

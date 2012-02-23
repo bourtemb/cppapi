@@ -133,7 +133,7 @@ ApiUtil::ApiUtil():exit_lock_installed(false),reset_already_executed_flag(false)
 //
 
 	var.clear();
-	if (get_env_var("TANGO_SUB_HWM",var) == 0)
+	if (get_env_var("TANGO_EVENT_BUFFER_HWM",var) == 0)
 	{
 		int sub_hwm = -1;
 		istringstream iss(var);

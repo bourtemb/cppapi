@@ -405,11 +405,11 @@ public:
 	ZmqEventSupplier *get_zmq_event_supplier() {return ext->zmq_event_supplier;}
 
 /**
- * Set the event publisher buffer high water mark (HWM)
+ * Set device server process event buffer high water mark (HWM)
  *
  * @param val The new event buffer high water mark in number of events
  */
-	void set_event_buffer_hwm(DevLong val) {if (ext->user_pub_hwm == -1)ext->user_pub_hwm = val;}
+	void set_ds_event_buffer_hwm(DevLong val) {if (ext->user_pub_hwm == -1)ext->user_pub_hwm = val;}
 //@}
 
 /** @name Polling related methods */
