@@ -74,6 +74,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 	transform(attr_name_lower.begin(),attr_name_lower.end(),attr_name_lower.begin(),::tolower);
 
 	cout4 << "EventSubscriptionChangeCmd: subscription for device " << dev_name << " attribute " << attr_name << " action " << action << " event " << event << endl;
+
 	Tango::Util *tg = Tango::Util::instance();
 
 //
@@ -149,6 +150,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //
 
 	DeviceImpl *dev_impl = NULL;
+
 	try
 	{
 		dev_impl = tg->get_device_by_name(dev_name);
@@ -157,7 +159,6 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 	{
 		TangoSys_OMemStream o;
 		o << "Device " << dev_name << " not found" << ends;
-
 		Except::re_throw_exception(e,(const char *)"API_DeviceNotFound",o.str(),
                                    (const char *)"DServer::event_subscription");
 	}
