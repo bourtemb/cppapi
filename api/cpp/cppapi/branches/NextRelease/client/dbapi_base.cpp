@@ -1269,7 +1269,7 @@ void Database::put_device_property(string dev, DbData &db_data)
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
 
-		for (int j=0; j<db_data[i].size(); j++)
+		for (size_t j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
 			(*property_values)[index-1] = string_dup(db_data[i].value_string[j].c_str());
@@ -1818,7 +1818,7 @@ void Database::put_class_property(string device_class, DbData &db_data)
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
 
-		for (int j=0; j<db_data[i].size(); j++)
+		for (size_t j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
 			(*property_values)[index-1] = string_dup(db_data[i].value_string[j].c_str());
@@ -2610,7 +2610,7 @@ void Database::put_property(string obj, DbData &db_data)
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
 
-		for (int j=0; j<db_data[i].size(); j++)
+		for (size_t j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
 			(*property_values)[index-1] = string_dup(db_data[i].value_string[j].c_str());

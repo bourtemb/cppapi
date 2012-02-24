@@ -225,6 +225,16 @@
 #endif
 
 //
+// Define a time_t to long casting
+//
+
+#ifndef _TG_WINDOWS_
+    #define time_t_2_long(A) A
+#else
+    #define time_t_2_long(A) (long)A
+#endif
+
+//
 // Define a common strcasecmp function
 //
 
