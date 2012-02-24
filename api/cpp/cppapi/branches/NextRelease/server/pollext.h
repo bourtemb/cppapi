@@ -863,7 +863,7 @@ public:
  * @param p_data Pointer to the command result data
  * @param when The date
  */
-	TimedCmdData(T *p_data,time_t when): ptr(p_data),release(false) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedCmdData(T *p_data,time_t when): ptr(p_data),release(false) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedCmdData object with memory management.
@@ -874,7 +874,7 @@ public:
  */
 
 	TimedCmdData(T *p_data,bool rel,time_t when): ptr(p_data),release(rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedCmdData object.

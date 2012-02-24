@@ -461,7 +461,7 @@ void Util::fill_cmd_polling_buffer(DeviceImpl *dev,
     size_t nb_elt = data.length();
     long nb_poll = dev->get_cmd_poll_ring_depth(cmd_name);
 
-    if (nb_elt > nb_poll)
+    if (nb_elt > (size_t)nb_poll)
     {
         TangoSys_OMemStream o;
         o << "The polling buffer depth for command " << cmd_name;
