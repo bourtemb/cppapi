@@ -2243,9 +2243,10 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 			Attribute &attr = dev_attr->get_attr_by_name(new_conf[i].name);
 			bool old_alarm = attr.is_alarmed().any();
-			attr.set_properties(new_conf[i],device_name);
-			if (Tango::Util::_UseDb == true)
-				attr.upd_database(new_conf[i],device_name);
+			attr.set_upd_properties(new_conf[i],device_name);
+//			attr.set_properties(new_conf[i],device_name);
+//			if (Tango::Util::_UseDb == true)
+//				attr.upd_database(new_conf[i],device_name);
 
 //
 // In case the attribute quality factor was set to ALARM, reset it to VALID

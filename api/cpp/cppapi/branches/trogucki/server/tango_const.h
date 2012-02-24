@@ -969,6 +969,7 @@ typedef struct _OptAttrProp
  * API_CommandNotAllowed
  * API_CommandNotFound
  * API_CorbaSysException
+ * API_CorruptedDatabase
  * API_DatabaseAccess
  * API_DeviceLocked
  * API_DeviceNotFound

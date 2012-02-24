@@ -281,6 +281,203 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 	get_att_device()->push_att_conf_event(this);
 }
 
+template <>
+inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
+{
+	string min_alarm_str_tmp = new_min_alarm_str;
+	string dev_name = ext->d_name;
+
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "min_alarm")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+	bool set_value = true;
+	if(user_defaults)
+	{
+		if(TG_strcasecmp(new_min_alarm_str.c_str(),AlrmValueNotSpec) == 0)
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("min_alarm");
+				attr_dd << 1;
+				prop_dd << AlrmValueNotSpec;
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->put_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(min_level);
+			min_alarm_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+		else if ((TG_strcasecmp(new_min_alarm_str.c_str(),NotANumber) == 0) ||
+				(TG_strcasecmp(new_min_alarm_str.c_str(),usr_def_val.c_str()) == 0) ||
+				(strlen(new_min_alarm_str.c_str()) == 0))
+			min_alarm_str_tmp = usr_def_val;
+	}
+	else
+	{
+		if ((TG_strcasecmp(new_min_alarm_str.c_str(),AlrmValueNotSpec) == 0) ||
+				(TG_strcasecmp(new_min_alarm_str.c_str(),NotANumber) == 0) ||
+				(strlen(new_min_alarm_str.c_str()) == 0))
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("min_alarm");
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->delete_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(min_level);
+			min_alarm_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+	}
+
+	if(set_value)
+	{
+		if ((data_type != Tango::DEV_STRING) &&
+		    (data_type != Tango::DEV_BOOLEAN) &&
+		    (data_type != Tango::DEV_STATE))
+		{
+			short sh;
+			double db;
+			float fl;
+			unsigned short ush;
+
+			TangoSys_MemStream str;
+			str << min_alarm_str_tmp;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm(sh);
+				break;
+
+			case Tango::DEV_LONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm((DevLong)db);
+				break;
+
+			case Tango::DEV_LONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm((DevLong64)db);
+				break;
+
+			case Tango::DEV_DOUBLE:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm(db);
+				break;
+
+			case Tango::DEV_FLOAT:
+				if (!(str >> fl && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm(fl);
+				break;
+
+			case Tango::DEV_USHORT:
+				if (!(str >> ush && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm(ush);
+				break;
+
+			case Tango::DEV_UCHAR:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm((unsigned char)sh);
+				break;
+
+			case Tango::DEV_ULONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm((DevULong)db);
+				break;
+
+			case Tango::DEV_ULONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm((DevULong64)db);
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("min_alarm",dev_name);
+				set_min_alarm((unsigned char)sh);
+				break;
+			}
+		}
+		else
+			throw_err_data_type("min_alarm",dev_name);
+	}
+}
+
 //+-------------------------------------------------------------------------
 //
 // method : 		Attribute::get_min_alarm()
@@ -473,6 +670,204 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 
 	get_att_device()->push_att_conf_event(this);
 }
+
+template <>
+inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
+{
+	string max_alarm_str_tmp = new_max_alarm_str;
+	string dev_name = ext->d_name;
+
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "max_alarm")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+	bool set_value = true;
+	if(user_defaults)
+	{
+		if(TG_strcasecmp(new_max_alarm_str.c_str(),AlrmValueNotSpec) == 0)
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("max_alarm");
+				attr_dd << 1;
+				prop_dd << AlrmValueNotSpec;
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->put_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(max_level);
+			max_alarm_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+		else if ((TG_strcasecmp(new_max_alarm_str.c_str(),NotANumber) == 0) ||
+				(TG_strcasecmp(new_max_alarm_str.c_str(),usr_def_val.c_str()) == 0) ||
+				(strlen(new_max_alarm_str.c_str()) == 0))
+			max_alarm_str_tmp = usr_def_val;
+	}
+	else
+	{
+		if ((TG_strcasecmp(new_max_alarm_str.c_str(),AlrmValueNotSpec) == 0) ||
+				(TG_strcasecmp(new_max_alarm_str.c_str(),NotANumber) == 0) ||
+				(strlen(new_max_alarm_str.c_str()) == 0))
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("max_alarm");
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->delete_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(max_level);
+			max_alarm_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+	}
+
+	if(set_value)
+	{
+		if ((data_type != Tango::DEV_STRING) &&
+		    (data_type != Tango::DEV_BOOLEAN) &&
+		    (data_type != Tango::DEV_STATE))
+		{
+			short sh;
+			double db;
+			float fl;
+			unsigned short ush;
+
+			TangoSys_MemStream str;
+			str << max_alarm_str_tmp;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm(sh);
+				break;
+
+			case Tango::DEV_LONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm((DevLong)db);
+				break;
+
+			case Tango::DEV_LONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm((DevLong64)db);
+				break;
+
+			case Tango::DEV_DOUBLE:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm(db);
+				break;
+
+			case Tango::DEV_FLOAT:
+				if (!(str >> fl && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm(fl);
+				break;
+
+			case Tango::DEV_USHORT:
+				if (!(str >> ush && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm(ush);
+				break;
+
+			case Tango::DEV_UCHAR:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm((unsigned char)sh);
+				break;
+
+			case Tango::DEV_ULONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm((DevULong)db);
+				break;
+
+			case Tango::DEV_ULONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm((DevULong64)db);
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("max_alarm",dev_name);
+				set_max_alarm((unsigned char)sh);
+				break;
+			}
+		}
+		else
+			throw_err_data_type("max_alarm",dev_name);
+	}
+}
+
 //+-------------------------------------------------------------------------
 //
 // method : 		Attribute::get_max_alarm()
@@ -664,6 +1059,203 @@ void Attribute::set_min_warning(const T &new_min_warning)
 //
 
 	get_att_device()->push_att_conf_event(this);
+}
+
+template <>
+inline void Attribute::set_min_warning(const string &new_min_warning_str)
+{
+	string min_warning_str_tmp = new_min_warning_str;
+	string dev_name = ext->d_name;
+
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "min_warning")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+	bool set_value = true;
+	if(user_defaults)
+	{
+		if(TG_strcasecmp(new_min_warning_str.c_str(),AlrmValueNotSpec) == 0)
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("min_warning");
+				attr_dd << 1;
+				prop_dd << AlrmValueNotSpec;
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->put_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(min_warn);
+			min_warning_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+		else if ((TG_strcasecmp(new_min_warning_str.c_str(),NotANumber) == 0) ||
+				(TG_strcasecmp(new_min_warning_str.c_str(),usr_def_val.c_str()) == 0) ||
+				(strlen(new_min_warning_str.c_str()) == 0))
+			min_warning_str_tmp = usr_def_val;
+	}
+	else
+	{
+		if ((TG_strcasecmp(new_min_warning_str.c_str(),AlrmValueNotSpec) == 0) ||
+				(TG_strcasecmp(new_min_warning_str.c_str(),NotANumber) == 0) ||
+				(strlen(new_min_warning_str.c_str()) == 0))
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("min_warning");
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->delete_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(min_warn);
+			min_warning_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+	}
+
+	if(set_value)
+	{
+		if ((data_type != Tango::DEV_STRING) &&
+		    (data_type != Tango::DEV_BOOLEAN) &&
+		    (data_type != Tango::DEV_STATE))
+		{
+			short sh;
+			double db;
+			float fl;
+			unsigned short ush;
+
+			TangoSys_MemStream str;
+			str << min_warning_str_tmp;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning(sh);
+				break;
+
+			case Tango::DEV_LONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning((DevLong)db);
+				break;
+
+			case Tango::DEV_LONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning((DevLong64)db);
+				break;
+
+			case Tango::DEV_DOUBLE:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning(db);
+				break;
+
+			case Tango::DEV_FLOAT:
+				if (!(str >> fl && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning(fl);
+				break;
+
+			case Tango::DEV_USHORT:
+				if (!(str >> ush && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning(ush);
+				break;
+
+			case Tango::DEV_UCHAR:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning((unsigned char)sh);
+				break;
+
+			case Tango::DEV_ULONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning((DevULong)db);
+				break;
+
+			case Tango::DEV_ULONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning((DevULong64)db);
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("min_warning",dev_name);
+				set_min_warning((unsigned char)sh);
+				break;
+			}
+		}
+		else
+			throw_err_data_type("min_warning",dev_name);
+	}
 }
 
 //+-------------------------------------------------------------------------
@@ -859,6 +1451,203 @@ void Attribute::set_max_warning(const T &new_max_warning)
 	get_att_device()->push_att_conf_event(this);
 }
 
+template <>
+inline void Attribute::set_max_warning(const string &new_max_warning_str)
+{
+	string max_warning_str_tmp = new_max_warning_str;
+	string dev_name = ext->d_name;
+
+	Tango::DeviceImpl *dev = get_att_device();
+	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+	Tango::Attr &att = mca->get_attr(name);
+	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
+	size_t nb_user = def_user_prop.size();
+
+	string usr_def_val;
+	bool user_defaults = false;
+	if (nb_user != 0)
+	{
+		size_t i;
+		for (i = 0;i < nb_user;i++)
+		{
+			if (def_user_prop[i].get_name() == "max_warning")
+				break;
+		}
+		if (i != nb_user) // user defaults defined
+		{
+			user_defaults = true;
+			usr_def_val = def_user_prop[i].get_value();
+		}
+	}
+
+	bool set_value = true;
+	if(user_defaults)
+	{
+		if(TG_strcasecmp(new_max_warning_str.c_str(),AlrmValueNotSpec) == 0)
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("max_warning");
+				attr_dd << 1;
+				prop_dd << AlrmValueNotSpec;
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->put_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(max_warn);
+			max_warning_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+		else if ((TG_strcasecmp(new_max_warning_str.c_str(),NotANumber) == 0) ||
+				(TG_strcasecmp(new_max_warning_str.c_str(),usr_def_val.c_str()) == 0) ||
+				(strlen(new_max_warning_str.c_str()) == 0))
+			max_warning_str_tmp = usr_def_val;
+	}
+	else
+	{
+		if ((TG_strcasecmp(new_max_warning_str.c_str(),AlrmValueNotSpec) == 0) ||
+				(TG_strcasecmp(new_max_warning_str.c_str(),NotANumber) == 0) ||
+				(strlen(new_max_warning_str.c_str()) == 0))
+		{
+			set_value = false;
+
+			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+			AutoTangoMonitor sync1(&mon1);
+
+			if (Tango::Util::_UseDb == true)
+			{
+				DbDatum attr_dd(name), prop_dd("max_warning");
+				DbData db_data;
+				db_data.push_back(attr_dd);
+				db_data.push_back(prop_dd);
+
+				Tango::Util *tg = Tango::Util::instance();
+				bool retry = true;
+				while (retry == true)
+				{
+					try
+					{
+						tg->get_database()->delete_device_attribute_property(dev_name,db_data);
+						retry = false;
+					}
+					catch (CORBA::COMM_FAILURE)
+					{
+						tg->get_database()->reconnect(true);
+					}
+				}
+			}
+
+			alarm_conf.reset(max_warn);
+			max_warning_str = AlrmValueNotSpec;
+
+			get_att_device()->push_att_conf_event(this);
+		}
+	}
+
+	if(set_value)
+	{
+		if ((data_type != Tango::DEV_STRING) &&
+		    (data_type != Tango::DEV_BOOLEAN) &&
+		    (data_type != Tango::DEV_STATE))
+		{
+			short sh;
+			double db;
+			float fl;
+			unsigned short ush;
+
+			TangoSys_MemStream str;
+			str << max_warning_str_tmp;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning(sh);
+				break;
+
+			case Tango::DEV_LONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning((DevLong)db);
+				break;
+
+			case Tango::DEV_LONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning((DevLong64)db);
+				break;
+
+			case Tango::DEV_DOUBLE:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning(db);
+				break;
+
+			case Tango::DEV_FLOAT:
+				if (!(str >> fl && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning(fl);
+				break;
+
+			case Tango::DEV_USHORT:
+				if (!(str >> ush && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning(ush);
+				break;
+
+			case Tango::DEV_UCHAR:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning((unsigned char)sh);
+				break;
+
+			case Tango::DEV_ULONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning((DevULong)db);
+				break;
+
+			case Tango::DEV_ULONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning((DevULong64)db);
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> sh && str.eof()))
+					throw_err_format("max_warning",dev_name);
+				set_max_warning((unsigned char)sh);
+				break;
+			}
+		}
+		else
+			throw_err_data_type("max_warning",dev_name);
+	}
+}
+
 //+-------------------------------------------------------------------------
 //
 // method : 		Attribute::get_max_warning()
@@ -897,7 +1686,7 @@ void Attribute::get_max_warning(T &max_war)
 
 
 template <typename T>
-void Attribute::get_all_properties(Tango::MultiProp<T> &props)
+void Attribute::get_properties(Tango::MultiAttrProp<T> &props)
 {
 	AttributeConfig_3 conf;
 	get_properties_3(conf);
@@ -925,13 +1714,55 @@ void Attribute::get_all_properties(Tango::MultiProp<T> &props)
 }
 
 template <typename T>
-void Attribute::set_all_properties(Tango::MultiProp<T> &props)
+void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 {
-	if(props.min_alarm.is_val())
-		set_min_alarm(props.min_alarm.get_val());
-	else if(props.min_alarm.is_str())
-		set_min_alarm(props.min_alarm.get_str());
 
+//
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
+//
+// Get current attribute configuration and update properties with provided values
+//
+
+	AttributeConfig_3 conf;
+	get_properties_3(conf);
+
+	conf.label = CORBA::string_dup(props.label.c_str());
+	conf.description = CORBA::string_dup(props.description.c_str());
+	conf.unit = CORBA::string_dup(props.unit.c_str());
+	conf.standard_unit = CORBA::string_dup(props.standard_unit.c_str());
+	conf.display_unit = CORBA::string_dup(props.display_unit.c_str());
+	conf.format = CORBA::string_dup(props.format.c_str());
+	conf.att_alarm.min_alarm = CORBA::string_dup(props.min_alarm);
+	conf.att_alarm.max_alarm = CORBA::string_dup(props.max_alarm);
+	conf.min_value = CORBA::string_dup(props.min_value);
+	conf.max_value = CORBA::string_dup(props.max_value);
+	conf.att_alarm.min_warning = CORBA::string_dup(props.min_warning);
+	conf.att_alarm.max_warning = CORBA::string_dup(props.max_warning);
+	conf.att_alarm.delta_t = CORBA::string_dup(props.delta_t);
+	conf.att_alarm.delta_val = CORBA::string_dup(props.delta_val);
+	conf.event_prop.per_event.period = CORBA::string_dup(props.event_period);
+	conf.event_prop.arch_event.period = CORBA::string_dup(props.archive_period);
+	conf.event_prop.ch_event.rel_change = CORBA::string_dup(props.rel_change);
+	conf.event_prop.ch_event.abs_change = CORBA::string_dup(props.abs_change);
+	conf.event_prop.arch_event.rel_change = CORBA::string_dup(props.archive_rel_change);
+	conf.event_prop.arch_event.abs_change = CORBA::string_dup(props.archive_abs_change);
+
+//
+// Set properties and update database
+//
+
+	set_upd_properties(conf,ext->d_name);
+
+//
+// Push a att conf event
+//
+
+	get_att_device()->push_att_conf_event(this);
 }
 
 } // End of Tango namespace

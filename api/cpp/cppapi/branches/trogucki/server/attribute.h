@@ -87,96 +87,133 @@ struct ranges_const2type
 
 
 template <typename T>
-class Prop
+class AttrProp
 {
 public:
-		Prop() {}
-		Prop(T &value) : val(value), is_value(true), is_string(false) {}
-		Prop(const string &value_str) : str(value_str), is_string(true), is_value(false) {}
-		Prop & operator=(const T &value)
-		{
-			val = value;
-			is_value = true;
-			is_string = false;
-			return *this;
-		}
-		Prop & operator=(const char *value_str)
-		{
-			str = value_str;
-			is_string = true;
-			is_value = false;
-			return *this;
-		}
-		Prop & operator=(const string &value_str)
-		{
-			str = value_str;
-			is_string = true;
-			is_value = false;
-			return *this;
-		}
-		T get_val() {return val;}
-		string &get_str() {return str;}
-		void set_val(T value) {val = value; is_value = true; is_string = false;}
-		void set_str(string &value_str) {val = value_str; is_string = true; is_value = false;}
-		bool is_val() {return is_value;}
-		bool is_str() {return is_string;}
-private:
-        T val;
-        string str;
-        bool is_value;
-        bool is_string;
-};
-
-template <typename T>
-struct DoubleProp
-{
-public:
-	DoubleProp() {}
-	DoubleProp(vector<T> &value) : val(value), is_value(true), is_string(false) {}
-	DoubleProp(const string &value_str) : str(value_str), is_string(true), is_value(false) {}
-	DoubleProp & operator=(const vector<T> &value)
+	AttrProp() {}
+	AttrProp(T &value) : val(value), is_value(true) {
+		TangoSys_MemStream st;
+		st << value;
+		str = st.str();
+	}
+	AttrProp(const string &value_str) : str(value_str), is_value(false) {}
+	operator string()
 	{
+		return str;
+	}
+	operator const char *()
+	{
+		return str.c_str();
+	}
+	AttrProp & operator=(const T &value)
+	{
+		TangoSys_MemStream st;
+		st << value;
+		str = st.str();
 		val = value;
 		is_value = true;
-		is_string = false;
 		return *this;
 	}
-	DoubleProp & operator=(const T &value)
-	{
-		val.push_back(value);
-		is_value = true;
-		is_string = false;
-		return *this;
-	}
-	DoubleProp & operator=(const char *value_str)
+	AttrProp & operator=(const char *value_str)
 	{
 		str = value_str;
-		is_string = true;
 		is_value = false;
 		return *this;
 	}
-	DoubleProp & operator=(const string &value_str)
+	AttrProp & operator=(const string &value_str)
 	{
 		str = value_str;
-		is_string = true;
+		is_value = false;
+		return *this;
+	}
+	T get_val() {return val;}
+	string &get_str() {return str;}
+	void set_val(T value) {val = value; is_value = true;}
+	void set_str(string &value_str) {val = value_str; is_value = false;}
+	bool is_val() {return is_value;}
+private:
+	T val;
+	string str;
+	bool is_value;
+};
+
+template <typename T>
+struct DoubleAttrProp
+{
+public:
+	DoubleAttrProp() {}
+	DoubleAttrProp(vector<T> &value) : val(value), is_value(true) {
+		TangoSys_MemStream st;
+		for(size_t i = 0; i < value.size(); i++)
+		{
+			if(i > 0)
+				st << ",";
+			st << value[i];
+		}
+		str = st.str();
+	}
+	DoubleAttrProp(T &value) : val(value), is_value(true) {
+		TangoSys_MemStream st;
+		st << value;
+		str = st.str();
+	}
+	DoubleAttrProp(const string &value_str) : str(value_str), is_value(false) {}
+	operator string()
+	{
+		return str;
+	}
+	operator const char *()
+	{
+		return str.c_str();
+	}
+	DoubleAttrProp & operator=(const vector<T> &value)
+	{
+		TangoSys_MemStream st;
+		for(size_t i = 0; i < value.size(); i++)
+		{
+			if(i > 0)
+				st << ",";
+			st << value[i];
+		}
+		str = st.str();
+		val = value;
+		is_value = true;
+		return *this;
+	}
+	DoubleAttrProp & operator=(const T &value)
+	{
+		TangoSys_MemStream st;
+		st << value;
+		str = st.str();
+		val.push_back(value);
+		is_value = true;
+		return *this;
+	}
+	DoubleAttrProp & operator=(const char *value_str)
+	{
+		str = value_str;
+		is_value = false;
+		return *this;
+	}
+	DoubleAttrProp & operator=(const string &value_str)
+	{
+		str = value_str;
 		is_value = false;
 		return *this;
 	}
 	vector<T> get_val() {return val;}
 	string &get_str() {return str;}
-	void set_val(vector<T> value) {val = value; is_value = true; is_string = false;}
-	void set_str(string &value_str) {val = value_str; is_string = true; is_value = false;}
+	void set_val(vector<T> value) {val = value; is_value = true; }
+	void set_str(string &value_str) {val = value_str; is_value = false;}
 	bool is_val() {return is_value;}
-	bool is_str() {return is_string;}
 private:
         vector<T> val;
         string str;
         bool is_value;
-        bool is_string;
 };
 
 template <typename T>
-struct MultiProp
+struct MultiAttrProp
 {
 		string 					label;
 		string 					description;
@@ -184,20 +221,20 @@ struct MultiProp
 		string 					standard_unit;
 		string 					display_unit;
 		string 					format;
-        struct Prop<T>          min_alarm;
-        struct Prop<T>          max_alarm;
-        struct Prop<T>          min_value;
-        struct Prop<T>          max_value;
-        struct Prop<T>          min_warning;
-        struct Prop<T>          max_warning;
-        struct Prop<T>          delta_t;
-        struct Prop<T>          delta_val;
-        struct Prop<T>          event_period;
-        struct Prop<T>          archive_period;
-        struct DoubleProp<T>	rel_change;
-        struct DoubleProp<T>	abs_change;
-        struct DoubleProp<T>	archive_rel_change;
-        struct DoubleProp<T>	archive_abs_change;
+        struct AttrProp<T>          min_alarm;
+        struct AttrProp<T>          max_alarm;
+        struct AttrProp<T>          min_value;
+        struct AttrProp<T>          max_value;
+        struct AttrProp<T>          min_warning;
+        struct AttrProp<T>          max_warning;
+        struct AttrProp<T>          delta_t;
+        struct AttrProp<T>          delta_val;
+        struct AttrProp<T>          event_period;
+        struct AttrProp<T>          archive_period;
+        struct DoubleAttrProp<T>	rel_change;
+        struct DoubleAttrProp<T>	abs_change;
+        struct DoubleAttrProp<T>	archive_rel_change;
+        struct DoubleAttrProp<T>	archive_abs_change;
 };
 
 //
@@ -578,25 +615,25 @@ public:
  */
 	void get_properties_3(Tango::AttributeConfig_3 &conf);
 /**
- * Get all modifiable attribute properties in one call.
+ * Get all modifiable attribute properties in one call
  *
- * This method initializes the members of a MultiProp object with the modifiable
+ * This method initializes the members of a MultiAttrProp object with the modifiable
  * attribute properties values
  *
- * @param props A MultiProp object.
+ * @param props A MultiAttrProp object.
  */
 	template <typename T>
-	void get_all_properties(Tango::MultiProp<T> &props);
+	void get_properties(Tango::MultiAttrProp<T> &props);
 /**
- * Set all modifiable attribute properties in one call.
+ * Set all modifiable attribute properties in one call
  *
  * This method sets the modifiable attribute properties with the values
- * provided as members of MultiProps object
+ * provided as members of MultiAttrProps object
  *
- * @param props A MultiProp object.
+ * @param props A MultiAttrProp object.
  */
 	template <typename T>
-	void set_all_properties(Tango::MultiProp<T> &props);
+	void set_properties(Tango::MultiAttrProp<T> &props);
 /**
  * Set attribute properties.
  *
@@ -617,6 +654,15 @@ public:
  * @param dev The device pointer.
  */
 	void set_properties(const Tango::AttributeConfig_3 &conf,Tango::DeviceImpl *dev);
+/**
+ * Set attribute properties version 3.
+ *
+ * This method set the attribute properties value with the content
+ * of the fileds in the AttributeConfig_3 object
+ *
+ * @param conf A AttributeConfig_3 object.
+ */
+	void set_properties(const Tango::AttributeConfig_3 &conf);
 /**
  * Set attribute serialization model
  *
@@ -1948,7 +1994,6 @@ public:
 
 	void set_min_alarm(char *);
 	void set_min_alarm(const char *);
-	void set_min_alarm(const string &);
 
 /**
  * Get attribute minimum alarm or throw an exception if the attribute
@@ -1975,7 +2020,6 @@ public:
 
 	void set_max_alarm(char *);
 	void set_max_alarm(const char *);
-	void set_max_alarm(const string &);
 
 /**
  * Get attribute maximum alarm or throw an exception if the attribute
@@ -2002,7 +2046,6 @@ public:
 
 	void set_min_warning(char *);
 	void set_min_warning(const char *);
-	void set_min_warning(const string &);
 
 /**
  * Get attribute minimum warning or throw an exception if the attribute
@@ -2029,7 +2072,6 @@ public:
 
 	void set_max_warning(char *);
 	void set_max_warning(const char *);
-	void set_max_warning(const string &);
 
 /**
  * Get attribute maximum warning or throw an exception if the attribute
@@ -2280,6 +2322,7 @@ public:
 	void set_properties(const Tango::AttributeConfig_3 &,string &);
 	void upd_database(const Tango::AttributeConfig &,string &);
 	void upd_database(const Tango::AttributeConfig_3 &,string &);
+	void set_upd_properties(const Tango::AttributeConfig_3 &,string &);
 
 	bool change_event_subscribed() {if (ext->event_change_subscription != 0)return true;else return false;}
 	bool periodic_event_subscribed() {if (ext->event_periodic_subscription != 0)return true;else return false;}
@@ -2351,8 +2394,8 @@ private:
         time_t				event_periodic_subscription;	// Last time() a subscription was made
         time_t				event_archive_subscription; 	// Last time() a subscription was made
         time_t				event_user_subscription; 		// Last time() a subscription was made
-        time_t				event_attr_conf_subscription;	// Last time() a subsription was made
-        time_t				event_data_ready_subscription;	// Last time() a subsription was made
+        time_t				event_attr_conf_subscription;	// Last time() a subscription was made
+        time_t				event_data_ready_subscription;	// Last time() a subscription was made
         double				archive_last_event;				// Last time an archive event was detected (periodic or not)
         long				idx_in_attr;					// Index in MultiClassAttribute vector
         string				d_name;							// The device name
