@@ -51,16 +51,14 @@ libtango_la_SOURCES = tangoSK.cpp 		\
 		      dserverpoll.cpp 			\
 		      dserversignal.cpp 		\
 			  encoded_attribute.cpp		\
-		      event.cpp 				\
 		      eventcmds.cpp 			\
-			  eventkeepalive.cpp		\
-			  eventqueue.cpp			\
 		      eventsupplier.cpp 		\
 		      except.cpp 				\
 		      logcmds.cpp 				\
 		      logging.cpp 				\
 		      logstream.cpp 			\
 		      multiattribute.cpp 		\
+			  notifdeventsupplier.cpp	\
 		      pollcmds.cpp 				\
 		      pollobj.cpp 				\
 		      pollring.cpp 				\
@@ -73,13 +71,15 @@ libtango_la_SOURCES = tangoSK.cpp 		\
 		      utils.cpp 				\
 			  utils_polling.cpp			\
 			  utils_shut.cpp			\
-		      w_attribute.cpp
+		      w_attribute.cpp			\
+			  zmqeventsupplier.cpp
 
 tangoincludedir = $(includedir)/tango
 
 tangoinclude_HEADERS = attrdesc.h		\
 		  		  attribute.h		\
 		  		  attrmanip.h		\
+		  		  auto_tango_monitor.h \
 		  		  basiccommand.h	\
 		  		  blackbox.h		\
 		  		  classattribute.h	\
@@ -96,10 +96,10 @@ tangoinclude_HEADERS = attrdesc.h		\
 		  		  dserversignal.h	\
 				  encoded_attribute.h \
 				  encoded_format.h	\
-		  		  event.h			\
 		  		  eventcmds.h		\
 		  		  eventsupplier.h	\
 		  		  except.h			\
+				  locked_att_value.h \
 		  		  log4tango.h		\
 		  		  logcmds.h			\
 		  		  logging.h			\
@@ -111,16 +111,20 @@ tangoinclude_HEADERS = attrdesc.h		\
 		  		  pollobj.h			\
 		  		  pollring.h		\
 		  		  pollthread.h		\
+		  		  readers_writers_lock.h \
 		  		  seqvec.h			\
 				  subdev_diag.h		\
 		  		  tango.h			\
 		  		  tango_config.h	\
 		  		  tango_const.h		\
+		  		  tango_monitor.h 	\
 		  		  tangoappender.h	\
 		  		  tangorollingfileappender.h \
 		  		  utils.h 			\
 		  		  w_attribute.h		\
-		  		  tango_monitor.h 	\
-		  		  auto_tango_monitor.h \
-		  		  readers_writers_lock.h
+				  attribute.tpp		\
+				  utils.tpp
+
+
+
 
