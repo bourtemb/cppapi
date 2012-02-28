@@ -4,7 +4,7 @@ SUBDIRS=idl jpeg jpeg_mmx .
 INCLUDES = -I$(top_srcdir)/lib/cpp/client \
 	   -I$(top_srcdir)/lib/cpp/log4tango/include \
 	   -I$(top_builddir)/lib/cpp/log4tango/include \
-             $(ORB_INCLUDE_PREFIX)
+             $(ORB_INCLUDE_PREFIX) $(LIBZMQ_CFLAGS)
 
 # We're making a shared library with libtool (that's why we use LTLIBRARIES)
 lib_LTLIBRARIES=libtango.la
@@ -19,7 +19,7 @@ libtango_la_LIBADD = ../client/libclient.la	\
 # generate the correct .so version
 libtango_la_LDFLAGS=-version-info $(VERSION_INFO)
 
-AM_CXXFLAGS=-D_TANGO_LIB
+AM_CXXFLAGS=-D_TANGO_LIB @CPP_ELEVEN@
 
 if DARWIN_ENABLED
 AM_LDFLAGS=-flat_namespace --disable-dependency-tracking
