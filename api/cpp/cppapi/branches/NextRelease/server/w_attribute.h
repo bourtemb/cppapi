@@ -104,77 +104,24 @@ public:
  */
 	bool is_min_value() {return check_min_value;}
 /**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
+ * Set attribute minimum value
  *
- * @param min_value Reference to a DevShort data which will be set to the attribute
- * minimum value
+ * @param min_value Reference to a variable which represents the new min value
  */
-	void get_min_value(Tango::DevShort &min_value);
+	template <typename T>
+	void set_min_value(const T &min_value);
+
+	void set_min_value(char *min_value);
+	void set_min_value(const char *min_value);
 /**
- * Get attribute minimum value or throws an exception if the
+ * Gets attribute minimum value or throws an exception if the
  * attribute does not have a minimum value
  *
- * @param min_value Reference to a DevLong data which will be set to the attribute
+ * @param min_value Reference to a variable which value will be set to the attribute's
  * minimum value
  */
-	void get_min_value(Tango::DevLong &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevLong64 data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevLong64 &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevDouble data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevDouble &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevFloat data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevFloat &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevUShort data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevUShort &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevUChar data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevUChar &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevULong data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevULong &min_value);
-/**
- * Get attribute minimum value or throws an exception if the
- * attribute does not have a minimum value
- *
- * @param min_value Reference to a DevULong64 data which will be set to the attribute
- * minimum value
- */
-	void get_min_value(Tango::DevULong64 &min_value);
+	template <typename T>
+	void get_min_value(T &min_value);
 /**
  * Check if the attribute has a maximum value.
  *
@@ -183,185 +130,24 @@ public:
  */
 	bool is_max_value() {return check_max_value;}
 /**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
+ * Set attribute maximum value
  *
- * @param max_value Reference to a DevShort data which will be set to the attribute
- * maximum value
+ * @param max_value Reference to a variable which represents the new max value
  */
-	void get_max_value(Tango::DevShort &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevLong data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevLong &max_value);
+	template <typename T>
+	void set_max_value(const T &max_value);
+
+	void set_max_value(char *max_value);
+	void set_max_value(const char *max_value);
 /**
  * Get attribute maximum value or throws an exception if the
  * attribute does not have a maximum value
  *
- * @param max_value Reference to a DevLong64 data which will be set to the attribute
+ * @param max_value Reference to a variable which value will be set to the attribute's
  * maximum value
  */
-	void get_max_value(Tango::DevLong64 &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevDouble data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevDouble &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevFloat data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevFloat &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevUShort data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevUShort &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevUChar data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevUChar &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevULong data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevULong &max_value);
-/**
- * Get attribute maximum value or throws an exception if the
- * attribute does not have a maximum value
- *
- * @param max_value Reference to a DevULong64 data which will be set to the attribute
- * maximum value
- */
-	void get_max_value(Tango::DevULong64 &max_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevShort data which is the new min value
- */
-	void set_min_value(Tango::DevShort &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevLong data which is the new min value
- */
-	void set_min_value(Tango::DevLong &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevLong64 data which is the new min value
- */
-	void set_min_value(Tango::DevLong64 &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevDouble data which is the new min value
- */
-	void set_min_value(Tango::DevDouble &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevFloat data which is the new min value
- */
-	void set_min_value(Tango::DevFloat &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevUShort data which is the new min value
- */
-	void set_min_value(Tango::DevUShort &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevUChar data which is the new min value
- */
-	void set_min_value(Tango::DevUChar &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevULong data which is the new min value
- */
-	void set_min_value(Tango::DevULong &min_value);
-/**
- * Set attribute minimum value
- *
- * @param min_value Reference to a DevULong64 data which is the new min value
- */
-	void set_min_value(Tango::DevULong64 &min_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevShort data which is the new max value
- */
-	void set_max_value(Tango::DevShort &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevLong data which is the new max value
- */
-	void set_max_value(Tango::DevLong &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevLong64 data which is the new max value
- */
-	void set_max_value(Tango::DevLong64 &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevDouble data which is the new max value
- */
-	void set_max_value(Tango::DevDouble &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevFloat data which is the new max value
- */
-	void set_max_value(Tango::DevFloat &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevUShort data which is the new max value
- */
-	void set_max_value(Tango::DevUShort &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevUChar data which is the new max value
- */
-	void set_max_value(Tango::DevUChar &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevULong data which is the new max value
- */
-	void set_max_value(Tango::DevULong &max_value);
-/**
- * Set attribute maximum value
- *
- * @param max_value Reference to a DevULong64 data which is the new max value
- */
-	void set_max_value(Tango::DevULong64 &max_value);
+	template <typename T>
+	void get_max_value(T &max_value);
 //@}
 
 /**@name Get new value for attribute

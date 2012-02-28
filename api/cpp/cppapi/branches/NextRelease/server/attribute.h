@@ -44,6 +44,7 @@
 #include <functional>
 #include <time.h>
 #include <iterator>
+#include <attrprop.h>
 
 #ifdef _TG_WINDOWS_
 	#include <sys/types.h>
@@ -83,7 +84,8 @@ struct ranges_const2type
 		typedef type Type; \
 		static string str; \
 	}; \
-	string ranges_const2type<Tango::constant>::str = #type; \
+	string ranges_const2type<Tango::constant>::str = #type;
+
 
 //
 // Binary function objects to be used by the find_if algorithm.
@@ -222,7 +224,7 @@ public:
 //@}
 
 /**@name Check attribute methods
- * Miscellaneous method returning boolean flag accorrding to attribute state
+ * Miscellaneous method returning boolean flag according to attribute state
  */
 //@{
 /**
@@ -296,7 +298,7 @@ public:
 //@}
 
 /**@name Get/Set object members.
- * These methods allows the external world to get/set DeviceImpl instance
+ * These methods allow the external world to get/set DeviceImpl instance
  * data members
  */
 //@{
@@ -435,6 +437,26 @@ public:
  * not polled
  */
 	long get_polling_period() {return ext->poll_period;}
+/**
+ * Get all modifiable attribute properties in one call
+ *
+ * This method initializes the members of a MultiAttrProp object with the modifiable
+ * attribute properties values
+ *
+ * @param props A MultiAttrProp object.
+ */
+	template <typename T>
+	void get_properties(Tango::MultiAttrProp<T> &props);
+/**
+ * Set all modifiable attribute properties in one call
+ *
+ * This method sets the modifiable attribute properties with the values
+ * provided as members of MultiAttrProps object
+ *
+ * @param props A MultiAttrProp object.
+ */
+	template <typename T>
+	void set_properties(Tango::MultiAttrProp<T> &props);
 /**
  * Set attribute serialization model
  *
@@ -1762,7 +1784,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_min_alarm(const T &);
+	void set_min_alarm(const T &new_min_alarm);
+
+	void set_min_alarm(char *new_min_alarm);
+	void set_min_alarm(const char *new_min_alarm);
 
 /**
  * Get attribute minimum alarm or throw an exception if the attribute
@@ -1772,7 +1797,7 @@ public:
  * minimum alarm
  */
 	template <typename T>
-	void get_min_alarm(T &);
+	void get_min_alarm(T &min_al);
 
 /**
  * Set attribute maximum alarm.
@@ -1785,7 +1810,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_max_alarm(const T &);
+	void set_max_alarm(const T &new_max_alarm);
+
+	void set_max_alarm(char *new_max_alarm);
+	void set_max_alarm(const char *new_max_alarm);
 
 /**
  * Get attribute maximum alarm or throw an exception if the attribute
@@ -1795,7 +1823,7 @@ public:
  * maximum alarm
  */
 	template <typename T>
-	void get_max_alarm(T &);
+	void get_max_alarm(T &max_al);
 
 /**
  * Set attribute minimum warning.
@@ -1808,7 +1836,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_min_warning(const T &);
+	void set_min_warning(const T &new_min_warning);
+
+	void set_min_warning(char *new_min_warning);
+	void set_min_warning(const char *new_min_warning);
 
 /**
  * Get attribute minimum warning or throw an exception if the attribute
@@ -1818,7 +1849,7 @@ public:
  * minimum warning
  */
 	template <typename T>
-	void get_min_warning(T &);
+	void get_min_warning(T &min_war);
 
 /**
  * Set attribute maximum warning.
@@ -1831,7 +1862,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_max_warning(const T &);
+	void set_max_warning(const T &new_max_warning);
+
+	void set_max_warning(char *new_max_warning);
+	void set_max_warning(const char *new_max_warning);
 
 /**
  * Get attribute maximum warning or throw an exception if the attribute
@@ -1841,7 +1875,7 @@ public:
  * maximum warning
  */
 	template <typename T>
-	void get_max_warning(T &);
+	void get_max_warning(T &max_war);
 //@}
 
 
@@ -2029,6 +2063,7 @@ public:
     void get_properties(Tango::AttributeConfig &conf);
 	void get_properties_2(Tango::AttributeConfig_2 &conf);
 	void get_properties_3(Tango::AttributeConfig_3 &conf);
+	void set_properties(const Tango::AttributeConfig_3 &conf);
 	void set_properties(const Tango::AttributeConfig &conf,Tango::DeviceImpl *dev);
 	void set_properties(const Tango::AttributeConfig_3 &conf,Tango::DeviceImpl *dev);
 
@@ -2088,6 +2123,8 @@ public:
 	void set_properties(const Tango::AttributeConfig_3 &,string &);
 	void upd_database(const Tango::AttributeConfig &,string &);
 	void upd_database(const Tango::AttributeConfig_3 &,string &);
+	void set_upd_properties(const Tango::AttributeConfig_3 &);
+	void set_upd_properties(const Tango::AttributeConfig_3 &,string &);
 
 	bool change_event_subscribed() {if (ext->event_change_subscription != 0)return true;else return false;}
 	bool periodic_event_subscribed() {if (ext->event_periodic_subscription != 0)return true;else return false;}
@@ -2129,6 +2166,16 @@ public:
 	friend class DServer;
 
 private:
+	void set_data_size();
+	void throw_min_max_value(string &,string &,MinMaxValueCheck);
+	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
+	void log_quality();
+
+	unsigned long 		name_size;
+	string 				name_lower;
+	DevEncoded			enc_help;
+
+protected:
 
 //
 // The extension class
@@ -2159,8 +2206,8 @@ private:
         time_t				event_periodic_subscription;	// Last time() a subscription was made
         time_t				event_archive_subscription; 	// Last time() a subscription was made
         time_t				event_user_subscription; 		// Last time() a subscription was made
-        time_t				event_attr_conf_subscription;	// Last time() a subsription was made
-        time_t				event_data_ready_subscription;	// Last time() a subsription was made
+        time_t				event_attr_conf_subscription;	// Last time() a subscription was made
+        time_t				event_data_ready_subscription;	// Last time() a subscription was made
         double				archive_last_event;				// Last time an archive event was detected (periodic or not)
         long				idx_in_attr;					// Index in MultiClassAttribute vector
         string				d_name;							// The device name
@@ -2189,22 +2236,8 @@ private:
         bitset<numFlags>    old_alarm;                      // Previous attribute alarm
     };
 
-
-	void set_data_size();
-	void throw_err_format(const char *,string &);
-	void throw_event_err_format(const char *,const string &);
-	void throw_err_data_type(const char *,string &);
-	void throw_min_max_value(string &,string &,MinMaxValueCheck);
-	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
-	void log_quality();
-
-	unsigned long 		name_size;
-	string 				name_lower;
-	DevEncoded			enc_help;
-
 	AttributeExt		*ext;
 
-protected:
 	virtual void init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name);
 	virtual void init_event_prop(vector<AttrProperty> &prop_list,const string &dev_name,Attr &att);
 	string &get_attr_value(vector<AttrProperty> &prop_list,const char *name);
@@ -2218,6 +2251,9 @@ protected:
     void check_hard_coded_properties(const T &);
 
     void throw_hard_coded_prop(const char *);
+	void throw_err_format(const char *,const string &,const char *);
+	void throw_incoherent_val_err(const char *,const char *,const string &,const char *);
+	void throw_err_data_type(const char *,string &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &);
 
@@ -2263,6 +2299,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 		string s = B.str(); \
 		A = CORBA::string_dup(s.c_str()); \
 		B.str(""); \
+		B.clear(); \
 	} \
 	else \
 		(void)0
@@ -2345,47 +2382,47 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				{ \
 				case Tango::DEV_SHORT: \
 					if (!(B >> sh && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_LONG: \
 					if (!(B >> lg && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break;\
 \
 				case Tango::DEV_LONG64: \
 					if (!(B >> lg64 && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break;\
 \
 				case Tango::DEV_DOUBLE: \
 					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_FLOAT: \
 					if (!(B >> fl && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_USHORT: \
 					if (!(B >> ush && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_UCHAR: \
 					if (!(B >> sh && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_ULONG: \
 					if (!(B >> ulg && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_ULONG64: \
 					if (!(B >> ulg64 && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 				} \
 			} \

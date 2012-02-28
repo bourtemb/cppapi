@@ -423,7 +423,6 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 //
 
 	ext->event_period = (int)(DEFAULT_EVENT_PERIOD);  	// default for event period is 1 second
-//	ext->event_period = (int)(INT_MAX);
 
 	string event_period_str;
 	bool event_period_defined = false;
@@ -446,7 +445,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 			cout1 << "Attribute::Attribute(): event_period_str " << event_period_str << " event_period = " << ext->event_period << endl;
 		}
 		else
-			throw_event_err_format("event_period",dev_name);
+			throw_err_format("event_period",dev_name,"Attribute::init_event_prop");
 	}
 
 //
@@ -478,7 +477,7 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 			cout1 << "Attribute::Attribute(): archive_period_str " << archive_period_str << " archive_period = " << ext->archive_period << endl;
 		}
 		else
-			throw_event_err_format("archive_period",dev_name);
+			throw_err_format("archive_period",dev_name,"Attribute::init_event_prop");
 	}
 
 //
@@ -579,57 +578,77 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> min_alarm.sh && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_level) && min_alarm.sh >= max_alarm.sh)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> min_alarm.db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
 				min_alarm.lg = (DevLong)min_alarm.db;
+				if(alarm_conf.test(max_level) && min_alarm.lg >= max_alarm.lg)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> min_alarm.db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
 				min_alarm.lg64 = (DevLong64)min_alarm.db;
+				if(alarm_conf.test(max_level) && min_alarm.lg64 >= max_alarm.lg64)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> min_alarm.db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_level) && min_alarm.db >= max_alarm.db)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 			case Tango::DEV_FLOAT:
 				if (!(str >> min_alarm.fl && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_level) && min_alarm.fl >= max_alarm.fl)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> min_alarm.ush && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_level) && min_alarm.ush >= max_alarm.ush)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_alarm.sh && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
 				min_alarm.uch = (unsigned char)min_alarm.sh;
+				if(alarm_conf.test(max_level) && min_alarm.uch >= max_alarm.uch)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> min_alarm.db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
 				min_alarm.ulg = (DevULong)min_alarm.db;
+				if(alarm_conf.test(max_level) && min_alarm.ulg >= max_alarm.ulg)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> min_alarm.db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
 				min_alarm.ulg64 = (DevULong64)min_alarm.db;
+				if(alarm_conf.test(max_level) && min_alarm.ulg64 >= max_alarm.ulg64)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_alarm.sh && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
 				min_alarm.uch = (unsigned char)min_alarm.sh;
+				if(alarm_conf.test(max_level) && min_alarm.uch >= max_alarm.uch)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 			}
 			alarm_conf.set(min_level);
@@ -661,58 +680,78 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> max_alarm.sh && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_level) && min_alarm.sh >= max_alarm.sh)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> max_alarm.db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
 				max_alarm.lg = (DevLong)max_alarm.db;
+				if(alarm_conf.test(min_level) && min_alarm.lg >= max_alarm.lg)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> max_alarm.db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
 				max_alarm.lg64 = (DevLong64)max_alarm.db;
+				if(alarm_conf.test(min_level) && min_alarm.lg64 >= max_alarm.lg64)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> max_alarm.db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_level) && min_alarm.db >= max_alarm.db)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> max_alarm.fl && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_level) && min_alarm.fl >= max_alarm.fl)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> max_alarm.ush && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_level) && min_alarm.ush >= max_alarm.ush)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_alarm.sh && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
 				max_alarm.uch = (unsigned char)max_alarm.sh;
+				if(alarm_conf.test(min_level) && min_alarm.uch >= max_alarm.uch)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> max_alarm.db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
 				max_alarm.ulg = (DevULong)max_alarm.db;
+				if(alarm_conf.test(min_level) && min_alarm.ulg >= max_alarm.ulg)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> max_alarm.db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
 				max_alarm.ulg64 = (DevULong64)max_alarm.db;
+				if(alarm_conf.test(min_level) && min_alarm.ulg64 >= max_alarm.ulg64)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_alarm.sh && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
 				max_alarm.uch = (unsigned char)max_alarm.sh;
+				if(alarm_conf.test(min_level) && min_alarm.uch >= max_alarm.uch)
+					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
 			}
 			alarm_conf.set(max_level);
@@ -744,58 +783,78 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> min_value.sh && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
+				if(check_max_value && min_value.sh >= max_value.sh)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> min_value.db && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
 				min_value.lg = (DevLong)min_value.db;
+				if(check_max_value && min_value.lg >= max_value.lg)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> min_value.db && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
 				min_value.lg64 = (DevLong64)min_value.db;
+				if(check_max_value && min_value.lg64 >= max_value.lg64)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> min_value.db && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
+				if(check_max_value && min_value.db >= max_value.db)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> min_value.fl && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
+				if(check_max_value && min_value.fl >= max_value.fl)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> min_value.ush && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
+				if(check_max_value && min_value.ush >= max_value.ush)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_value.sh && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
 				min_value.uch = (unsigned char)min_value.sh;
+				if(check_max_value && min_value.uch >= max_value.uch)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> min_value.db && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
 				min_value.ulg = (DevULong)min_value.db;
+				if(check_max_value && min_value.ulg >= max_value.ulg)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> min_value.db && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
 				min_value.ulg64 = (DevULong64)min_value.db;
+				if(check_max_value && min_value.ulg64 >= max_value.ulg64)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_value.sh && str.eof()))
-					throw_err_format("min_value",dev_name);
+					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
 				min_value.uch = (unsigned char)min_value.sh;
+				if(check_max_value && min_value.uch >= max_value.uch)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 			}
 			check_min_value = true;
@@ -827,58 +886,78 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> max_value.sh && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
+				if(check_min_value && min_value.sh >= max_value.sh)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> max_value.db && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
 				max_value.lg = (DevLong)max_value.db;
+				if(check_min_value && min_value.lg >= max_value.lg)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> max_value.db && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
 				max_value.lg64 = (DevLong64)max_value.db;
+				if(check_min_value && min_value.lg64 >= max_value.lg64)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> max_value.db && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
+				if(check_min_value && min_value.db >= max_value.db)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> max_value.fl && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
+				if(check_min_value && min_value.fl >= max_value.fl)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> max_value.ush && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
+				if(check_min_value && min_value.ush >= max_value.ush)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_value.sh && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
 				max_value.uch = (unsigned char)max_value.sh;
+				if(check_min_value && min_value.uch >= max_value.uch)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> max_value.db && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
 				max_value.ulg = (DevULong)max_value.db;
+				if(check_min_value && min_value.ulg >= max_value.ulg)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> max_value.db && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
 				max_value.ulg64 = (DevULong64)max_value.db;
+				if(check_min_value && min_value.ulg64 >= max_value.ulg64)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_value.sh && str.eof()))
-					throw_err_format("max_value",dev_name);
+					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
 				max_value.uch = (unsigned char)max_value.sh;
+				if(check_min_value && min_value.uch >= max_value.uch)
+					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
 			}
 			check_max_value = true;
@@ -910,57 +989,77 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> min_warning.sh && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_warn) && min_warning.sh >= max_warning.sh)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> min_warning.db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
 				min_warning.lg = (DevLong)min_warning.db;
+				if(alarm_conf.test(max_warn) && min_warning.lg >= max_warning.lg)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> min_warning.db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
 				min_warning.lg64 = (DevLong64)min_warning.db;
+				if(alarm_conf.test(max_warn) && min_warning.lg64 >= max_warning.lg64)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> min_warning.db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_warn) && min_warning.db >= max_warning.db)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 			case Tango::DEV_FLOAT:
 				if (!(str >> min_warning.fl && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_warn) && min_warning.fl >= max_warning.fl)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> min_warning.ush && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(max_warn) && min_warning.ush >= max_warning.ush)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_warning.sh && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
 				min_warning.uch = (unsigned char)min_warning.sh;
+				if(alarm_conf.test(max_warn) && min_warning.uch >= max_warning.uch)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> min_warning.db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
 				min_warning.ulg = (DevULong)min_warning.db;
+				if(alarm_conf.test(max_warn) && min_warning.ulg >= max_warning.ulg)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> min_warning.db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
 				min_warning.ulg64 = (DevULong64)min_warning.db;
+				if(alarm_conf.test(max_warn) && min_warning.ulg64 >= max_warning.ulg64)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_warning.sh && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
 				min_warning.uch = (unsigned char)min_warning.sh;
+				if(alarm_conf.test(max_warn) && min_warning.uch >= max_warning.uch)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 			}
 			alarm_conf.set(min_warn);
@@ -992,58 +1091,78 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> max_warning.sh && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_warn) && min_warning.sh >= max_warning.sh)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> max_warning.db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
 				max_warning.lg = (DevLong)max_warning.db;
+				if(alarm_conf.test(min_warn) && min_warning.lg >= max_warning.lg)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> max_warning.db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
 				max_warning.lg64 = (DevLong64)max_warning.db;
+				if(alarm_conf.test(min_warn) && min_warning.lg64 >= max_warning.lg64)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> max_warning.db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_warn) && min_warning.db >= max_warning.db)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> max_warning.fl && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_warn) && min_warning.fl >= max_warning.fl)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> max_warning.ush && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
+				if(alarm_conf.test(min_warn) && min_warning.ush >= max_warning.ush)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_warning.sh && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
 				max_warning.uch = (unsigned char)max_warning.sh;
+				if(alarm_conf.test(min_warn) && min_warning.uch >= max_warning.uch)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> max_warning.db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
 				max_warning.ulg = (DevULong)max_warning.db;
+				if(alarm_conf.test(min_warn) && min_warning.ulg >= max_warning.ulg)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> max_warning.db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
 				max_warning.ulg64 = (DevULong64)max_warning.db;
+				if(alarm_conf.test(min_warn) && min_warning.ulg64 >= max_warning.ulg64)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_warning.sh && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
 				max_warning.uch = (unsigned char)max_warning.sh;
+				if(alarm_conf.test(min_warn) && min_warning.uch >= max_warning.uch)
+					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
 			}
 			alarm_conf.set(max_warn);
@@ -1098,57 +1217,57 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> delta_val.sh && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> delta_val.db && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				delta_val.lg = (DevLong)delta_val.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> delta_val.db && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				delta_val.lg64 = (DevLong64)delta_val.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> delta_val.db && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> delta_val.fl && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> delta_val.ush && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> delta_val.sh && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				delta_val.uch = (unsigned char)delta_val.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> delta_val.db && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				delta_val.ulg = (DevULong)delta_val.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> delta_val.db && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				delta_val.ulg64 = (DevULong64)delta_val.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> delta_val.sh && str.eof()))
-					throw_err_format("delta_val",dev_name);
+					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
 				delta_val.uch = (unsigned char)delta_val.sh;
 				break;
 			}
@@ -1190,7 +1309,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 //--------------------------------------------------------------------------
 
-void Attribute::throw_err_format(const char *prop_name,string &dev_name)
+void Attribute::throw_err_format(const char *prop_name,const string &dev_name,const char *origin)
 {
 	TangoSys_OMemStream o;
 
@@ -1198,32 +1317,32 @@ void Attribute::throw_err_format(const char *prop_name,string &dev_name)
 	o << "\nThe property " << prop_name << " is defined in an unsupported format" << ends;
 	Except::throw_exception((const char *)"API_AttrOptProp",
 			      o.str(),
-			      (const char *)"Attribute::throw_err_format");
+			      (const char *)origin);
 }
 
 
 //+-------------------------------------------------------------------------
 //
-// method : 		Attribute::throw_event_err_format
+// method : 		Attribute::throw_incoherent_val_err
 //
-// description : 	Throw a Tango DevFailed exception when an error format
-//			is detected in the string which should be converted
-//			to a number for event properties
+// description : 	Throw a Tango DevFailed exception when the min or max
+//				property is incoherent with its counterpart
 //
-// in :			prop_name : The property name
+// in :			min_prop : The min property name
+//			max_prop : The max property name
 //			dev_name : The device name
 //
 //--------------------------------------------------------------------------
 
-void Attribute::throw_event_err_format(const char *prop_name,const string &dev_name)
+void Attribute::throw_incoherent_val_err(const char *min_prop,const char *max_prop,const string &dev_name,const char *origin)
 {
 	TangoSys_OMemStream o;
 
 	o << "Device " << dev_name << "-> Attribute : " << name;
-	o << "\nThe property " << prop_name << " is defined in an unsupported format" << ends;
-	Except::throw_exception((const char *)"API_AttrEventProp",
+	o << "\nValue of " << min_prop << " is grater than or equal to " << max_prop << ends;
+	Except::throw_exception((const char *)"API_IncoherentValues",
 			      o.str(),
-			      (const char *)"Attribute::throw_event_err_format");
+			      (const char *)origin);
 }
 
 //+-------------------------------------------------------------------------
@@ -1579,9 +1698,10 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 //
 
 	TangoSys_OMemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 
 	if (ext->event_period == INT_MAX)
-		conf.event_prop.per_event.period = CORBA::string_dup(AlrmValueNotSpec);
+		conf.event_prop.per_event.period = CORBA::string_dup((const char *)(DEFAULT_EVENT_PERIOD));
 	else
 	{
 		int per = (int)((double)ext->event_period);
@@ -1593,36 +1713,54 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 // Copy change event properties
 //
 
-	if (ext->rel_change[0] == INT_MAX)
-		conf.event_prop.ch_event.rel_change = CORBA::string_dup(AlrmValueNotSpec);
-	else
+	if (fabs(ext->rel_change[0]) == fabs(ext->rel_change[1]))
 	{
-		if (fabs(ext->rel_change[0]) == fabs(ext->rel_change[1]))
-		{
-			str << ext->rel_change[1];
-			MEM_STREAM_2_CORBA(conf.event_prop.ch_event.rel_change,str);
-		}
+		if (ext->rel_change[0] == INT_MAX)
+			conf.event_prop.ch_event.rel_change = CORBA::string_dup(AlrmValueNotSpec);
 		else
 		{
-			str << fabs(ext->rel_change[0]) << "," << ext->rel_change[1];
+			str << fabs(ext->rel_change[1]);
 			MEM_STREAM_2_CORBA(conf.event_prop.ch_event.rel_change,str);
 		}
 	}
-
-	if (ext->abs_change[0] == INT_MAX)
-		conf.event_prop.ch_event.abs_change = CORBA::string_dup(AlrmValueNotSpec);
 	else
 	{
-		if (fabs(ext->abs_change[0]) == fabs(ext->abs_change[1]))
-		{
-			str << ext->abs_change[1];
-			MEM_STREAM_2_CORBA(conf.event_prop.ch_event.abs_change,str);
-		}
+		if (ext->rel_change[0] == INT_MAX)
+			str << AlrmValueNotSpec << ",";
+		else
+			str << -fabs(ext->rel_change[0]) << ",";
+
+		if (ext->rel_change[1] == INT_MAX)
+			str << AlrmValueNotSpec;
+		else
+			str << fabs(ext->rel_change[1]);
+
+		MEM_STREAM_2_CORBA(conf.event_prop.ch_event.rel_change,str);
+	}
+
+	if (fabs(ext->abs_change[0]) == fabs(ext->abs_change[1]))
+	{
+		if (ext->abs_change[0] == INT_MAX)
+			conf.event_prop.ch_event.abs_change = CORBA::string_dup(AlrmValueNotSpec);
 		else
 		{
-			str << fabs(ext->abs_change[0]) << "," << ext->abs_change[1];
+			str << fabs(ext->abs_change[1]);
 			MEM_STREAM_2_CORBA(conf.event_prop.ch_event.abs_change,str);
 		}
+	}
+	else
+	{
+		if (ext->abs_change[0] == INT_MAX)
+			str << AlrmValueNotSpec << ",";
+		else
+			str << -fabs(ext->abs_change[0]) << ",";
+
+		if (ext->abs_change[1] == INT_MAX)
+			str << AlrmValueNotSpec;
+		else
+			str << fabs(ext->abs_change[1]);
+
+		MEM_STREAM_2_CORBA(conf.event_prop.ch_event.abs_change,str);
 	}
 
 //
@@ -1630,9 +1768,7 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 //
 
 	if (ext->archive_period == INT_MAX)
-	{
 		conf.event_prop.arch_event.period = CORBA::string_dup(AlrmValueNotSpec);
-	}
 	else
 	{
 		int per = (int)((double)ext->archive_period);
@@ -1640,36 +1776,54 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 		MEM_STREAM_2_CORBA(conf.event_prop.arch_event.period,str);
 	}
 
-	if (ext->archive_rel_change[0] == INT_MAX)
-		conf.event_prop.arch_event.rel_change = CORBA::string_dup(AlrmValueNotSpec);
-	else
+	if (fabs(ext->archive_rel_change[0]) == fabs(ext->archive_rel_change[1]))
 	{
-		if (fabs(ext->archive_rel_change[0]) == fabs(ext->archive_rel_change[1]))
-		{
-			str << ext->archive_rel_change[1];
-			MEM_STREAM_2_CORBA(conf.event_prop.arch_event.rel_change,str);
-		}
+		if (ext->archive_rel_change[0] == INT_MAX)
+			conf.event_prop.arch_event.rel_change = CORBA::string_dup(AlrmValueNotSpec);
 		else
 		{
-			str << fabs(ext->archive_rel_change[0]) << "," << ext->archive_rel_change[1];
+			str << fabs(ext->archive_rel_change[1]);
 			MEM_STREAM_2_CORBA(conf.event_prop.arch_event.rel_change,str);
 		}
 	}
-
-	if (ext->archive_abs_change[0] == INT_MAX)
-		conf.event_prop.arch_event.abs_change = CORBA::string_dup(AlrmValueNotSpec);
 	else
 	{
-		if (fabs(ext->archive_abs_change[0]) == fabs(ext->archive_abs_change[1]))
-		{
-			str << ext->archive_abs_change[1];
-			MEM_STREAM_2_CORBA(conf.event_prop.arch_event.abs_change,str);
-		}
+		if (ext->archive_rel_change[0] == INT_MAX)
+			str << AlrmValueNotSpec << ",";
+		else
+			str << -fabs(ext->archive_rel_change[0]) << ",";
+
+		if (ext->archive_rel_change[1] == INT_MAX)
+			str << AlrmValueNotSpec;
+		else
+			str << fabs(ext->archive_rel_change[1]);
+
+		MEM_STREAM_2_CORBA(conf.event_prop.arch_event.rel_change,str);
+	}
+
+	if (fabs(ext->archive_abs_change[0]) == fabs(ext->archive_abs_change[1]))
+	{
+		if (ext->archive_abs_change[0] == INT_MAX)
+			conf.event_prop.arch_event.abs_change = CORBA::string_dup(AlrmValueNotSpec);
 		else
 		{
-			str << fabs(ext->archive_abs_change[0]) << "," << ext->archive_abs_change[1];
+			str << fabs(ext->archive_abs_change[1]);
 			MEM_STREAM_2_CORBA(conf.event_prop.arch_event.abs_change,str);
 		}
+	}
+	else
+	{
+		if (ext->archive_abs_change[0] == INT_MAX)
+			str << AlrmValueNotSpec << ",";
+		else
+			str << -fabs(ext->archive_abs_change[0]) << ",";
+
+		if (ext->archive_abs_change[1] == INT_MAX)
+			str << AlrmValueNotSpec;
+		else
+			str << fabs(ext->archive_abs_change[1]);
+
+		MEM_STREAM_2_CORBA(conf.event_prop.arch_event.abs_change,str);
 	}
 }
 
@@ -1707,14 +1861,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 // user defined default value
 //
 
-	Tango::DeviceImpl *dev;
-	if (ext->dev != NULL)
-		dev = ext->dev;
-	else
-	{
-		Tango::Util *tg = Tango::Util::instance();
-		dev = tg->get_device_by_name(dev_name);
-	}
+	Tango::DeviceImpl *dev = get_att_device();
 	Tango::DeviceClass *dev_class = dev->get_device_class();
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
@@ -1762,6 +1909,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 //
 
 	if(TG_strcasecmp(conf.label,AlrmValueNotSpec) == 0 ||
+			(TG_strcasecmp(conf.label,LabelNotSpec) == 0) ||
 			(TG_strcasecmp(conf.label,name.c_str()) == 0))
 	{
 		// force library defaults (even if user defaults defined)
@@ -1942,9 +2090,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 //
 
 	TangoSys_MemStream str;
-	string old_min_value_str = min_value_str;
-	Attr_CheckVal old_min_value = min_value;
-	bool old_check_min_value = check_min_value;
 
 	if(TG_strcasecmp(conf.min_value,AlrmValueNotSpec) == 0)
 	{
@@ -1990,97 +2135,57 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> min_value.sh && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> min_value.db && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				min_value.lg = (DevLong)min_value.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> min_value.db && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				min_value.lg64 = (DevLong64)min_value.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> min_value.db && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> min_value.fl && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> min_value.ush && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_value.sh && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				min_value.uch = (unsigned char)min_value.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> min_value.db && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				min_value.ulg = (DevULong)min_value.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> min_value.db && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				min_value.ulg64 = (DevULong64)min_value.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_value.sh && str.eof()))
-				{
-					min_value_str = old_min_value_str;
-					min_value = old_min_value;
-					throw_err_format("min_value",dev_name);
-				}
+					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				min_value.uch = (unsigned char)min_value.sh;
 				break;
 			}
@@ -2097,26 +2202,13 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
                 WAttribute *w_att = static_cast<WAttribute *>(this);
                 string mem_value;
                 if ((w_att->is_memorized() == true) && (w_att->mem_value_below_above(MIN,mem_value) == true))
-                {
-                    min_value_str = old_min_value_str;
-                    min_value = old_min_value;
-                    check_min_value = old_check_min_value;
                     throw_min_max_value(dev_name,mem_value,MIN);
-                }
             }
 		}
 		else
-		{
-			min_value_str = old_min_value_str;
-			min_value = old_min_value;
-			check_min_value = false;
 			throw_err_data_type("min_value",dev_name);
-		}
 	}
 
-	string old_max_value_str = max_value_str;
-	Attr_CheckVal old_max_value = max_value;
-	bool old_check_max_value = check_max_value;
 
 	if(TG_strcasecmp(conf.max_value,AlrmValueNotSpec) == 0)
 	{
@@ -2167,97 +2259,57 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> max_value.sh && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> max_value.db && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				max_value.lg = (DevLong)max_value.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> max_value.db && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				max_value.lg64 = (DevLong64)max_value.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> max_value.db && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> max_value.fl && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> max_value.ush && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_value.sh && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				max_value.uch = (unsigned char)max_value.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> max_value.db && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				max_value.ulg = (DevULong)max_value.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> max_value.db && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				max_value.ulg64 = (DevULong64)max_value.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_value.sh && str.eof()))
-				{
-					max_value_str = old_max_value_str;
-					max_value = old_max_value;
-					throw_err_format("max_value",dev_name);
-				}
+					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				max_value.uch = (unsigned char)max_value.sh;
 				break;
 			}
@@ -2274,25 +2326,14 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
                 WAttribute *w_att = static_cast<WAttribute *>(this);
                 string m_value;
                 if ((w_att->is_memorized() == true) && (w_att->mem_value_below_above(MAX,m_value) == true))
-                {
-                    max_value_str = old_max_value_str;
-                    max_value = old_max_value;
-                    check_max_value = old_check_max_value;
                     throw_min_max_value(dev_name,m_value,MAX);
-                }
             }
 		}
 		else
-		{
-			max_value_str = old_max_value_str;
-			max_value = old_max_value;
-			check_max_value = false;
 			throw_err_data_type("max_value",dev_name);
-		}
 	}
 
-	string old_min_alarm_str = min_alarm_str;
-	Attr_CheckVal old_min_alarm = min_alarm;
+
 	if(TG_strcasecmp(conf.min_alarm,AlrmValueNotSpec) == 0)
 	{
 		// force library defaults (even if user defaults defined)
@@ -2342,111 +2383,67 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> min_alarm.sh && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> min_alarm.db && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				min_alarm.lg = (DevLong)min_alarm.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> min_alarm.db && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				min_alarm.lg64 = (DevLong64)min_alarm.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> min_alarm.db && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> min_alarm.fl && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> min_alarm.ush && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_alarm.sh && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				min_alarm.uch = (unsigned char)min_alarm.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> min_alarm.db && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				min_alarm.ulg = (DevULong)min_alarm.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> min_alarm.db && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				min_alarm.ulg64 = (DevULong64)min_alarm.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_alarm.sh && str.eof()))
-				{
-					min_alarm_str = old_min_alarm_str;
-					min_alarm = old_min_alarm;
-					throw_err_format("min_alarm",dev_name);
-				}
+					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				min_alarm.uch = (unsigned char)min_alarm.sh;
 				break;
 			}
 			alarm_conf.set(min_level);
 		}
 		else
-		{
-			alarm_conf.reset(min_level);
-		}
+			throw_err_data_type("min_alarm",dev_name);
 	}
 
 
-	string old_max_alarm_str = max_alarm_str;
-	Attr_CheckVal old_max_alarm = max_alarm;
 	if(TG_strcasecmp(conf.max_alarm,AlrmValueNotSpec) == 0)
 	{
 		// force library defaults (even if user defaults defined)
@@ -2496,108 +2493,72 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> max_alarm.sh && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> max_alarm.db && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				max_alarm.lg = (DevLong)max_alarm.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> max_alarm.db && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				max_alarm.lg64 = (DevLong64)max_alarm.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> max_alarm.db && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> max_alarm.fl && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> max_alarm.ush && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_alarm.sh && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				max_alarm.uch = (unsigned char)max_alarm.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> max_alarm.db && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				max_alarm.ulg = (DevULong)max_alarm.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> max_alarm.db && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				max_alarm.ulg64 = (DevULong64)max_alarm.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_alarm.sh && str.eof()))
-				{
-					max_alarm_str = old_max_alarm_str;
-					max_alarm = old_max_alarm;
-					throw_err_format("max_alarm",dev_name);
-				}
+					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				max_alarm.uch = (unsigned char)max_alarm.sh;
 				break;
 			}
 			alarm_conf.set(max_level);
 		}
 		else
-		{
-			alarm_conf.reset(max_level);
-		}
+			throw_err_data_type("max_alarm",dev_name);
 	}
 
+}
+
+
+void Attribute::set_properties(const Tango::AttributeConfig_3 &conf)
+{
+	set_properties(conf,ext->d_name);
 }
 
 void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,Tango::DeviceImpl *d)
@@ -2660,14 +2621,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // default values regardless of the user defined defaults.
 //
 
-	Tango::DeviceImpl *dev;
-	if (ext->dev != NULL)
-		dev = ext->dev;
-	else
-	{
-		Tango::Util *tg = Tango::Util::instance();
-		dev = tg->get_device_by_name(dev_name);
-	}
+	Tango::DeviceImpl *dev = get_att_device();
 	Tango::DeviceClass *dev_class = dev->get_device_class();
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
@@ -2680,8 +2634,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	TangoSys_MemStream str;
 
-	string old_min_warning_str = min_warning_str;
-	Attr_CheckVal old_min_warning = min_warning;
 	if(TG_strcasecmp(conf.att_alarm.min_warning,AlrmValueNotSpec) == 0)
 	{
 		// force library defaults (even if user defaults defined)
@@ -2728,117 +2680,70 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> min_warning.sh && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> min_warning.db && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				min_warning.lg = (DevLong)min_warning.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> min_warning.db && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				min_warning.lg64 = (DevLong64)min_warning.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> min_warning.db && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> min_warning.fl && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> min_warning.ush && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_warning.sh && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				min_warning.uch = (unsigned char)min_warning.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> min_warning.db && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				min_warning.ulg = (DevULong)min_warning.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> min_warning.db && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				min_warning.ulg64 = (DevULong64)min_warning.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_warning.sh && str.eof()))
-				{
-					min_warning_str = old_min_warning_str;
-					min_warning = old_min_warning;
-					throw_err_format("min_warning",dev_name);
-				}
+					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				min_warning.uch = (unsigned char)min_warning.sh;
 				break;
 			}
 			alarm_conf.set(min_warn);
 		}
 		else
-		{
-			min_warning_str = old_min_warning_str;
-			min_warning = old_min_warning;
-			alarm_conf.reset(min_warn);
 			throw_err_data_type("min_warning",dev_name);
-		}
 	}
 
 //
 // Now, ladies and gentleman, the max warning case
 //
 
-	string old_max_warning_str = max_warning_str;
-	Attr_CheckVal old_max_warning = max_warning;
 	if(TG_strcasecmp(conf.att_alarm.max_warning,AlrmValueNotSpec) == 0)
 	{
 		// force library defaults (even if user defaults defined)
@@ -2888,113 +2793,70 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> max_warning.sh && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> max_warning.db && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				max_warning.lg = (DevLong)max_warning.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> max_warning.db && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				max_warning.lg64 = (DevLong64)max_warning.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> max_warning.db && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> max_warning.fl && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> max_warning.ush && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_warning.sh && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				max_warning.uch = (unsigned char)max_warning.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> max_warning.db && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				max_warning.ulg = (DevULong)max_warning.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> max_warning.db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				max_warning.ulg64 = (DevULong64)max_warning.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_warning.sh && str.eof()))
-				{
-					max_warning_str = old_max_warning_str;
-					max_warning = old_max_warning;
-					throw_err_format("max_warning",dev_name);
-				}
+					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				max_warning.uch = (unsigned char)max_warning.sh;
 				break;
 			}
 			alarm_conf.set(max_warn);
 		}
 		else
-		{
-			max_warning_str = old_max_warning_str;
-			max_warning = old_max_warning;
-			alarm_conf.reset(max_warn);
 			throw_err_data_type("max_warning",dev_name);
-		}
 	}
 
 //
 // Then, the delta_val
 //
 
-	string old_delta_val_str = delta_val_str;
-	Attr_CheckVal old_delta_val = delta_val;
 	bool delta_val_defined = false;
 	if(TG_strcasecmp(conf.att_alarm.delta_val,AlrmValueNotSpec) == 0)
 	{
@@ -3041,118 +2903,71 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> delta_val.sh && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> delta_val.db && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				delta_val.lg = (DevLong)delta_val.db;
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> delta_val.db && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				delta_val.lg64 = (DevLong64)delta_val.db;
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> delta_val.db && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> delta_val.fl && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> delta_val.ush && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> delta_val.sh && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				delta_val.uch = (unsigned char)delta_val.sh;
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> delta_val.db && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				delta_val.ulg = (DevULong)delta_val.db;
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> delta_val.db && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				delta_val.ulg64 = (DevULong64)delta_val.db;
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> delta_val.sh && str.eof()))
-				{
-					delta_val_str = old_delta_val_str;
-					delta_val = old_delta_val;
-					throw_err_format("delta_val",dev_name);
-				}
+					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				delta_val.uch = (unsigned char)delta_val.sh;
 				break;
 			}
 			delta_val_defined = true;
 		}
 		else
-		{
-			delta_val_str = old_delta_val_str;
-			delta_val = old_delta_val;
 			throw_err_data_type("delta_val",dev_name);
-		}
 	}
 
 //
 // And the delta_t
 //
 
-	string old_delta_t_str = delta_t_str;
-	long old_delta_t = delta_t;
 	bool delta_t_defined = false;
-//	bool user_defaults = false;
 	if(TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) == 0 ||
 			TG_strcasecmp(conf.att_alarm.delta_t,"0") == 0)
 	{
@@ -3175,7 +2990,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				delta_t_str = "0";
 			else
 			{
-//				user_defaults = true;
 				delta_t_str = def_user_prop[i].get_value();
 			}
 		}
@@ -3199,28 +3013,16 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 			str << delta_t_str;
 			if (!(str >> delta_t && str.eof()))
-			{
-				delta_t_str = old_delta_t_str;
-				delta_t = old_delta_t;
-				throw_err_format("delta_t",dev_name);
-			}
+				throw_err_format("delta_t",dev_name,"Attribute::set_properties");
 			for (unsigned int loop = 0;loop < delta_t_str.size();loop++)
 			{
 				if (isdigit(delta_t_str[loop]) == 0)
-				{
-					delta_t_str = old_delta_t_str;
-					delta_t = old_delta_t;
-					throw_err_format("delta_t",dev_name);
-				}
+					throw_err_format("delta_t",dev_name,"Attribute::set_properties");
 			}
 			delta_t_defined = true;
 		}
 		else
-		{
-			delta_t_str = old_delta_t_str;
-			delta_t = old_delta_t;
 			throw_err_data_type("delta_t",dev_name);
-		}
 	}
 	else
 		delta_t = 0;
@@ -3455,7 +3257,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str << def_user_prop[i].get_value();
 				int tmp_period;
 				if (!(str >> tmp_period && str.eof()))
-					throw_event_err_format("event_period",dev_name);
+					throw_err_format("event_period",dev_name,"Attribute::set_properties");
 				ext->event_period = tmp_period;
 			}
 		}
@@ -3470,7 +3272,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		str << conf.event_prop.per_event.period;
 		int tmp_period;
 		if (!(str >> tmp_period && str.eof()))
-			throw_event_err_format("event_period",dev_name);
+			throw_err_format("event_period",dev_name,"Attribute::set_properties");
 		ext->event_period = tmp_period;
 	}
 
@@ -3507,7 +3309,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str << def_user_prop[i].get_value();
 				int tmp_period;
 				if (!(str >> tmp_period && str.eof()))
-					throw_event_err_format("archive_period",dev_name);
+					throw_err_format("archive_period",dev_name,"Attribute::set_properties");
 				ext->archive_period = tmp_period;
 			}
 		}
@@ -3522,9 +3324,328 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		str << conf.event_prop.arch_event.period;
 		int tmp_period;
 		if (!(str >> tmp_period && str.eof()))
-			throw_event_err_format("archive_period",dev_name);
+			throw_err_format("archive_period",dev_name,"Attribute::set_properties");
 		ext->archive_period = tmp_period;
 	}
+}
+
+
+void Attribute::set_upd_properties(const AttributeConfig_3 &conf)
+{
+	set_upd_properties(conf,ext->d_name);
+}
+
+void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_name)
+{
+
+//
+// Backup current configuration
+//
+
+	AttributeConfig_3 old_conf;
+	get_properties_3(old_conf);
+
+//
+// Set properties locally. In case of exception bring the backed-up values
+//
+
+	try
+	{
+
+//
+// Set properties locally. In case of exception bring the backed-up values
+//
+
+		set_properties(conf,dev_name);
+
+//
+// Check ranges coherence for min and max value
+//
+
+		if(check_min_value && check_max_value)
+		{
+			if ((data_type != Tango::DEV_STRING) &&
+				(data_type != Tango::DEV_BOOLEAN) &&
+				(data_type != Tango::DEV_STATE))
+			{
+				switch (data_type)
+				{
+				case Tango::DEV_SHORT:
+					if(min_value.sh >= max_value.sh)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_LONG:
+					if(min_value.lg >= max_value.lg)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_LONG64:
+					if(min_value.lg64 >= max_value.lg64)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_DOUBLE:
+					if(min_value.db >= max_value.db)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_FLOAT:
+					if(min_value.fl >= max_value.fl)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_USHORT:
+					if(min_value.ush >= max_value.ush)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_UCHAR:
+					if(min_value.uch >= max_value.uch)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ULONG:
+					if(min_value.ulg >= max_value.ulg)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ULONG64:
+					if(min_value.ulg64 >= max_value.ulg64)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ENCODED:
+					if(min_value.uch >= max_value.uch)
+						throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::set_upd_properties");
+					break;
+				}
+			}
+			else
+				throw_err_data_type("min_value",dev_name);
+		}
+
+//
+// Check ranges coherence for min and max alarm
+//
+
+		if(alarm_conf.test(min_level) && alarm_conf.test(max_level))
+		{
+			if ((data_type != Tango::DEV_STRING) &&
+				(data_type != Tango::DEV_BOOLEAN) &&
+				(data_type != Tango::DEV_STATE))
+			{
+				switch (data_type)
+				{
+				case Tango::DEV_SHORT:
+					if(min_alarm.sh >= max_alarm.sh)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_LONG:
+					if(min_alarm.lg >= max_alarm.lg)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_LONG64:
+					if(min_alarm.lg64 >= max_alarm.lg64)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_DOUBLE:
+					if(min_alarm.db >= max_alarm.db)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_FLOAT:
+					if(min_alarm.fl >= max_alarm.fl)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_USHORT:
+					if(min_alarm.ush >= max_alarm.ush)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_UCHAR:
+					if(min_alarm.uch >= max_alarm.uch)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ULONG:
+					if(min_alarm.ulg >= max_alarm.ulg)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ULONG64:
+					if(min_alarm.ulg64 >= max_alarm.ulg64)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ENCODED:
+					if(min_alarm.uch >= max_alarm.uch)
+						throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::set_upd_properties");
+					break;
+				}
+			}
+			else
+				throw_err_data_type("min_alarm",dev_name);
+		}
+
+//
+// Check ranges coherence for min and max warning
+//
+
+		if(alarm_conf.test(min_warn) && alarm_conf.test(max_warn))
+		{
+			if ((data_type != Tango::DEV_STRING) &&
+				(data_type != Tango::DEV_BOOLEAN) &&
+				(data_type != Tango::DEV_STATE))
+			{
+				switch (data_type)
+				{
+				case Tango::DEV_SHORT:
+					if(min_warning.sh >= max_warning.sh)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_LONG:
+					if(min_warning.lg >= max_warning.lg)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_LONG64:
+					if(min_warning.lg64 >= max_warning.lg64)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_DOUBLE:
+					if(min_warning.db >= max_warning.db)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_FLOAT:
+					if(min_warning.fl >= max_warning.fl)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_USHORT:
+					if(min_warning.ush >= max_warning.ush)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_UCHAR:
+					if(min_warning.uch >= max_warning.uch)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ULONG:
+					if(min_warning.ulg >= max_warning.ulg)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ULONG64:
+					if(min_warning.ulg64 >= max_warning.ulg64)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+
+				case Tango::DEV_ENCODED:
+					if(min_warning.uch >= max_warning.uch)
+						throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::set_upd_properties");
+					break;
+				}
+			}
+			else
+				throw_err_data_type("min_warning",dev_name);
+		}
+
+//
+// Update database
+//
+
+		try
+		{
+			upd_database(conf,dev_name);
+		}
+		catch(DevFailed &db_except)
+		{
+
+//
+// In case of exception, try to store old properties in the database and
+// inform the user about the error
+//
+
+			try
+			{
+				upd_database(old_conf,dev_name);
+			}
+			catch(DevFailed &)
+			{
+
+//
+// If the old values could not be restored, notify the user about possible database corruption
+//
+
+				TangoSys_OMemStream o;
+
+				o << "Device " << dev_name << "-> Attribute : " << name;
+				o << "\nDatabase error occurred whilst setting attribute properties. The database may be corrupted." << ends;
+				Except::throw_exception((const char *)"API_CorruptedDatabase",
+							  o.str(),
+							  (const char *)"Attribute::set_upd_properties");
+			}
+
+			throw db_except;
+		}
+	}
+	catch(DevFailed &except)
+	{
+		set_properties(old_conf,dev_name);
+		throw except;
+	}
+}
+
+void Attribute::set_min_alarm(char *new_min_alarm_str)
+{
+	set_min_alarm(string(new_min_alarm_str));
+}
+
+void Attribute::set_min_alarm(const char *new_min_alarm_str)
+{
+	set_min_alarm(string(new_min_alarm_str));
+}
+
+
+void Attribute::set_max_alarm(char *new_max_alarm_str)
+{
+	set_max_alarm(string(new_max_alarm_str));
+}
+
+void Attribute::set_max_alarm(const char *new_max_alarm_str)
+{
+	set_max_alarm(string(new_max_alarm_str));
+}
+
+
+void Attribute::set_min_warning(char *new_min_warning_str)
+{
+	set_min_warning(string(new_min_warning_str));
+}
+
+void Attribute::set_min_warning(const char *new_min_warning_str)
+{
+	set_min_warning(string(new_min_warning_str));
+}
+
+
+void Attribute::set_max_warning(char *new_max_warning_str)
+{
+	set_max_warning(string(new_max_warning_str));
+}
+
+void Attribute::set_max_warning(const char *new_max_warning_str)
+{
+	set_max_warning(string(new_max_warning_str));
 }
 
 //+-------------------------------------------------------------------------
@@ -3558,14 +3679,7 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 // the data base in case there are user defaults declared for the property
 //
 
-	Tango::DeviceImpl *dev;
-	if (ext->dev != NULL)
-		dev = ext->dev;
-	else
-	{
-		Tango::Util *tg = Tango::Util::instance();
-		dev = tg->get_device_by_name(dev_name);
-	}
+	Tango::DeviceImpl *dev = get_att_device();
 	Tango::DeviceClass *dev_class = dev->get_device_class();
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
@@ -3681,14 +3795,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 // the data base in case there are user defaults declared for the property
 //
 
-	Tango::DeviceImpl *dev;
-	if (ext->dev != NULL)
-		dev = ext->dev;
-	else
-	{
-		Tango::Util *tg = Tango::Util::instance();
-		dev = tg->get_device_by_name(dev_name);
-	}
+	Tango::DeviceImpl *dev = get_att_device();
 	Tango::DeviceClass *dev_class = dev->get_device_class();
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
@@ -3793,11 +3900,11 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 				str << conf.att_alarm.delta_t;
 				int lg;
 				if (!(str >> lg && str.eof()))
-					throw_err_format("delta_t",dev_name);
+					throw_err_format("delta_t",dev_name,"Attribute::upd_database");
 				for (unsigned int loop = 0;loop < strlen(tmp);loop++)
 				{
 					if (isdigit(tmp[loop]) == 0)
-						throw_err_format("delta_t",dev_name);
+						throw_err_format("delta_t",dev_name,"Attribute::upd_database");
 				}
 			}
 			else
@@ -4351,6 +4458,14 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		{
 			user_defaults = true;
 			usr_def_val = def_user_prop[i].get_value();
+			if((TG_strcasecmp(usr_def_val.c_str(),AlrmValueNotSpec) == 0) ||
+					(TG_strcasecmp(usr_def_val.c_str(),NotANumber) == 0) ||
+					(strlen(usr_def_val.c_str()) == 0))
+			{
+				TangoSys_MemStream str;
+				str << (int)(DEFAULT_EVENT_PERIOD);
+				usr_def_val = str.str();
+			}
 		}
 	}
 
@@ -4382,7 +4497,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 			str << conf.event_prop.per_event.period;
 			int tmp_period;
 			if (!(str >> tmp_period && str.eof()))
-				throw_err_format("event_period",dev_name);
+				throw_err_format("event_period",dev_name,"Attribute::upd_database");
 		}
 		DbDatum eventperiod("event_period");
 		eventperiod << tmp;
@@ -4418,6 +4533,14 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		{
 			user_defaults = true;
 			usr_def_val = def_user_prop[i].get_value();
+			if((TG_strcasecmp(usr_def_val.c_str(),AlrmValueNotSpec) == 0) ||
+					(TG_strcasecmp(usr_def_val.c_str(),NotANumber) == 0) ||
+					(strlen(usr_def_val.c_str()) == 0))
+			{
+				TangoSys_MemStream str;
+				str << (int)(INT_MAX);
+				usr_def_val = str.str();
+			}
 		}
 	}
 
@@ -4449,7 +4572,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 			str << conf.event_prop.arch_event.period;
 			int tmp_period;
 			if (!(str >> tmp_period && str.eof()))
-				throw_err_format("archive_period",dev_name);
+				throw_err_format("archive_period",dev_name,"Attribute::upd_database");
 		}
 		DbDatum archeventperiod("archive_period");
 		archeventperiod << tmp;
@@ -4675,6 +4798,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 	{
 		if ((TG_strcasecmp(conf.label,AlrmValueNotSpec) == 0) ||
 				(TG_strcasecmp(conf.label,LabelNotSpec) == 0) ||
+				(TG_strcasecmp(conf.label,name.c_str()) == 0) ||
 				(TG_strcasecmp(conf.label,NotANumber) == 0) ||
 				(strlen(conf.label) == 0))
 		{
@@ -5029,7 +5153,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 		bring_usr_def[1] = true;
 	}
 	else if(!one_param && prop_min == "")
-		throw_event_err_format(prop_name,dev_name);
+		throw_err_format(prop_name,dev_name,"Attribute::validate_change_properties");
 	else if(prop_min == "")
 	{
 		bring_usr_def[0] = true;
@@ -5054,7 +5178,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 			}
 		}
 		else
-			throw_event_err_format(prop_name,dev_name);
+			throw_err_format(prop_name,dev_name,"Attribute::validate_change_properties");
 	}
 
 	if(!one_param)
@@ -5067,7 +5191,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 		else if(TG_strcasecmp(prop_max.c_str(),NotANumber) == 0)
 			bring_usr_def[1] = true;
 		else if(prop_max == "")
-			throw_event_err_format(prop_name,dev_name);
+			throw_err_format(prop_name,dev_name,"Attribute::validate_change_properties");
 		else
 		{
 			str.str("");
@@ -5088,7 +5212,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 				}
 			}
 			else
-				throw_event_err_format(prop_name,dev_name);
+				throw_err_format(prop_name,dev_name,"Attribute::validate_change_properties");
 		}
 	}
 }

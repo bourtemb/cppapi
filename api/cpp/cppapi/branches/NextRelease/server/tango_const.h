@@ -969,6 +969,7 @@ typedef struct _OptAttrProp
  * API_CommandNotAllowed
  * API_CommandNotFound
  * API_CorbaSysException
+ * API_CorruptedDatabase
  * API_DatabaseAccess
  * API_DeviceLocked
  * API_DeviceNotFound
@@ -978,6 +979,7 @@ typedef struct _OptAttrProp
  * API_EventSupplierNotConstructed
  * API_IncoherentDbData
  * API_IncoherentDevData
+ * API_IncoherentValues
  * API_IncompatibleAttrDataType
  * API_IncompatibleCmdArgumentType
  * API_InitMethodNotFound

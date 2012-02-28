@@ -1066,7 +1066,7 @@ void TemplCommand::set_type(const type_info &data_type,Tango::CmdArgType &type)
 		 (data_type == typeid(const Tango::DevVarULongArray *)) ||
 		 (data_type == typeid(Tango::DevVarULongArray *)))
 	{
-		cout4 << "Command : " << name << ", Type is a undigned long array" << endl;
+		cout4 << "Command : " << name << ", Type is a unsigned long array" << endl;
 		type = Tango::DEVVAR_ULONGARRAY;
 	}
 	else if ((data_type == typeid(Tango::DevVarULong64Array)) ||
@@ -1107,7 +1107,7 @@ void TemplCommand::set_type(const type_info &data_type,Tango::CmdArgType &type)
 		cout4 << "Command : " << name << ", Unknown type" << endl;
 		TangoSys_OMemStream o;
 
-		o << "Command " << name << " defined with an unsuported type"  << ends;
+		o << "Command " << name << " defined with an unsupported type"  << ends;
 		Except::throw_exception((const char *)"API_CmdArgumentTypeNotSupported",
 				      o.str(),(const char *)"TemplCommand::set_type");
 	}
