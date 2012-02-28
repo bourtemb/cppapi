@@ -4,13 +4,13 @@ SUBDIRS=helpers .
 INCLUDES = -I$(top_srcdir)/lib/cpp/server \
            -I$(top_srcdir)/lib/cpp/log4tango/include \
 	   	   -I$(top_builddir)/lib/cpp/log4tango/include \
-             $(ORB_INCLUDE_PREFIX)
+             $(ORB_INCLUDE_PREFIX) $(LIBZMQ_CFLAGS)
 
 # We're making a libtool convenience library which is not to be installed,
 # therefore the automake noinst variable
 noinst_LTLIBRARIES = libclient.la
 
-AM_CXXFLAGS=-D_TANGO_LIB
+AM_CXXFLAGS=-D_TANGO_LIB @CPP_ELEVEN@
 
 # These are the sources for the library.
 libclient_la_SOURCES = dbapi_class.cpp     	\
