@@ -44,6 +44,7 @@
 #include <functional>
 #include <time.h>
 #include <iterator>
+#include <attrprop.h>
 
 #ifdef _TG_WINDOWS_
 	#include <sys/types.h>
@@ -85,157 +86,6 @@ struct ranges_const2type
 	}; \
 	string ranges_const2type<Tango::constant>::str = #type;
 
-
-template <typename T>
-class AttrProp
-{
-public:
-	AttrProp() {}
-	AttrProp(T &value) : val(value), is_value(true) {
-		TangoSys_MemStream st;
-		st << value;
-		str = st.str();
-	}
-	AttrProp(const string &value_str) : str(value_str), is_value(false) {}
-	operator string()
-	{
-		return str;
-	}
-	operator const char *()
-	{
-		return str.c_str();
-	}
-	AttrProp & operator=(const T &value)
-	{
-		TangoSys_MemStream st;
-		st << value;
-		str = st.str();
-		val = value;
-		is_value = true;
-		return *this;
-	}
-	AttrProp & operator=(const char *value_str)
-	{
-		str = value_str;
-		is_value = false;
-		return *this;
-	}
-	AttrProp & operator=(const string &value_str)
-	{
-		str = value_str;
-		is_value = false;
-		return *this;
-	}
-	T get_val() {return val;}
-	string &get_str() {return str;}
-	void set_val(T value) {val = value; is_value = true;}
-	void set_str(string &value_str) {val = value_str; is_value = false;}
-	bool is_val() {return is_value;}
-private:
-	T val;
-	string str;
-	bool is_value;
-};
-
-template <typename T>
-struct DoubleAttrProp
-{
-public:
-	DoubleAttrProp() {}
-	DoubleAttrProp(vector<T> &value) : val(value), is_value(true) {
-		TangoSys_MemStream st;
-		for(size_t i = 0; i < value.size(); i++)
-		{
-			if(i > 0)
-				st << ",";
-			st << value[i];
-		}
-		str = st.str();
-	}
-	DoubleAttrProp(T &value) : val(value), is_value(true) {
-		TangoSys_MemStream st;
-		st << value;
-		str = st.str();
-	}
-	DoubleAttrProp(const string &value_str) : str(value_str), is_value(false) {}
-	operator string()
-	{
-		return str;
-	}
-	operator const char *()
-	{
-		return str.c_str();
-	}
-	DoubleAttrProp & operator=(const vector<T> &value)
-	{
-		TangoSys_MemStream st;
-		for(size_t i = 0; i < value.size(); i++)
-		{
-			if(i > 0)
-				st << ",";
-			st << value[i];
-		}
-		str = st.str();
-		val = value;
-		is_value = true;
-		return *this;
-	}
-	DoubleAttrProp & operator=(const T &value)
-	{
-		TangoSys_MemStream st;
-		st << value;
-		str = st.str();
-		val.push_back(value);
-		is_value = true;
-		return *this;
-	}
-	DoubleAttrProp & operator=(const char *value_str)
-	{
-		str = value_str;
-		is_value = false;
-		return *this;
-	}
-	DoubleAttrProp & operator=(const string &value_str)
-	{
-		str = value_str;
-		is_value = false;
-		return *this;
-	}
-	vector<T> get_val() {return val;}
-	string &get_str() {return str;}
-	void set_val(vector<T> value) {val = value; is_value = true; }
-	void set_str(string &value_str) {val = value_str; is_value = false;}
-	bool is_val() {return is_value;}
-private:
-        vector<T> val;
-        string str;
-        bool is_value;
-};
-
-template <typename T>
-struct MultiAttrProp
-{
-		string 					label;
-		string 					description;
-		string 					unit;
-		string 					standard_unit;
-		string 					display_unit;
-		string 					format;
-        struct AttrProp<T>          min_alarm;
-        struct AttrProp<T>          max_alarm;
-        struct AttrProp<T>          min_value;
-        struct AttrProp<T>          max_value;
-        struct AttrProp<T>          min_warning;
-        struct AttrProp<T>          max_warning;
-        struct AttrProp<T>          delta_t;
-        struct AttrProp<T>          delta_val;
-        struct AttrProp<T>          event_period;
-        struct AttrProp<T>          archive_period;
-        struct DoubleAttrProp<T>	rel_change;
-        struct DoubleAttrProp<T>	abs_change;
-        struct DoubleAttrProp<T>	archive_rel_change;
-        struct DoubleAttrProp<T>	archive_abs_change;
-};
 
 //
 // Binary function objects to be used by the find_if algorithm.
@@ -374,7 +224,7 @@ public:
 //@}
 
 /**@name Check attribute methods
- * Miscellaneous method returning boolean flag accorrding to attribute state
+ * Miscellaneous method returning boolean flag according to attribute state
  */
 //@{
 /**
@@ -448,7 +298,7 @@ public:
 //@}
 
 /**@name Get/Set object members.
- * These methods allows the external world to get/set DeviceImpl instance
+ * These methods allow the external world to get/set DeviceImpl instance
  * data members
  */
 //@{
@@ -1990,10 +1840,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_min_alarm(const T &);
+	void set_min_alarm(const T &new_min_alarm);
 
-	void set_min_alarm(char *);
-	void set_min_alarm(const char *);
+	void set_min_alarm(char *new_min_alarm);
+	void set_min_alarm(const char *new_min_alarm);
 
 /**
  * Get attribute minimum alarm or throw an exception if the attribute
@@ -2003,7 +1853,7 @@ public:
  * minimum alarm
  */
 	template <typename T>
-	void get_min_alarm(T &);
+	void get_min_alarm(T &min_al);
 
 /**
  * Set attribute maximum alarm.
@@ -2016,10 +1866,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_max_alarm(const T &);
+	void set_max_alarm(const T &new_max_alarm);
 
-	void set_max_alarm(char *);
-	void set_max_alarm(const char *);
+	void set_max_alarm(char *new_max_alarm);
+	void set_max_alarm(const char *new_max_alarm);
 
 /**
  * Get attribute maximum alarm or throw an exception if the attribute
@@ -2029,7 +1879,7 @@ public:
  * maximum alarm
  */
 	template <typename T>
-	void get_max_alarm(T &);
+	void get_max_alarm(T &max_al);
 
 /**
  * Set attribute minimum warning.
@@ -2042,10 +1892,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_min_warning(const T &);
+	void set_min_warning(const T &new_min_warning);
 
-	void set_min_warning(char *);
-	void set_min_warning(const char *);
+	void set_min_warning(char *new_min_warning);
+	void set_min_warning(const char *new_min_warning);
 
 /**
  * Get attribute minimum warning or throw an exception if the attribute
@@ -2055,7 +1905,7 @@ public:
  * minimum warning
  */
 	template <typename T>
-	void get_min_warning(T &);
+	void get_min_warning(T &min_war);
 
 /**
  * Set attribute maximum warning.
@@ -2068,10 +1918,10 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	template <typename T>
-	void set_max_warning(const T &);
+	void set_max_warning(const T &new_max_warning);
 
-	void set_max_warning(char *);
-	void set_max_warning(const char *);
+	void set_max_warning(char *new_max_warning);
+	void set_max_warning(const char *new_max_warning);
 
 /**
  * Get attribute maximum warning or throw an exception if the attribute
@@ -2081,7 +1931,7 @@ public:
  * maximum warning
  */
 	template <typename T>
-	void get_max_warning(T &);
+	void get_max_warning(T &max_war);
 //@}
 
 
@@ -2322,6 +2172,7 @@ public:
 	void set_properties(const Tango::AttributeConfig_3 &,string &);
 	void upd_database(const Tango::AttributeConfig &,string &);
 	void upd_database(const Tango::AttributeConfig_3 &,string &);
+	void set_upd_properties(const Tango::AttributeConfig_3 &);
 	void set_upd_properties(const Tango::AttributeConfig_3 &,string &);
 
 	bool change_event_subscribed() {if (ext->event_change_subscription != 0)return true;else return false;}
@@ -2364,6 +2215,16 @@ public:
 	friend class DServer;
 
 private:
+	void set_data_size();
+	void throw_min_max_value(string &,string &,MinMaxValueCheck);
+	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
+	void log_quality();
+
+	unsigned long 		name_size;
+	string 				name_lower;
+	DevEncoded			enc_help;
+
+protected:
 
 //
 // The extension class
@@ -2424,23 +2285,8 @@ private:
         bitset<numFlags>    old_alarm;                      // Previous attribute alarm
     };
 
-
-	void set_data_size();
-	void throw_err_format(const char *,string &);
-	void throw_event_err_format(const char *,const string &);
-	void throw_incoherent_val_err(const char *,const char *,const string &);
-	void throw_err_data_type(const char *,string &);
-	void throw_min_max_value(string &,string &,MinMaxValueCheck);
-	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
-	void log_quality();
-
-	unsigned long 		name_size;
-	string 				name_lower;
-	DevEncoded			enc_help;
-
 	AttributeExt		*ext;
 
-protected:
 	virtual void init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name);
 	virtual void init_event_prop(vector<AttrProperty> &prop_list,const string &dev_name,Attr &att);
 	string &get_attr_value(vector<AttrProperty> &prop_list,const char *name);
@@ -2454,6 +2300,9 @@ protected:
     void check_hard_coded_properties(const T &);
 
     void throw_hard_coded_prop(const char *);
+	void throw_err_format(const char *,const string &,const char *);
+	void throw_incoherent_val_err(const char *,const char *,const string &,const char *);
+	void throw_err_data_type(const char *,string &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &);
 
@@ -2499,6 +2348,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 		string s = B.str(); \
 		A = CORBA::string_dup(s.c_str()); \
 		B.str(""); \
+		B.clear(); \
 	} \
 	else \
 		(void)0
@@ -2581,47 +2431,47 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				{ \
 				case Tango::DEV_SHORT: \
 					if (!(B >> sh && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_LONG: \
 					if (!(B >> lg && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break;\
 \
 				case Tango::DEV_LONG64: \
 					if (!(B >> lg64 && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break;\
 \
 				case Tango::DEV_DOUBLE: \
 					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_FLOAT: \
 					if (!(B >> fl && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_USHORT: \
 					if (!(B >> ush && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_UCHAR: \
 					if (!(B >> sh && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_ULONG: \
 					if (!(B >> ulg && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 \
 				case Tango::DEV_ULONG64: \
 					if (!(B >> ulg64 && B.eof())) \
-						throw_err_format(H,C); \
+						throw_err_format(H,C,"Attribute::upd_database"); \
 					break; \
 				} \
 			} \

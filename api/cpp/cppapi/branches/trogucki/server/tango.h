@@ -126,6 +126,7 @@
 	#include <command.h>
 	#include <dserver.h>
 	#include <attribute.tpp>
+	#include <w_attribute.tpp>
 #endif
 
 #include <event.h>

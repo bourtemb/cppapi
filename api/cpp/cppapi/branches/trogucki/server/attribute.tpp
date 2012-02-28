@@ -146,7 +146,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_min_alarm()");
@@ -161,11 +161,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 		T max_alarm_tmp;
 		memcpy((void *) &max_alarm_tmp, (const void *) &max_alarm, sizeof(T));
 		if(new_min_alarm >= max_alarm_tmp)
-		{
-			Except::throw_exception((const char *)"API_IncoherentValue",
-						  (const char *)"Value of min_alarm is grater than or equal to max_alarm",
-						  (const char *)"Attribute::set_min_alarm()");
-		}
+			throw_incoherent_val_err("min_alarm","max_alarm",ext->d_name,"Attribute::set_min_alarm");
 	}
 
 //
@@ -269,7 +265,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 	alarm_conf.set(min_level);
 
 //
-// Store new value as a string
+// Store new alarm as a string
 //
 
 	min_alarm_str = min_alarm_tmp_str;
@@ -414,61 +410,61 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm(sh);
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm((DevLong)db);
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm((DevLong64)db);
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm(db);
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> fl && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm(fl);
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> ush && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm(ush);
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm((unsigned char)sh);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("min_alarm",dev_name);
+					throw_err_format("min_alarm",dev_name,"Attribute::set_min_alarm");
 				set_min_alarm((unsigned char)sh);
 				break;
 			}
@@ -498,7 +494,7 @@ void Attribute::get_min_alarm(T &min_al)
 {
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_min_alarm()");
@@ -536,7 +532,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_alarm()");
@@ -551,11 +547,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 		T min_alarm_tmp;
 		memcpy((void *) &min_alarm_tmp, (const void *) &min_alarm, sizeof(T));
 		if(new_max_alarm <= min_alarm_tmp)
-		{
-			Except::throw_exception((const char *)"API_IncoherentValue",
-						  (const char *)"Value of max_alarm is lower than or equal to min_alarm",
-						  (const char *)"Attribute::set_max_alarm()");
-		}
+			throw_incoherent_val_err("min_alarm","max_alarm",ext->d_name,"Attribute::set_max_alarm");
 	}
 
 //
@@ -659,7 +651,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 	alarm_conf.set(max_level);
 
 //
-// Store new value as a string
+// Store new alarm as a string
 //
 
 	max_alarm_str = max_alarm_tmp_str;
@@ -804,61 +796,61 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm(sh);
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm((DevLong)db);
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm((DevLong64)db);
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm(db);
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> fl && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm(fl);
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> ush && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm(ush);
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm((unsigned char)sh);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("max_alarm",dev_name);
+					throw_err_format("max_alarm",dev_name,"Attribute::set_max_alarm");
 				set_max_alarm((unsigned char)sh);
 				break;
 			}
@@ -888,7 +880,7 @@ void Attribute::get_max_alarm(T &max_al)
 {
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_max_alarm()");
@@ -926,7 +918,7 @@ void Attribute::set_min_warning(const T &new_min_warning)
 
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 				      (const char *)err_msg.c_str(),
 				      (const char *)"Attribute::set_min_warning()");
@@ -941,11 +933,7 @@ void Attribute::set_min_warning(const T &new_min_warning)
 		T max_warning_tmp;
 		memcpy((void *) &max_warning_tmp, (const void *) &max_warning, sizeof(T));
 		if(new_min_warning >= max_warning_tmp)
-		{
-			Except::throw_exception((const char *)"API_IncoherentValue",
-						  (const char *)"Value of min_warning is grater than or equal to max_warning",
-						  (const char *)"Attribute::set_min_warning()");
-		}
+			throw_incoherent_val_err("min_warning","max_warning",ext->d_name,"Attribute::set_min_warning");
 	}
 
 //
@@ -1049,7 +1037,7 @@ void Attribute::set_min_warning(const T &new_min_warning)
 	alarm_conf.set(min_warn);
 
 //
-// Store new value as a string
+// Store new warning as a string
 //
 
 	min_warning_str = min_warning_tmp_str;
@@ -1194,61 +1182,61 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning(sh);
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning((DevLong)db);
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning((DevLong64)db);
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning(db);
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> fl && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning(fl);
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> ush && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning(ush);
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning((unsigned char)sh);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("min_warning",dev_name);
+					throw_err_format("min_warning",dev_name,"Attribute::set_min_warning");
 				set_min_warning((unsigned char)sh);
 				break;
 			}
@@ -1278,7 +1266,7 @@ void Attribute::get_min_warning(T &min_war)
 {
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_min_warning()");
@@ -1316,7 +1304,7 @@ void Attribute::set_max_warning(const T &new_max_warning)
 
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_warning()");
@@ -1331,11 +1319,7 @@ void Attribute::set_max_warning(const T &new_max_warning)
 		T min_warning_tmp;
 		memcpy((void *) &min_warning_tmp, (const void *) &min_warning, sizeof(T));
 		if(new_max_warning <= min_warning_tmp)
-		{
-			Except::throw_exception((const char *)"API_IncoherentValue",
-						  (const char *)"Value of max_warning is lower than or equal to min_warning",
-						  (const char *)"Attribute::set_max_warning()");
-		}
+			throw_incoherent_val_err("min_warning","max_warning",ext->d_name,"Attribute::set_max_warning");
 	}
 
 //
@@ -1439,7 +1423,7 @@ void Attribute::set_max_warning(const T &new_max_warning)
 	alarm_conf.set(max_warn);
 
 //
-// Store new value as a string
+// Store new warning as a string
 //
 
 	max_warning_str = max_warning_tmp_str;
@@ -1584,61 +1568,61 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning(sh);
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning((DevLong)db);
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning((DevLong64)db);
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning(db);
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> fl && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning(fl);
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> ush && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning(ush);
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning((unsigned char)sh);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> sh && str.eof()))
-					throw_err_format("max_warning",dev_name);
+					throw_err_format("max_warning",dev_name,"Attribute::set_max_warning");
 				set_max_warning((unsigned char)sh);
 				break;
 			}
@@ -1668,7 +1652,7 @@ void Attribute::get_max_warning(T &max_war)
 {
 	if (data_type != ranges_type2const<T>::enu)
 	{
-		string err_msg = "Incompatible attribute type, expected type is : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_max_warning()");
@@ -1688,6 +1672,14 @@ void Attribute::get_max_warning(T &max_war)
 template <typename T>
 void Attribute::get_properties(Tango::MultiAttrProp<T> &props)
 {
+
+//
+// Get the monitor protecting device att config
+//
+
+	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
+	AutoTangoMonitor sync1(&mon1);
+
 	AttributeConfig_3 conf;
 	get_properties_3(conf);
 

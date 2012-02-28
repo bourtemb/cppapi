@@ -979,7 +979,7 @@ typedef struct _OptAttrProp
  * API_EventSupplierNotConstructed
  * API_IncoherentDbData
  * API_IncoherentDevData
- * API_IncoherentValue
+ * API_IncoherentValues
  * API_IncompatibleAttrDataType
  * API_IncompatibleCmdArgumentType
  * API_InitMethodNotFound
