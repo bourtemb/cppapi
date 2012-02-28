@@ -264,7 +264,7 @@ private:
  */
 
 template <typename T>
-struct DoubleAttrProp
+class DoubleAttrProp
 {
 public:
 /**@name Constructors
@@ -550,59 +550,59 @@ public:
 /**
  * Attribute min_value
  */
-        struct AttrProp<T>          min_value;
+        AttrProp<T>                 min_value;
 /**
  * Attribute max_value
  */
-        struct AttrProp<T>          max_value;
+        AttrProp<T>                 max_value;
 /**
  * Attribute min_alarm
  */
-        struct AttrProp<T>          min_alarm;
+        AttrProp<T>                 min_alarm;
 /**
  * Attribute max_alarm
  */
-        struct AttrProp<T>          max_alarm;
+        AttrProp<T>                 max_alarm;
 /**
  * Attribute min_warning
  */
-        struct AttrProp<T>          min_warning;
+        AttrProp<T>                 min_warning;
 /**
  * Attribute max_warning
  */
-        struct AttrProp<T>          max_warning;
+        AttrProp<T>                 max_warning;
 /**
  * Attribute delta_t
  */
-        struct AttrProp<T>          delta_t;
+        AttrProp<T>                 delta_t;
 /**
  * Attribute delta_val
  */
-        struct AttrProp<T>          delta_val;
+        AttrProp<T>                 delta_val;
 /**
  * Attribute event_period
  */
-        struct AttrProp<T>          event_period;
+        AttrProp<T>                 event_period;
 /**
  * Attribute archive_period
  */
-        struct AttrProp<T>          archive_period;
+        AttrProp<T>                 archive_period;
 /**
  * Attribute rel_change
  */
-        struct DoubleAttrProp<T>	rel_change;
+        DoubleAttrProp<T>	        rel_change;
 /**
  * Attribute abs_change
  */
-        struct DoubleAttrProp<T>	abs_change;
+        DoubleAttrProp<T>	        abs_change;
 /**
  * Attribute archive_rel_change
  */
-        struct DoubleAttrProp<T>	archive_rel_change;
+        DoubleAttrProp<T>	        archive_rel_change;
 /**
  * Attribute archive_abs_change
  */
-        struct DoubleAttrProp<T>	archive_abs_change;
+        DoubleAttrProp<T>	        archive_abs_change;
 //@}
 private:
 
