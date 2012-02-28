@@ -38,6 +38,7 @@ libtango_la_SOURCES = tangoSK.cpp 		\
 		      command.cpp 				\
 			  coutappender.cpp 			\
 		      dev_event.cpp				\
+		      dev_poll.cpp              \
 		      device.cpp 				\
 		      device_2.cpp 				\
 		      device_3.cpp 				\
