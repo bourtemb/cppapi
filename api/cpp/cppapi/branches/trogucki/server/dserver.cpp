@@ -1532,8 +1532,8 @@ void DServer::get_event_prop(Tango::Util *tg)
 		db_data.push_back(DbDatum("MulticastHops"));
 		db_data.push_back(DbDatum("MulticastRate"));
 		db_data.push_back(DbDatum("MulticastIvl"));
-		db_data.push_back(DbDatum("PublisherHwm"));
-		db_data.push_back(DbDatum("SubscriberHwm"));
+		db_data.push_back(DbDatum("DSEventBufferHwm"));
+		db_data.push_back(DbDatum("EventBufferHwm"));
 
 		try
 		{

@@ -92,10 +92,10 @@ void Util::fill_attr_polling_buffer(DeviceImpl *dev,
 // If the attribute is not READ_WRITE, the ptr to written part should always be NULL
 //
 
-    unsigned long nb_elt = data.length();
+    size_t nb_elt = data.length();
     if (w_type != READ_WRITE)
     {
-        for (int i = 0;i < nb_elt;i++)
+        for (size_t i = 0;i < nb_elt;i++)
         {
             if ((data.get_data())[i].wr_ptr != NULL)
             {
@@ -137,7 +137,7 @@ void Util::fill_attr_polling_buffer(DeviceImpl *dev,
         (att.get_data_format() != Tango::SCALAR) &&
         (w_type == Tango::READ_WRITE))
     {
-        for (int i = 0;i < nb_elt;i++)
+        for (size_t i = 0;i < nb_elt;i++)
         {
             if ((data.get_data())[i].wr_ptr != NULL)
             {
@@ -458,10 +458,10 @@ void Util::fill_cmd_polling_buffer(DeviceImpl *dev,
 // Check that history is not larger than polling buffer
 //
 
-    long nb_elt = data.length();
+    size_t nb_elt = data.length();
     long nb_poll = dev->get_cmd_poll_ring_depth(cmd_name);
 
-    if (nb_elt > nb_poll)
+    if (nb_elt > (size_t)nb_poll)
     {
         TangoSys_OMemStream o;
         o << "The polling buffer depth for command " << cmd_name;
@@ -485,7 +485,7 @@ void Util::fill_cmd_polling_buffer(DeviceImpl *dev,
 // A loop on each record
 //
 
-    long i;
+    size_t i;
     Tango::DevFailed *save_except;
     bool cmd_failed;
     CORBA::Any *any_ptr;

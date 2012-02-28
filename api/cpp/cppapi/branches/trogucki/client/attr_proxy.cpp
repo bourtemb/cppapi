@@ -1327,6 +1327,11 @@ int AttributeProxy::subscribe_event (EventType event, CallBack *callback,
 	return subscribe_event (event, callback, filters, false);
 }
 
+int AttributeProxy::subscribe_event (EventType event, CallBack *callback)
+{
+    vector<string> filters;
+	return subscribe_event (event, callback, filters, false);
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -1370,6 +1375,12 @@ int AttributeProxy::subscribe_event (EventType event, CallBack *callback,
 	return ret;
 }
 
+int AttributeProxy::subscribe_event (EventType event, CallBack *callback,bool stateless)
+{
+    vector<string> vs;
+    return subscribe_event(event,callback,vs,stateless);
+}
+
 //-----------------------------------------------------------------------------
 //
 // AttributeProxy::subscribe_event - Subscribe to an event with an event queue
@@ -1409,6 +1420,10 @@ int AttributeProxy::subscribe_event (EventType event, int event_queue_size,
 	return ret;
 }
 
-
+int AttributeProxy::subscribe_event (EventType event, int event_queue_size,bool stateless)
+{
+    vector<string> vs;
+    return subscribe_event(event,event_queue_size,vs,stateless);
+}
 
 } // End of Tango namespace

@@ -831,6 +831,21 @@ int Connection::get_env_var_from_file(string &f_name,const char *env_var,string 
 
 void Connection::get_fqdn(string &the_host)
 {
+
+//
+// If the host name we received is the name of the host we are running on,
+// set a flag
+//
+
+    char buffer[80];
+    bool local_host = false;
+
+	if (gethostname(buffer,80) == 0)
+	{
+        if (::strcmp(buffer,the_host.c_str()) == 0)
+            local_host = true;
+	}
+
   	struct addrinfo hints;
 
 	memset(&hints,0,sizeof(struct addrinfo));
@@ -842,32 +857,55 @@ void Connection::get_fqdn(string &the_host)
   	struct addrinfo	*info;
 	struct addrinfo *ptr;
 	char tmp_host[512];
+    bool host_found = false;
+    vector<string> ip_list;
 
-  	int result = getaddrinfo(the_host.c_str(),NULL,&hints,&info);
+//
+// If we are running on local host, get IP address(es) from NIC board
+//
 
-  	if (result == 0)
-	{
-		ptr = info;
-		while (ptr != NULL)
-		{
-    		if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,512,0,0,0) == 0)
-			{
-				string myhost(tmp_host);
-				string::size_type pos = myhost.find('.');
-				if (pos != string::npos)
-				{
-					string canon = myhost.substr(0,pos);
-					if (canon == the_host)
-					{
-						the_host = myhost;
-						break;
-					}
-				}
-    		}
-			ptr = ptr->ai_next;
-		}
-		freeaddrinfo(info);
-	}
+    if (local_host == true)
+    {
+        ApiUtil *au = ApiUtil::instance();
+        au->get_ip_from_if(ip_list);
+        hints.ai_flags |= AI_NUMERICHOST;
+    }
+    else
+        ip_list.push_back(the_host);
+
+//
+// Try to get FQDN
+//
+
+    for(size_t i = 0; i < ip_list.size() && !host_found; i++)
+    {
+        int result = getaddrinfo(ip_list[i].c_str(),NULL,&hints,&info);
+
+        if (result == 0)
+        {
+            ptr = info;
+            while (ptr != NULL)
+            {
+                if (getnameinfo(ptr->ai_addr,ptr->ai_addrlen,tmp_host,512,0,0,0) == 0)
+                {
+                    string myhost(tmp_host);
+                    string::size_type pos = myhost.find('.');
+                    if (pos != string::npos)
+                    {
+                        string canon = myhost.substr(0,pos);
+                        if (canon == the_host)
+                        {
+                            the_host = myhost;
+                            host_found = true;
+                            break;
+                        }
+                    }
+                }
+                ptr = ptr->ai_next;
+            }
+            freeaddrinfo(info);
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------

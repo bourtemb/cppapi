@@ -65,7 +65,7 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 
 	string tango_host_env_var;
 	int ret;
-	filedb = 0;
+	filedb = Tango_NullPtr;
 	serv_version = 0;
 
 	ret = get_env_var(EnvVariable,tango_host_env_var);
@@ -99,7 +99,7 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 // get host and port from environment variable TANGO_HOST
 //
 	char *tango_host_env_c_str;
-	filedb = 0;
+	filedb = Tango_NullPtr;
 	serv_version = 0;
 
 	if (get_tango_host_from_reg(&tango_host_env_c_str,ds_exec_name,ds_inst_name) == -1)
@@ -142,7 +142,7 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 
 void Database::check_tango_host(const char *tango_host_env_c_str)
 {
-	filedb = 0;
+	filedb = Tango_NullPtr;
 	string tango_host_env(tango_host_env_c_str);
 	string::size_type separator;
 
@@ -298,7 +298,7 @@ Database::Database(string &in_host, int in_port, ORB *orb_in) : Connection(orb_i
 ext(new DatabaseExt),
 access_proxy(NULL),access_checked(false),access_service_defined(false)
 {
-	filedb = 0;
+	filedb = Tango_NullPtr;
 	serv_version = 0;
 	db_multi_svc = false;
 
@@ -335,6 +335,129 @@ access_proxy(NULL),access_checked(false),access_service_defined(false)
 
 	check_acc = false;
 }
+
+//-----------------------------------------------------------------------------
+//
+// Database::Database() - copy constructor
+//
+//-----------------------------------------------------------------------------
+
+Database::Database(const Database &sou):Connection(sou),ext(Tango_NullPtr)
+{
+
+//
+// Copy Databaase members
+//
+
+	db_multi_svc = sou.db_multi_svc;
+	multi_db_port = sou.multi_db_port;
+	multi_db_host = sou.multi_db_host;
+	file_name = sou.file_name;
+	if (sou.filedb == Tango_NullPtr)
+        filedb = Tango_NullPtr;
+    else
+        filedb = new FileDatabase(file_name);
+	serv_version = sou.serv_version;
+
+    if (sou.access_proxy == Tango_NullPtr)
+        access_proxy = Tango_NullPtr;
+    else
+        access_proxy = new AccessProxy(sou.access_proxy->name().c_str());
+	access_checked = sou.access_checked;
+	access_except_errors = sou.access_except_errors;
+
+	dev_class_cache = sou.dev_class_cache;
+	db_device_name = sou.db_device_name;
+
+	access_service_defined = sou.access_service_defined;
+
+//
+// Copy extension class
+//
+
+#ifdef HAS_UNIQUE_PTR
+    if (sou.ext.get() != NULL)
+    {
+        ext.reset(new DatabaseExt);
+        ext->db_tg = sou.ext->db_tg;
+    }
+#else
+	if (sou.ext == NULL)
+		ext = NULL;
+	else
+	{
+		ext = new DatabaseExt();
+		ext->db_tg = sou.ext->db_tg;
+	}
+#endif
+
+}
+
+//-----------------------------------------------------------------------------
+//
+// Database::Database() - assignement operator
+//
+//-----------------------------------------------------------------------------
+
+Database &Database::operator=(const Database &rval)
+{
+
+    if (this != &rval)
+    {
+        this->Connection::operator=(rval);
+
+//
+// Now Database members
+//
+
+        db_multi_svc = rval.db_multi_svc;
+        multi_db_port = rval.multi_db_port;
+        multi_db_host = rval.multi_db_host;
+        file_name = rval.file_name;
+        serv_version = rval.serv_version;
+
+        delete filedb;
+        if (rval.filedb == Tango_NullPtr)
+            filedb = Tango_NullPtr;
+        else
+            filedb = new FileDatabase(file_name);
+
+        delete access_proxy;
+        if (rval.access_proxy == Tango_NullPtr)
+            access_proxy = Tango_NullPtr;
+        else
+            access_proxy = new AccessProxy(rval.access_proxy->name().c_str());
+        access_checked = rval.access_checked;
+        access_except_errors = rval.access_except_errors;
+
+        dev_class_cache = rval.dev_class_cache;
+        db_device_name = rval.db_device_name;
+
+        access_service_defined = rval.access_service_defined;
+
+#ifdef HAS_UNIQUE_PTR
+        if (rval.ext.get() != NULL)
+        {
+            ext.reset(new DatabaseExt);
+            ext->db_tg = rval.ext->db_tg;
+        }
+        else
+            ext.reset();
+#else
+        delete ext;
+        if (rval.ext != NULL)
+        {
+            ext = new DatabaseExt;
+            ext->db_tg = rval.ext->db_tg;
+        }
+        else
+            ext = NULL;
+#endif
+    }
+
+	return *this;
+}
+
 
 //-----------------------------------------------------------------------------
 //
@@ -1146,7 +1269,7 @@ void Database::put_device_property(string dev, DbData &db_data)
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
 
-		for (int j=0; j<db_data[i].size(); j++)
+		for (size_t j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
 			(*property_values)[index-1] = string_dup(db_data[i].value_string[j].c_str());
@@ -1695,7 +1818,7 @@ void Database::put_class_property(string device_class, DbData &db_data)
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
 
-		for (int j=0; j<db_data[i].size(); j++)
+		for (size_t j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
 			(*property_values)[index-1] = string_dup(db_data[i].value_string[j].c_str());
@@ -2487,7 +2610,7 @@ void Database::put_property(string obj, DbData &db_data)
 		string st = ostream.str();
 		(*property_values)[index-1] = string_dup(st.c_str());
 
-		for (int j=0; j<db_data[i].size(); j++)
+		for (size_t j=0; j<db_data[i].size(); j++)
 		{
 			index++; property_values->length(index);
 			(*property_values)[index-1] = string_dup(db_data[i].value_string[j].c_str());

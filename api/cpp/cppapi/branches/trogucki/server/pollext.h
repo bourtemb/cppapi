@@ -199,7 +199,7 @@ public:
  * @param p_data Pointer to the attribute value
  * @param when The date
  */
-	TimedAttrData(const T *p_data,time_t when): AttrData<T>(p_data) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(const T *p_data,time_t when): AttrData<T>(p_data) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -211,7 +211,7 @@ public:
  * @param p_wr_data Pointer to the written part of the attribute value
  * @param when The date
  */
-	TimedAttrData(const T *p_data,const T *p_wr_data,time_t when): AttrData<T>(p_data,p_wr_data) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(const T *p_data,const T *p_wr_data,time_t when): AttrData<T>(p_data,p_wr_data) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -222,7 +222,7 @@ public:
  * @param qual The attribute quality factor
  * @param when The date
  */
-	TimedAttrData(const T *p_data,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,qual) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(const T *p_data,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,qual) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -234,7 +234,7 @@ public:
  * @param qual The attribute quality factor
  * @param when The date
  */
-	TimedAttrData(const T *p_data,const T *p_wr_data,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,p_wr_data,qual) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(const T *p_data,const T *p_wr_data,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,p_wr_data,qual) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -245,7 +245,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,Tango::AttrQuality qual,bool rel,time_t when): AttrData<T>(p_data,qual,rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -257,7 +257,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,const T *p_wr_data,Tango::AttrQuality qual,bool rel,time_t when): AttrData<T>(p_data,p_wr_data,qual,rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -347,7 +347,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,time_t when): AttrData<T>(p_data,x)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -362,7 +362,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,const T *p_wr_data,long x_wr,time_t when): AttrData<T>(p_data,x,p_wr_data,x_wr)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -375,7 +375,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,x,qual)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -390,7 +390,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,const T *p_wr_data,long x_wr,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,x,p_wr_data,x_wr,qual)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -402,7 +402,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,Tango::AttrQuality qual,bool rel,time_t when): AttrData<T>(p_data,x,qual,rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -416,7 +416,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,const T *p_wr_data,long x_wr,Tango::AttrQuality qual,bool rel,time_t when): AttrData<T>(p_data,x,p_wr_data,x_wr,qual,rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -515,7 +515,7 @@ public:
  * @param y The attribute y length
  * @param when The date
  */
-	TimedAttrData(const T *p_data,long x,long y,time_t when): AttrData<T>(p_data,x,y) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(const T *p_data,long x,long y,time_t when): AttrData<T>(p_data,x,y) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -531,7 +531,7 @@ public:
  * @param y_wr The attribute written part y length
  * @param when The date
  */
-	TimedAttrData(const T *p_data,long x,long y,const T *p_wr_data,long x_wr,long y_wr,time_t when): AttrData<T>(p_data,x,y,p_wr_data,x_wr,y_wr) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(const T *p_data,long x,long y,const T *p_wr_data,long x_wr,long y_wr,time_t when): AttrData<T>(p_data,x,y,p_wr_data,x_wr,y_wr) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -545,7 +545,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,long y,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,x,y,qual)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -562,7 +562,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,long y,const T *p_wr_data,long x_wr,long y_wr,Tango::AttrQuality qual,time_t when): AttrData<T>(p_data,x,y,p_wr_data,x_wr,y_wr,qual)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -575,7 +575,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,long y,Tango::AttrQuality qual,bool rel,time_t when): AttrData<T>(p_data,x,y,qual,rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for a R/W attribute.
@@ -591,7 +591,7 @@ public:
  * @param when The date
  */
 	TimedAttrData(const T *p_data,long x,long y,const T *p_wr_data,long x_wr,long y_wr,Tango::AttrQuality qual,bool rel,time_t when): AttrData<T>(p_data,x,y,p_wr_data,x_wr,y_wr,qual,rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object.
@@ -698,7 +698,7 @@ public:
  * @param errs The error stack
  * @param when The date
  */
-	TimedAttrData(DevErrorList &errs,time_t when): AttrData<T>(errs) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedAttrData(DevErrorList &errs,time_t when): AttrData<T>(errs) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedAttrData object for errors.
@@ -790,7 +790,7 @@ public:
  *
  * @return The stack depth
  */
-	unsigned long length() {return hist.size();}
+	size_t length() {return hist.size();}
 
 /**
  * Reserve memory for stack elements
@@ -863,7 +863,7 @@ public:
  * @param p_data Pointer to the command result data
  * @param when The date
  */
-	TimedCmdData(T *p_data,time_t when): ptr(p_data),release(false) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedCmdData(T *p_data,time_t when): ptr(p_data),release(false) {t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedCmdData object with memory management.
@@ -874,7 +874,7 @@ public:
  */
 
 	TimedCmdData(T *p_data,bool rel,time_t when): ptr(p_data),release(rel)
-	{t_val.tv_sec = when;t_val.tv_usec = 0;}
+	{t_val.tv_sec = time_t_2_long(when);t_val.tv_usec = 0;}
 
 /**
  * Create a new TimedCmdData object.
@@ -968,7 +968,7 @@ public:
  *
  * @return The stack depth
  */
-	unsigned long length() {return hist.size();}
+	size_t length() {return hist.size();}
 
 /**
  * Reserve memory for stack elements

@@ -123,6 +123,9 @@ public :
 	Database(string &host, int port, CORBA::ORB *orb=NULL);
 	Database(string &file);
 
+	Database(const Database &);
+	Database & operator=(const Database &);
+
 	void write_filedatabase();
 	void reread_filedatabase();
 	void write_event_channel_ior_filedatabase(string &);
@@ -553,7 +556,7 @@ public :
 	DbDatum(const DbDatum &);
 	DbDatum &operator=(const DbDatum &);
 
-	int size() {return value_string.size();}
+	size_t size() {return value_string.size();}
 	bool is_empty();
 
 	void exceptions(bitset<numFlags> fl) { exceptions_flags = fl;}
