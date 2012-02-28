@@ -72,7 +72,7 @@ public :
 	TANGO_IMP_EXP static DServerSignal *instance();
 	~DServerSignal() {};
 
-#if (defined __linux)
+#if (defined __GLIBC__)
 	void register_class_signal(long, bool, DeviceClass *);
 	void register_dev_signal(long, bool, DeviceImpl *);
 
@@ -151,7 +151,7 @@ private:
 	}
 #endif
 
-#if (defined __linux || defined __darwin__ || defined __freebsd__)
+#if (defined __GLIBC__ || defined __darwin__ || defined __freebsd__)
 	static inline bool auth_signal(TANGO_UNUSED(long s)) {return true;}
 #endif
 
