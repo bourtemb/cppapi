@@ -320,7 +320,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 			if (Tango::Util::_UseDb == true)
 			{
 				DbDatum attr_dd(name), prop_dd("min_alarm");
-				attr_dd << 1;
+				attr_dd << 1L;
 				prop_dd << AlrmValueNotSpec;
 				DbData db_data;
 				db_data.push_back(attr_dd);
@@ -706,7 +706,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 			if (Tango::Util::_UseDb == true)
 			{
 				DbDatum attr_dd(name), prop_dd("max_alarm");
-				attr_dd << 1;
+				attr_dd << 1L;
 				prop_dd << AlrmValueNotSpec;
 				DbData db_data;
 				db_data.push_back(attr_dd);
@@ -1092,7 +1092,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 			if (Tango::Util::_UseDb == true)
 			{
 				DbDatum attr_dd(name), prop_dd("min_warning");
-				attr_dd << 1;
+				attr_dd << 1L;
 				prop_dd << AlrmValueNotSpec;
 				DbData db_data;
 				db_data.push_back(attr_dd);
@@ -1478,7 +1478,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 			if (Tango::Util::_UseDb == true)
 			{
 				DbDatum attr_dd(name), prop_dd("max_warning");
-				attr_dd << 1;
+				attr_dd << 1L;
 				prop_dd << AlrmValueNotSpec;
 				DbData db_data;
 				db_data.push_back(attr_dd);

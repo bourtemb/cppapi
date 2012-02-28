@@ -234,7 +234,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			if (Tango::Util::_UseDb == true)
 			{
 				DbDatum attr_dd(name), prop_dd("min_value");
-				attr_dd << 1;
+				attr_dd << 1L;
 				prop_dd << AlrmValueNotSpec;
 				DbData db_data;
 				db_data.push_back(attr_dd);
@@ -620,7 +620,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			if (Tango::Util::_UseDb == true)
 			{
 				DbDatum attr_dd(name), prop_dd("max_value");
-				attr_dd << 1;
+				attr_dd << 1L;
 				prop_dd << AlrmValueNotSpec;
 				DbData db_data;
 				db_data.push_back(attr_dd);
