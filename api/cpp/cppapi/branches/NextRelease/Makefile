@@ -312,6 +312,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			attribute.h \
             attribute.tpp \
 			attrmanip.h \
+			attrprop.h \
 			auto_tango_monitor.h \
 			basiccommand.h \
 			blackbox.h \
@@ -352,6 +353,7 @@ SERVER_INCLUDE =	attrdesc.h \
 			utils.tpp \
 			w32win.h \
 			w_attribute.h \
+			w_attribute.tpp \
 			subdev_diag.h \
 			encoded_attribute.h \
 			encoded_format.h
