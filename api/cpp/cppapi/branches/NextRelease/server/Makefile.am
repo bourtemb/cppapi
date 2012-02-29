@@ -80,6 +80,7 @@ tangoincludedir = $(includedir)/tango
 tangoinclude_HEADERS = attrdesc.h		\
 		  		  attribute.h		\
 		  		  attrmanip.h		\
+		  		  attrprop.h        \
 		  		  auto_tango_monitor.h \
 		  		  basiccommand.h	\
 		  		  blackbox.h		\
@@ -123,8 +124,9 @@ tangoinclude_HEADERS = attrdesc.h		\
 		  		  tangorollingfileappender.h \
 		  		  utils.h 			\
 		  		  w_attribute.h		\
-				  attribute.tpp		\
-				  utils.tpp
+				  attribute.tpp     \
+				  utils.tpp         \
+				  w_attribute.tpp
 
 
 
