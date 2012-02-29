@@ -1728,7 +1728,7 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 		if (ext->rel_change[0] == INT_MAX)
 			str << AlrmValueNotSpec << ",";
 		else
-			str << -fabs(ext->rel_change[0]) << ",";
+			str << fabs(ext->rel_change[0]) << ",";
 
 		if (ext->rel_change[1] == INT_MAX)
 			str << AlrmValueNotSpec;
@@ -1753,7 +1753,7 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 		if (ext->abs_change[0] == INT_MAX)
 			str << AlrmValueNotSpec << ",";
 		else
-			str << -fabs(ext->abs_change[0]) << ",";
+			str << fabs(ext->abs_change[0]) << ",";
 
 		if (ext->abs_change[1] == INT_MAX)
 			str << AlrmValueNotSpec;
@@ -1791,7 +1791,7 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 		if (ext->archive_rel_change[0] == INT_MAX)
 			str << AlrmValueNotSpec << ",";
 		else
-			str << -fabs(ext->archive_rel_change[0]) << ",";
+			str << fabs(ext->archive_rel_change[0]) << ",";
 
 		if (ext->archive_rel_change[1] == INT_MAX)
 			str << AlrmValueNotSpec;
@@ -1816,7 +1816,7 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 		if (ext->archive_abs_change[0] == INT_MAX)
 			str << AlrmValueNotSpec << ",";
 		else
-			str << -fabs(ext->archive_abs_change[0]) << ",";
+			str << fabs(ext->archive_abs_change[0]) << ",";
 
 		if (ext->archive_abs_change[1] == INT_MAX)
 			str << AlrmValueNotSpec;
