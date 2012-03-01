@@ -2006,6 +2006,7 @@ DeviceImpl *Util::find_device_name_core(string &dev_name)
 	{
 		vector<DeviceImpl *> &dev_list = get_device_list_by_class(tmp_cl_list[i]->get_name());
 		nb_dev = dev_list.size();
+
 		for (j = 0;j < nb_dev;j++)
 		{
 			string name(dev_list[j]->get_name());
