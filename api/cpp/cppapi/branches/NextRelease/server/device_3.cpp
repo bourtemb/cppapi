@@ -1222,6 +1222,46 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 		}
 
 //
+// In some cases where data from polling are required by a DS for devices marked as
+// polled but for which the polling is not sarted yet, polled_attr could be NULL at the
+// end of this loop. Return "No data yet" in this case
+//
+
+        if (polled_attr == NULL)
+        {
+			TangoSys_OMemStream o;
+			o << "No data available in cache for attribute " << names[i] << ends;
+
+			if (back != NULL)
+			{
+				(*back)[i].err_list.length(1);
+				(*back)[i].err_list[0].severity = Tango::ERR;
+				(*back)[i].err_list[0].reason = CORBA::string_dup("API_NoDataYet");
+				(*back)[i].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
+
+				string s = o.str();
+				(*back)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
+				(*back)[i].quality = Tango::ATTR_INVALID;
+				(*back)[i].name = CORBA::string_dup(names[i]);
+				clear_att_dim((*back)[i]);
+			}
+			else
+			{
+				(*back4)[i].err_list.length(1);
+				(*back4)[i].err_list[0].severity = Tango::ERR;
+				(*back4)[i].err_list[0].reason = CORBA::string_dup("API_NoDataYet");
+				(*back4)[i].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
+
+				string s = o.str();
+				(*back4)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
+				(*back4)[i].quality = Tango::ATTR_INVALID;
+				(*back4)[i].name = CORBA::string_dup(names[i]);
+				clear_att_dim((*back4)[i]);
+			}
+			continue;
+        }
+
+//
 // Check that some data is available in cache
 //
 
