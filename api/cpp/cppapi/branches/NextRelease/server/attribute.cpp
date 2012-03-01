@@ -239,39 +239,43 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	}
 	catch (...) {}
 
-	if(rel_change_defined &&
-		(data_type != Tango::DEV_STRING) &&
-		(data_type != Tango::DEV_BOOLEAN) &&
-		(data_type != Tango::DEV_STATE))
+	if(rel_change_defined)
 	{
-		vector<double> rel_change;
-		vector<bool> rel_change_set_usr_def;
-		validate_change_properties(dev_name,"rel_change",rel_change_str,rel_change,rel_change_set_usr_def);
-		ext->rel_change[0] = rel_change[0];
-		ext->rel_change[1] = rel_change[1];
-
-		if(rel_change_set_usr_def[0] || rel_change_set_usr_def[1])
+		if((data_type != Tango::DEV_STRING) &&
+			(data_type != Tango::DEV_BOOLEAN) &&
+			(data_type != Tango::DEV_STATE))
 		{
-			if (nb_user != 0)
+			vector<double> rel_change;
+			vector<bool> rel_change_set_usr_def;
+			validate_change_properties(dev_name,"rel_change",rel_change_str,rel_change,rel_change_set_usr_def);
+			ext->rel_change[0] = rel_change[0];
+			ext->rel_change[1] = rel_change[1];
+
+			if(rel_change_set_usr_def[0] || rel_change_set_usr_def[1])
 			{
-				size_t i;
-				for (i = 0;i < nb_user;i++)
+				if (nb_user != 0)
 				{
-					if (def_user_prop[i].get_name() == "rel_change")
-						break;
-				}
-				if (i != nb_user)
-				{
-					vector<double> rel_change_usr_def;
-					validate_change_properties(dev_name,"rel_change",def_user_prop[i].get_value(),rel_change_usr_def);
-					if(rel_change_set_usr_def[0])
-						ext->rel_change[0] = rel_change_usr_def[0];
-					if(rel_change_set_usr_def[1])
-						ext->rel_change[1] = rel_change_usr_def[1];
+					size_t i;
+					for (i = 0;i < nb_user;i++)
+					{
+						if (def_user_prop[i].get_name() == "rel_change")
+							break;
+					}
+					if (i != nb_user)
+					{
+						vector<double> rel_change_usr_def;
+						validate_change_properties(dev_name,"rel_change",def_user_prop[i].get_value(),rel_change_usr_def);
+						if(rel_change_set_usr_def[0])
+							ext->rel_change[0] = rel_change_usr_def[0];
+						if(rel_change_set_usr_def[1])
+							ext->rel_change[1] = rel_change_usr_def[1];
+					}
 				}
 			}
+			cout1 << "Attribute::Attribute(): rel_change = " << ext->rel_change[0] << " " << ext->rel_change[1] << endl;
 		}
-		cout1 << "Attribute::Attribute(): rel_change = " << ext->rel_change[0] << " " << ext->rel_change[1] << endl;
+		else
+			throw_err_data_type("rel_change",dev_name,"Attribute::init_event_prop");
 	}
 
 //
@@ -287,39 +291,43 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	}
 	catch (...) {}
 
-	if(abs_change_defined &&
-		(data_type != Tango::DEV_STRING) &&
-		(data_type != Tango::DEV_BOOLEAN) &&
-		(data_type != Tango::DEV_STATE))
+	if(abs_change_defined)
 	{
-		vector<double> abs_change;
-		vector<bool> abs_change_set_usr_def;
-		validate_change_properties(dev_name,"abs_change",abs_change_str,abs_change,abs_change_set_usr_def);
-		ext->abs_change[0] = abs_change[0];
-		ext->abs_change[1] = abs_change[1];
-
-		if(abs_change_set_usr_def[0] || abs_change_set_usr_def[1])
+		if((data_type != Tango::DEV_STRING) &&
+			(data_type != Tango::DEV_BOOLEAN) &&
+			(data_type != Tango::DEV_STATE))
 		{
-			if (nb_user != 0)
+			vector<double> abs_change;
+			vector<bool> abs_change_set_usr_def;
+			validate_change_properties(dev_name,"abs_change",abs_change_str,abs_change,abs_change_set_usr_def);
+			ext->abs_change[0] = abs_change[0];
+			ext->abs_change[1] = abs_change[1];
+
+			if(abs_change_set_usr_def[0] || abs_change_set_usr_def[1])
 			{
-				size_t i;
-				for (i = 0;i < nb_user;i++)
+				if (nb_user != 0)
 				{
-					if (def_user_prop[i].get_name() == "abs_change")
-						break;
-				}
-				if (i != nb_user)
-				{
-					vector<double> abs_change_usr_def;
-					validate_change_properties(dev_name,"abs_change",def_user_prop[i].get_value(),abs_change_usr_def);
-					if(abs_change_set_usr_def[0])
-						ext->abs_change[0] = abs_change_usr_def[0];
-					if(abs_change_set_usr_def[1])
-						ext->abs_change[1] = abs_change_usr_def[1];
+					size_t i;
+					for (i = 0;i < nb_user;i++)
+					{
+						if (def_user_prop[i].get_name() == "abs_change")
+							break;
+					}
+					if (i != nb_user)
+					{
+						vector<double> abs_change_usr_def;
+						validate_change_properties(dev_name,"abs_change",def_user_prop[i].get_value(),abs_change_usr_def);
+						if(abs_change_set_usr_def[0])
+							ext->abs_change[0] = abs_change_usr_def[0];
+						if(abs_change_set_usr_def[1])
+							ext->abs_change[1] = abs_change_usr_def[1];
+					}
 				}
 			}
+			cout1 << "Attribute::Attribute(): abs_change = " << ext->abs_change[0] << " " << ext->abs_change[1] << endl;
 		}
-		cout1 << "Attribute::Attribute(): abs_change = " << ext->abs_change[0] << " " << ext->abs_change[1] << endl;
+		else
+			throw_err_data_type("abs_change",dev_name,"Attribute::init_event_prop");
 	}
 
 //
@@ -335,39 +343,43 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	}
 	catch (...) {}
 
-	if(archive_rel_change_defined &&
-		(data_type != Tango::DEV_STRING) &&
-		(data_type != Tango::DEV_BOOLEAN) &&
-		(data_type != Tango::DEV_STATE))
+	if(archive_rel_change_defined)
 	{
-		vector<double> archive_rel_change;
-		vector<bool> archive_rel_change_set_usr_def;
-		validate_change_properties(dev_name,"archive_rel_change",archive_rel_change_str,archive_rel_change,archive_rel_change_set_usr_def);
-		ext->archive_rel_change[0] = archive_rel_change[0];
-		ext->archive_rel_change[1] = archive_rel_change[1];
-
-		if(archive_rel_change_set_usr_def[0] || archive_rel_change_set_usr_def[1])
+		if((data_type != Tango::DEV_STRING) &&
+			(data_type != Tango::DEV_BOOLEAN) &&
+			(data_type != Tango::DEV_STATE))
 		{
-			if (nb_user != 0)
+			vector<double> archive_rel_change;
+			vector<bool> archive_rel_change_set_usr_def;
+			validate_change_properties(dev_name,"archive_rel_change",archive_rel_change_str,archive_rel_change,archive_rel_change_set_usr_def);
+			ext->archive_rel_change[0] = archive_rel_change[0];
+			ext->archive_rel_change[1] = archive_rel_change[1];
+
+			if(archive_rel_change_set_usr_def[0] || archive_rel_change_set_usr_def[1])
 			{
-				size_t i;
-				for (i = 0;i < nb_user;i++)
+				if (nb_user != 0)
 				{
-					if (def_user_prop[i].get_name() == "archive_rel_change")
-						break;
-				}
-				if (i != nb_user)
-				{
-					vector<double> archive_rel_change_usr_def;
-					validate_change_properties(dev_name,"archive_rel_change",def_user_prop[i].get_value(),archive_rel_change_usr_def);
-					if(archive_rel_change_set_usr_def[0])
-						ext->archive_rel_change[0] = archive_rel_change_usr_def[0];
-					if(archive_rel_change_set_usr_def[1])
-						ext->archive_rel_change[1] = archive_rel_change_usr_def[1];
+					size_t i;
+					for (i = 0;i < nb_user;i++)
+					{
+						if (def_user_prop[i].get_name() == "archive_rel_change")
+							break;
+					}
+					if (i != nb_user)
+					{
+						vector<double> archive_rel_change_usr_def;
+						validate_change_properties(dev_name,"archive_rel_change",def_user_prop[i].get_value(),archive_rel_change_usr_def);
+						if(archive_rel_change_set_usr_def[0])
+							ext->archive_rel_change[0] = archive_rel_change_usr_def[0];
+						if(archive_rel_change_set_usr_def[1])
+							ext->archive_rel_change[1] = archive_rel_change_usr_def[1];
+					}
 				}
 			}
+			cout1 << "Attribute::Attribute(): archive_rel_change = " << ext->archive_rel_change[0] << " " << ext->archive_rel_change[1] << endl;
 		}
-		cout1 << "Attribute::Attribute(): archive_rel_change = " << ext->archive_rel_change[0] << " " << ext->archive_rel_change[1] << endl;
+		else
+			throw_err_data_type("archive_rel_change",dev_name,"Attribute::init_event_prop");
 	}
 
 //
@@ -383,40 +395,45 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	}
 	catch (...) {}
 
-	if(archive_abs_change_defined &&
-		(data_type != Tango::DEV_STRING) &&
-		(data_type != Tango::DEV_BOOLEAN) &&
-		(data_type != Tango::DEV_STATE))
+	if(archive_abs_change_defined)
 	{
-		vector<double> archive_abs_change;
-		vector<bool> archive_abs_change_set_usr_def;
-		validate_change_properties(dev_name,"archive_abs_change",archive_abs_change_str,archive_abs_change,archive_abs_change_set_usr_def);
-		ext->archive_abs_change[0] = archive_abs_change[0];
-		ext->archive_abs_change[1] = archive_abs_change[1];
-
-		if(archive_abs_change_set_usr_def[0] || archive_abs_change_set_usr_def[1])
+		if((data_type != Tango::DEV_STRING) &&
+			(data_type != Tango::DEV_BOOLEAN) &&
+			(data_type != Tango::DEV_STATE))
 		{
-			if (nb_user != 0)
+			vector<double> archive_abs_change;
+			vector<bool> archive_abs_change_set_usr_def;
+			validate_change_properties(dev_name,"archive_abs_change",archive_abs_change_str,archive_abs_change,archive_abs_change_set_usr_def);
+			ext->archive_abs_change[0] = archive_abs_change[0];
+			ext->archive_abs_change[1] = archive_abs_change[1];
+
+			if(archive_abs_change_set_usr_def[0] || archive_abs_change_set_usr_def[1])
 			{
-				size_t i;
-				for (i = 0;i < nb_user;i++)
+				if (nb_user != 0)
 				{
-					if (def_user_prop[i].get_name() == "archive_abs_change")
-						break;
-				}
-				if (i != nb_user)
-				{
-					vector<double> archive_abs_change_usr_def;
-					validate_change_properties(dev_name,"archive_abs_change",def_user_prop[i].get_value(),archive_abs_change_usr_def);
-					if(archive_abs_change_set_usr_def[0])
-						ext->archive_abs_change[0] = archive_abs_change_usr_def[0];
-					if(archive_abs_change_set_usr_def[1])
-						ext->archive_abs_change[1] = archive_abs_change_usr_def[1];
+					size_t i;
+					for (i = 0;i < nb_user;i++)
+					{
+						if (def_user_prop[i].get_name() == "archive_abs_change")
+							break;
+					}
+					if (i != nb_user)
+					{
+						vector<double> archive_abs_change_usr_def;
+						validate_change_properties(dev_name,"archive_abs_change",def_user_prop[i].get_value(),archive_abs_change_usr_def);
+						if(archive_abs_change_set_usr_def[0])
+							ext->archive_abs_change[0] = archive_abs_change_usr_def[0];
+						if(archive_abs_change_set_usr_def[1])
+							ext->archive_abs_change[1] = archive_abs_change_usr_def[1];
+					}
 				}
 			}
+			cout1 << "Attribute::Attribute(): archive_abs_change = " << ext->archive_abs_change[0] << " " << ext->archive_abs_change[1] << endl;
 		}
-		cout1 << "Attribute::Attribute(): archive_abs_change = " << ext->archive_abs_change[0] << " " << ext->archive_abs_change[1] << endl;
+		else
+			throw_err_data_type("archive_abs_change",dev_name,"Attribute::init_event_prop");
 	}
+
 
 //
 // Init period for periodic event
@@ -654,7 +671,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			alarm_conf.set(min_level);
 		}
 		else
-			throw_err_data_type("min_alarm",dev_name);
+			throw_err_data_type("min_alarm",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -757,7 +774,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			alarm_conf.set(max_level);
 		}
 		else
-			throw_err_data_type("max_alarm",dev_name);
+			throw_err_data_type("max_alarm",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -860,7 +877,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			check_min_value = true;
 		}
 		else
-			throw_err_data_type("min_value",dev_name);
+			throw_err_data_type("min_value",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -963,7 +980,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			check_max_value = true;
 		}
 		else
-			throw_err_data_type("max_value",dev_name);
+			throw_err_data_type("max_value",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -1065,7 +1082,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			alarm_conf.set(min_warn);
 		}
 		else
-			throw_err_data_type("min_warning",dev_name);
+			throw_err_data_type("min_warning",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -1168,7 +1185,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			alarm_conf.set(max_warn);
 		}
 		else
-			throw_err_data_type("max_warning",dev_name);
+			throw_err_data_type("max_warning",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -1188,7 +1205,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 				delta_t_defined = true;
 		}
 		else
-			throw_err_data_type("delta_t",dev_name);
+			throw_err_data_type("delta_t",dev_name,"Attribute::init_opt_prop");
 	}
 	else
 		delta_t =  0;
@@ -1276,7 +1293,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			delta_val_defined = true;
 		}
 		else
-			throw_err_data_type("delta_val",dev_name);
+			throw_err_data_type("delta_val",dev_name,"Attribute::init_opt_prop");
 	}
 
 //
@@ -1306,6 +1323,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 // in :			prop_name : The property name
 //			dev_name : The device name
+//			origin : The origin of the exception
 //
 //--------------------------------------------------------------------------
 
@@ -1331,6 +1349,7 @@ void Attribute::throw_err_format(const char *prop_name,const string &dev_name,co
 // in :			min_prop : The min property name
 //			max_prop : The max property name
 //			dev_name : The device name
+//			origin : The origin of the exception
 //
 //--------------------------------------------------------------------------
 
@@ -1354,10 +1373,11 @@ void Attribute::throw_incoherent_val_err(const char *min_prop,const char *max_pr
 //
 // in :		prop_name : The property name
 //			dev_name : The device name
+//			origin : The origin of the exception
 //
 //--------------------------------------------------------------------------
 
-void Attribute::throw_err_data_type(const char *prop_name,string &dev_name)
+void Attribute::throw_err_data_type(const char *prop_name,const string &dev_name,const char *origin)
 {
 	TangoSys_OMemStream o;
 
@@ -1365,7 +1385,7 @@ void Attribute::throw_err_data_type(const char *prop_name,string &dev_name)
 	o << "\nThe property " << prop_name << " is not settable for the attribute data type" << ends;
 	Except::throw_exception((const char *)"API_AttrOptProp",
 			      o.str(),
-			      (const char *)"Attribute::throw_err_data_type");
+			      (const char *)origin);
 }
 
 //+-------------------------------------------------------------------------
@@ -2206,7 +2226,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
             }
 		}
 		else
-			throw_err_data_type("min_value",dev_name);
+			throw_err_data_type("min_value",dev_name,"Attribute::set_properties");
 	}
 
 
@@ -2330,7 +2350,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
             }
 		}
 		else
-			throw_err_data_type("max_value",dev_name);
+			throw_err_data_type("max_value",dev_name,"Attribute::set_properties");
 	}
 
 
@@ -2440,7 +2460,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			alarm_conf.set(min_level);
 		}
 		else
-			throw_err_data_type("min_alarm",dev_name);
+			throw_err_data_type("min_alarm",dev_name,"Attribute::set_properties");
 	}
 
 
@@ -2550,7 +2570,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			alarm_conf.set(max_level);
 		}
 		else
-			throw_err_data_type("max_alarm",dev_name);
+			throw_err_data_type("max_alarm",dev_name,"Attribute::set_properties");
 	}
 
 }
@@ -2737,7 +2757,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			alarm_conf.set(min_warn);
 		}
 		else
-			throw_err_data_type("min_warning",dev_name);
+			throw_err_data_type("min_warning",dev_name,"Attribute::set_properties");
 	}
 
 //
@@ -2850,7 +2870,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			alarm_conf.set(max_warn);
 		}
 		else
-			throw_err_data_type("max_warning",dev_name);
+			throw_err_data_type("max_warning",dev_name,"Attribute::set_properties");
 	}
 
 //
@@ -2960,7 +2980,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			delta_val_defined = true;
 		}
 		else
-			throw_err_data_type("delta_val",dev_name);
+			throw_err_data_type("delta_val",dev_name,"Attribute::set_properties");
 	}
 
 //
@@ -3022,7 +3042,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 			delta_t_defined = true;
 		}
 		else
-			throw_err_data_type("delta_t",dev_name);
+			throw_err_data_type("delta_t",dev_name,"Attribute::set_properties");
 	}
 	else
 		delta_t = 0;
@@ -3422,7 +3442,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 				}
 			}
 			else
-				throw_err_data_type("min_value",dev_name);
+				throw_err_data_type("min_value",dev_name,"Attribute::set_upd_properties");
 		}
 
 //
@@ -3489,7 +3509,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 				}
 			}
 			else
-				throw_err_data_type("min_alarm",dev_name);
+				throw_err_data_type("min_alarm",dev_name,"Attribute::set_upd_properties");
 		}
 
 //
@@ -3556,7 +3576,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 				}
 			}
 			else
-				throw_err_data_type("min_warning",dev_name);
+				throw_err_data_type("min_warning",dev_name,"Attribute::set_upd_properties");
 		}
 
 //
@@ -3909,7 +3929,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 			}
 			else
 			{
-				throw_err_data_type("delta_t",dev_name);
+				throw_err_data_type("delta_t",dev_name,"Attribute::set_upd_properties");
 			}
 		}
 		DbDatum deltat("delta_t");
@@ -5174,7 +5194,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 					validated_prop[1] = fabs(prop_tmp);
 				}
 				else
-					throw_err_data_type(prop_name,const_cast<string&>(dev_name));
+					throw_err_data_type(prop_name,const_cast<string&>(dev_name),"Attribute::validate_change_properties");
 			}
 		}
 		else
@@ -5208,7 +5228,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 						validated_prop[1] = fabs(prop_tmp);
 					}
 					else
-						throw_err_data_type(prop_name,const_cast<string&>(dev_name));
+						throw_err_data_type(prop_name,const_cast<string&>(dev_name),"Attribute::validate_change_properties");
 				}
 			}
 			else

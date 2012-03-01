@@ -384,7 +384,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			}
 		}
 		else
-			throw_err_data_type("min_value",dev_name);
+			throw_err_data_type("min_value",dev_name,"WAttribute::set_min_value");
 	}
 }
 
@@ -770,7 +770,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			}
 		}
 		else
-			throw_err_data_type("max_value",dev_name);
+			throw_err_data_type("max_value",dev_name,"WAttribute::set_max_value");
 	}
 }
 
