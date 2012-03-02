@@ -91,6 +91,11 @@ DbServerCache::DbServerCache(Database *db,string &ds_name,string &host)
 		imp_adm.first_idx = start_idx;
 		imp_adm.last_idx = 1;
 
+		ctrl_serv_prop.first_idx = -1;
+		DServer_class_prop.first_idx = -1;
+		Default_prop.first_idx = -1;
+		adm_dev_prop.first_idx = -1;
+
 		return;
 	}
 
@@ -480,6 +485,14 @@ const DevVarStringArray *DbServerCache::get_dev_property(DevVarStringArray *in_p
 
 	if (TG_strncasecmp((*in_param)[0],"dserver/",8) == 0)
 	{
+	    if (adm_dev_prop.first_idx == -1)
+	    {
+			TangoSys_OMemStream o;
+			o << "Device " << (*in_param)[0] << " not found in DB cache" << ends;
+
+			Tango::Except::throw_exception((const char *)"DB_DeviceNotFoundInCache",o.str(),
+										   (const char *)"DbServerCache::get_dev_property");
+	    }
 		ret_obj_prop.length(ret_length);
 		ret_obj_prop[0] = CORBA::string_dup((*in_param)[0]);
 
@@ -798,6 +811,9 @@ int DbServerCache::find_dev_att(DevString dev_name,int &class_ind,int &dev_ind)
 int DbServerCache::find_obj(DevString obj_name,int &obj_ind)
 {
 
+    if (ctrl_serv_prop.first_idx == -1)
+        return -1;
+
 	if (TG_strcasecmp((*data_list)[ctrl_serv_prop.first_idx],obj_name) == 0)
 	{
 		obj_ind = ctrl_serv_prop.first_idx;
@@ -806,6 +822,7 @@ int DbServerCache::find_obj(DevString obj_name,int &obj_ind)
 
 	return -1;
 }
+
 //-----------------------------------------------------------------------------
 //
 // DbServerCache::~DbServerCache() - destructor of the DbServerCache class
