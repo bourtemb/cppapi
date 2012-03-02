@@ -174,7 +174,15 @@ public:
  *
  * @return The attribute property value.
  */
-	T get_val() {return val;}
+	T get_val()
+	{
+		if(is_value == false)
+		{
+			string err_msg = "Numeric representation of the property's value (" + str + ") has not been set";
+			Tango::Except::throw_exception("API_AttrPropValueNotSet",err_msg,"AttrProp::get_val",Tango::ERR);
+		}
+		return val;
+	}
 /**
  * Get string representation of the attribute property value.
  *
@@ -408,7 +416,15 @@ public:
  *
  * @return The vector containing the compound attribute property values.
  */
-	vector<T> get_val() {return val;}
+	vector<T> get_val()
+	{
+		if(is_value == false)
+		{
+			string err_msg = "Numeric representation of the property's value (" + str + ") has not been set";
+			Tango::Except::throw_exception("API_AttrPropValueNotSet",err_msg,"AttrProp::get_val",Tango::ERR);
+		}
+		return val;
+	}
 /**
  * Get string representation of the compound attribute property values.
  *

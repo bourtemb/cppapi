@@ -947,6 +947,7 @@ typedef struct _OptAttrProp
  * API_AttrNotFound
  * API_AttrNotWritable
  * API_AttrOptProp
+ * API_AttrPropValueNotSet
  * API_AttrValueNotSet
  * API_AttrWrongDefined
  * API_AttrWrongMemValue
