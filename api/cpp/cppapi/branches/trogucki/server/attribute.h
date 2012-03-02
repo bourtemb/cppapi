@@ -2253,7 +2253,7 @@ protected:
     void throw_hard_coded_prop(const char *);
 	void throw_err_format(const char *,const string &,const char *);
 	void throw_incoherent_val_err(const char *,const char *,const string &,const char *);
-	void throw_err_data_type(const char *,string &);
+	void throw_err_data_type(const char *,const string &,const char *);
     void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &);
 
@@ -2428,7 +2428,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 			} \
 			else \
 			{ \
-				throw_err_data_type(H,C); \
+				throw_err_data_type(H,C,"Attribute::upd_database"); \
 			} \
 		} \
 \

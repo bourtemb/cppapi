@@ -293,6 +293,16 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 	CORBA::ULong nb_data;
 	unsigned long i;
 
+//
+// If the server is in ints starting phase, gives a NULL ptr
+// to the AutoLock object
+//
+
+    Tango::Util *tg = Tango::Util::instance();
+    Tango::TangoMonitor *mon_ptr = NULL;
+    if (tg->is_svr_starting() == false)
+        mon_ptr = &(get_att_device()->get_att_conf_monitor());
+
 	switch (data_type)
 	{
 	case Tango::DEV_SHORT :
@@ -337,9 +347,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value against min or max_value if needed
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -431,9 +440,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -526,9 +534,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -621,9 +628,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // First check for NaN, INF
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             for (i = 0;i < nb_data;i++)
             {
 #ifdef _TG_WINDOWS_
@@ -784,9 +790,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // First check for NaN, INF
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             for (i = 0;i < nb_data;i++)
             {
 #ifdef _TG_WINDOWS_
@@ -891,9 +896,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -985,9 +989,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -1078,9 +1081,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -1171,9 +1173,8 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 // Check the incoming value
 //
 
-        TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
         {
-            AutoTangoMonitor sync1(&mon1);
+            AutoTangoMonitor sync1(mon_ptr);
             if (check_min_value == true)
             {
                 for (i = 0;i < nb_data;i++)
@@ -1282,6 +1283,16 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 	unsigned int nb_data;
 	unsigned int i;
 
+//
+// If the server is in ints starting phase, gives a NULL ptr
+// to the AutoLock object
+//
+
+    Tango::Util *tg = Tango::Util::instance();
+    Tango::TangoMonitor *mon_ptr = NULL;
+    if (tg->is_svr_starting() == false)
+        mon_ptr = &(get_att_device()->get_att_conf_monitor());
+
 	switch (data_type)
 	{
 	case Tango::DEV_SHORT :
@@ -1327,9 +1338,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value against min or max_value if needed
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -1420,9 +1430,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -1514,9 +1523,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -1608,9 +1616,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // First check for NaN, INF
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 for (i = 0;i < nb_data;i++)
                 {
 #ifdef _TG_WINDOWS_
@@ -1771,9 +1778,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // First check for NaN, INF
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 for (i = 0;i < nb_data;i++)
                 {
 #ifdef _TG_WINDOWS_
@@ -1877,9 +1883,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -1970,9 +1975,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -2063,9 +2067,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -2156,9 +2159,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 if (check_min_value == true)
                 {
                     for (i = 0;i < nb_data;i++)
@@ -2387,9 +2389,8 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 // Check the incoming value against min or max_value if needed
 //
 
-            TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
             {
-                AutoTangoMonitor sync1(&mon1);
+                AutoTangoMonitor sync1(mon_ptr);
                 unsigned int j;
                 if (check_min_value == true)
                 {

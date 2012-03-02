@@ -44,7 +44,7 @@ namespace Tango
 
 #define     TANGO_VERSION_MAJOR     8
 #define     TANGO_VERSION_MINOR     0
-#define     TANGO_VERSION_PATCH     0
+#define     TANGO_VERSION_PATCH     2
 
 #define     build_string(s)         #s
 #define     xbuild_string(s)        build_string(s)
@@ -947,6 +947,7 @@ typedef struct _OptAttrProp
  * API_AttrNotFound
  * API_AttrNotWritable
  * API_AttrOptProp
+ * API_AttrPropValueNotSet
  * API_AttrValueNotSet
  * API_AttrWrongDefined
  * API_AttrWrongMemValue

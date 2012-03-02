@@ -470,7 +470,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 			}
 		}
 		else
-			throw_err_data_type("min_alarm",dev_name);
+			throw_err_data_type("min_alarm",dev_name,"Attribute::set_min_alarm");
 	}
 }
 
@@ -856,7 +856,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 			}
 		}
 		else
-			throw_err_data_type("max_alarm",dev_name);
+			throw_err_data_type("max_alarm",dev_name,"Attribute::set_max_alarm");
 	}
 }
 
@@ -1242,7 +1242,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 			}
 		}
 		else
-			throw_err_data_type("min_warning",dev_name);
+			throw_err_data_type("min_warning",dev_name,"Attribute::set_min_warning");
 	}
 }
 
@@ -1628,7 +1628,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 			}
 		}
 		else
-			throw_err_data_type("max_warning",dev_name);
+			throw_err_data_type("max_warning",dev_name,"Attribute::set_max_warning");
 	}
 }
 

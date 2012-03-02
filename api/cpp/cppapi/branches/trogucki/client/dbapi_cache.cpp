@@ -1187,7 +1187,7 @@ const DevVarLongStringArray *DbServerCache::import_tac_dev(string &tac_dev)
 // Throw exception if no info in cache
 //
 
-	if (imp_tac.last_idx == -1)
+	if (imp_tac.last_idx == -1 || imp_tac.first_idx >= (int)data_list->length())
 	{
 		Tango::Except::throw_exception((const char *)"API_DatabaseCacheAccess",
                                        (const char *)"No TAC device in Db cache",
