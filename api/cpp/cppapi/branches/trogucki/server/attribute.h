@@ -2357,7 +2357,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 \
 	if(store_in_db) \
 	{ \
-		const char *tmp = A.in(); \
+		string tmp = A.in(); \
 		if(TG_strcasecmp(A,AlrmValueNotSpec) == 0) \
 			tmp = AlrmValueNotSpec; \
 		else \
@@ -2366,14 +2366,8 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				(data_type != Tango::DEV_BOOLEAN) && \
 				(data_type != Tango::DEV_STATE)) \
 			{ \
-				short sh; \
-				DevLong lg; \
 				double db; \
 				float fl; \
-				unsigned short ush; \
-				DevLong64 lg64; \
-				DevULong ulg; \
-				DevULong64 ulg64; \
 \
 				B.str(""); \
 				B.clear(); \
@@ -2381,50 +2375,78 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				switch (data_type) \
 				{ \
 				case Tango::DEV_SHORT: \
-					if (!(B >> sh && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					B << (DevShort)db; \
 					break; \
 \
 				case Tango::DEV_LONG: \
-					if (!(B >> lg && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					B << (DevLong)db; \
 					break;\
 \
 				case Tango::DEV_LONG64: \
-					if (!(B >> lg64 && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					B << (DevLong64)db; \
 					break;\
 \
 				case Tango::DEV_DOUBLE: \
 					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					B << db; \
 					break; \
 \
 				case Tango::DEV_FLOAT: \
 					if (!(B >> fl && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					B << fl; \
 					break; \
 \
 				case Tango::DEV_USHORT: \
-					if (!(B >> ush && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					(db < 0.0) ? B << (DevUShort)(-db) : B << (DevUShort)db; \
 					break; \
 \
 				case Tango::DEV_UCHAR: \
-					if (!(B >> sh && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					(db < 0.0) ? B << (short)((DevUChar)(-db)) : B << (short)((DevUChar)db); \
 					break; \
 \
 				case Tango::DEV_ULONG: \
-					if (!(B >> ulg && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					(db < 0.0) ? B << (DevULong)(-db) : B << (DevULong)db; \
 					break; \
 \
 				case Tango::DEV_ULONG64: \
-					if (!(B >> ulg64 && B.eof())) \
+					if (!(B >> db && B.eof())) \
 						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					(db < 0.0) ? B << (DevULong64)(-db) : B << (DevULong64)db; \
 					break; \
 				} \
+				tmp = B.str(); \
 			} \
 			else \
 			{ \
@@ -2433,7 +2455,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 		} \
 \
 		DbDatum dd(H); \
-		dd << tmp; \
+		dd << tmp.c_str(); \
 		D.push_back(dd); \
 		F++; \
 	} \
