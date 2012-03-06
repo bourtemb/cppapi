@@ -1071,10 +1071,12 @@ void ServRestartThread::run(void *ptr)
     tg->set_polling_threads_pool_size(ULONG_MAX);
 	dev->set_poll_th_pool_size(DEFAULT_POLLING_THREADS_POOL_SIZE);
 
+    tg->set_svr_starting(true);
 	{
 		AutoPyLock PyLo;
 		dev->init_device();
 	}
+	tg->set_svr_starting(false);
 
 //
 // Restart polling (if any)
