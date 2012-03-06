@@ -4107,16 +4107,17 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 //
 // RDS alarm values (delta_val and delta_t) are stored in or deleted from
-// the database only if both are set or both undefined.
+// the database only if both are set or both not specified.
 //
 
 //
 // delta_val
 //
 
-	bool user_defaults = false;
-	bool store_in_db = true;
-	bool do_nothing = false;
+	string delta_val_tmp_str = conf.att_alarm.delta_val.in();
+	string delta_val_usr_def_val;
+	bool delta_val_is_number = true;
+	bool delta_val_user_defaults = false;
 	if (nb_user != 0)
 	{
 		size_t i;
@@ -4127,152 +4128,134 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		}
 		if (i != nb_user)
 		{
-			user_defaults = true;
-			usr_def_val = def_user_prop[i].get_value();
+			delta_val_user_defaults = true;
+			delta_val_usr_def_val = def_user_prop[i].get_value();
 		}
 	}
 
-	if(user_defaults)
+	if(delta_val_user_defaults)
 	{
 		if ((TG_strcasecmp(conf.att_alarm.delta_val,NotANumber) == 0) ||
-				(strcmp(conf.att_alarm.delta_val,usr_def_val.c_str()) == 0) ||
+				(strcmp(conf.att_alarm.delta_val,delta_val_usr_def_val.c_str()) == 0) ||
 				(strlen(conf.att_alarm.delta_val) == 0))
-			store_in_db = false;
+		{
+			delta_val_tmp_str = delta_val_usr_def_val;
+			delta_val_is_number = false;
+		}
+		else if(TG_strcasecmp(conf.att_alarm.delta_val,AlrmValueNotSpec) == 0)
+		{
+			delta_val_tmp_str = AlrmValueNotSpec;
+			delta_val_is_number = false;
+		}
 	}
-	else
-	{
-		if ((TG_strcasecmp(conf.att_alarm.delta_val,AlrmValueNotSpec) == 0) ||
+	else if ((TG_strcasecmp(conf.att_alarm.delta_val,AlrmValueNotSpec) == 0) ||
 				(TG_strcasecmp(conf.att_alarm.delta_val,NotANumber) == 0) ||
 				(strlen(conf.att_alarm.delta_val) == 0))
-			store_in_db = false;
+	{
+		delta_val_tmp_str = AlrmValueNotSpec;
+		delta_val_is_number = false;
 	}
 
-	if(delta_t == 0 && delta_val_str == AlrmValueNotSpec)
-		store_in_db = false;
-	else if (delta_t != 0 && delta_val_str != AlrmValueNotSpec)
-		store_in_db = true;
-	else
-		do_nothing = true;
-
-	if(store_in_db && !do_nothing)
+	if(delta_val_is_number)
 	{
-		string tmp = conf.att_alarm.delta_val.in();
-		if(TG_strcasecmp(conf.att_alarm.delta_val,AlrmValueNotSpec) == 0)
-			tmp = AlrmValueNotSpec;
-		else
+		if ((data_type != Tango::DEV_STRING) &&
+			(data_type != Tango::DEV_BOOLEAN) &&
+			(data_type != Tango::DEV_STATE))
 		{
-			if ((data_type != Tango::DEV_STRING) &&
-				(data_type != Tango::DEV_BOOLEAN) &&
-				(data_type != Tango::DEV_STATE))
-			{
-				double db;
-				float fl;
+			double db;
+			float fl;
 
+			str.str("");
+			str.clear();
+			str << conf.att_alarm.delta_val;
+			switch (data_type)
+			{
+			case Tango::DEV_SHORT:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
 				str.str("");
 				str.clear();
-				str << conf.att_alarm.delta_val;
-				switch (data_type)
-				{
-				case Tango::DEV_SHORT:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					str << (DevShort)db;
-					break;
+				str << (DevShort)db;
+				break;
 
-				case Tango::DEV_LONG:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					str << (DevLong)db;
-					break;
+			case Tango::DEV_LONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				str << (DevLong)db;
+				break;
 
-				case Tango::DEV_LONG64:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					str << (DevLong64)db;
-					break;
+			case Tango::DEV_LONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				str << (DevLong64)db;
+				break;
 
-				case Tango::DEV_DOUBLE:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					str << db;
-					break;
+			case Tango::DEV_DOUBLE:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				str << db;
+				break;
 
-				case Tango::DEV_FLOAT:
-					if (!(str >> fl && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					str << fl;
-					break;
+			case Tango::DEV_FLOAT:
+				if (!(str >> fl && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				str << fl;
+				break;
 
-				case Tango::DEV_USHORT:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					(db < 0.0) ? str << (DevUShort)(-db) : str << (DevUShort)db;
-					break;
+			case Tango::DEV_USHORT:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				(db < 0.0) ? str << (DevUShort)(-db) : str << (DevUShort)db;
+				break;
 
-				case Tango::DEV_UCHAR:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					(db < 0.0) ? str << (short)((DevUChar)(-db)) : str << (short)((DevUChar)db);
-					break;
+			case Tango::DEV_UCHAR:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				(db < 0.0) ? str << (short)((DevUChar)(-db)) : str << (short)((DevUChar)db);
+				break;
 
-				case Tango::DEV_ULONG:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					(db < 0.0) ? str << (DevULong)(-db) : str << (DevULong)db;
-					break;
+			case Tango::DEV_ULONG:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				(db < 0.0) ? str << (DevULong)(-db) : str << (DevULong)db;
+				break;
 
-				case Tango::DEV_ULONG64:
-					if (!(str >> db && str.eof()))
-						throw_err_format("delta_val",dev_name,"Attribute::upd_database");
-					str.str("");
-					str.clear();
-					(db < 0.0) ? str << (DevULong64)(-db) : str << (DevULong64)db;
-					break;
-				}
-				tmp = str.str();
+			case Tango::DEV_ULONG64:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				(db < 0.0) ? str << (DevULong64)(-db) : str << (DevULong64)db;
+				break;
 			}
-			else
-			{
-				throw_err_data_type("delta_val",dev_name,"Attribute::upd_database");
-			}
+			delta_val_tmp_str = str.str();
 		}
-
-		DbDatum dd("delta_val");
-		dd << tmp.c_str();
-		db_d.push_back(dd);
-		prop_to_update++;
+		else
+			throw_err_data_type("delta_val",dev_name,"Attribute::upd_database");
 	}
-	else if(!do_nothing)
-	{
-		DbDatum del_dd("delta_val");
-		db_del.push_back(del_dd);
-		prop_to_delete++;
-	}
-
 
 //
 // delta_t
 //
 
-	user_defaults = false;
-	store_in_db = true;
-	do_nothing = false;
+	string delta_t_tmp_str = conf.att_alarm.delta_t.in();
+	string delta_t_usr_def_val;
+	bool delta_t_user_defaults = false;
+	bool delta_t_is_number = true;
 	if (nb_user != 0)
 	{
 		size_t i;
@@ -4283,67 +4266,98 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		}
 		if (i != nb_user) // user defaults defined
 		{
-			user_defaults = true;
-			usr_def_val = def_user_prop[i].get_value();
+			delta_t_user_defaults = true;
+			delta_t_usr_def_val = def_user_prop[i].get_value();
 		}
 	}
 
-	if(user_defaults)
+	if(delta_t_user_defaults)
 	{
 		if ((TG_strcasecmp(conf.att_alarm.delta_t,NotANumber) == 0) ||
-				(strcmp(conf.att_alarm.delta_t,usr_def_val.c_str()) == 0) ||
+				(strcmp(conf.att_alarm.delta_t,delta_t_usr_def_val.c_str()) == 0) ||
 				(strlen(conf.att_alarm.delta_t) == 0))
-			store_in_db = false;
+		{
+			delta_t_tmp_str = delta_t_usr_def_val;
+			delta_t_is_number = false;
+		}
+		else if((TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) == 0) ||
+				(TG_strcasecmp(conf.att_alarm.delta_t,"0") == 0) ||
+				(TG_strcasecmp(conf.att_alarm.delta_t,"0.0") == 0))
+		{
+			delta_t_tmp_str = "0";
+			delta_t_is_number = false;
+		}
 	}
-	else
-	{
-		if ((TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) == 0) ||
+	else if ((TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) == 0) ||
 				(TG_strcasecmp(conf.att_alarm.delta_t,"0") == 0) ||
 				(TG_strcasecmp(conf.att_alarm.delta_t,"0.0") == 0) ||
 				(TG_strcasecmp(conf.att_alarm.delta_t,NotANumber) == 0) ||
 				(strlen(conf.att_alarm.delta_t) == 0))
-			store_in_db = false;
+	{
+		delta_t_tmp_str = "0";
+		delta_t_is_number = false;
 	}
 
-	if(delta_val_str == AlrmValueNotSpec && delta_t == 0)
-		store_in_db = false;
-	else if (delta_val_str != AlrmValueNotSpec && delta_t != 0)
-		store_in_db = true;
-	else
-		do_nothing = true;
-
-	if(store_in_db && !do_nothing)
+	if(delta_t_is_number)
 	{
-		string tmp = conf.att_alarm.delta_t.in();
-		if(TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) == 0)
-			tmp = "0";
-		else
+		if ((data_type != Tango::DEV_STRING) &&
+			(data_type != Tango::DEV_BOOLEAN) &&
+			(data_type != Tango::DEV_STATE))
 		{
-			if ((data_type != Tango::DEV_STRING) &&
-			    (data_type != Tango::DEV_BOOLEAN) &&
-				(data_type != Tango::DEV_STATE))
-			{
-				str.str("");
-				str.clear();
-				str << conf.att_alarm.delta_t;
-				double db;
-				if (!(str >> db && str.eof()))
-					throw_err_format("delta_t",dev_name,"Attribute::upd_database");
-				str.str("");
-				str.clear();
-				str << (long)db;
-				tmp = str.str();
-			}
-			else
-				throw_err_data_type("delta_t",dev_name,"Attribute::upd_properties");
+			str.str("");
+			str.clear();
+			str << conf.att_alarm.delta_t;
+			double db;
+			if (!(str >> db && str.eof()))
+				throw_err_format("delta_t",dev_name,"Attribute::upd_database");
+			str.str("");
+			str.clear();
+			str << (long)db;
+			delta_t_tmp_str = str.str();
 		}
+		else
+			throw_err_data_type("delta_t",dev_name,"Attribute::upd_properties");
+	}
+
+//
+// Check if to store both delta_val and delta_t in database, delete or do nothing
+//
+
+	bool rds_store_both = false;
+	bool rds_delete_both = false;
+
+	if(delta_val_user_defaults || delta_t_user_defaults)
+	{
+		if((TG_strcasecmp(delta_val_tmp_str.c_str(),delta_val_usr_def_val.c_str()) == 0) && (TG_strcasecmp(delta_t_tmp_str.c_str(),delta_t_usr_def_val.c_str()) == 0))
+			rds_delete_both = true;
+		else if(((TG_strcasecmp(delta_val_tmp_str.c_str(),AlrmValueNotSpec) == 0) && (TG_strcasecmp(delta_t_tmp_str.c_str(),"0") == 0)) ||
+					((TG_strcasecmp(delta_val_tmp_str.c_str(),AlrmValueNotSpec) != 0) && (TG_strcasecmp(delta_t_tmp_str.c_str(),"0") != 0)))
+			rds_store_both = true;
+	}
+	else if((TG_strcasecmp(delta_val_tmp_str.c_str(),AlrmValueNotSpec) != 0) && (TG_strcasecmp(delta_t_tmp_str.c_str(),"0") != 0))
+		rds_store_both = true;
+	else if((TG_strcasecmp(delta_val_tmp_str.c_str(),AlrmValueNotSpec) == 0) && (TG_strcasecmp(delta_t_tmp_str.c_str(),"0") == 0))
+		rds_delete_both = true;
+
+	if(rds_store_both)
+	{
+		DbDatum dd("delta_val");
+		dd << delta_val_tmp_str.c_str();
+		db_d.push_back(dd);
+		prop_to_update++;
+
 		DbDatum deltat("delta_t");
-		deltat << tmp.c_str();
+		deltat << delta_t_tmp_str.c_str();
 		db_d.push_back(deltat);
 		prop_to_update++;
 	}
-	else if(!do_nothing)
+
+	if(rds_delete_both)
 	{
+		DbDatum del_dd("delta_val");
+		db_del.push_back(del_dd);
+		prop_to_delete++;
+
 		DbDatum del_deltat("delta_t");
 		db_del.push_back(del_deltat);
 		prop_to_delete++;
@@ -4869,8 +4883,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	string def_event_period;
 	def_event_period_str << (int)(DEFAULT_EVENT_PERIOD);
 	def_event_period_str >> def_event_period;
-	user_defaults = false;
-	store_in_db = true;
+	bool user_defaults = false;
+	bool store_in_db = true;
 	if (nb_user != 0)
 	{
 		size_t i;
