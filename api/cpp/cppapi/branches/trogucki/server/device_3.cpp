@@ -1156,7 +1156,7 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					(*back)[non_polled[i]].err_list[0].desc = CORBA::string_dup(s.c_str());
 					(*back)[non_polled[i]].quality = Tango::ATTR_INVALID;
 					(*back)[non_polled[i]].name = CORBA::string_dup(att.get_name().c_str());
-					clear_att_dim((*back)[i]);
+					clear_att_dim((*back)[non_polled[i]]);
 				}
 				else
 				{
@@ -1169,7 +1169,7 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 					(*back4)[non_polled[i]].err_list[0].desc = CORBA::string_dup(s.c_str());
 					(*back4)[non_polled[i]].quality = Tango::ATTR_INVALID;
 					(*back4)[non_polled[i]].name = CORBA::string_dup(att.get_name().c_str());
-					clear_att_dim((*back4)[i]);
+					clear_att_dim((*back4)[non_polled[i]]);
 				}
 				not_polled_attr++;
 				continue;
@@ -1256,6 +1256,7 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 				(*back4)[i].err_list[0].desc = CORBA::string_dup(s.c_str());
 				(*back4)[i].quality = Tango::ATTR_INVALID;
 				(*back4)[i].name = CORBA::string_dup(names[i]);
+				(*back4)[i].data_format = Tango::FMT_UNKNOWN;
 				clear_att_dim((*back4)[i]);
 			}
 			continue;

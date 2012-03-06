@@ -1675,10 +1675,15 @@ void Attribute::get_properties(Tango::MultiAttrProp<T> &props)
 
 //
 // Get the monitor protecting device att config
+// If the server is in its starting phase, gives a NULL ptr
+// to the AutoLock object
 //
 
-	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-	AutoTangoMonitor sync1(&mon1);
+    Tango::Util *tg = Tango::Util::instance();
+    Tango::TangoMonitor *mon_ptr = NULL;
+    if (tg->is_svr_starting() == false)
+        mon_ptr = &(get_att_device()->get_att_conf_monitor());
+	AutoTangoMonitor sync1(mon_ptr);
 
 	AttributeConfig_3 conf;
 	get_properties_3(conf);
@@ -1711,10 +1716,15 @@ void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 
 //
 // Get the monitor protecting device att config
+// If the server is in its starting phase, gives a NULL ptr
+// to the AutoLock object
 //
 
-	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-	AutoTangoMonitor sync1(&mon1);
+    Tango::Util *tg = Tango::Util::instance();
+    Tango::TangoMonitor *mon_ptr = NULL;
+    if (tg->is_svr_starting() == false)
+        mon_ptr = &(get_att_device()->get_att_conf_monitor());
+	AutoTangoMonitor sync1(mon_ptr);
 
 //
 // Get current attribute configuration and update properties with provided values
@@ -1754,7 +1764,8 @@ void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 // Push a att conf event
 //
 
-	get_att_device()->push_att_conf_event(this);
+    if (tg->is_svr_starting() == false)
+        get_att_device()->push_att_conf_event(this);
 }
 
 } // End of Tango namespace

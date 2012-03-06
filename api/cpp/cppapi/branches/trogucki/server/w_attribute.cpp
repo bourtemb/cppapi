@@ -294,7 +294,7 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 	unsigned long i;
 
 //
-// If the server is in ints starting phase, gives a NULL ptr
+// If the server is in its starting phase, gives a NULL ptr
 // to the AutoLock object
 //
 
