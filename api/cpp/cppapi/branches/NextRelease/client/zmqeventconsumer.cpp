@@ -187,10 +187,20 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
 //
 // Wait for message
+// The try/catch is usefull when the process is running under gdb control
 //
 
-        zmq::poll(items,nb_poll_item,-1);
+        try
+        {
+            zmq::poll(items,nb_poll_item,-1);
 //cout << "Awaken !!!!!!!!" << endl;
+        }
+        catch(zmq::error_t &e)
+        {
+            if (e.num() == EINTR)
+                continue;
+        }
+
 
 //
 // Something received by the heartbeat socket ?
