@@ -428,6 +428,9 @@ public:
 
 	bool is_command_allowed(const char *);
 
+	bool get_device_factory_done() {return ext->device_factory_done;}
+	void set_device_factory_done(bool val) {ext->device_factory_done = val;}
+
 protected:
 	Command *get_default_command() {return ext->default_cmd;}
 
@@ -445,6 +448,7 @@ private:
         bool				py_class;
         string              svn_tag;
         string              svn_location;
+        bool                device_factory_done;
     };
 
 	void get_class_system_resource();

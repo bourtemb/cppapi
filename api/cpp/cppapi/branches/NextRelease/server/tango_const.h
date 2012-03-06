@@ -963,6 +963,7 @@ typedef struct _OptAttrProp
  * API_CantGetClientIdent
  * API_CantGetDevObjectId
  * API_CantInstallSignal
+ * API_CantRetrieveClass
  * API_CantRetrieveClassList
  * API_CantStoreDeviceClass
  * API_ClassNotFound

@@ -120,6 +120,7 @@ struct WantedAttr : public binary_function<A1,A2,R>
 
 
 class AttrProperty;
+class DeviceClass;
 
 typedef union _Attr_CheckVal
 {
@@ -2170,6 +2171,7 @@ private:
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
 	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
 	void log_quality();
+	DeviceClass *get_att_device_class(string &);
 
 	unsigned long 		name_size;
 	string 				name_lower;

@@ -1881,8 +1881,9 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 // user defined default value
 //
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+
+    Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
+
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -2641,8 +2642,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // default values regardless of the user defined defaults.
 //
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -3699,8 +3699,7 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 // the data base in case there are user defaults declared for the property
 //
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -3815,8 +3814,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 // the data base in case there are user defaults declared for the property
 //
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -10489,9 +10487,9 @@ DeviceImpl *Attribute::get_att_device()
 
 //+-------------------------------------------------------------------------
 //
-// method : 		Attribute::get_att_device
+// method : 		Attribute::set_attr_serial_method
 //
-// description : 	Return a pointer to the attribute device
+// description : 	Set attribute serialization method
 //
 //--------------------------------------------------------------------------
 
@@ -10511,6 +10509,63 @@ void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 	ext->attr_serial_model=ser_model;
 }
 
+//+-------------------------------------------------------------------------
+//
+// method : 		Attribute::get_att_device_class
+//
+// description : 	Return a pointer to the attribute device class
+//
+//--------------------------------------------------------------------------
+
+DeviceClass *Attribute::get_att_device_class(string &dev_name)
+{
+
+//
+// Get device class
+// When the server is started, it's an easy task
+// When the server is in its starting phase, it's more tricky
+// Get from the DeviceClass list the first one for which the device
+// factory method has not yet been fully executed.
+// This is the DeviceClass with the device in its init_device() method
+// has called Attribute::set_properties()
+//
+
+    Tango::Util *tg = Tango::Util::instance();
+    Tango::DeviceClass *dev_class = NULL;
+
+    if (tg->is_svr_starting() == false)
+    {
+        Tango::DeviceImpl *dev = get_att_device();
+        dev_class = dev->get_device_class();
+    }
+    else
+    {
+        const vector<DeviceClass *> &tmp_cl_list = *tg->get_class_list();
+        size_t loop;
+        for (loop = 0;loop < tmp_cl_list.size();++loop)
+        {
+            if (tmp_cl_list[loop]->get_device_factory_done() == false)
+                break;
+        }
+
+        if (loop != tmp_cl_list.size())
+        {
+            dev_class = tmp_cl_list[loop];
+        }
+        else
+        {
+				TangoSys_OMemStream o;
+
+				o << "Device " << dev_name << "-> Attribute : " << name;
+				o << "\nCan't retrieve device class!" << ends;
+				Except::throw_exception((const char *)"API_CantRetrieveClass",
+							  o.str(),
+							  (const char *)"Attribute::set_properties");
+        }
+    }
+
+    return dev_class;
+}
 
 //+-------------------------------------------------------------------------
 //

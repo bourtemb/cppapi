@@ -253,10 +253,12 @@ void DServer::init_device()
 // Create all device(s)
 //
 
+                    class_list[i]->set_device_factory_done(false);
 					{
 						AutoTangoMonitor sync(class_list[i]);
 						class_list[i]->device_factory(&dev_list);
 					}
+                    class_list[i]->set_device_factory_done(true);
 
 //
 // Set value for each device with memorized writable attr
@@ -321,10 +323,12 @@ void DServer::init_device()
 // Create all device(s)
 //
 
+                    class_list[i]->set_device_factory_done(false);
 					{
 						AutoTangoMonitor sync(class_list[i]);
 						class_list[i]->device_factory(dev_list_nodb);
 					}
+                    class_list[i]->set_device_factory_done(true);
 
 					delete dev_list_nodb;
 				}
