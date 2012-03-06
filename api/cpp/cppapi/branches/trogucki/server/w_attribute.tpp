@@ -92,10 +92,15 @@ void WAttribute::set_min_value(const T &new_min_value)
 
 //
 // Get the monitor protecting device att config
+// If the server is in its starting phase, give a NULL ptr
+// to the AutoLock object
 //
 
-	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-	AutoTangoMonitor sync1(&mon1);
+	Tango::Util *tg = Tango::Util::instance();
+	Tango::TangoMonitor *mon_ptr = NULL;
+	if (tg->is_svr_starting() == false)
+		mon_ptr = &(get_att_device()->get_att_conf_monitor());
+	AutoTangoMonitor sync1(mon_ptr);
 
 //
 // Store the new value locally
@@ -109,8 +114,7 @@ void WAttribute::set_min_value(const T &new_min_value)
 // Then, update database
 //
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(ext->d_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -143,7 +147,6 @@ void WAttribute::set_min_value(const T &new_min_value)
 			db_data.push_back(attr_dd);
 			db_data.push_back(prop_dd);
 
-			Tango::Util *tg = Tango::Util::instance();
 			bool retry = true;
 			while (retry == true)
 			{
@@ -188,7 +191,8 @@ void WAttribute::set_min_value(const T &new_min_value)
 // Push a att conf event
 //
 
-	get_att_device()->push_att_conf_event(this);
+	if (tg->is_svr_starting() == false)
+		get_att_device()->push_att_conf_event(this);
 }
 
 template <>
@@ -197,8 +201,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 	string min_value_str_tmp = new_min_value_str;
 	string dev_name = ext->d_name;
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(ext->d_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -228,8 +231,11 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 		{
 			set_value = false;
 
-			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-			AutoTangoMonitor sync1(&mon1);
+			Tango::Util *tg = Tango::Util::instance();
+			Tango::TangoMonitor *mon_ptr = NULL;
+			if (tg->is_svr_starting() == false)
+				mon_ptr = &(get_att_device()->get_att_conf_monitor());
+			AutoTangoMonitor sync1(mon_ptr);
 
 			if (Tango::Util::_UseDb == true)
 			{
@@ -240,7 +246,6 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 				db_data.push_back(attr_dd);
 				db_data.push_back(prop_dd);
 
-				Tango::Util *tg = Tango::Util::instance();
 				bool retry = true;
 				while (retry == true)
 				{
@@ -259,7 +264,8 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			check_min_value = false;
 			min_value_str = AlrmValueNotSpec;
 
-			get_att_device()->push_att_conf_event(this);
+			if (tg->is_svr_starting() == false)
+				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_min_value_str.c_str(),NotANumber) == 0) ||
 				(TG_strcasecmp(new_min_value_str.c_str(),usr_def_val.c_str()) == 0) ||
@@ -274,8 +280,11 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 		{
 			set_value = false;
 
-			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-			AutoTangoMonitor sync1(&mon1);
+			Tango::Util *tg = Tango::Util::instance();
+			Tango::TangoMonitor *mon_ptr = NULL;
+			if (tg->is_svr_starting() == false)
+				mon_ptr = &(get_att_device()->get_att_conf_monitor());
+			AutoTangoMonitor sync1(mon_ptr);
 
 			if (Tango::Util::_UseDb == true)
 			{
@@ -284,7 +293,6 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 				db_data.push_back(attr_dd);
 				db_data.push_back(prop_dd);
 
-				Tango::Util *tg = Tango::Util::instance();
 				bool retry = true;
 				while (retry == true)
 				{
@@ -303,7 +311,8 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			check_min_value = false;
 			min_value_str = AlrmValueNotSpec;
 
-			get_att_device()->push_att_conf_event(this);
+			if (tg->is_svr_starting() == false)
+				get_att_device()->push_att_conf_event(this);
 		}
 	}
 
@@ -313,19 +322,17 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
-			short sh;
 			double db;
 			float fl;
-			unsigned short ush;
 
 			TangoSys_MemStream str;
 			str << min_value_str_tmp;
 			switch (data_type)
 			{
 			case Tango::DEV_SHORT:
-				if (!(str >> sh && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
-				set_min_value(sh);
+				set_min_value((DevShort)db);
 				break;
 
 			case Tango::DEV_LONG:
@@ -353,33 +360,33 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 				break;
 
 			case Tango::DEV_USHORT:
-				if (!(str >> ush && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
-				set_min_value(ush);
+				(db < 0.0) ? set_min_value((DevUShort)(-db)) : set_min_value((DevUShort)db);
 				break;
 
 			case Tango::DEV_UCHAR:
-				if (!(str >> sh && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
-				set_min_value((unsigned char)sh);
+				(db < 0.0) ? set_min_value((DevUChar)(-db)) : set_min_value((DevUChar)db);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
 					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
-				set_min_value((DevULong)db);
+				(db < 0.0) ? set_min_value((DevULong)(-db)) : set_min_value((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
 					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
-				set_min_value((DevULong64)db);
+				(db < 0.0) ? set_min_value((DevULong64)(-db)) : set_min_value((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
-				if (!(str >> sh && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
-				set_min_value((unsigned char)sh);
+				(db < 0.0) ? set_min_value((DevUChar)(-db)) : set_min_value((DevUChar)db);
 				break;
 			}
 		}
@@ -478,10 +485,15 @@ void WAttribute::set_max_value(const T &new_max_value)
 
 //
 // Get the monitor protecting device att config
+// If the server is in its starting phase, give a NULL ptr
+// to the AutoLock object
 //
 
-	TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-	AutoTangoMonitor sync1(&mon1);
+	Tango::Util *tg = Tango::Util::instance();
+	Tango::TangoMonitor *mon_ptr = NULL;
+	if (tg->is_svr_starting() == false)
+		mon_ptr = &(get_att_device()->get_att_conf_monitor());
+	AutoTangoMonitor sync1(mon_ptr);
 
 //
 // Store the new value locally
@@ -495,8 +507,7 @@ void WAttribute::set_max_value(const T &new_max_value)
 // Then, update database
 //
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(ext->d_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -529,7 +540,6 @@ void WAttribute::set_max_value(const T &new_max_value)
 			db_data.push_back(attr_dd);
 			db_data.push_back(prop_dd);
 
-			Tango::Util *tg = Tango::Util::instance();
 			bool retry = true;
 			while (retry == true)
 			{
@@ -574,7 +584,8 @@ void WAttribute::set_max_value(const T &new_max_value)
 // Push a att conf event
 //
 
-	get_att_device()->push_att_conf_event(this);
+	if (tg->is_svr_starting() == false)
+		get_att_device()->push_att_conf_event(this);
 }
 
 template <>
@@ -583,8 +594,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 	string max_value_str_tmp = new_max_value_str;
 	string dev_name = ext->d_name;
 
-	Tango::DeviceImpl *dev = get_att_device();
-	Tango::DeviceClass *dev_class = dev->get_device_class();
+	Tango::DeviceClass *dev_class = get_att_device_class(ext->d_name);
 	Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
 	Tango::Attr &att = mca->get_attr(name);
 	vector<AttrProperty> &def_user_prop = att.get_user_default_properties();
@@ -614,8 +624,11 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 		{
 			set_value = false;
 
-			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-			AutoTangoMonitor sync1(&mon1);
+			Tango::Util *tg = Tango::Util::instance();
+			Tango::TangoMonitor *mon_ptr = NULL;
+			if (tg->is_svr_starting() == false)
+				mon_ptr = &(get_att_device()->get_att_conf_monitor());
+			AutoTangoMonitor sync1(mon_ptr);
 
 			if (Tango::Util::_UseDb == true)
 			{
@@ -626,7 +639,6 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 				db_data.push_back(attr_dd);
 				db_data.push_back(prop_dd);
 
-				Tango::Util *tg = Tango::Util::instance();
 				bool retry = true;
 				while (retry == true)
 				{
@@ -645,7 +657,8 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			check_max_value = false;
 			max_value_str = AlrmValueNotSpec;
 
-			get_att_device()->push_att_conf_event(this);
+			if (tg->is_svr_starting() == false)
+				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_max_value_str.c_str(),NotANumber) == 0) ||
 				(TG_strcasecmp(new_max_value_str.c_str(),usr_def_val.c_str()) == 0) ||
@@ -660,8 +673,11 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 		{
 			set_value = false;
 
-			TangoMonitor &mon1 = get_att_device()->get_att_conf_monitor();
-			AutoTangoMonitor sync1(&mon1);
+			Tango::Util *tg = Tango::Util::instance();
+			Tango::TangoMonitor *mon_ptr = NULL;
+			if (tg->is_svr_starting() == false)
+				mon_ptr = &(get_att_device()->get_att_conf_monitor());
+			AutoTangoMonitor sync1(mon_ptr);
 
 			if (Tango::Util::_UseDb == true)
 			{
@@ -670,7 +686,6 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 				db_data.push_back(attr_dd);
 				db_data.push_back(prop_dd);
 
-				Tango::Util *tg = Tango::Util::instance();
 				bool retry = true;
 				while (retry == true)
 				{
@@ -689,7 +704,8 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			check_max_value = false;
 			max_value_str = AlrmValueNotSpec;
 
-			get_att_device()->push_att_conf_event(this);
+			if (tg->is_svr_starting() == false)
+				get_att_device()->push_att_conf_event(this);
 		}
 	}
 
@@ -699,19 +715,17 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 		    (data_type != Tango::DEV_BOOLEAN) &&
 		    (data_type != Tango::DEV_STATE))
 		{
-			short sh;
 			double db;
 			float fl;
-			unsigned short ush;
 
 			TangoSys_MemStream str;
 			str << max_value_str_tmp;
 			switch (data_type)
 			{
 			case Tango::DEV_SHORT:
-				if (!(str >> sh && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
-				set_max_value(sh);
+				set_max_value((DevShort)db);
 				break;
 
 			case Tango::DEV_LONG:
@@ -739,33 +753,33 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 				break;
 
 			case Tango::DEV_USHORT:
-				if (!(str >> ush && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
-				set_max_value(ush);
+				(db < 0.0) ? set_max_value((DevUShort)(-db)) : set_max_value((DevUShort)db);
 				break;
 
 			case Tango::DEV_UCHAR:
-				if (!(str >> sh && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
-				set_max_value((unsigned char)sh);
+				(db < 0.0) ? set_max_value((DevUChar)(-db)) : set_max_value((DevUChar)db);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
 					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
-				set_max_value((DevULong)db);
+				(db < 0.0) ? set_max_value((DevULong)(-db)) : set_max_value((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
 					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
-				set_max_value((DevULong64)db);
+				(db < 0.0) ? set_max_value((DevULong64)(-db)) : set_max_value((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
-				if (!(str >> sh && str.eof()))
+				if (!(str >> db && str.eof()))
 					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
-				set_max_value((unsigned char)sh);
+				(db < 0.0) ? set_max_value((DevUChar)(-db)) : set_max_value((DevUChar)db);
 				break;
 			}
 		}

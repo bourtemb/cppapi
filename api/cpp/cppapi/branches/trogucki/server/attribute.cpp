@@ -3288,24 +3288,33 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 	if(delta_t_defined && delta_val_defined)
 		alarm_conf.set(rds);
-	else if(!delta_t_defined && !delta_val_defined)
+	else
+	{
 		alarm_conf.reset(rds);
-	else {
 
 //
 // Set device if not already done
 //
 
-		if (ext->dev == NULL)
+		try
 		{
-			Tango::Util *tg = Tango::Util::instance();
-			ext->dev = tg->get_device_by_name(ext->d_name);
+			if (ext->dev == NULL)
+			{
+				// TODO: check how to make cerr quiet
+				cerr.setstate(ios::failbit);
+				Tango::Util *tg = Tango::Util::instance();
+				ext->dev = tg->get_device_by_name(ext->d_name);
+				cerr.clear();
+			}
+
+			if (ext->dev->get_logger()->is_warn_enabled())
+					ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "RDS (Read Different Set) incoherent (only one of the properties delta_t or delta_val is set) in attribute " << name << endl;
 		}
-
-		if (ext->dev->get_logger()->is_warn_enabled())
-				ext->dev->get_logger()->warn_stream() << log4tango::LogInitiator::_begin_log << "RDS (Read Different Set) incoherent (only one of the properties delta_t or delta_val is set) in attribute " << name << endl;
+		catch(...)
+		{
+			cerr.clear();
+		}
 	}
-
 
 //
 // Now, the 4 changes parameters (for change and archive events)

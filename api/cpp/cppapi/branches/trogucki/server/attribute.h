@@ -2171,7 +2171,6 @@ private:
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
 	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
 	void log_quality();
-	DeviceClass *get_att_device_class(string &);
 
 	unsigned long 		name_size;
 	string 				name_lower;
@@ -2248,6 +2247,7 @@ protected:
 	bool check_level_alarm();
 	bool check_warn_alarm();
 	void upd_att_prop_db(Tango::Attr_CheckVal &,const char *);
+	DeviceClass *get_att_device_class(string &);
 
 	template <typename T>
     void check_hard_coded_properties(const T &);

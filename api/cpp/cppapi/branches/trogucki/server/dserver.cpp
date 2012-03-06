@@ -872,12 +872,16 @@ void DServer::restart(string &d_name)
 // model
 //
 
+	tg->set_svr_starting(true);
+	dev_cl->set_device_factory_done(false);
 	{
 		AutoTangoMonitor sync(dev_cl);
 		AutoPyLock PyLo;
 
 		dev_cl->device_factory(&name);
 	}
+	dev_cl->set_device_factory_done(true);
+	tg->set_svr_starting(false);
 
 //
 // Apply memorized values for memorized attributes (if any)
