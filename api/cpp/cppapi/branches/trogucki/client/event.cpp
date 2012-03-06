@@ -1366,11 +1366,16 @@ int EventConsumer::connect_event(DeviceProxy *device,
     new_event_callback.fully_qualified_event_name = device_name + '/' + att_name_lower + '.' + event_name;
 
     const DevVarLongStringArray *dvlsa;
-    dd >> dvlsa;
-    if (dvlsa->lvalue.length() >= 2)
-        new_event_callback.device_idl = dvlsa->lvalue[1];
-    else
+
+    if ((dd >> dvlsa) == false)
         new_event_callback.device_idl = 0;
+    else
+    {
+        if (dvlsa->lvalue.length() >= 2)
+            new_event_callback.device_idl = dvlsa->lvalue[1];
+        else
+            new_event_callback.device_idl = 0;
+    }
     new_event_callback.ctr = 1;
 
     new_ess.callback = callback;
