@@ -2405,7 +2405,6 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
-					B << db; \
 					break; \
 \
 				case Tango::DEV_FLOAT: \
@@ -2413,7 +2412,6 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
-					B << fl; \
 					break; \
 \
 				case Tango::DEV_USHORT: \
@@ -2448,7 +2446,8 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 					(db < 0.0) ? B << (DevULong64)(-db) : B << (DevULong64)db; \
 					break; \
 				} \
-				tmp = B.str(); \
+                if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE) \
+                    tmp = B.str(); \
 			} \
 			else \
 			{ \

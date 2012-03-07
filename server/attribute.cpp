@@ -2108,6 +2108,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 
 //
 // For the last four properties, convert their value to the right type
+// First min_value
 //
 
 	TangoSys_MemStream str;
@@ -2187,7 +2188,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << min_value.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -2195,7 +2195,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("min_value",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << min_value.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -2243,7 +2242,8 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << min_value.uch;
 				break;
 			}
-			min_value_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                min_value_str = str.str();
 			check_min_value = true;
 
 //
@@ -2264,6 +2264,9 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			throw_err_data_type("min_value",dev_name,"Attribute::set_properties");
 	}
 
+//
+// Max value case
+//
 
 	if(TG_strcasecmp(conf.max_value,AlrmValueNotSpec) == 0)
 	{
@@ -2344,7 +2347,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << max_value.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -2352,7 +2354,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("max_value",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << max_value.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -2400,7 +2401,8 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << max_value.uch;
 				break;
 			}
-			max_value_str = str.str();
+            if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                max_value_str = str.str();
 			check_max_value = true;
 
 //
@@ -2421,6 +2423,9 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			throw_err_data_type("max_value",dev_name,"Attribute::set_properties");
 	}
 
+//
+// Min alarm case
+//
 
 	if(TG_strcasecmp(conf.min_alarm,AlrmValueNotSpec) == 0)
 	{
@@ -2501,7 +2506,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << min_alarm.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -2509,7 +2513,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("min_alarm",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << min_alarm.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -2557,13 +2560,17 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << min_alarm.uch;
 				break;
 			}
-			min_alarm_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                min_alarm_str = str.str();
 			alarm_conf.set(min_level);
 		}
 		else
 			throw_err_data_type("min_alarm",dev_name,"Attribute::set_properties");
 	}
 
+//
+// Max alarm case
+//
 
 	if(TG_strcasecmp(conf.max_alarm,AlrmValueNotSpec) == 0)
 	{
@@ -2644,7 +2651,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << max_alarm.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -2652,7 +2658,6 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 					throw_err_format("max_alarm",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << max_alarm.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -2700,7 +2705,8 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << max_alarm.uch;
 				break;
 			}
-			max_alarm_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                max_alarm_str = str.str();
 			alarm_conf.set(max_level);
 		}
 		else
@@ -2864,7 +2870,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << min_warning.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -2872,7 +2877,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("min_warning",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << min_warning.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -2920,7 +2924,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str << min_warning.uch;
 				break;
 			}
-			min_warning_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                min_warning_str = str.str();
 			alarm_conf.set(min_warn);
 		}
 		else
@@ -3010,7 +3015,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << max_warning.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -3018,7 +3022,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("max_warning",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << max_warning.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -3066,7 +3069,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str << max_warning.uch;
 				break;
 			}
-			max_warning_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                max_warning_str = str.str();
 			alarm_conf.set(max_warn);
 		}
 		else
@@ -3153,7 +3157,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << delta_val.db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -3161,7 +3164,6 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					throw_err_format("delta_val",dev_name,"Attribute::set_properties");
 				str.str("");
 				str.clear();
-				str << delta_val.fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -3209,7 +3211,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str << delta_val.uch;
 				break;
 			}
-			delta_val_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                delta_val_str = str.str();
 			delta_val_defined = true;
 		}
 		else
@@ -4206,7 +4209,6 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
 				str.str("");
 				str.clear();
-				str << db;
 				break;
 
 			case Tango::DEV_FLOAT:
@@ -4214,7 +4216,6 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
 				str.str("");
 				str.clear();
-				str << fl;
 				break;
 
 			case Tango::DEV_USHORT:
@@ -4249,7 +4250,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 				(db < 0.0) ? str << (DevULong64)(-db) : str << (DevULong64)db;
 				break;
 			}
-			delta_val_tmp_str = str.str();
+			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
+                delta_val_tmp_str = str.str();
 		}
 		else
 			throw_err_data_type("delta_val",dev_name,"Attribute::upd_database");
