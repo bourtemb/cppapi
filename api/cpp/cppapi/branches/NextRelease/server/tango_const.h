@@ -44,7 +44,7 @@ namespace Tango
 
 #define     TANGO_VERSION_MAJOR     8
 #define     TANGO_VERSION_MINOR     0
-#define     TANGO_VERSION_PATCH     2
+#define     TANGO_VERSION_PATCH     3
 
 #define     build_string(s)         #s
 #define     xbuild_string(s)        build_string(s)
