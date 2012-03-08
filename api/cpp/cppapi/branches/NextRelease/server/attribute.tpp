@@ -184,7 +184,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -277,7 +277,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 // Push a att conf event
 //
 
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         get_att_device()->push_att_conf_event(this);
 }
 
@@ -319,7 +319,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -350,7 +350,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 			alarm_conf.reset(min_level);
 			min_alarm_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_min_alarm_str.c_str(),NotANumber) == 0) ||
@@ -368,7 +368,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -397,7 +397,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 			alarm_conf.reset(min_level);
 			min_alarm_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 	}
@@ -577,7 +577,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 
 	Tango::Util *tg = Tango::Util::instance();
 	Tango::TangoMonitor *mon_ptr = NULL;
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -670,7 +670,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 // Push a att conf event
 //
 
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         get_att_device()->push_att_conf_event(this);
 }
 
@@ -712,7 +712,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -744,7 +744,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 			alarm_conf.reset(max_level);
 			max_alarm_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_max_alarm_str.c_str(),NotANumber) == 0) ||
@@ -762,7 +762,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -791,7 +791,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 			alarm_conf.reset(max_level);
 			max_alarm_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 	}
@@ -971,7 +971,7 @@ void Attribute::set_min_warning(const T &new_min_warning)
 
 	Tango::Util *tg = Tango::Util::instance();
 	Tango::TangoMonitor *mon_ptr = NULL;
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -1064,7 +1064,7 @@ void Attribute::set_min_warning(const T &new_min_warning)
 // Push a att conf event
 //
 
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		get_att_device()->push_att_conf_event(this);
 }
 
@@ -1106,7 +1106,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -1137,7 +1137,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 			alarm_conf.reset(min_warn);
 			min_warning_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_min_warning_str.c_str(),NotANumber) == 0) ||
@@ -1155,7 +1155,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -1184,7 +1184,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 			alarm_conf.reset(min_warn);
 			min_warning_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 	}
@@ -1364,7 +1364,7 @@ void Attribute::set_max_warning(const T &new_max_warning)
 
 	Tango::Util *tg = Tango::Util::instance();
 	Tango::TangoMonitor *mon_ptr = NULL;
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -1457,7 +1457,7 @@ void Attribute::set_max_warning(const T &new_max_warning)
 // Push a att conf event
 //
 
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		get_att_device()->push_att_conf_event(this);
 }
 
@@ -1499,7 +1499,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -1530,7 +1530,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 			alarm_conf.reset(max_warn);
 			max_warning_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_max_warning_str.c_str(),NotANumber) == 0) ||
@@ -1548,7 +1548,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -1577,7 +1577,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 			alarm_conf.reset(max_warn);
 			max_warning_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 	}
@@ -1710,7 +1710,7 @@ void Attribute::get_properties(Tango::MultiAttrProp<T> &props)
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -1751,7 +1751,7 @@ void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -1793,7 +1793,7 @@ void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 // Push a att conf event
 //
 
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         get_att_device()->push_att_conf_event(this);
 }
 

@@ -2347,6 +2347,23 @@ void Util::clean_dyn_attr_prop()
 	}
 }
 
+//+----------------------------------------------------------------------------
+//
+// method : 		Util::delete_restarting_device()
+//
+// description : 	Delete a device from the vector of restarting device
+//
+// args: - d_name : - The device name
+//
+//-----------------------------------------------------------------------------
+
+void Util::delete_restarting_device(string &d_name)
+{
+    vector<string>::iterator pos;
+    pos = remove(ext->restarting_devices.begin(),ext->restarting_devices.end(),d_name);
+    ext->restarting_devices.erase(pos,ext->restarting_devices.end());
+}
+
 #ifdef _TG_WINDOWS_
 //+----------------------------------------------------------------------------
 //

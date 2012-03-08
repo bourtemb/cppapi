@@ -300,7 +300,7 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 
 	switch (data_type)
@@ -1290,7 +1290,7 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 
 	switch (data_type)

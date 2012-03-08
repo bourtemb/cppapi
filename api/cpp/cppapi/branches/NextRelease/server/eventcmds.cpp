@@ -489,7 +489,7 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 //-----------------------------------------------------------------------------
 DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVarStringArray *argin)
 {
-    if (argin->length() < 4)
+    if (argin->length() > 1 && argin->length() < 4)
     {
 		TangoSys_OMemStream o;
 		o << "Not enough input arguments, needs 4 i.e. device name, attribute name, action, event name" << ends;
@@ -499,144 +499,185 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 								(const char *)"DServer::zmq_event_subscription_change");
 	}
 
-	string dev_name, attr_name, action, event, attr_name_lower;
-	dev_name = (*argin)[0];
-	attr_name = (*argin)[1];
-	action = (*argin)[2];
-	event = (*argin)[3];
+    Tango::DevVarLongStringArray *ret_data = new Tango::DevVarLongStringArray();
+    Tango::Util *tg = Tango::Util::instance();
 
-	attr_name_lower = attr_name;
-	transform(attr_name_lower.begin(),attr_name_lower.end(),attr_name_lower.begin(),::tolower);
+    if (argin->length() == 1)
+    {
 
-	cout4 << "ZmqEventSubscriptionChangeCmd: subscription for device " << dev_name << " attribute " << attr_name << " action " << action << " event " << event << endl;
-	Tango::Util *tg = Tango::Util::instance();
+        string arg((*argin)[0]);
+        if (arg != "info")
+        {
+            TangoSys_OMemStream o;
+            o << "Not enough input arguments, needs 4 i.e. device name, attribute name, action, event name" << ends;
+
+            Except::throw_exception((const char *)"DServer_Events",
+                                    o.str(),
+                                    (const char *)"DServer::zmq_event_subscription_change");
+        }
+
+//
+// It's just the call to help debugging. Returns event configuration
+//
+
+        ret_data->svalue.length(2);
+
+        ZmqEventSupplier *ev;
+        if ((ev = tg->get_zmq_event_supplier()) != NULL)
+        {
+            string tmp_str("Heartbeat: ");
+            tmp_str = tmp_str + ev->get_heartbeat_endpoint();
+            ret_data->svalue[0] = CORBA::string_dup(tmp_str.c_str());
+
+            tmp_str = "Event: ";
+            tmp_str = tmp_str + ev->get_event_endpoint();
+            ret_data->svalue[1] = CORBA::string_dup(tmp_str.c_str());
+
+        }
+        else
+        {
+            ret_data->svalue[0] = CORBA::string_dup("No ZMQ event yet!");
+        }
+    }
+    else
+    {
+        string dev_name, attr_name, action, event, attr_name_lower;
+        dev_name = (*argin)[0];
+        attr_name = (*argin)[1];
+        action = (*argin)[2];
+        event = (*argin)[3];
+
+        attr_name_lower = attr_name;
+        transform(attr_name_lower.begin(),attr_name_lower.end(),attr_name_lower.begin(),::tolower);
+
+        cout4 << "ZmqEventSubscriptionChangeCmd: subscription for device " << dev_name << " attribute " << attr_name << " action " << action << " event " << event << endl;
 
 //
 // If we receive this command while the DS is in its
 // shuting down sequence, do nothing
 //
 
-	if (tg->get_heartbeat_thread_object() == NULL)
-	{
-     	TangoSys_OMemStream o;
-		o << "The device server is shutting down! You can no longer subscribe for events" << ends;
+        if (tg->get_heartbeat_thread_object() == NULL)
+        {
+            TangoSys_OMemStream o;
+            o << "The device server is shutting down! You can no longer subscribe for events" << ends;
 
-		Except::throw_exception((const char *)"DServer_Events",
-									    o.str(),
-									   (const char *)"DServer::zmq_event_subscription_change");
-	}
+            Except::throw_exception((const char *)"DServer_Events",
+                                            o.str(),
+                                           (const char *)"DServer::zmq_event_subscription_change");
+        }
 
 //
 // If the EventSupplier object is not created, create it right now
 //
 
-	ZmqEventSupplier *ev;
-	if ((ev = tg->get_zmq_event_supplier()) == NULL)
-	{
-		tg->create_zmq_event_supplier();
-		ev = tg->get_zmq_event_supplier();
-	}
+        ZmqEventSupplier *ev;
+        if ((ev = tg->get_zmq_event_supplier()) == NULL)
+        {
+            tg->create_zmq_event_supplier();
+            ev = tg->get_zmq_event_supplier();
+        }
 
 //
 // Call common method (common between old and new command)
 //
 
-    string mcast;
-    int rate,ivl;
+        string mcast;
+        int rate,ivl;
 
-    DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
+        DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
 
 //
 // Check if the client is a new one
 //
 
-    bool new_client = ev->update_connected_client(get_client_ident());
-    if (new_client == true)
-        ev->set_double_send();
+        bool new_client = ev->update_connected_client(get_client_ident());
+        if (new_client == true)
+            ev->set_double_send();
 
 //
 // Create the event publisher socket (if not already done)
 // Take care for case where the device is running with db in a file
 //
 
-    string ev_name = ev->get_fqdn_prefix();
-    if (Util::_FileDb == true)
-    {
-        int size = ev_name.size();
-        if (ev_name[size - 1] == '#')
-            ev_name.erase(size - 1);
-    }
+        string ev_name = ev->get_fqdn_prefix();
+        if (Util::_FileDb == true)
+        {
+            int size = ev_name.size();
+            if (ev_name[size - 1] == '#')
+                ev_name.erase(size - 1);
+        }
 
-    ev_name = ev_name + dev->get_name_lower() + '/' + attr_name_lower;
-    if (Util::_FileDb == true && ev != NULL)
-        ev_name = ev_name + MODIFIER_DBASE_NO;
-    ev_name = ev_name + '.' +  event;
+        ev_name = ev_name + dev->get_name_lower() + '/' + attr_name_lower;
+        if (Util::_FileDb == true && ev != NULL)
+            ev_name = ev_name + MODIFIER_DBASE_NO;
+        ev_name = ev_name + '.' +  event;
 
 //
 // If the event is defined as using mcast transport, get caller host
 //
 
-    bool local_call = false;
-    if (mcast.empty() == false)
-    {
-        client_addr *c_addr = get_client_ident();
-        if ((c_addr->client_ip[5] == 'u') ||
-            ((c_addr->client_ip[9] == '1') && (c_addr->client_ip[10] == '2') && (c_addr->client_ip[11] == '7')))
+        bool local_call = false;
+        if (mcast.empty() == false)
         {
-           local_call = true;
-        }
+            client_addr *c_addr = get_client_ident();
+            if ((c_addr->client_ip[5] == 'u') ||
+                ((c_addr->client_ip[9] == '1') && (c_addr->client_ip[10] == '2') && (c_addr->client_ip[11] == '7')))
+            {
+               local_call = true;
+            }
 
-    }
+        }
 
 //
 // Create ZMQ event socket
 //
 
-    if (mcast.empty() == false)
-        ev->create_mcast_event_socket(mcast,ev_name,rate,local_call);
-    else
-        ev->create_event_socket();
+        if (mcast.empty() == false)
+            ev->create_mcast_event_socket(mcast,ev_name,rate,local_call);
+        else
+            ev->create_event_socket();
 
 //
 // Init event counter in Event Supplier
 //
 
-    ev->init_event_cptr(ev_name);
+        ev->init_event_cptr(ev_name);
 
 //
 // Init data returned by command
 //
 
-	Tango::DevVarLongStringArray *ret_data = new Tango::DevVarLongStringArray();
-	ret_data->lvalue.length(5);
-	ret_data->svalue.length(2);
+        ret_data->lvalue.length(5);
+        ret_data->svalue.length(2);
 
-	ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
-	ret_data->lvalue[1] = dev->get_dev_idl_version();
-	ret_data->lvalue[2] = zmq_sub_event_hwm;
-	ret_data->lvalue[3] = rate;
-	ret_data->lvalue[4] = ivl;
+        ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
+        ret_data->lvalue[1] = dev->get_dev_idl_version();
+        ret_data->lvalue[2] = zmq_sub_event_hwm;
+        ret_data->lvalue[3] = rate;
+        ret_data->lvalue[4] = ivl;
 
-    string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
-	ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
-	if (mcast.empty() == true)
-	{
-        string &event_endpoint = ev->get_event_endpoint();
-        ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
-	}
-	else
-	{
-	    if (local_call == true)
-	    {
+        string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
+        ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());
+        if (mcast.empty() == true)
+        {
             string &event_endpoint = ev->get_event_endpoint();
             ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
-	    }
-	    else
-	    {
-            string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
-            ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
-	    }
-	}
+        }
+        else
+        {
+            if (local_call == true)
+            {
+                string &event_endpoint = ev->get_event_endpoint();
+                ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+            }
+            else
+            {
+                string &event_endpoint = ev->get_mcast_event_endpoint(ev_name);
+                ret_data->svalue[1] = CORBA::string_dup(event_endpoint.c_str());
+            }
+        }
+    }
 
 	return ret_data;
 }

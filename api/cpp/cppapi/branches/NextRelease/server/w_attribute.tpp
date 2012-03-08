@@ -98,7 +98,7 @@ void WAttribute::set_min_value(const T &new_min_value)
 
 	Tango::Util *tg = Tango::Util::instance();
 	Tango::TangoMonitor *mon_ptr = NULL;
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -191,7 +191,7 @@ void WAttribute::set_min_value(const T &new_min_value)
 // Push a att conf event
 //
 
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		get_att_device()->push_att_conf_event(this);
 }
 
@@ -233,7 +233,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -264,7 +264,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			check_min_value = false;
 			min_value_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_min_value_str.c_str(),NotANumber) == 0) ||
@@ -282,7 +282,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -311,7 +311,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			check_min_value = false;
 			min_value_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 	}
@@ -491,7 +491,7 @@ void WAttribute::set_max_value(const T &new_max_value)
 
 	Tango::Util *tg = Tango::Util::instance();
 	Tango::TangoMonitor *mon_ptr = NULL;
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		mon_ptr = &(get_att_device()->get_att_conf_monitor());
 	AutoTangoMonitor sync1(mon_ptr);
 
@@ -584,7 +584,7 @@ void WAttribute::set_max_value(const T &new_max_value)
 // Push a att conf event
 //
 
-	if (tg->is_svr_starting() == false)
+	if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 		get_att_device()->push_att_conf_event(this);
 }
 
@@ -626,7 +626,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -657,7 +657,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			check_max_value = false;
 			max_value_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 		else if ((TG_strcasecmp(new_max_value_str.c_str(),NotANumber) == 0) ||
@@ -675,7 +675,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 
 			Tango::Util *tg = Tango::Util::instance();
 			Tango::TangoMonitor *mon_ptr = NULL;
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				mon_ptr = &(get_att_device()->get_att_conf_monitor());
 			AutoTangoMonitor sync1(mon_ptr);
 
@@ -704,7 +704,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			check_max_value = false;
 			max_value_str = AlrmValueNotSpec;
 
-			if (tg->is_svr_starting() == false)
+			if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
 				get_att_device()->push_att_conf_event(this);
 		}
 	}

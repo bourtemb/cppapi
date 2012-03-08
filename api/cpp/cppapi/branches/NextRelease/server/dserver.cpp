@@ -854,34 +854,41 @@ void DServer::restart(string &d_name)
 // Delete the device (deactivate it and remove it)
 //
 
-	PortableServer::POA_ptr r_poa = tg->get_poa();
-	bool py_device = dev_to_del->is_py_device();
-	if (py_device == true)
-	{
-		AutoPyLock PyLo;
+    try
+    {
+        tg->add_restarting_device(d_name);
+        PortableServer::POA_ptr r_poa = tg->get_poa();
+        bool py_device = dev_to_del->is_py_device();
+        if (py_device == true)
+        {
+            AutoPyLock PyLo;
 
-		Device_3Impl *dev_to_del_3 = static_cast<Device_3Impl *>(dev_to_del);
-		dev_to_del_3->delete_dev();
-	}
-	if (dev_to_del->get_exported_flag() == true)
-		r_poa->deactivate_object(dev_to_del->get_obj_id().in());
-	CORBA::release(r_poa);
+            Device_3Impl *dev_to_del_3 = static_cast<Device_3Impl *>(dev_to_del);
+            dev_to_del_3->delete_dev();
+        }
+        if (dev_to_del->get_exported_flag() == true)
+            r_poa->deactivate_object(dev_to_del->get_obj_id().in());
+        CORBA::release(r_poa);
 
 //
 // Re-create device. Take the monitor in case of class or process serialisation
 // model
 //
 
-	tg->set_svr_starting(true);
-	dev_cl->set_device_factory_done(false);
-	{
-		AutoTangoMonitor sync(dev_cl);
-		AutoPyLock PyLo;
+        dev_cl->set_device_factory_done(false);
+        {
+            AutoTangoMonitor sync(dev_cl);
+            AutoPyLock PyLo;
 
-		dev_cl->device_factory(&name);
-	}
-	dev_cl->set_device_factory_done(true);
-	tg->set_svr_starting(false);
+            dev_cl->device_factory(&name);
+        }
+        dev_cl->set_device_factory_done(true);
+        tg->delete_restarting_device(d_name);
+    }
+    catch (...)
+    {
+        tg->delete_restarting_device(d_name);
+    }
 
 //
 // Apply memorized values for memorized attributes (if any)

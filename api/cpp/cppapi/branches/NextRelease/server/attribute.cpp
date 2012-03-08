@@ -10971,7 +10971,7 @@ DeviceClass *Attribute::get_att_device_class(string &dev_name)
     Tango::Util *tg = Tango::Util::instance();
     Tango::DeviceClass *dev_class = NULL;
 
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
     {
         Tango::DeviceImpl *dev = get_att_device();
         dev_class = dev->get_device_class();
