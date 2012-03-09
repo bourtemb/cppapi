@@ -506,6 +506,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
     {
 
         string arg((*argin)[0]);
+        transform(arg.begin(),arg.end(),arg.begin(),::tolower);
         if (arg != "info")
         {
             TangoSys_OMemStream o;
