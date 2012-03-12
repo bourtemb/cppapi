@@ -144,9 +144,10 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 // Check type validity
 //
 
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_min_alarm()");
@@ -169,6 +170,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 //
 
 	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
 		str << (short)new_min_alarm; // to represent the numeric value
 	else
@@ -412,6 +414,7 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 			float fl;
 
 			TangoSys_MemStream str;
+			str.precision(TANGO_FLOAT_PRECISION);
 			str << min_alarm_str_tmp;
 			switch (data_type)
 			{
@@ -499,9 +502,10 @@ inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 template <typename T>
 void Attribute::get_min_alarm(T &min_al)
 {
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_min_alarm()");
@@ -537,9 +541,10 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 // Check type validity
 //
 
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_alarm()");
@@ -562,6 +567,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 //
 
 	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
 		str << (short)new_max_alarm; // to represent the numeric value
 	else
@@ -806,6 +812,7 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 			float fl;
 
 			TangoSys_MemStream str;
+			str.precision(TANGO_FLOAT_PRECISION);
 			str << max_alarm_str_tmp;
 			switch (data_type)
 			{
@@ -893,9 +900,10 @@ inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 template <typename T>
 void Attribute::get_max_alarm(T &max_al)
 {
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_max_alarm()");
@@ -931,9 +939,10 @@ void Attribute::set_min_warning(const T &new_min_warning)
 // Check type validity
 //
 
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 				      (const char *)err_msg.c_str(),
 				      (const char *)"Attribute::set_min_warning()");
@@ -956,6 +965,7 @@ void Attribute::set_min_warning(const T &new_min_warning)
 //
 
 	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
 		str << (short)new_min_warning; // to represent the numeric value
 	else
@@ -1199,6 +1209,7 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 			float fl;
 
 			TangoSys_MemStream str;
+			str.precision(TANGO_FLOAT_PRECISION);
 			str << min_warning_str_tmp;
 			switch (data_type)
 			{
@@ -1286,9 +1297,10 @@ inline void Attribute::set_min_warning(const string &new_min_warning_str)
 template <typename T>
 void Attribute::get_min_warning(T &min_war)
 {
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_min_warning()");
@@ -1324,9 +1336,10 @@ void Attribute::set_max_warning(const T &new_max_warning)
 // Check type validity
 //
 
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_max_warning()");
@@ -1349,6 +1362,7 @@ void Attribute::set_max_warning(const T &new_max_warning)
 //
 
 	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
 		str << (short)new_max_warning; // to represent the numeric value
 	else
@@ -1592,6 +1606,7 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 			float fl;
 
 			TangoSys_MemStream str;
+			str.precision(TANGO_FLOAT_PRECISION);
 			str << max_warning_str_tmp;
 			switch (data_type)
 			{
@@ -1679,9 +1694,10 @@ inline void Attribute::set_max_warning(const string &new_max_warning_str)
 template <typename T>
 void Attribute::get_max_warning(T &max_war)
 {
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_max_warning()");
@@ -1701,6 +1717,19 @@ void Attribute::get_max_warning(T &max_war)
 template <typename T>
 void Attribute::get_properties(Tango::MultiAttrProp<T> &props)
 {
+
+//
+// Check data type
+//
+
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
+	{
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					  (const char *)err_msg.c_str(),
+					  (const char *)"Attribute::get_properties()");
+	}
 
 //
 // Get the monitor protecting device att config
@@ -1742,6 +1771,19 @@ void Attribute::get_properties(Tango::MultiAttrProp<T> &props)
 template <typename T>
 void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 {
+
+//
+// Check data type
+//
+
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
+	{
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
+					  (const char *)err_msg.c_str(),
+					  (const char *)"Attribute::set_properties()");
+	}
 
 //
 // Get the monitor protecting device att config

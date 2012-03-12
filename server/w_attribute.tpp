@@ -59,12 +59,13 @@ void WAttribute::set_min_value(const T &new_min_value)
 // Check type validity
 //
 
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
-					  (const char *)"Attribute::set_min_value()");
+					  (const char *)"WAttribute::set_min_value()");
 	}
 
 //
@@ -84,6 +85,7 @@ void WAttribute::set_min_value(const T &new_min_value)
 //
 
 	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
 		str << (short)new_min_value; // to represent the numeric value
 	else
@@ -326,6 +328,7 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			float fl;
 
 			TangoSys_MemStream str;
+			str.precision(TANGO_FLOAT_PRECISION);
 			str << min_value_str_tmp;
 			switch (data_type)
 			{
@@ -413,19 +416,20 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 template <typename T>
 void WAttribute::get_min_value(T &min_val)
 {
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
-					  (const char *)"Attribute::get_min_value()");
+					  (const char *)"WAttribute::get_min_value()");
 	}
 
 	if (check_min_value == false)
 	{
 		Except::throw_exception((const char *)"API_AttrNotAllowed",
 					(const char *)"Minimum value not defined for this attribute",
-					(const char *)"Attribute::get_min_value()");
+					(const char *)"WAttribute::get_min_value()");
 	}
 
 	memcpy((void *)&min_val,(void *)&min_value,sizeof(T));
@@ -452,12 +456,13 @@ void WAttribute::set_max_value(const T &new_max_value)
 // Check type validity
 //
 
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
-					  (const char *)"Attribute::set_max_value()");
+					  (const char *)"WAttribute::set_max_value()");
 	}
 
 //
@@ -477,6 +482,7 @@ void WAttribute::set_max_value(const T &new_max_value)
 //
 
 	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
 	if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
 		str << (short)new_max_value; // to represent the numeric value
 	else
@@ -719,6 +725,7 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			float fl;
 
 			TangoSys_MemStream str;
+			str.precision(TANGO_FLOAT_PRECISION);
 			str << max_value_str_tmp;
 			switch (data_type)
 			{
@@ -806,19 +813,20 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 template <typename T>
 void WAttribute::get_max_value(T &max_val)
 {
-	if (data_type != ranges_type2const<T>::enu)
+	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+		(data_type != ranges_type2const<T>::enu))
 	{
-		string err_msg = "Attribute data type does not match the type provided : " + ranges_type2const<T>::str;
+		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
-					  (const char *)"Attribute::get_max_value()");
+					  (const char *)"WAttribute::get_max_value()");
 	}
 
 	if (check_max_value == false)
 	{
 		Except::throw_exception((const char *)"API_AttrNotAllowed",
 					(const char *)"Minimum value not defined for this attribute",
-					(const char *)"Attribute::get_max_value()");
+					(const char *)"WAttribute::get_max_value()");
 	}
 
 	memcpy((void *)&max_val,(void *)&max_value,sizeof(T));

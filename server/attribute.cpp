@@ -70,6 +70,7 @@ RANGES_TYPE2CONST(Tango::DevUChar,DEV_UCHAR)
 RANGES_TYPE2CONST(Tango::DevULong,DEV_ULONG)
 RANGES_TYPE2CONST(Tango::DevULong64,DEV_ULONG64)
 RANGES_TYPE2CONST(Tango::DevUShort,DEV_USHORT)
+RANGES_TYPE2CONST(Tango::DevEncoded,DEV_ENCODED)
 
 //
 // A classical function which will be used as unary predicate for the find_if
@@ -639,7 +640,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_alarm.sh && str.eof()))
 					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
-				min_alarm.uch = (unsigned char)min_alarm.sh;
+				min_alarm.uch = (DevUChar)min_alarm.sh;
 				if(alarm_conf.test(max_level) && min_alarm.uch >= max_alarm.uch)
 					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -663,7 +664,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_alarm.sh && str.eof()))
 					throw_err_format("min_alarm",dev_name,"Attribute::init_opt_prop");
-				min_alarm.uch = (unsigned char)min_alarm.sh;
+				min_alarm.uch = (DevUChar)min_alarm.sh;
 				if(alarm_conf.test(max_level) && min_alarm.uch >= max_alarm.uch)
 					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -742,7 +743,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_alarm.sh && str.eof()))
 					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
-				max_alarm.uch = (unsigned char)max_alarm.sh;
+				max_alarm.uch = (DevUChar)max_alarm.sh;
 				if(alarm_conf.test(min_level) && min_alarm.uch >= max_alarm.uch)
 					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -766,7 +767,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_alarm.sh && str.eof()))
 					throw_err_format("max_alarm",dev_name,"Attribute::init_opt_prop");
-				max_alarm.uch = (unsigned char)max_alarm.sh;
+				max_alarm.uch = (DevUChar)max_alarm.sh;
 				if(alarm_conf.test(min_level) && min_alarm.uch >= max_alarm.uch)
 					throw_incoherent_val_err("min_alarm","max_alarm",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -845,7 +846,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_value.sh && str.eof()))
 					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
-				min_value.uch = (unsigned char)min_value.sh;
+				min_value.uch = (DevUChar)min_value.sh;
 				if(check_max_value && min_value.uch >= max_value.uch)
 					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -869,7 +870,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_value.sh && str.eof()))
 					throw_err_format("min_value",dev_name,"Attribute::init_opt_prop");
-				min_value.uch = (unsigned char)min_value.sh;
+				min_value.uch = (DevUChar)min_value.sh;
 				if(check_max_value && min_value.uch >= max_value.uch)
 					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -948,7 +949,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_value.sh && str.eof()))
 					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
-				max_value.uch = (unsigned char)max_value.sh;
+				max_value.uch = (DevUChar)max_value.sh;
 				if(check_min_value && min_value.uch >= max_value.uch)
 					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -972,7 +973,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_value.sh && str.eof()))
 					throw_err_format("max_value",dev_name,"Attribute::init_opt_prop");
-				max_value.uch = (unsigned char)max_value.sh;
+				max_value.uch = (DevUChar)max_value.sh;
 				if(check_min_value && min_value.uch >= max_value.uch)
 					throw_incoherent_val_err("min_value","max_value",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -1050,7 +1051,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> min_warning.sh && str.eof()))
 					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
-				min_warning.uch = (unsigned char)min_warning.sh;
+				min_warning.uch = (DevUChar)min_warning.sh;
 				if(alarm_conf.test(max_warn) && min_warning.uch >= max_warning.uch)
 					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -1074,7 +1075,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> min_warning.sh && str.eof()))
 					throw_err_format("min_warning",dev_name,"Attribute::init_opt_prop");
-				min_warning.uch = (unsigned char)min_warning.sh;
+				min_warning.uch = (DevUChar)min_warning.sh;
 				if(alarm_conf.test(max_warn) && min_warning.uch >= max_warning.uch)
 					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -1153,7 +1154,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> max_warning.sh && str.eof()))
 					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
-				max_warning.uch = (unsigned char)max_warning.sh;
+				max_warning.uch = (DevUChar)max_warning.sh;
 				if(alarm_conf.test(min_warn) && min_warning.uch >= max_warning.uch)
 					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -1177,7 +1178,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> max_warning.sh && str.eof()))
 					throw_err_format("max_warning",dev_name,"Attribute::init_opt_prop");
-				max_warning.uch = (unsigned char)max_warning.sh;
+				max_warning.uch = (DevUChar)max_warning.sh;
 				if(alarm_conf.test(min_warn) && min_warning.uch >= max_warning.uch)
 					throw_incoherent_val_err("min_warning","max_warning",dev_name,"Attribute::init_opt_prop");
 				break;
@@ -1267,7 +1268,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_UCHAR:
 				if (!(str >> delta_val.sh && str.eof()))
 					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
-				delta_val.uch = (unsigned char)delta_val.sh;
+				delta_val.uch = (DevUChar)delta_val.sh;
 				break;
 
 			case Tango::DEV_ULONG:
@@ -1285,7 +1286,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 			case Tango::DEV_ENCODED:
 				if (!(str >> delta_val.sh && str.eof()))
 					throw_err_format("delta_val",dev_name,"Attribute::init_opt_prop");
-				delta_val.uch = (unsigned char)delta_val.sh;
+				delta_val.uch = (DevUChar)delta_val.sh;
 				break;
 			}
 			if(delta_t_defined)
@@ -2239,7 +2240,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				(min_value.db < 0.0) ? min_value.uch = (DevUChar)(-min_value.db) : min_value.uch = (DevUChar)min_value.db;
 				str.str("");
 				str.clear();
-				str << min_value.uch;
+				str << (short)min_value.uch;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -2398,7 +2399,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				(max_value.db < 0.0) ? max_value.uch = (DevUChar)(-max_value.db) : max_value.uch = (DevUChar)max_value.db;
 				str.str("");
 				str.clear();
-				str << max_value.uch;
+				str << (short)max_value.uch;
 				break;
 			}
             if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -2557,7 +2558,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				(min_alarm.db < 0.0) ? min_alarm.uch = (DevUChar)(-min_alarm.db) : min_alarm.uch = (DevUChar)min_alarm.db;
 				str.str("");
 				str.clear();
-				str << min_alarm.uch;
+				str << (short)min_alarm.uch;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -2702,7 +2703,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				(max_alarm.db < 0.0) ? max_alarm.uch = (DevUChar)(-max_alarm.db) : max_alarm.uch = (DevUChar)max_alarm.db;
 				str.str("");
 				str.clear();
-				str << max_alarm.uch;
+				str << (short)max_alarm.uch;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -2921,7 +2922,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				(min_warning.db < 0.0) ? min_warning.uch = (DevUChar)(-min_warning.db) : min_warning.uch = (DevUChar)min_warning.db;
 				str.str("");
 				str.clear();
-				str << min_warning.uch;
+				str << (short)min_warning.uch;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -3066,7 +3067,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				(max_warning.db < 0.0) ? max_warning.uch = (DevUChar)(-max_warning.db) : max_warning.uch = (DevUChar)max_warning.db;
 				str.str("");
 				str.clear();
-				str << max_warning.uch;
+				str << (short)max_warning.uch;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -3208,7 +3209,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				(delta_val.db < 0.0) ? delta_val.uch = (DevUChar)(-delta_val.db) : delta_val.uch = (DevUChar)delta_val.db;
 				str.str("");
 				str.clear();
-				str << delta_val.uch;
+				str << (short)delta_val.uch;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
@@ -4248,6 +4249,14 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 				str.str("");
 				str.clear();
 				(db < 0.0) ? str << (DevULong64)(-db) : str << (DevULong64)db;
+				break;
+
+			case Tango::DEV_ENCODED:
+				if (!(str >> db && str.eof()))
+					throw_err_format("delta_val",dev_name,"Attribute::upd_database");
+				str.str("");
+				str.clear();
+				(db < 0.0) ? str << (short)(DevUChar)(-db) : str << (short)(DevUChar)db;
 				break;
 			}
 			if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE)
