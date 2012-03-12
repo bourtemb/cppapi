@@ -116,6 +116,7 @@
 //
 
 #ifndef TANGO_CLIENT
+	#include <attrprop.h>
 	#include <tango_monitor.h>
 	#include <device.h>
 	#include <utils.h>
@@ -127,6 +128,7 @@
 	#include <dserver.h>
 	#include <attribute.tpp>
 	#include <w_attribute.tpp>
+	#include <attrprop.tpp>
 #endif
 
 #include <event.h>

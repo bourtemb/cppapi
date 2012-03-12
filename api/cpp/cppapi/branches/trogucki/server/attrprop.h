@@ -40,16 +40,6 @@
 #define _ATTRPROP_H
 
 #include <tango.h>
-#include <attrdesc.h>
-#include <encoded_attribute.h>
-#include <functional>
-#include <time.h>
-#include <iterator>
-
-#ifdef _TG_WINDOWS_
-	#include <sys/types.h>
-	#include <sys/timeb.h>
-#endif
 
 namespace Tango
 {
@@ -87,9 +77,14 @@ public:
  *
  * @param value The attribute property value.
  */
-	AttrProp(const T &value) : val(value), is_value(true) {
+	AttrProp(const T &value) : val(value), is_value(true)
+	{
 		TangoSys_MemStream st;
-		st << value;
+		st.precision(TANGO_FLOAT_PRECISION);
+		if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+			st << (short)value; // to represent the numeric value
+		else
+			st << value;
 		str = st.str();
 	}
 /**
@@ -130,7 +125,11 @@ public:
 	AttrProp &operator=(const T &value)
 	{
 		TangoSys_MemStream st;
-		st << value;
+		st.precision(TANGO_FLOAT_PRECISION);
+		if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+			st << (short)value; // to represent the numeric value
+		else
+			st << value;
 		str = st.str();
 		val = value;
 		is_value = true;
@@ -199,7 +198,11 @@ public:
 	void set_val(const T &value)
 	{
 		TangoSys_MemStream st;
-		st << value;
+		st.precision(TANGO_FLOAT_PRECISION);
+		if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+			st << (short)value; // to represent the numeric value
+		else
+			st << value;
 		str = st.str();
 		val = value;
 		is_value = true;
@@ -209,13 +212,13 @@ public:
  *
  * @param value_str The the 'C string' representation of the attribute property value.
  */
-	void set_str(const char *value_str) {val = string(value_str); is_value = false;}
+	void set_str(const char *value_str) {str = string(value_str); is_value = false;}
 /**
  * Set string representation of the attribute property value.
  *
  * @param value_str The the string representation of the attribute property value.
  */
-	void set_str(const string &value_str) {val = value_str; is_value = false;}
+	void set_str(const string &value_str) {str = value_str; is_value = false;}
 //@}
 
 /**@name Check method
@@ -288,13 +291,18 @@ public:
  * @param values A vector containing two values of
  * the compound attribute property.
  */
-	DoubleAttrProp(const vector<T> &values) : val(values), is_value(true) {
+	DoubleAttrProp(const vector<T> &values) : val(values), is_value(true)
+	{
 		TangoSys_MemStream st;
+		st.precision(TANGO_FLOAT_PRECISION);
 		for(size_t i = 0; i < values.size(); i++)
 		{
 			if(i > 0)
 				st << ",";
-			st << values[i];
+			if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+				st << (short)values[i]; // to represent the numeric value
+			else
+				st << values[i];
 		}
 		str = st.str();
 	}
@@ -305,7 +313,11 @@ public:
  */
 	DoubleAttrProp(const T &value) : is_value(true) {
 		TangoSys_MemStream st;
-		st << value;
+		st.precision(TANGO_FLOAT_PRECISION);
+		if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+			st << (short)value; // to represent the numeric value
+		else
+			st << value;
 		str = st.str();
 		val.push_back(value);
 	}
@@ -348,11 +360,15 @@ public:
 	DoubleAttrProp & operator=(const vector<T> &values)
 	{
 		TangoSys_MemStream st;
+		st.precision(TANGO_FLOAT_PRECISION);
 		for(size_t i = 0; i < values.size(); i++)
 		{
 			if(i > 0)
 				st << ",";
-			st << values[i];
+			if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+				st << (short)values[i]; // to represent the numeric value
+			else
+				st << values[i];
 		}
 		str = st.str();
 		val = values;
@@ -370,7 +386,11 @@ public:
 	DoubleAttrProp & operator=(const T &value)
 	{
 		TangoSys_MemStream st;
-		st << value;
+		st.precision(TANGO_FLOAT_PRECISION);
+		if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+			st << (short)value; // to represent the numeric value
+		else
+			st << value;
 		str = st.str();
 		val.push_back(value);
 		is_value = true;
@@ -441,11 +461,15 @@ public:
 	void set_val(const vector<T> &values)
 	{
 		TangoSys_MemStream st;
+		st.precision(TANGO_FLOAT_PRECISION);
 		for(size_t i = 0; i < values.size(); i++)
 		{
 			if(i > 0)
 				st << ",";
-			st << values[i];
+			if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+				st << (short)values[i]; // to represent the numeric value
+			else
+				st << values[i];
 		}
 		str = st.str();
 		val = values;
@@ -462,7 +486,11 @@ public:
 	void set_val(const T &value)
 	{
 		TangoSys_MemStream st;
-		st << value;
+		st.precision(TANGO_FLOAT_PRECISION);
+		if(ranges_type2const<T>::enu == Tango::DEV_UCHAR)
+			st << (short)value; // to represent the numeric value
+		else
+			st << value;
 		str = st.str();
 		val.push_back(value);
 		is_value = true;
@@ -472,13 +500,13 @@ public:
  *
  * @param value_str The 'C string' representation of the compound attribute property values.
  */
-	void set_str(const char *value_str) {val = value_str; is_value = false;}
+	void set_str(const char *value_str) {str = string(value_str); is_value = false;}
 /**
  * Set string representation of the compound attribute property values.
  *
  * @param value_str The string representation of the compound attribute property values.
  */
-	void set_str(const string &value_str) {val = value_str; is_value = false;}
+	void set_str(const string &value_str) {str = value_str; is_value = false;}
 //@}
 
 /**@name Check method
@@ -537,6 +565,17 @@ template <typename T>
 class MultiAttrProp
 {
 public:
+/**@name Constructors
+ * Miscellaneous constructors */
+//@{
+/**
+ * Default constructor.
+ */
+	MultiAttrProp()
+	{
+		CmdArgType type = ranges_type2const<T>::enu; // restricts template initialisation to supported types
+	}
+//@}
 /**@name Class data members */
 //@{
 /**
@@ -590,7 +629,7 @@ public:
 /**
  * Attribute delta_t
  */
-        AttrProp<T>                 delta_t;
+        AttrProp<DevLong>			delta_t;
 /**
  * Attribute delta_val
  */
@@ -598,27 +637,27 @@ public:
 /**
  * Attribute event_period
  */
-        AttrProp<T>                 event_period;
+        AttrProp<DevLong>                 	event_period;
 /**
  * Attribute archive_period
  */
-        AttrProp<T>                 archive_period;
+        AttrProp<DevLong>                 	archive_period;
 /**
  * Attribute rel_change
  */
-        DoubleAttrProp<T>	        rel_change;
+        DoubleAttrProp<DevDouble>	        rel_change;
 /**
  * Attribute abs_change
  */
-        DoubleAttrProp<T>	        abs_change;
+        DoubleAttrProp<DevDouble>	        abs_change;
 /**
  * Attribute archive_rel_change
  */
-        DoubleAttrProp<T>	        archive_rel_change;
+        DoubleAttrProp<DevDouble>	        archive_rel_change;
 /**
  * Attribute archive_abs_change
  */
-        DoubleAttrProp<T>	        archive_abs_change;
+        DoubleAttrProp<DevDouble>	        archive_abs_change;
 //@}
 private:
 

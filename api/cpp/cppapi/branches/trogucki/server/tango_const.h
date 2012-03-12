@@ -826,7 +826,8 @@ const char * const CmdArgTypeName[] = {
 	"DevULong64",
 	"DevVarLong64Array",
 	"DevVarULong64Array",
-	"DevInt"
+	"DevInt",
+	"DevEncoded"
 };
 
 //
@@ -933,6 +934,38 @@ typedef struct _OptAttrProp
 	const char *default_value;
 }OptAttrProp;
 
+
+// Ranges type-enum-string conversions
+
+template <typename T>
+struct ranges_type2const
+{
+	static CmdArgType enu;
+	static string str;
+};
+
+template <CmdArgType>
+struct ranges_const2type
+{
+	static string str;
+};
+
+#define RANGES_TYPE2CONST(type,constant) \
+	template <> \
+	struct ranges_type2const<type> \
+	{ \
+		static CmdArgType enu; \
+		static string str; \
+	}; \
+	CmdArgType ranges_type2const<type>::enu = constant; \
+	string ranges_type2const<type>::str = #type; \
+	template<> \
+	struct ranges_const2type<Tango::constant> \
+	{ \
+		typedef type Type; \
+		static string str; \
+	}; \
+	string ranges_const2type<Tango::constant>::str = #type;
 
 /*
  * List of strings used by the API as the DevError reason field.

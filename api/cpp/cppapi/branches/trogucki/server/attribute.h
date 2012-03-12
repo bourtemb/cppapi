@@ -44,7 +44,6 @@
 #include <functional>
 #include <time.h>
 #include <iterator>
-#include <attrprop.h>
 
 #ifdef _TG_WINDOWS_
 	#include <sys/types.h>
@@ -53,39 +52,6 @@
 
 namespace Tango
 {
-
-// Ranges type-enum-string conversions
-
-template <typename T>
-struct ranges_type2const
-{
-	static CmdArgType enu;
-	static string str;
-};
-
-template <CmdArgType>
-struct ranges_const2type
-{
-	static string str;
-};
-
-#define RANGES_TYPE2CONST(type,constant) \
-	template <> \
-	struct ranges_type2const<type> \
-	{ \
-		static CmdArgType enu; \
-		static string str; \
-	}; \
-	CmdArgType ranges_type2const<type>::enu = constant; \
-	string ranges_type2const<type>::str = #type; \
-	template<> \
-	struct ranges_const2type<Tango::constant> \
-	{ \
-		typedef type Type; \
-		static string str; \
-	}; \
-	string ranges_const2type<Tango::constant>::str = #type;
-
 
 //
 // Binary function objects to be used by the find_if algorithm.
@@ -2444,6 +2410,14 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 					B.str(""); \
 					B.clear(); \
 					(db < 0.0) ? B << (DevULong64)(-db) : B << (DevULong64)db; \
+					break; \
+\
+				case Tango::DEV_ENCODED: \
+					if (!(B >> db && B.eof())) \
+						throw_err_format(H,C,"Attribute::upd_database"); \
+					B.str(""); \
+					B.clear(); \
+					(db < 0.0) ? B << (short)(DevUChar)(-db) : B << (short)(DevUChar)db; \
 					break; \
 				} \
                 if (data_type != Tango::DEV_FLOAT && data_type != Tango::DEV_DOUBLE) \
