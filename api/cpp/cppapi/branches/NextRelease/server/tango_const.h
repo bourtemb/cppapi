@@ -109,7 +109,7 @@ namespace Tango
 // ZMQ event system related define
 //
 
-#define     EPHEMERAL_PORT_BEGIN        49152
+#define     EPHEMERAL_PORT_BEGIN        55555
 #define     EPHEMERAL_PORT_END          65535
 #define     ZMQ_EVENT_PROT_VERSION      1
 #define     HEARTBEAT_METHOD_NAME       "push_heartbeat_event"

@@ -162,6 +162,13 @@ void Util::shutdown_server()
 		ev->disconnect_from_notifd();
 
 //
+// Delete ZmqEventSupplier
+//
+
+    ZmqEventSupplier *zev = get_zmq_event_supplier();
+    delete zev;
+
+//
 // Close access to file database when used
 //
 

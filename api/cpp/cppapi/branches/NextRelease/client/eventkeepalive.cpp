@@ -141,6 +141,83 @@ bool EventConsumerKeepAliveThread::reconnect_to_channel(EvChanIte &ipos,EventCon
 
 //+----------------------------------------------------------------------------
 //
+// method : 		EventConsumerKeepAliveThread::reconnect_to_zmq_channel()
+//
+// description : 	Method to reconnect the process to a ZMQ event channel
+//			in case of reconnection
+//
+// argument : in :	ipos : An iterator to the EventChannel structure to
+//			       reconnect to in the Event Channel map
+//			event_consumer : Pointer to the EventConsumer
+//					 singleton
+//
+// This method returns true if the reconnection succeeds. Otherwise, returns
+// false
+//
+//-----------------------------------------------------------------------------
+
+bool EventConsumerKeepAliveThread::reconnect_to_zmq_channel(EvChanIte &ipos,EventConsumer *event_consumer,DeviceData &dd)
+{
+	bool ret = true;
+	EvCbIte epos;
+
+	cout3 << "Entering KeepAliveThread::reconnect_to_zmq_channel()" << endl;
+
+	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+	{
+		if (epos->second.channel_name == ipos->first)
+		{
+			bool need_reconnect = false;
+			vector<EventSubscribeStruct>:: iterator esspos;
+			for (esspos = epos->second.callback_list.begin(); esspos != epos->second.callback_list.end(); ++esspos)
+			{
+				if (esspos->callback != NULL || esspos->ev_queue != NULL)
+				{
+					need_reconnect = true;
+					break;
+				}
+			}
+
+			if (need_reconnect == true)
+			{
+				try
+				{
+                    DeviceData subscriber_in,subscriber_out;
+                    vector<string> subscriber_info;
+                    subscriber_info.push_back(epos->second.device->dev_name());
+                    subscriber_info.push_back(epos->second.attr_name);
+                    subscriber_info.push_back("subscribe");
+                    subscriber_info.push_back(epos->second.event_name);
+                    subscriber_in << subscriber_info;
+
+                    subscriber_out = ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
+
+					string adm_name = ipos->second.full_adm_name;
+					event_consumer->connect_event_channel(adm_name,
+									      epos->second.device->get_device_db(),
+									      true,subscriber_out);
+
+                    dd = subscriber_out;
+					if (ipos->second.adm_device_proxy != NULL)
+						delete ipos->second.adm_device_proxy;
+					ipos->second.adm_device_proxy = new DeviceProxy(ipos->second.full_adm_name);
+					cout3 << "Reconnected to zmq event channel" << endl;
+				}
+				catch(...)
+				{
+					ret = false;
+				}
+
+				break;
+			}
+		}
+	}
+
+	return ret;
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		EventConsumerKeepAliveThread::reconnect_to_event()
 //
 // description : 	Method to reconnect each event associated to a specific
@@ -300,6 +377,74 @@ void EventConsumerKeepAliveThread::re_subscribe_event(EvCbIte &epos,EvChanIte &i
   	}
 }
 
+//+----------------------------------------------------------------------------
+//
+// method : 		EventConsumerKeepAliveThread::reconnect_to_zmq_event()
+//
+// description : 	Method to reconnect each event associated to a specific
+//			event channel to the just reconnected event channel
+//
+// argument : in :	ipos : An iterator to the EventChannel structure in the
+//			       Event Channel map
+//			event_consumer : Pointer to the EventConsumer
+//					 singleton
+//
+//-----------------------------------------------------------------------------
+
+void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventConsumer *event_consumer,DeviceData &dd)
+{
+	EvCbIte epos;
+
+	cout3 << "Entering KeepAliveThread::reconnect_to_zmq_event()" << endl;
+
+	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+	{
+		if (epos->second.channel_name == ipos->first)
+		{
+			bool need_reconnect = false;
+			vector<EventSubscribeStruct>:: iterator esspos;
+			for (esspos = epos->second.callback_list.begin(); esspos != epos->second.callback_list.end(); ++esspos)
+			{
+				if (esspos->callback != NULL || esspos->ev_queue != NULL)
+				{
+					need_reconnect = true;
+					break;
+				}
+			}
+
+			if (need_reconnect == true)
+			{
+				try
+				{
+					epos->second.callback_monitor->get_monitor();
+
+					try
+					{
+					    EventCallBackStruct ecbs;
+					    vector<string> vs;
+
+                        string d_name = epos->second.device->dev_name();
+					    event_consumer->connect_event_system(d_name,
+                                                             epos->second.attr_name,
+                                                             epos->second.event_name,
+                                                             vs,ipos,ecbs,dd);
+						cout3 << "Reconnected to ZMQ event" << endl;
+					}
+					catch(...)
+					{
+						epos->second.filter_ok = false;
+					}
+
+					epos->second.callback_monitor->rel_monitor();
+				}
+				catch (...)
+				{
+					cerr << "EventConsumerKeepAliveThread::reconnect_to_zmq_event() cannot get callback monitor for " << epos->first << endl;
+				}
+			}
+		}
+	}
+}
 
 //+----------------------------------------------------------------------------
 //
@@ -394,7 +539,6 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 					try
 					{
 						// try to subscribe
-
 						event_consumer->connect_event (vpos->device,vpos->attribute,vpos->event_type,
 																					vpos->callback,
 																					vpos->ev_queue,
@@ -515,7 +659,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
  					bool heartbeat_skipped;
 					heartbeat_skipped = ((now - ipos->second.last_heartbeat) > (EVENT_HEARTBEAT_PERIOD + 1));
 
-					if (heartbeat_skipped || ipos->second.heartbeat_skipped || ipos->second.notifd_failed == true )
+					if (heartbeat_skipped || ipos->second.heartbeat_skipped || ipos->second.event_system_failed == true )
 					{
 						ipos->second.heartbeat_skipped = true;
 
@@ -545,18 +689,18 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
                                 if ( ipos->second.notifyd_host != info.server_host )
                                 {
-                                    ipos->second.notifd_failed = true;
+                                    ipos->second.event_system_failed = true;
                                 }
                                 else
                                 {
                                     CosNotifyChannelAdmin::EventChannelFactory_var ecf = ipos->second.eventChannel->MyFactory();
                                     if (ipos->second.full_adm_name.find(MODIFIER_DBASE_NO) != string::npos)
-                                        ipos->second.notifd_failed = true;
+                                        ipos->second.event_system_failed = true;
                                 }
                             }
                             catch (...)
                             {
-                                ipos->second.notifd_failed = true;
+                                ipos->second.event_system_failed = true;
                                 cout3 << "Notifd is dead !!!" << endl;
                             }
 
@@ -566,10 +710,10 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // The notify deamon might have closed the connection, try to reconnect!
 //
 
-                            if ( ipos->second.notifd_failed == false &&
+                            if ( ipos->second.event_system_failed == false &&
                                  ipos->second.has_notifd_closed_the_connection >= 3 )
                             {
-                                ipos->second.notifd_failed = true;
+                                ipos->second.event_system_failed = true;
                             }
 
 //
@@ -579,18 +723,32 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // callbacks to this new event channel
 //
 
-                            if ( ipos->second.notifd_failed == true )
+                            if ( ipos->second.event_system_failed == true )
                             {
                                 bool notifd_reco = reconnect_to_channel(ipos,notifd_event_consumer);
                                 if ( notifd_reco )
-                                    ipos->second.notifd_failed = false;
+                                    ipos->second.event_system_failed = false;
                                 else
-                                    ipos->second.notifd_failed = true;
+                                    ipos->second.event_system_failed = true;
 
-                                if ( ipos->second.notifd_failed == false )
+                                if ( ipos->second.event_system_failed == false )
                                 {
                                     reconnect_to_event(ipos,notifd_event_consumer);
                                 }
+                            }
+                        }
+                        else
+                        {
+                            DeviceData dd;
+                            bool zmq_reco = reconnect_to_zmq_channel(ipos,event_consumer,dd);
+                            if ( zmq_reco )
+                                ipos->second.event_system_failed = false;
+                            else
+                                ipos->second.event_system_failed = true;
+
+                            if (ipos->second.event_system_failed == false)
+                            {
+                                reconnect_to_zmq_event(ipos,event_consumer,dd);
                             }
                         }
 
@@ -656,6 +814,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 									{
 										CallBack   *callback = esspos->callback;
 										EventQueue *ev_queue = esspos->ev_queue;
+
 //
 // Push an event with error set
 //
@@ -748,7 +907,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 										}
 									}
 
-									if ( ipos->second.notifd_failed == false )
+									if ( ipos->second.event_system_failed == false )
 									{
 										DeviceData subscriber_in;
        									vector<string> subscriber_info;
@@ -791,7 +950,6 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // For attribute data event
 //
 
-												//DeviceAttribute da;
 												DeviceAttribute *da = NULL;
 												DevErrorList err;
 												err.length(0);
@@ -811,7 +969,8 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // Increase the counter to detect when the heartbeat is not coming back.
 //
 
-													ipos->second.has_notifd_closed_the_connection++;
+													if (ipos->second.channel_type == NOTIFD)
+														ipos->second.has_notifd_closed_the_connection++;
 												}
 												catch (DevFailed &e)
 												{
@@ -877,10 +1036,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 											else if (epos->second.event_name == CONF_TYPE_EVENT)
 											{
+
 //
 // For attribute configuration event
 //
-												//AttributeInfoEx aie;
+
 												AttributeInfoEx *aie = NULL;
 												DevErrorList err;
 												err.length(0);
@@ -900,7 +1060,8 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // Increase the counter to detect when the heartbeat is not coming back.
 //
 
-													ipos->second.has_notifd_closed_the_connection++;
+													if (ipos->second.channel_type == NOTIFD)
+														ipos->second.has_notifd_closed_the_connection++;
 												}
 												catch (DevFailed &e)
 												{
@@ -976,7 +1137,8 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 					else
 					{
 						// When the heartbeat has worked, mark the connection to the notifd as OK
-						ipos->second.has_notifd_closed_the_connection = 0;
+						if (ipos->second.channel_type == NOTIFD)
+							ipos->second.has_notifd_closed_the_connection = 0;
 					}
 
 					// release channel monitor

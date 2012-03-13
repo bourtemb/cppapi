@@ -117,6 +117,17 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 
     event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast,rate,ivl);
 
+//
+// Init one subscription command flag in Eventsupplier
+//
+
+    if (ev->get_one_subscription_cmd() == false)
+        ev->set_one_subscription_cmd(true);
+
+//
+// Return to caller
+//
+
 	Tango::DevLong ret_val = (Tango::DevLong)tg->get_tango_lib_release();
 	return ret_val;
 }
@@ -449,15 +460,8 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
         }
 
 //
-// Start polling for attribute in question. I suppose I should
-// check to see if the attribute is polled already. For the
-// moment I will simply ignore the exception. Why not rather
-// introduce a is_polled() method in each Attribute ?
-//
-// Use the add_obj_polling() admin device method whith no
-// db update. The polling will poll the attribute next time
-// the server is started if  there no more event client connected
-// to the attribute
+// Ask polling thread in charge of heartbeat to send them
+// (if not already done)
 //
 
 		try
@@ -644,6 +648,13 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 //
 
         ev->init_event_cptr(ev_name);
+
+//
+// Init one subscription command flag in Eventsupplier
+//
+
+        if (ev->get_one_subscription_cmd() == false)
+            ev->set_one_subscription_cmd(true);
 
 //
 // Init data returned by command

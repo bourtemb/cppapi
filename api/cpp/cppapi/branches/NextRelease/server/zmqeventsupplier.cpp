@@ -194,6 +194,27 @@ ZmqEventSupplier *ZmqEventSupplier::create(Util *tg)
 
 //+----------------------------------------------------------------------------
 //
+// method : 		ZmqEventSupplier::~ZmqEventSupplier()
+//
+// description : 	ZmqEventSupplier destructor.
+//                  This dtor delete the zmq socket. The ZMQ context will be
+//                  deleted (then calling zmq_term) when the object is
+//                  destroyed
+//
+//-----------------------------------------------------------------------------
+
+ZmqEventSupplier::~ZmqEventSupplier()
+{
+//
+// Delete zmq sockets
+//
+
+    delete heartbeat_pub_sock;
+    delete event_pub_sock;
+}
+
+//+----------------------------------------------------------------------------
+//
 // method : 		ZmqEventSupplier::tango_bind()
 //
 // description : 	Choose a free port to bind ZMQ socket
@@ -609,7 +630,7 @@ void ZmqEventSupplier::push_heartbeat_event()
 	}
 
 //
-// We here compare delta_time to 9 and not to 10.
+// We here compare delta_time to 8 and not to 10.
 // This is necessary because, sometimes the polling thread is some
 // milli second in advance. The computation here is done in seconds
 // So, if the polling thread is in advance, delta_time computed in
@@ -618,7 +639,7 @@ void ZmqEventSupplier::push_heartbeat_event()
 
     int nb_event = 1;
 
-	if (delta_time >= 9)
+	if (delta_time >= 8)
 	{
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): detected heartbeat event for " << heartbeat_event_name << endl;
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): delta _time " << delta_time << endl;
@@ -680,6 +701,8 @@ void ZmqEventSupplier::push_heartbeat_event()
 //
 // Push the event
 //
+
+                adm_dev->last_heartbeat = now_time;
 
                 heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
                 heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);

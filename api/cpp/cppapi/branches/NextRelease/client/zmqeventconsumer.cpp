@@ -121,6 +121,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 {
 
     int linger = 0;
+    int reconnect_ivl = 7000;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
@@ -130,6 +131,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+//    heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
 
 //
 // Create the subscriber socket used to receive events coming from different DS
@@ -139,6 +141,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+ //   event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
@@ -193,7 +196,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
         try
         {
             zmq::poll(items,nb_poll_item,-1);
-//cout << "Awaken !!!!!!!!" << endl;
+// cout << "Awaken !!!!!!!!" << endl;
         }
         catch(zmq::error_t &e)
         {
@@ -201,14 +204,13 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
                 continue;
         }
 
-
 //
 // Something received by the heartbeat socket ?
 //
 
         if (items[1].revents & ZMQ_POLLIN)
         {
-//cout << "For the heartbeat socket" << endl;
+// cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -1064,7 +1066,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 		EventChannelStruct &evt_ch = evt_it->second;
 		evt_ch.last_heartbeat = time(NULL);
 		evt_ch.heartbeat_skipped = false;
-		evt_ch.notifd_failed = false;
+		evt_ch.event_system_failed = false;
 	}
 	else
 	{
@@ -1078,7 +1080,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 		// set the timeout for the channel monitor to 500ms not to block the event consumer for to long.
 		new_event_channel_struct.channel_monitor->timeout(500);
 
-		new_event_channel_struct.notifd_failed = false;
+		new_event_channel_struct.event_system_failed = false;
 		set_channel_type(new_event_channel_struct);
 
 		channel_map[channel_name] = new_event_channel_struct;
@@ -1452,6 +1454,7 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
 void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
 {
+
 //
 // Remove ".heartbeat" at the end of event name
 //

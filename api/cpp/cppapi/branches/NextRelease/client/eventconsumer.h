@@ -319,7 +319,7 @@ typedef struct channel_struct: public EventChannelBase
 	CosNotifyChannelAdmin::StructuredProxyPushSupplier_var structuredProxyPushSupplier;
 	CosNotifyFilter::FilterID 		heartbeat_filter_id;
 	string 							notifyd_host;
-	bool 							notifd_failed;
+	bool 							event_system_failed;
 	long 							has_notifd_closed_the_connection;
 } EventChannelStruct;
 
@@ -556,6 +556,9 @@ private :
 	void reconnect_to_event(EvChanIte &,EventConsumer *);
 	void re_subscribe_event(EvCbIte &,EvChanIte &);
     void stateless_subscription_failed(vector<EventNotConnected>::iterator &,DevFailed &,time_t &);
+
+    bool reconnect_to_zmq_channel(EvChanIte &,EventConsumer *,DeviceData &);
+	void reconnect_to_zmq_event(EvChanIte &,EventConsumer *,DeviceData &);
 };
 
 /********************************************************************************
