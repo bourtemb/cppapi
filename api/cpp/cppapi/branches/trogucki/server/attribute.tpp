@@ -144,7 +144,11 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 // Check type validity
 //
 
-	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("min_alarm",ext->d_name,"Attribute::set_min_alarm");
+	else if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
 		(data_type != ranges_type2const<T>::enu))
 	{
 		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
@@ -286,6 +290,11 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 template <>
 inline void Attribute::set_min_alarm(const string &new_min_alarm_str)
 {
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("min_alarm",ext->d_name,"Attribute::set_min_alarm");
+
 	string min_alarm_str_tmp = new_min_alarm_str;
 	string dev_name = ext->d_name;
 
@@ -510,6 +519,15 @@ void Attribute::get_min_alarm(T &min_al)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_min_alarm()");
 	}
+	else if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+	{
+		string err_msg = "Minimum alarm has no meaning for the attribute's (" + name + ") data type : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_AttrOptProp",
+				      err_msg.c_str(),
+				      (const char *)"Attribute::get_min_alarm()");
+	}
 
 	if (!alarm_conf[min_level])
 	{
@@ -541,7 +559,11 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 // Check type validity
 //
 
-	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("max_alarm",ext->d_name,"Attribute::set_max_alarm");
+	else if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
 		(data_type != ranges_type2const<T>::enu))
 	{
 		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
@@ -683,6 +705,11 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 template <>
 inline void Attribute::set_max_alarm(const string &new_max_alarm_str)
 {
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("max_alarm",ext->d_name,"Attribute::set_max_alarm");
+
 	string max_alarm_str_tmp = new_max_alarm_str;
 	string dev_name = ext->d_name;
 
@@ -908,6 +935,15 @@ void Attribute::get_max_alarm(T &max_al)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_max_alarm()");
 	}
+	else if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+	{
+		string err_msg = "Maximum alarm has no meaning for the attribute's (" + name + ") data type : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_AttrOptProp",
+				      err_msg.c_str(),
+				      (const char *)"Attribute::get_max_alarm()");
+	}
 
 	if (!alarm_conf[max_level])
 	{
@@ -939,7 +975,11 @@ void Attribute::set_min_warning(const T &new_min_warning)
 // Check type validity
 //
 
-	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("min_warning",ext->d_name,"Attribute::set_min_warning");
+	else if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
 		(data_type != ranges_type2const<T>::enu))
 	{
 		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
@@ -1081,6 +1121,11 @@ void Attribute::set_min_warning(const T &new_min_warning)
 template <>
 inline void Attribute::set_min_warning(const string &new_min_warning_str)
 {
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("min_warning",ext->d_name,"Attribute::set_min_warning");
+
 	string min_warning_str_tmp = new_min_warning_str;
 	string dev_name = ext->d_name;
 
@@ -1305,6 +1350,15 @@ void Attribute::get_min_warning(T &min_war)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_min_warning()");
 	}
+	else if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+	{
+		string err_msg = "Minimum warning has no meaning for the attribute's (" + name + ") data type : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_AttrOptProp",
+				      err_msg.c_str(),
+				      (const char *)"Attribute::get_min_warning()");
+	}
 
 	if (!alarm_conf[min_warn])
 	{
@@ -1336,7 +1390,11 @@ void Attribute::set_max_warning(const T &new_max_warning)
 // Check type validity
 //
 
-	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("max_warning",ext->d_name,"Attribute::set_max_warning");
+	else if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
 		(data_type != ranges_type2const<T>::enu))
 	{
 		string err_msg = "Attribute (" + name + ") data type does not match the type provided : " + ranges_type2const<T>::str;
@@ -1478,6 +1536,11 @@ void Attribute::set_max_warning(const T &new_max_warning)
 template <>
 inline void Attribute::set_max_warning(const string &new_max_warning_str)
 {
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("max_warning",ext->d_name,"Attribute::set_max_warning");
+
 	string max_warning_str_tmp = new_max_warning_str;
 	string dev_name = ext->d_name;
 
@@ -1702,6 +1765,15 @@ void Attribute::get_max_warning(T &max_war)
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::get_max_warning()");
 	}
+	else if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+	{
+		string err_msg = "Maximum warning has no meaning for the attribute's (" + name + ") data type : " + ranges_type2const<T>::str;
+		Except::throw_exception((const char *)"API_AttrOptProp",
+				      err_msg.c_str(),
+				      (const char *)"Attribute::get_max_warning()");
+	}
 
 	if (!alarm_conf[max_warn])
 	{
@@ -1783,6 +1855,41 @@ void Attribute::set_properties(Tango::MultiAttrProp<T> &props)
 		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",
 					  (const char *)err_msg.c_str(),
 					  (const char *)"Attribute::set_properties()");
+	}
+
+//
+// Check if the user set values of properties which do not have any meaning
+// for particular attribute data types
+//
+
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+	{
+		if(TG_strcasecmp(props.min_alarm,AlrmValueNotSpec) != 0)
+			throw_err_data_type("min_alarm",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.max_alarm,AlrmValueNotSpec) != 0)
+			throw_err_data_type("max_alarm",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.min_value,AlrmValueNotSpec) != 0)
+			throw_err_data_type("min_value",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.max_value,AlrmValueNotSpec) != 0)
+			throw_err_data_type("max_value",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.min_warning,AlrmValueNotSpec) != 0)
+			throw_err_data_type("min_warning",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.max_warning,AlrmValueNotSpec) != 0)
+			throw_err_data_type("max_warning",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.delta_t,AlrmValueNotSpec) != 0)
+			throw_err_data_type("delta_t",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.delta_val,AlrmValueNotSpec) != 0)
+			throw_err_data_type("delta_val",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.rel_change,AlrmValueNotSpec) != 0)
+			throw_err_data_type("rel_change",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.abs_change,AlrmValueNotSpec) != 0)
+			throw_err_data_type("abs_change",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.archive_rel_change,AlrmValueNotSpec) != 0)
+			throw_err_data_type("archive_rel_change",ext->d_name,"Attribute::set_properties()");
+		if(TG_strcasecmp(props.archive_abs_change,AlrmValueNotSpec) != 0)
+			throw_err_data_type("archive_abs_change",ext->d_name,"Attribute::set_properties()");
 	}
 
 //
