@@ -121,7 +121,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 {
 
     int linger = 0;
-    int reconnect_ivl = 7000;
+    int reconnect_ivl = 15000;
+    int reconnect_ivl_max = 500;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
@@ -131,7 +132,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
-//    heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+//    heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL_MAX,&reconnect_ivl_max,sizeof(reconnect_ivl_max));
 
 //
 // Create the subscriber socket used to receive events coming from different DS
@@ -141,7 +143,8 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
- //   event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+//    event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL_MAX,&reconnect_ivl_max,sizeof(reconnect_ivl_max));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
@@ -254,6 +257,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
             {
                 delete heartbeat_sub_sock;
                 delete control_sock;
+                delete [] items;
 
                 break;
             }
@@ -857,7 +861,8 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 // method : 		ZmqEventConsumer::cleanup_EventChannel_map()
 //
 // description : 	Method to destroy the DeviceProxy objects
-//					stored in the EventChannel map
+//					stored in the EventChannel map.
+//                  It also destroys some allocated objects (to make valgrind happy)
 //
 //-----------------------------------------------------------------------------
 
@@ -879,6 +884,19 @@ void ZmqEventConsumer::cleanup_EventChannel_map()
             delete evt_ch.adm_device_proxy;
             evt_ch.adm_device_proxy = NULL;
         }
+        delete evt_ch.channel_monitor;
+    }
+
+//
+// Delete a Tango moniotr in Callback structs
+//
+
+    EvCbIte cb_it;
+
+    for (cb_it = event_callback_map.begin(); cb_it != event_callback_map.end(); ++cb_it)
+    {
+        EventCallBackStruct &evt_cb = cb_it->second;
+        delete evt_cb.callback_monitor;
     }
 
 //
