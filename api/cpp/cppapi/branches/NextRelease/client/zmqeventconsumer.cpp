@@ -122,7 +122,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     int linger = 0;
     int reconnect_ivl = 15000;
-    int reconnect_ivl_max = 500;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
@@ -133,7 +132,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
     heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
-//    heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL_MAX,&reconnect_ivl_max,sizeof(reconnect_ivl_max));
 
 //
 // Create the subscriber socket used to receive events coming from different DS
@@ -144,7 +142,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
     event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
-//    event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL_MAX,&reconnect_ivl_max,sizeof(reconnect_ivl_max));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
@@ -199,7 +196,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
         try
         {
             zmq::poll(items,nb_poll_item,-1);
-// cout << "Awaken !!!!!!!!" << endl;
+//cout << "Awaken !!!!!!!!" << endl;
         }
         catch(zmq::error_t &e)
         {
@@ -213,7 +210,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[1].revents & ZMQ_POLLIN)
         {
-// cout << "For the heartbeat socket" << endl;
+//cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -270,6 +267,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[2].revents & ZMQ_POLLIN)
         {
+//cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
             event_sub_sock->recv(&received_endian);
             event_sub_sock->recv(&received_call);
