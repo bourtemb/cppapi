@@ -2254,7 +2254,7 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
     desc << "Attribute property " << prop_name << " is not changeable at run time" << ends;
 
     Except::throw_exception((const char *)"API_AttrNotAllowed",desc.str(),
-				      	  (const char *)"Attribute::check_hard_coded_properties");
+				      	  (const char *)"Attribute::check_hard_coded_properties()");
 }
 
 //

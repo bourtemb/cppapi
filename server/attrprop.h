@@ -71,7 +71,7 @@ public:
 /**
  * Default constructor.
  */
-	AttrProp() {}
+	AttrProp() : is_value(false) {}
 /**
  * Create a new AttrProp object.
  *
@@ -284,7 +284,7 @@ public:
 /**
  * Default constructor.
  */
-	DoubleAttrProp() {}
+	DoubleAttrProp() : is_value(false) {}
 /**
  * Create a new DoubleAttrProp object.
  *

@@ -59,6 +59,11 @@ void WAttribute::set_min_value(const T &new_min_value)
 // Check type validity
 //
 
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("min_value",ext->d_name,"WAttribute::set_min_value()");
+
 	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
 		(data_type != ranges_type2const<T>::enu))
 	{
@@ -77,7 +82,7 @@ void WAttribute::set_min_value(const T &new_min_value)
 		T max_value_tmp;
 		memcpy((void *) &max_value_tmp, (const void *) &max_value, sizeof(T));
 		if(new_min_value >= max_value_tmp)
-			throw_incoherent_val_err("min_value","max_value",ext->d_name,"WAttribute::set_min_value");
+			throw_incoherent_val_err("min_value","max_value",ext->d_name,"WAttribute::set_min_value()");
 	}
 
 //
@@ -200,6 +205,11 @@ void WAttribute::set_min_value(const T &new_min_value)
 template <>
 inline void WAttribute::set_min_value(const string &new_min_value_str)
 {
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("min_value",ext->d_name,"WAttribute::set_min_value()");
+
 	string min_value_str_tmp = new_min_value_str;
 	string dev_name = ext->d_name;
 
@@ -334,67 +344,67 @@ inline void WAttribute::set_min_value(const string &new_min_value_str)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				set_min_value((DevShort)db);
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				set_min_value((DevLong)db);
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				set_min_value((DevLong64)db);
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				set_min_value(db);
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> fl && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				set_min_value(fl);
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				(db < 0.0) ? set_min_value((DevUShort)(-db)) : set_min_value((DevUShort)db);
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				(db < 0.0) ? set_min_value((DevUChar)(-db)) : set_min_value((DevUChar)db);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				(db < 0.0) ? set_min_value((DevULong)(-db)) : set_min_value((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				(db < 0.0) ? set_min_value((DevULong64)(-db)) : set_min_value((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> db && str.eof()))
-					throw_err_format("min_value",dev_name,"WAttribute::set_min_value");
+					throw_err_format("min_value",dev_name,"WAttribute::set_min_value()");
 				(db < 0.0) ? set_min_value((DevUChar)(-db)) : set_min_value((DevUChar)db);
 				break;
 			}
 		}
 		else
-			throw_err_data_type("min_value",dev_name,"WAttribute::set_min_value");
+			throw_err_data_type("min_value",dev_name,"WAttribute::set_min_value()");
 	}
 }
 
@@ -456,6 +466,11 @@ void WAttribute::set_max_value(const T &new_max_value)
 // Check type validity
 //
 
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("max_value",ext->d_name,"WAttribute::set_max_value()");
+
 	if (!(data_type == DEV_ENCODED && ranges_type2const<T>::enu == DEV_UCHAR) &&
 		(data_type != ranges_type2const<T>::enu))
 	{
@@ -474,7 +489,7 @@ void WAttribute::set_max_value(const T &new_max_value)
 		T min_value_tmp;
 		memcpy((void *) &min_value_tmp, (const void *) &min_value, sizeof(T));
 		if(new_max_value <= min_value_tmp)
-			throw_incoherent_val_err("min_value","max_value",ext->d_name,"WAttribute::set_max_value");
+			throw_incoherent_val_err("min_value","max_value",ext->d_name,"WAttribute::set_max_value()");
 	}
 
 //
@@ -597,6 +612,11 @@ void WAttribute::set_max_value(const T &new_max_value)
 template <>
 inline void WAttribute::set_max_value(const string &new_max_value_str)
 {
+	if((data_type == Tango::DEV_STRING) ||
+		(data_type == Tango::DEV_BOOLEAN) ||
+		(data_type == Tango::DEV_STATE))
+		throw_err_data_type("max_value",ext->d_name,"WAttribute::set_max_value()");
+
 	string max_value_str_tmp = new_max_value_str;
 	string dev_name = ext->d_name;
 
@@ -731,67 +751,67 @@ inline void WAttribute::set_max_value(const string &new_max_value_str)
 			{
 			case Tango::DEV_SHORT:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				set_max_value((DevShort)db);
 				break;
 
 			case Tango::DEV_LONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				set_max_value((DevLong)db);
 				break;
 
 			case Tango::DEV_LONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				set_max_value((DevLong64)db);
 				break;
 
 			case Tango::DEV_DOUBLE:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				set_max_value(db);
 				break;
 
 			case Tango::DEV_FLOAT:
 				if (!(str >> fl && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				set_max_value(fl);
 				break;
 
 			case Tango::DEV_USHORT:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				(db < 0.0) ? set_max_value((DevUShort)(-db)) : set_max_value((DevUShort)db);
 				break;
 
 			case Tango::DEV_UCHAR:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				(db < 0.0) ? set_max_value((DevUChar)(-db)) : set_max_value((DevUChar)db);
 				break;
 
 			case Tango::DEV_ULONG:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				(db < 0.0) ? set_max_value((DevULong)(-db)) : set_max_value((DevULong)db);
 				break;
 
 			case Tango::DEV_ULONG64:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				(db < 0.0) ? set_max_value((DevULong64)(-db)) : set_max_value((DevULong64)db);
 				break;
 
 			case Tango::DEV_ENCODED:
 				if (!(str >> db && str.eof()))
-					throw_err_format("max_value",dev_name,"WAttribute::set_max_value");
+					throw_err_format("max_value",dev_name,"WAttribute::set_max_value()");
 				(db < 0.0) ? set_max_value((DevUChar)(-db)) : set_max_value((DevUChar)db);
 				break;
 			}
 		}
 		else
-			throw_err_data_type("max_value",dev_name,"WAttribute::set_max_value");
+			throw_err_data_type("max_value",dev_name,"WAttribute::set_max_value()");
 	}
 }
 
