@@ -861,7 +861,7 @@ throw (Tango::MultiDevFailed,Tango::DevFailed, CORBA::SystemException)
 		TangoSys_OMemStream o;
 		o << "Attribute " << values[0].name << " is not a READ_WRITE or READ_WITH_WRITE attribute" << ends;
 
-		Except::throw_exception((const char *)"API_IncompatibleAttrDataType",o.str(),
+		Except::throw_exception((const char *)"API_AttrNotWritable",o.str(),
 								(const char *)"Device_4Impl::write_read_attribute_4");
 	}
 

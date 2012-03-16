@@ -1841,7 +1841,7 @@ inline int DeviceProxy::subscribe_event (const string &attr_name, EventType even
 		} \
 		catch (CORBA::OBJECT_NOT_EXIST &one) \
 		{ \
-			if (one.minor() == omni::OBJECT_NOT_EXIST_NoMatch) \
+			if (one.minor() == omni::OBJECT_NOT_EXIST_NoMatch || one.minor() == 0) \
 			{ \
 				TRANSIENT_NOT_EXIST_EXCEPT(one,"DeviceProxy","read_attribute"); \
 			} \
