@@ -632,19 +632,22 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
             AutoTangoMonitor sync1(mon_ptr);
             for (i = 0;i < nb_data;i++)
             {
-#ifdef _TG_WINDOWS_
-                if (_finite((*db_ptr)[i]) == 0)
-#else
-                if (isfinite((*db_ptr)[i]) == 0)
-#endif
+                if (tg->is_wattr_nan_allowed() == false)
                 {
-                    TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                    if (_finite((*db_ptr)[i]) == 0)
+#else
+                    if (isfinite((*db_ptr)[i]) == 0)
+#endif
+                    {
+                        TangoSys_OMemStream o;
 
-                    o << "Set value for attribute " << name;
-                    o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                    Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                              o.str(),
-                              (const char *)"WAttribute::check_written_value()");
+                        o << "Set value for attribute " << name;
+                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                  o.str(),
+                                  (const char *)"WAttribute::check_written_value()");
+                    }
                 }
 
                 if (check_min_value == true)
@@ -794,19 +797,22 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
             AutoTangoMonitor sync1(mon_ptr);
             for (i = 0;i < nb_data;i++)
             {
-#ifdef _TG_WINDOWS_
-                if (_finite((*fl_ptr)[i]) == 0)
-#else
-                if (isfinite((*fl_ptr)[i]) == 0)
-#endif
+                if (tg->is_wattr_nan_allowed() == false)
                 {
-                    TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                    if (_finite((*fl_ptr)[i]) == 0)
+#else
+                    if (isfinite((*fl_ptr)[i]) == 0)
+#endif
+                    {
+                        TangoSys_OMemStream o;
 
-                    o << "Set value for attribute " << name;
-                    o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                    Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                              o.str(),
-                              (const char *)"WAttribute::check_written_value()");
+                        o << "Set value for attribute " << name;
+                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                  o.str(),
+                                  (const char *)"WAttribute::check_written_value()");
+                    }
                 }
 
                 if (check_min_value == true)
@@ -1620,19 +1626,22 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
                 AutoTangoMonitor sync1(mon_ptr);
                 for (i = 0;i < nb_data;i++)
                 {
-#ifdef _TG_WINDOWS_
-                    if (_finite(db_seq[i]) == 0)
-#else
-                    if (isfinite(db_seq[i]) == 0)
-#endif
+                    if (tg->is_wattr_nan_allowed() == false)
                     {
-                        TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                        if (_finite(db_seq[i]) == 0)
+#else
+                        if (isfinite(db_seq[i]) == 0)
+#endif
+                        {
+                            TangoSys_OMemStream o;
 
-                        o << "Set value for attribute " << name;
-                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                                  o.str(),
-                                  (const char *)"WAttribute::check_written_value()");
+                            o << "Set value for attribute " << name;
+                            o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                            Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                      o.str(),
+                                      (const char *)"WAttribute::check_written_value()");
+                        }
                     }
 
                     if (check_min_value == true)
@@ -1782,19 +1791,22 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
                 AutoTangoMonitor sync1(mon_ptr);
                 for (i = 0;i < nb_data;i++)
                 {
-#ifdef _TG_WINDOWS_
-                    if (_finite(fl_seq[i]) == 0)
-#else
-                    if (isfinite(fl_seq[i]) == 0)
-#endif
+                    if (tg->is_wattr_nan_allowed() == false)
                     {
-                        TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                        if (_finite(fl_seq[i]) == 0)
+#else
+                        if (isfinite(fl_seq[i]) == 0)
+#endif
+                        {
+                            TangoSys_OMemStream o;
 
-                        o << "Set value for attribute " << name;
-                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                                  o.str(),
-                                  (const char *)"WAttribute::check_written_value()");
+                            o << "Set value for attribute " << name;
+                            o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                            Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                      o.str(),
+                                      (const char *)"WAttribute::check_written_value()");
+                        }
                     }
 
                     if (check_min_value == true)

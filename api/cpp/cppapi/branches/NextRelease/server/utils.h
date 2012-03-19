@@ -784,7 +784,7 @@ private:
               py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
               svr_starting(true),svr_stopping(false),poll_pool_size(ULONG_MAX),
               conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
-              endpoint_specified(false),user_pub_hwm(-1)
+              endpoint_specified(false),user_pub_hwm(-1),wattr_nan_allowed(false)
         {shared_data.cmd_pending=false;shared_data.trigger=false;
         cr_py_lock = new CreatePyLock();}
 
@@ -835,6 +835,7 @@ private:
         DevLong                     user_pub_hwm;           // User defined pub HWM
 
         vector<string>              restarting_devices;     // Restarting devices name
+        bool                        wattr_nan_allowed;      // NaN allowed when writing attribute
     };
 
 public:
@@ -925,6 +926,9 @@ public:
 
 	void add_restarting_device(string &d_name) {ext->restarting_devices.push_back(d_name);}
 	void delete_restarting_device(string &d_name);
+
+    bool is_wattr_nan_allowed() {return ext->wattr_nan_allowed;}
+	void set_wattr_nan_allowed(bool val) {ext->wattr_nan_allowed=val;}
 
 private:
 	TANGO_IMP static Util	*_instance;

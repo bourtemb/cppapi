@@ -186,7 +186,7 @@ void DServer::init_device()
 // Retrieve event related properties (multicast and other)
 //
 
-			get_event_prop(tg);
+			get_event_misc_prop(tg);
 
 //
 // A loop for each class
@@ -1524,16 +1524,17 @@ void DServer::check_lock_owner(DeviceImpl *dev,const char *cmd_name,const char *
 
 //+----------------------------------------------------------------------------
 //
-// method : 		DServer::get_event_prop()
+// method : 		DServer::get_event_misc_prop()
 //
-// description : 	Get the property defining which event has to be transported
+// description : 	Get the properties defining which event has to be transported
 //					using multicast protocol
+//                  Also retrieve property for Nan allowed in writing attribute
 //
 // argin: tg : Tango Util instance pointer
 //
 //-----------------------------------------------------------------------------
 
-void DServer::get_event_prop(Tango::Util *tg)
+void DServer::get_event_misc_prop(Tango::Util *tg)
 {
 
 	if (tg->_UseDb == true)
@@ -1551,6 +1552,7 @@ void DServer::get_event_prop(Tango::Util *tg)
 		db_data.push_back(DbDatum("MulticastIvl"));
 		db_data.push_back(DbDatum("DSEventBufferHwm"));
 		db_data.push_back(DbDatum("EventBufferHwm"));
+		db_data.push_back(DbDatum("WAttrNaNAllowed"));
 
 		try
 		{
@@ -1688,6 +1690,17 @@ void DServer::get_event_prop(Tango::Util *tg)
             zmq_sub_event_hwm = SUB_HWM;
             if (db_data[5].is_empty() == false)
                 db_data[5] >> zmq_sub_event_hwm;
+
+//
+// Nan allowed in writing attribute
+//
+
+            if (db_data[6].is_empty() == false)
+            {
+                bool new_val;
+                db_data[6] >> new_val;
+                tg->set_wattr_nan_allowed(new_val);
+            }
 
 		}
 		catch (Tango::DevFailed &)
