@@ -2279,17 +2279,9 @@ throw (Tango::DevFailed, CORBA::SystemException)
 	{
 		for (i = 0;i < nb_attr;i++)
 		{
-			string tmp_name(new_conf[i].name);
-			transform(tmp_name.begin(),tmp_name.end(),tmp_name.begin(),::tolower);
-			if ((tmp_name == "state") || (tmp_name == "status"))
-			{
-				Except::throw_exception((const char *)"API_AttrNotFound",
-				        		(const char *)"Cannot set config for attribute state or status",
-				        		(const char *)"Device_3Impl::set_attribute_config_3");
-			}
-
 			Attribute &attr = dev_attr->get_attr_by_name(new_conf[i].name);
 			bool old_alarm = attr.is_alarmed().any();
+
 			attr.set_upd_properties(new_conf[i],device_name);
 
 //
