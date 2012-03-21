@@ -249,53 +249,88 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	if (prop_list.min_value.empty() == false &&
 		(TG_strcasecmp(prop_list.min_value.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.min_value.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.min_value, "min_value");
 		user_default_properties.push_back(AttrProperty("min_value",prop_list.min_value));
+	}
 
 	if (prop_list.max_value.empty() == false &&
 		(TG_strcasecmp(prop_list.max_value.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.max_value.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.max_value, "max_value");
 		user_default_properties.push_back(AttrProperty("max_value",prop_list.max_value));
+	}
 
 	if (prop_list.min_alarm.empty() == false &&
 		(TG_strcasecmp(prop_list.min_alarm.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.min_alarm.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.min_alarm, "min_alarm");
 		user_default_properties.push_back(AttrProperty("min_alarm",prop_list.min_alarm));
+	}
 
 	if (prop_list.max_alarm.empty() == false &&
 		(TG_strcasecmp(prop_list.max_alarm.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.max_alarm.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.max_alarm, "max_alarm");
 		user_default_properties.push_back(AttrProperty("max_alarm",prop_list.max_alarm));
+	}
 
 	if (prop_list.min_warning.empty() == false &&
 		(TG_strcasecmp(prop_list.min_warning.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.min_warning.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.min_warning, "min_warning");
 		user_default_properties.push_back(AttrProperty("min_warning",prop_list.min_warning));
+	}
 
 	if (prop_list.max_warning.empty() == false &&
 		(TG_strcasecmp(prop_list.max_warning.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.max_warning.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.max_warning, "max_warning");
 		user_default_properties.push_back(AttrProperty("max_warning",prop_list.max_warning));
+	}
 
 	if (prop_list.delta_val.empty() == false &&
 		(TG_strcasecmp(prop_list.delta_val.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.delta_val.c_str(),NotANumber) != 0))
+	{
+		validate_def_prop(prop_list.delta_val, "delta_val");
 		user_default_properties.push_back(AttrProperty("delta_val",prop_list.delta_val));
+	}
 
 	if (prop_list.delta_t.empty() == false &&
 		(TG_strcasecmp(prop_list.delta_t.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.delta_t.c_str(),"0") != 0) &&
 		(TG_strcasecmp(prop_list.delta_t.c_str(),NotANumber) != 0))
+	{
+		TangoSys_MemStream str;
+		str.precision(TANGO_FLOAT_PRECISION);
+		long lg;
+		str << prop_list.delta_t;
+		if(!(str >> lg && str.eof()))
+			throw_invalid_def_prop("delta_t","DevLong");
 		user_default_properties.push_back(AttrProperty("delta_t",prop_list.delta_t));
+	}
 
 	if (prop_list.abs_change.empty() == false &&
 		(TG_strcasecmp(prop_list.abs_change.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.abs_change.c_str(),NotANumber) != 0))
+	{
+		validate_def_change_prop(prop_list.abs_change,"abs_change");
 		user_default_properties.push_back(AttrProperty("abs_change",prop_list.abs_change));
+	}
 
 	if (prop_list.rel_change.empty() == false &&
 		(TG_strcasecmp(prop_list.rel_change.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.rel_change.c_str(),NotANumber) != 0))
+	{
+		validate_def_change_prop(prop_list.rel_change,"rel_change");
 		user_default_properties.push_back(AttrProperty("rel_change",prop_list.rel_change));
+	}
 
 	TangoSys_MemStream def_event_period;
 	def_event_period << (int)(DEFAULT_EVENT_PERIOD);
@@ -303,17 +338,31 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 		(TG_strcasecmp(prop_list.period.c_str(),AlrmValueNotSpec) != 0) &&
 		(prop_list.period != def_event_period.str()) &&
 		(TG_strcasecmp(prop_list.period.c_str(),NotANumber) != 0))
+	{
+		TangoSys_MemStream str;
+		str.precision(TANGO_FLOAT_PRECISION);
+		int i;
+		str << prop_list.period;
+		if(!(str >> i && str.eof()))
+			throw_invalid_def_prop("event_period","DevLong");
 		user_default_properties.push_back(AttrProperty("event_period",prop_list.period));
+	}
 
 	if (prop_list.archive_abs_change.empty() == false &&
 		(TG_strcasecmp(prop_list.archive_abs_change.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.archive_abs_change.c_str(),NotANumber) != 0))
+	{
+		validate_def_change_prop(prop_list.archive_abs_change,"archive_abs_change");
 		user_default_properties.push_back(AttrProperty("archive_abs_change",prop_list.archive_abs_change));
+	}
 
 	if (prop_list.archive_rel_change.empty() == false &&
 		(TG_strcasecmp(prop_list.archive_rel_change.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.archive_rel_change.c_str(),NotANumber) != 0))
+	{
+		validate_def_change_prop(prop_list.archive_rel_change,"archive_rel_change");
 		user_default_properties.push_back(AttrProperty("archive_rel_change",prop_list.archive_rel_change));
+	}
 
 	TangoSys_MemStream def_archive_period;
 	def_archive_period << (int)(INT_MAX);
@@ -321,8 +370,123 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 		(TG_strcasecmp(prop_list.archive_period.c_str(),AlrmValueNotSpec) != 0) &&
 		(prop_list.archive_period != def_archive_period.str()) &&
 		(TG_strcasecmp(prop_list.archive_period.c_str(),NotANumber) != 0))
+	{
+		TangoSys_MemStream str;
+		str.precision(TANGO_FLOAT_PRECISION);
+		int i;
+		str << prop_list.archive_period;
+		if(!(str >> i && str.eof()))
+			throw_invalid_def_prop("archive_period","DevLong");
 		user_default_properties.push_back(AttrProperty("archive_period",prop_list.archive_period));
+	}
+}
 
+void Attr::validate_def_prop(const string &val, const char * prop)
+{
+	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
+
+	str.str("");
+	str.clear();
+	str << val;
+
+	DevShort sh;
+	DevLong lg;
+	DevLong64 lg64;
+	DevDouble db;
+	DevFloat fl;
+	DevUShort ush;
+	DevULong ulg;
+	DevULong64 ulg64;
+	switch (type)
+	{
+	case Tango::DEV_SHORT:
+		if (!(str >> sh && str.eof()))
+			throw_invalid_def_prop(prop,"DevShort");
+		break;
+
+	case Tango::DEV_LONG:
+		if (!(str >> lg && str.eof()))
+			throw_invalid_def_prop(prop,"DevLong");
+		break;
+
+	case Tango::DEV_LONG64:
+		if (!(str >> lg64 && str.eof()))
+			throw_invalid_def_prop(prop,"DevLong64");
+		break;
+
+	case Tango::DEV_DOUBLE:
+		if (!(str >> db && str.eof()))
+			throw_invalid_def_prop(prop,"DevDouble");
+		break;
+	case Tango::DEV_FLOAT:
+		if (!(str >> fl && str.eof()))
+			throw_invalid_def_prop(prop,"DevFloat");
+		break;
+
+	case Tango::DEV_USHORT:
+		if (!(str >> ush && str.eof()))
+			throw_invalid_def_prop(prop,"DevUShort");
+		break;
+
+	case Tango::DEV_UCHAR:
+		if (!(str >> sh && str.eof()))
+			throw_invalid_def_prop(prop,"DevUChar");
+		break;
+
+	case Tango::DEV_ULONG:
+		if (!(str >> ulg && str.eof()))
+			throw_invalid_def_prop(prop,"DevULong");
+		break;
+
+	case Tango::DEV_ULONG64:
+		if (!(str >> ulg64 && str.eof()))
+			throw_invalid_def_prop(prop,"DevULong64");
+		break;
+
+	case Tango::DEV_ENCODED:
+		if (!(str >> sh && str.eof()))
+			throw_invalid_def_prop(prop,"DevUChar");
+		break;
+	}
+}
+
+void Attr::validate_def_change_prop(const string &val, const char * prop)
+{
+	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
+
+	string change_prop_str = val;
+	double db;
+
+	size_t pos = change_prop_str.find(',');
+	if(pos != string::npos)
+	{
+		string prop_min = change_prop_str.substr(0,pos);
+		string prop_max = change_prop_str.erase(0,pos+1);
+		str << prop_min;
+		if (!(str >> db && str.eof()))
+			throw_invalid_def_prop(prop,"DevDouble or \"DevDouble,DevDouble\"");
+		str.str("");
+		str.clear();
+		str << prop_max;
+		if (!(str >> db && str.eof()))
+			throw_invalid_def_prop(prop,"DevDouble or \"DevDouble,DevDouble\"");
+	}
+	else
+	{
+		str.str("");
+		str.clear();
+		str << change_prop_str;
+		if (!(str >> db && str.eof()))
+			throw_invalid_def_prop(prop,"DevDouble or \"DevDouble,DevDouble\"");
+	}
+}
+
+void Attr::throw_invalid_def_prop(const char * prop, const char *type)
+{
+	string err_msg = "User default property " + string(prop) + " for attribute : " + get_name() + " is defined in unsupported format. Expected " + string(type);
+	Except::throw_exception("API_IncompatibleAttrDataType",err_msg,"Attr::set_default_properties()");
 }
 
 //+-------------------------------------------------------------------------
