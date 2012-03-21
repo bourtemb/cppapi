@@ -121,7 +121,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 {
 
     int linger = 0;
-    int reconnect_ivl = 15000;
+    int reconnect_ivl = -1;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
@@ -131,7 +131,15 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
-    heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    try
+    {
+        heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    }
+    catch (zmq::error_t &)
+    {
+        reconnect_ivl = 15000;
+        heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    }
 
 //
 // Create the subscriber socket used to receive events coming from different DS

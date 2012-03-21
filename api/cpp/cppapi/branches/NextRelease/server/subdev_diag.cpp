@@ -181,14 +181,6 @@ void SubDevDiag::register_sub_device (string dev_name, string sub_dev_name)
 			ipos->second.modified = true;
 		}
 	}
-
-	// just print the list!!!!
-	//for (ipos = sub_device_map.begin(); ipos != sub_device_map.end(); ++ipos)
-	//{
-	//	cout << "MAP :  " << ipos->first << " : " << endl;
-	//	for (int i=0; i<ipos->second.sub_devices.size(); i++)
-	//		cout << "\t" << ipos->second.sub_devices[i] << endl;
-	//}
 }
 
 //+----------------------------------------------------------------------------
@@ -220,14 +212,6 @@ void SubDevDiag::remove_sub_devices (string dev_name)
 	{
 		sub_device_map.erase(ipos);
 	}
-
-	// just print the list!!!!
-	//for (ipos = sub_device_map.begin(); ipos != sub_device_map.end(); ++ipos)
-	//{
-	//	cout << "MAP :  " << ipos->first << " : " << endl;
-	//	for (int i=0; i<ipos->second.sub_devices.size(); i++)
-	//		cout << "\t" << ipos->second.sub_devices[i] << endl;
-	//}
 }
 
 //+----------------------------------------------------------------------------
