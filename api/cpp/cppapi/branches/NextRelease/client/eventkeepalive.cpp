@@ -423,6 +423,8 @@ void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventC
 					    EventCallBackStruct ecbs;
 					    vector<string> vs;
 
+					    vs.push_back(string("reconnect"));
+
                         string d_name = epos->second.device->dev_name();
 					    event_consumer->connect_event_system(d_name,
                                                              epos->second.attr_name,
