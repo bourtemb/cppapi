@@ -507,7 +507,6 @@ private :
     DevErrorList_var                        del;
 
     int                                     old_poll_nb;
-    bool                                    zmq_no_auto_reconnect;
 
 	void *run_undetached(void *arg);
 	void push_heartbeat_event(string &);

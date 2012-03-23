@@ -426,6 +426,13 @@ void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventC
 					    vs.push_back(string("reconnect"));
 
                         string d_name = epos->second.device->dev_name();
+                        string &fqen = epos->second.fully_qualified_event_name;
+                        string::size_type pos = fqen.find('/');
+                        pos = pos + 2;
+                        pos = fqen.find('/',pos);
+                        string prefix = fqen.substr(0,pos + 1);
+                        d_name.insert(0,prefix);
+
 					    event_consumer->connect_event_system(d_name,
                                                              epos->second.attr_name,
                                                              epos->second.event_name,
@@ -584,7 +591,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 						// subscribe has not worked, try again in the next hearbeat period
 						vpos->last_heartbeat = now;
 
-						cout << "During the event subscription an exception was sent which is not a Tango::DevFailed exception!" << endl;
+						cerr << "During the event subscription an exception was sent which is not a Tango::DevFailed exception!" << endl;
 					}
 				}
 				if (inc_vpos)

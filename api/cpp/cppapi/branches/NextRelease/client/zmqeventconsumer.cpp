@@ -134,13 +134,11 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
     try
     {
         heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
-        zmq_no_auto_reconnect = true;
     }
     catch (zmq::error_t &)
     {
         reconnect_ivl = 15000;
         heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
-        zmq_no_auto_reconnect = false;
     }
 
 //
@@ -277,7 +275,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[2].revents & ZMQ_POLLIN)
         {
-cout << "For the event socket" << endl;
+//cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
             event_sub_sock->recv(&received_endian);
             event_sub_sock->recv(&received_call);
@@ -603,7 +601,6 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 //
 
             char force_connect = tmp_ptr[1];
-
             const char *endpoint = &(tmp_ptr[2]);
             int start = ::strlen(endpoint) + 3;
             const char *event_name = &(tmp_ptr[start]);
@@ -1041,7 +1038,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
         buffer[length] = ZMQ_CONNECT_HEARTBEAT;
         length++;
 
-        if (reconnect == true && zmq_no_auto_reconnect == true)
+        if (reconnect == true)
             buffer[length] = 1;
         else
             buffer[length] = 0;
@@ -1416,7 +1413,7 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
             buffer[length] = ZMQ_CONNECT_EVENT;
         length++;
 
-        if (zmq_no_auto_reconnect == true && filters.size() == 1 && filters[0] == "reconnect")
+        if (filters.size() == 1 && filters[0] == "reconnect")
             buffer[length] = 1;
         else
             buffer[length] = 0;
