@@ -5146,9 +5146,14 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 //			needs to be updated in db
 //
 // in :			conf : The attribute configuration structure
-//			db_d : The DbData which will be used to update database
-//			prop_to_update : The number of property(ies) to update
-//					 in database
+//				db_d : The DbData which will be used to update database
+//				prop_to_update : The number of property(ies) to update
+//					 			in database
+//				db_del : The DbData which will be used to delete prop.
+//						 from database
+//				prop_to_delete : The number of property(ies) to delete
+//					 			from database
+//				def_user_prop : User defined default list
 //
 //--------------------------------------------------------------------------
 

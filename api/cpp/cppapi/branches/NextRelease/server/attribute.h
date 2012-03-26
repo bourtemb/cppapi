@@ -2308,7 +2308,8 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 
 //
 // Define one macro to make code more readable
-// Arg list : 	A : property as a string
+// Arg list : 	
+//		A : property as a string
 //		B : stream
 //		C : device name
 //		D : DbData for db update
