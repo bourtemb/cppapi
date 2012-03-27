@@ -270,7 +270,7 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 	}
 
 //
-// Set the min_warn flag
+// Set the min_alarm flag
 //
 
 	alarm_conf.set(min_level);
@@ -287,6 +287,12 @@ void Attribute::set_min_alarm(const T &new_min_alarm)
 
     if (tg->is_svr_starting() == false)
         get_att_device()->push_att_conf_event(this);
+
+//
+// Delete device startup exception related to min_alarm if there is any
+//
+
+    delete_startup_exception("min_alarm");
 }
 
 template <>
@@ -686,7 +692,7 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 	}
 
 //
-// Set the max_warn flag
+// Set the max_alarm flag
 //
 
 	alarm_conf.set(max_level);
@@ -703,6 +709,12 @@ void Attribute::set_max_alarm(const T &new_max_alarm)
 
     if (tg->is_svr_starting() == false)
         get_att_device()->push_att_conf_event(this);
+
+//
+// Delete device startup exception related to max_alarm if there is any
+//
+
+	delete_startup_exception("max_alarm");
 }
 
 template <>
@@ -1120,6 +1132,12 @@ void Attribute::set_min_warning(const T &new_min_warning)
 
 	if (tg->is_svr_starting() == false)
 		get_att_device()->push_att_conf_event(this);
+
+//
+// Delete device startup exception related to min_warning if there is any
+//
+
+	delete_startup_exception("min_warning");
 }
 
 template <>
@@ -1536,6 +1554,12 @@ void Attribute::set_max_warning(const T &new_max_warning)
 
 	if (tg->is_svr_starting() == false)
 		get_att_device()->push_att_conf_event(this);
+
+//
+// Delete device startup exception related to max_warning if there is any
+//
+
+	delete_startup_exception("max_warning");
 }
 
 template <>
