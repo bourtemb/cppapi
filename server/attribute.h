@@ -2151,7 +2151,7 @@ protected:
     class AttributeExt
     {
     public:
-        AttributeExt() {}
+        AttributeExt() : check_startup_exceptions(false), startup_exceptions_clear(true) {}
 
         Tango::DispLevel 	disp_level;						// Display level
         long				poll_period;					// Polling period
@@ -2201,6 +2201,9 @@ protected:
         vector<string>      mcast_event;                    // In case of multicasting used for event transport
         AttrQuality         old_quality;                    // Previous attribute quality
         bitset<numFlags>    old_alarm;                      // Previous attribute alarm
+        map<string,const DevFailed> startup_exceptions;		// Map containing exceptions related to attribute configuration raised during the server startup sequence
+        bool 				check_startup_exceptions;		// Flag set to true if there is at least one exception in startup_exceptions map
+        bool 				startup_exceptions_clear;		// Flag set to true when the cause for the device startup exceptions has been fixed
     };
 
 	AttributeExt		*ext;
@@ -2217,6 +2220,9 @@ protected:
 
 	template <typename T>
     void check_hard_coded_properties(const T &);
+
+	void add_startup_exception(string,const DevFailed);
+	void delete_startup_exception(string);
 
     void throw_hard_coded_prop(const char *);
 	void throw_err_format(const char *,const string &,const char *);

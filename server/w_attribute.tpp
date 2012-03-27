@@ -200,6 +200,12 @@ void WAttribute::set_min_value(const T &new_min_value)
 
 	if (tg->is_svr_starting() == false)
 		get_att_device()->push_att_conf_event(this);
+
+//
+// Delete device startup exception related to min_value if there is any
+//
+
+	delete_startup_exception("min_value");
 }
 
 template <>
@@ -607,6 +613,12 @@ void WAttribute::set_max_value(const T &new_max_value)
 
 	if (tg->is_svr_starting() == false)
 		get_att_device()->push_att_conf_event(this);
+
+//
+// Delete device startup exception related to max_value if there is any
+//
+
+	delete_startup_exception("max_value");
 }
 
 template <>
