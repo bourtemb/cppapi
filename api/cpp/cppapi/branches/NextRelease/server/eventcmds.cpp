@@ -121,7 +121,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 // Init one subscription command flag in Eventsupplier
 //
 
-    if (ev->get_one_subscription_cmd() == false)
+    if (ev != NULL && ev->get_one_subscription_cmd() == false)
         ev->set_one_subscription_cmd(true);
 
 //

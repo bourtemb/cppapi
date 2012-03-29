@@ -164,6 +164,16 @@ typedef struct last_attr_value
 	AttrValUnion		value_4;
 } LastAttrValue;
 
+typedef enum prop_type
+{
+    MIN_VALUE = 0,
+    MAX_VALUE,
+    MIN_WARNING,
+    MAX_WARNING,
+    MIN_ALARM,
+    MAX_ALARM
+} PropType;
+
 class EventSupplier;
 
 //=============================================================================
@@ -2169,8 +2179,9 @@ public:
 private:
 	void set_data_size();
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
-	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &);
+	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &,vector<AttrProperty> &);
 	void log_quality();
+    void event_prop_db(const char *,vector<double> &,vector<double> &,DbData &,long,DbData &,long);
 
 	unsigned long 		name_size;
 	string 				name_lower;
@@ -2256,8 +2267,12 @@ protected:
 	void throw_err_format(const char *,const string &,const char *);
 	void throw_incoherent_val_err(const char *,const char *,const string &,const char *);
 	void throw_err_data_type(const char *,const string &,const char *);
-    void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &);
+    void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &,vector<bool> &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &);
+    bool prop_in_list(const char *,string &,size_t,vector<AttrProperty> &);
+
+    void avns_in_db(const char *,string &);
+    void avns_in_att(prop_type);
 
 	bitset<numFlags>	alarm_conf;
 	bitset<numFlags>	alarm;
@@ -2291,6 +2306,29 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				      	  (const char *)"Attribute::check_hard_coded_properties");
 }
 
+
+inline bool Attribute::prop_in_list(const char *prop_name,string &prop_str,size_t list_size,vector<AttrProperty> &list)
+{
+    bool ret = false;
+
+    if (list_size != 0)
+    {
+        size_t i;
+        for (i = 0;i < list_size;i++)
+        {
+            if (list[i].get_name() == prop_name)
+                break;
+        }
+        if (i != list_size)
+        {
+            prop_str = list[i].get_value();
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
 //
 // Macro to help coding
 //
@@ -2308,7 +2346,9 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 
 //
 // Define one macro to make code more readable
-// Arg list : 	
+// but this macro is nearly unreadable !!!
+//
+// Arg list :
 //		A : property as a string
 //		B : stream
 //		C : device name
@@ -2318,50 +2358,228 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 //		G : Number of prop to delete
 //		H : Property name
 //		I : Default user properties vector ref
+//      J : Default class properties vector ref
 //
 // Too many parameters ?
 //
 
-#define CHECK_PROP(A,B,C,D,E,F,G,H,I) \
+#define CHECK_PROP(A,B,C,D,E,F,G,H,I,J) \
 { \
 	size_t nb_user = I.size(); \
+	size_t nb_class = J.size(); \
 	string usr_def_val; \
+	string class_def_val; \
 	bool user_defaults = false; \
+	bool class_defaults = false; \
 	bool store_in_db = true; \
-	if (nb_user != 0) \
-	{ \
-		size_t i; \
-		for (i = 0;i < nb_user;i++) \
-		{ \
-			if (I[i].get_name() == H) \
-				break; \
-		} \
-		if (i != nb_user) \
-		{ \
-			user_defaults = true; \
-			usr_def_val = I[i].get_value(); \
-		} \
-	} \
+	bool avns = false; \
+	bool user_val = false; \
+    double user_def_val_db; \
+    double class_def_val_db; \
+    bool equal_user_def = false; \
+    bool equal_class_def = false; \
 \
-	if(user_defaults) \
-	{ \
-		if ((TG_strcasecmp(A,NotANumber) == 0) || \
-				(strcmp(A,usr_def_val.c_str()) == 0) || \
-				(strlen(A) == 0)) \
+    user_defaults = prop_in_list(H,usr_def_val,nb_user,I); \
+    if (user_defaults) \
+    { \
+        B.str(""); \
+        B.clear(); \
+        B << usr_def_val; \
+        B >> user_def_val_db; \
+    } \
+    class_defaults = prop_in_list(H,class_def_val,nb_class,J); \
+    if (class_defaults) \
+    { \
+        B.str(""); \
+        B.clear(); \
+        B << class_def_val; \
+        B >> class_def_val_db;  \
+    } \
+\
+    if(user_defaults) \
+    { \
+        double db; \
+        B.str(""); \
+        B.clear(); \
+        B << A; \
+        if (B >> db && B.eof()) \
+        { \
+            switch (data_type) \
+            { \
+            case Tango::DEV_SHORT: \
+                if((DevShort)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_LONG: \
+                if((DevLong)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break;\
+\
+            case Tango::DEV_LONG64: \
+                if((DevLong64)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break;\
+\
+            case Tango::DEV_DOUBLE: \
+                if(db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_FLOAT: \
+                if(db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_USHORT: \
+                if((DevUShort)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_UCHAR: \
+                if((DevUChar)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_ULONG: \
+                if((DevULong)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_ULONG64: \
+                if((DevULong64)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+\
+            case Tango::DEV_ENCODED: \
+                if((DevUChar)db == user_def_val_db) \
+                    equal_user_def = true; \
+                break; \
+            } \
+        }\
+    }\
+\
+    if(class_defaults) \
+    { \
+        double db; \
+        B.str(""); \
+        B.clear(); \
+        B << A; \
+        if (B >> db && B.eof()) \
+        { \
+            switch (data_type) \
+            { \
+            case Tango::DEV_SHORT: \
+                if((DevShort)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_LONG: \
+                if((DevLong)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break;\
+\
+            case Tango::DEV_LONG64: \
+                if((DevLong64)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break;\
+\
+            case Tango::DEV_DOUBLE: \
+                if(db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_FLOAT: \
+                if(db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_USHORT: \
+                if((DevUShort)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_UCHAR: \
+                if((DevUChar)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_ULONG: \
+                if((DevULong)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_ULONG64: \
+                if((DevULong64)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+\
+            case Tango::DEV_ENCODED: \
+                if((DevUChar)db == class_def_val_db) \
+                    equal_class_def = true; \
+                break; \
+            } \
+        }\
+    }\
+\
+    if (TG_strcasecmp(A,AlrmValueNotSpec) == 0) \
+    { \
+        if (user_defaults == true || class_defaults == true) \
+        { \
+            store_in_db = true; \
+            avns = true; \
+        } \
+        else \
+        { \
 			store_in_db = false; \
-	} \
-	else \
-	{ \
-		if ((TG_strcasecmp(A,AlrmValueNotSpec) == 0) || \
-				(TG_strcasecmp(A,NotANumber) == 0) || \
-				(strlen(A) == 0)) \
+        } \
+    } \
+    else if (strlen(A) == 0) \
+    { \
+        if (class_defaults == true) \
+        { \
+			store_in_db = true; \
+			if (user_defaults) \
+                user_val = true; \
+            else \
+                avns = true; \
+        } \
+        else \
+        { \
 			store_in_db = false; \
-	} \
+        } \
+    } \
+    else if (TG_strcasecmp(A,NotANumber) == 0) \
+    { \
+        store_in_db = false; \
+    } \
+    else if (user_defaults == true && equal_user_def == true) \
+    { \
+        if (class_defaults == true) \
+        { \
+			store_in_db = true; \
+			user_val = true; \
+        } \
+        else \
+        { \
+            store_in_db = false; \
+        } \
+    } \
+    else if (class_defaults == true && equal_class_def == true) \
+    { \
+        store_in_db = false; \
+    } \
+    else \
+    { \
+        store_in_db = true; \
+    } \
 \
 	if(store_in_db) \
 	{ \
 		string tmp = A.in(); \
-		if(TG_strcasecmp(A,AlrmValueNotSpec) == 0) \
+		if(user_val == true) \
+            tmp = usr_def_val.c_str(); \
+		else if(avns == true) \
 			tmp = AlrmValueNotSpec; \
 		else \
 		{ \
@@ -2370,78 +2588,59 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 				(data_type != Tango::DEV_STATE)) \
 			{ \
 				double db; \
-				float fl; \
 \
 				B.str(""); \
 				B.clear(); \
 				B << A; \
+                if (!(B >> db && B.eof())) \
+                { \
+                    throw_err_format(H,C,"Attribute::upd_database"); \
+                }\
 				switch (data_type) \
 				{ \
 				case Tango::DEV_SHORT: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					B << (DevShort)db; \
 					break; \
 \
 				case Tango::DEV_LONG: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					B << (DevLong)db; \
 					break;\
 \
 				case Tango::DEV_LONG64: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					B << (DevLong64)db; \
 					break;\
 \
 				case Tango::DEV_DOUBLE: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
-					B.str(""); \
-					B.clear(); \
 					break; \
 \
 				case Tango::DEV_FLOAT: \
-					if (!(B >> fl && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
-					B.str(""); \
-					B.clear(); \
 					break; \
 \
 				case Tango::DEV_USHORT: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					(db < 0.0) ? B << (DevUShort)(-db) : B << (DevUShort)db; \
 					break; \
 \
 				case Tango::DEV_UCHAR: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					(db < 0.0) ? B << (short)((DevUChar)(-db)) : B << (short)((DevUChar)db); \
 					break; \
 \
 				case Tango::DEV_ULONG: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					(db < 0.0) ? B << (DevULong)(-db) : B << (DevULong)db; \
 					break; \
 \
 				case Tango::DEV_ULONG64: \
-					if (!(B >> db && B.eof())) \
-						throw_err_format(H,C,"Attribute::upd_database"); \
 					B.str(""); \
 					B.clear(); \
 					(db < 0.0) ? B << (DevULong64)(-db) : B << (DevULong64)db; \

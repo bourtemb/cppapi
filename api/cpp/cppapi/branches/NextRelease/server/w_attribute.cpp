@@ -3652,9 +3652,12 @@ void WAttribute::set_max_value(const char *new_max_value_str)
 //
 //--------------------------------------------------------------------------
 
-bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_value)
+bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &ret_mem_value)
 {
 	bool ret = false;
+
+    if (mem_value == MemNotUsed)
+        return false;
 
 //
 // Check last written attribute value with the new threshold
@@ -3674,7 +3677,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (short_array_val[i] < min_value.sh)
                 {
                     ss << short_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3684,7 +3687,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (short_array_val[i] > max_value.sh)
                 {
                     ss << short_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3701,7 +3704,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (long_array_val[i] < min_value.lg)
                 {
                     ss << long_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3711,7 +3714,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (long_array_val[i] > max_value.lg)
                 {
                     ss << long_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3728,7 +3731,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->long64_array_val[i] < min_value.lg64)
                 {
                     ss << w_ext->long64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3738,7 +3741,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->long64_array_val[i] > max_value.lg64)
                 {
                     ss << w_ext->long64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3755,7 +3758,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (double_array_val[i] < min_value.db)
                 {
                     ss << double_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3765,7 +3768,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (double_array_val[i] > max_value.db)
                 {
                     ss << double_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3782,7 +3785,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (float_array_val[i] < min_value.fl)
                 {
                     ss << float_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3792,7 +3795,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (float_array_val[i] > max_value.fl)
                 {
                     ss << float_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3809,7 +3812,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (ushort_array_val[i] < min_value.ush)
                 {
                     ss << ushort_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3819,7 +3822,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (ushort_array_val[i] > max_value.ush)
                 {
                     ss << ushort_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3836,7 +3839,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (uchar_array_val[i] < min_value.uch)
                 {
                     ss << uchar_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3846,7 +3849,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (uchar_array_val[i] > max_value.uch)
                 {
                     ss << uchar_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3863,7 +3866,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong_array_val[i] < min_value.ulg)
                 {
                     ss << w_ext->ulong_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3873,7 +3876,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong_array_val[i] > max_value.ulg)
                 {
                     ss << w_ext->ulong_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3890,7 +3893,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong64_array_val[i] < min_value.ulg64)
                 {
                     ss << w_ext->ulong64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3900,7 +3903,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong64_array_val[i] > max_value.ulg64)
                 {
                     ss << w_ext->ulong64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3914,6 +3917,5 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
 
 	return ret;
 }
-
 
 } // End of Tango namespace

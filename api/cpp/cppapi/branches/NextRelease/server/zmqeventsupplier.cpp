@@ -860,7 +860,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         }
 
         if (print == true)
-            cerr << "Can't find event counter for event " << event_name << " in map!" << endl;
+            cout3 << "-----> Can't find event counter for event " << event_name << " in map!!!!!!!!!!" << endl;
     }
 
 
@@ -1085,25 +1085,27 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             bool ret;
 
             ret = pub->send(*name_mess_ptr,ZMQ_SNDMORE);
-if (ret == false)
-{
-    cout << "Name message returned false" << endl;
-    assert(false);
-}
+            if (ret == false)
+            {
+                cerr << "Name message returned false, assertion!!!!" << endl;
+                assert(false);
+            }
+
             ret = pub->send(*endian_mess_ptr,ZMQ_SNDMORE);
-if (ret == false)
-{
-    cout << "Endian message returned false" << endl;
-    assert(false);
-}
+            if (ret == false)
+            {
+                cerr << "Endian message returned false, assertion!!!!" << endl;
+                assert(false);
+            }
             endian_mess_sent = true;
+
             pub->send(*event_call_mess_ptr,ZMQ_SNDMORE);
             ret = pub->send(*data_mess_ptr,0);
-if (ret == false)
-{
-    cout << "Data message returned false" << endl;
-    assert(false);
-}
+            if (ret == false)
+            {
+                cerr << "Data message returned false, assertion!!!!" << endl;
+                assert(false);
+            }
 
             send_nb--;
             if (send_nb == 1)
