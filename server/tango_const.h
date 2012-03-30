@@ -973,6 +973,7 @@ struct ranges_const2type
  * strings already used.
  *
  *
+ * API_AttrConfig
  * API_AttrEventProp
  * API_AttrIncorrectDataNumber
  * API_AttrNoAlarm

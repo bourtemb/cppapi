@@ -66,7 +66,7 @@ namespace Tango
 //
 // description :	This class is only a helper class used to get a
 //			TangoMonitor object during its construction and to
-//			it during its destruction. It makes developper life
+//			it during its destruction. It makes developer life
 //			easier.
 //
 //=============================================================================

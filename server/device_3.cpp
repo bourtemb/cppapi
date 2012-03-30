@@ -195,7 +195,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 //
 // If the source parameter specifies device, call the read_attributes method
-// which does not throw exception except for major fault (cant allocate
+// which does not throw exception except for major fault (cannot allocate
 // memory,....)
 //
 	vector <long> idx_in_back;
@@ -337,7 +337,7 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 	sub.set_associated_device(get_name());
 
 //
-// Catch all execeptions to set back the associated device after
+// Catch all exceptions to set back the associated device after
 // execution
 //
 
@@ -393,9 +393,11 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 					{
 						x.idx_in_multi_attr = j;
 						x.failed = false;
+						Attribute &att = dev_attr->get_attr_by_ind(x.idx_in_multi_attr);
+						if(att.is_startup_exception())
+							att.throw_startup_exception("Device_3Impl::read_attributes_no_except()");
 						wanted_w_attr.push_back(x);
 						wanted_attr.push_back(x);
-						Attribute &att = dev_attr->get_attr_by_ind(wanted_attr.back().idx_in_multi_attr);
 						att.set_value_flag(false);
 						att.get_when().tv_sec = 0;
                         att.save_alarm_quality();
@@ -406,14 +408,19 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 						{
 							x.idx_in_multi_attr = j	;
 							x.failed = false;
+							Attribute &att = dev_attr->get_attr_by_ind(x.idx_in_multi_attr);
+							if(att.is_startup_exception())
+								att.throw_startup_exception("Device_3Impl::read_attributes_no_except()");
 							wanted_w_attr.push_back(x);
 						}
 						else
 						{
 							x.idx_in_multi_attr = j;
 							x.failed = false;
+							Attribute &att = dev_attr->get_attr_by_ind(x.idx_in_multi_attr);
+							if(att.is_startup_exception())
+								att.throw_startup_exception("Device_3Impl::read_attributes_no_except()");
 							wanted_attr.push_back(x);
-							Attribute &att = dev_attr->get_attr_by_ind(wanted_attr.back().idx_in_multi_attr);
 							att.set_value_flag(false);
 							att.get_when().tv_sec = 0;
                             att.save_alarm_quality();
@@ -608,11 +615,12 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 
 		for (i = 0;i < nb_wanted_w_attr;i++)
 		{
-			Tango::AttrWriteType w_type = dev_attr->get_attr_by_ind(wanted_w_attr[i].idx_in_multi_attr).get_writable();
+			Attribute &att = dev_attr->get_attr_by_ind(wanted_w_attr[i].idx_in_multi_attr);
+			Tango::AttrWriteType w_type = att.get_writable();
 			try
 			{
 				if ((w_type == Tango::READ_WITH_WRITE) || (w_type == Tango::WRITE))
-					dev_attr->get_attr_by_ind(wanted_w_attr[i].idx_in_multi_attr).set_rvalue();
+					att.set_rvalue();
 			}
 			catch (Tango::DevFailed &e)
 			{
@@ -632,7 +640,6 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 				}
 				else
 				{
-					Attribute &att = dev_attr->get_attr_by_ind(wanted_w_attr[i].idx_in_multi_attr);
 					AttrSerialModel atsm = att.get_attr_serial_model();
 					if ((atsm != ATTR_NO_SYNC) && (w_type == Tango::READ_WITH_WRITE))
 					{
@@ -1560,7 +1567,7 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 	sub.set_associated_device(get_name());
 
 //
-// Catch all execeptions to set back the associated device after
+// Catch all exceptions to set back the associated device after
 // execution
 //
 
@@ -1603,20 +1610,20 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 				idxs.idx_in_names = i;
 				idxs.idx_in_multi_attr = dev_attr->get_attr_ind_by_name(single_att_name);
 				updated_attr.push_back(idxs);
-
 //
 // Check that these attributes are writable.
 // For attributes which are not scalar, also check that
 // their dimensions are correct
 //
 
-				if ((dev_attr->get_attr_by_ind(updated_attr.back().idx_in_multi_attr).get_writable() == Tango::READ) ||
-		    	    	(dev_attr->get_attr_by_ind(updated_attr.back().idx_in_multi_attr).get_writable() == Tango::READ_WITH_WRITE))
+				Attribute &att = dev_attr->get_attr_by_ind(updated_attr.back().idx_in_multi_attr);
+				if ((att.get_writable() == Tango::READ) ||
+					(att.get_writable() == Tango::READ_WITH_WRITE))
 				{
 					TangoSys_OMemStream o;
 
 					o << "Attribute ";
-					o << dev_attr->get_attr_by_ind(updated_attr.back().idx_in_multi_attr).get_name();
+					o << att.get_name();
 					o << " is not writable" << ends;
 
 					updated_attr.pop_back();
@@ -1625,7 +1632,6 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 					        	(const char *)"DeviceImpl::write_attributes");
 				}
 
-				Attribute &att = dev_attr->get_attr_by_ind(updated_attr.back().idx_in_multi_attr);
 				if (att.get_data_format() != Tango::SCALAR)
 				{
 					TangoSys_OMemStream o;
@@ -1657,6 +1663,17 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 					        	o.str(),
 					        	(const char *)"DeviceImpl::write_attributes");
 					}
+				}
+
+//
+// Check if there are some startup exceptions for the attribute (due to invalid
+// attribute properties configuration). If so, do not allow to write the attribute.
+//
+
+				if(att.is_startup_exception() == true)
+				{
+					updated_attr.pop_back();
+					att.throw_startup_exception("DeviceImpl::write_attributes()");
 				}
 			}
 			catch (Tango::DevFailed &e)
@@ -1796,7 +1813,7 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 // Warning: Do not copy caller value if the user has manually set the
 // attribute written value in its write method
 //
-// WARNING: --> The DevEncoded data type is suported only as SCALAR and is not
+// WARNING: --> The DevEncoded data type is supported only as SCALAR and is not
 // memorizable. Therefore, no need to call copy_data
 //
 
