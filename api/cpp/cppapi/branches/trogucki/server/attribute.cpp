@@ -201,6 +201,32 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 //
 
 	init_event_prop(prop_list,dev_name,tmp_attr);
+
+	if(ext->check_startup_exceptions)
+	{
+//		cout << "## map contents:" << endl;
+		string err_msg;
+		for(map<string,const DevFailed>::iterator it = ext->startup_exceptions.begin(); it != ext->startup_exceptions.end(); ++it)
+		{
+			for(size_t i = 0 ; i < it->second.errors.length(); i++)
+			{
+				string tmp_msg = string(it->second.errors[i].desc);
+				size_t pos = tmp_msg.rfind('\n');
+				if(pos != string::npos)
+					tmp_msg.erase(0,pos+1);
+				err_msg += "\n" + tmp_msg;
+			}
+		}
+		err_msg = "\nDevice " + dev_name + "-> Attribute : " + name + err_msg;
+		try
+		{
+			Except::throw_exception("API_StartupExcept",err_msg,"Attribute::Attribute()");
+		}
+		catch(DevFailed &e)
+		{
+			Except::print_exception(e);
+		}
+	}
 }
 
 
@@ -1438,7 +1464,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 	}
 	catch(DevFailed &e)
 	{
-		ext->startup_exceptions.insert(pair<const char *,DevFailed>("delta_val",e));
+		add_startup_exception("delta_val",e);
 	}
 
 //
