@@ -665,14 +665,14 @@ void NotifdEventSupplier::push_heartbeat_event()
 	cout3 << "NotifdEventSupplier::push_heartbeat_event(): delta time since last heartbeat " << delta_time << endl;
 
 //
-// We here compare delta_time to 9 and not to 10.
+// We here compare delta_time to 8 and not to 10.
 // This is necessary because, sometimes the polling thread is some
 // milli second in advance. The computation here is done in seconds
 // So, if the polling thread is in advance, delta_time computed in
 // seconds will be 9 even if in reality it is 9,9
 //
 
-	if (delta_time >= 9)
+	if (delta_time >= 8)
 	{
 		domain_name = "dserver/" + adm_dev->get_full_name();
 

@@ -588,7 +588,7 @@ void NotifdEventConsumer::connect_event_channel(string &channel_name,Database *d
 		evt_ch.last_heartbeat = time(NULL);
 		evt_ch.heartbeat_skipped = false;
 		evt_ch.notifyd_host = hostname;
-		evt_ch.notifd_failed = false;
+		evt_ch.event_system_failed = false;
 		evt_ch.has_notifd_closed_the_connection = 0;
 	}
 	else
@@ -609,7 +609,7 @@ void NotifdEventConsumer::connect_event_channel(string &channel_name,Database *d
 		evt_it = channel_map.find(channel_name);
 		EventChannelStruct &evt_ch = evt_it->second;
 		evt_ch.notifyd_host = hostname;
-		evt_ch.notifd_failed = false;
+		evt_ch.event_system_failed = false;
 		evt_ch.has_notifd_closed_the_connection = 0;
 	}
 

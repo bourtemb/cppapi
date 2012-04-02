@@ -121,6 +121,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 {
 
     int linger = 0;
+    int reconnect_ivl = -1;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS
@@ -130,6 +131,15 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+    try
+    {
+        heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    }
+    catch (zmq::error_t &)
+    {
+        reconnect_ivl = 15000;
+        heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+    }
 
 //
 // Create the subscriber socket used to receive events coming from different DS
@@ -139,6 +149,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
     event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
     event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+    event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
@@ -201,7 +212,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
                 continue;
         }
 
-
 //
 // Something received by the heartbeat socket ?
 //
@@ -252,6 +262,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
             {
                 delete heartbeat_sub_sock;
                 delete control_sock;
+                delete [] items;
 
                 break;
             }
@@ -264,6 +275,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[2].revents & ZMQ_POLLIN)
         {
+//cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
             event_sub_sock->recv(&received_endian);
             event_sub_sock->recv(&received_call);
@@ -588,8 +600,9 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 // First extract the endpoint and the event name from received buffer
 //
 
-            const char *endpoint = &(tmp_ptr[1]);
-            int start = ::strlen(endpoint) + 2;
+            char force_connect = tmp_ptr[1];
+            const char *endpoint = &(tmp_ptr[2]);
+            int start = ::strlen(endpoint) + 3;
             const char *event_name = &(tmp_ptr[start]);
 
 //
@@ -600,10 +613,16 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 
             if (connected_heartbeat.empty() == false)
             {
-                vector<string>::iterator pos;
-                pos = find(connected_heartbeat.begin(),connected_heartbeat.end(),endpoint);
-                if (pos == connected_heartbeat.end())
+                if (force_connect == 1)
                     connect_heart = true;
+                else
+                {
+                    vector<string>::iterator pos;
+                    pos = find(connected_heartbeat.begin(),connected_heartbeat.end(),endpoint);
+                    if (pos == connected_heartbeat.end())
+                        connect_heart = true;
+                }
+
             }
             else
                 connect_heart = true;
@@ -611,7 +630,8 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
             if (connect_heart == true)
             {
                 heartbeat_sub_sock->connect(endpoint);
-                connected_heartbeat.push_back(endpoint);
+                if (force_connect == 0)
+                    connected_heartbeat.push_back(endpoint);
             }
 
 
@@ -645,8 +665,9 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 // First extract the endpoint and the event name from received buffer
 //
 
-            const char *endpoint = &(tmp_ptr[1]);
-            int start = ::strlen(endpoint) + 2;
+            char force_connect = tmp_ptr[1];
+            const char *endpoint = &(tmp_ptr[2]);
+            int start = ::strlen(endpoint) + 3;
             const char *event_name = &(tmp_ptr[start]);
             start = start + ::strlen(event_name) + 1;
             Tango::DevLong sub_hwm;
@@ -660,10 +681,15 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 
             if (connected_pub.empty() == false)
             {
-                vector<string>::iterator pos;
-                pos = find(connected_pub.begin(),connected_pub.end(),endpoint);
-                if (pos == connected_pub.end())
+                if (force_connect == 1)
                     connect_pub = true;
+                else
+                {
+                    vector<string>::iterator pos;
+                    pos = find(connected_pub.begin(),connected_pub.end(),endpoint);
+                    if (pos == connected_pub.end())
+                        connect_pub = true;
+                }
             }
             else
                 connect_pub = true;
@@ -673,7 +699,8 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
                 event_sub_sock->setsockopt(ZMQ_RCVHWM,&sub_hwm,sizeof(sub_hwm));
 
                 event_sub_sock->connect(endpoint);
-                connected_pub.push_back(endpoint);
+                if (force_connect == 0)
+                    connected_pub.push_back(endpoint);
             }
 
 //
@@ -855,7 +882,8 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 // method : 		ZmqEventConsumer::cleanup_EventChannel_map()
 //
 // description : 	Method to destroy the DeviceProxy objects
-//					stored in the EventChannel map
+//					stored in the EventChannel map.
+//                  It also destroys some allocated objects (to make valgrind happy)
 //
 //-----------------------------------------------------------------------------
 
@@ -877,6 +905,19 @@ void ZmqEventConsumer::cleanup_EventChannel_map()
             delete evt_ch.adm_device_proxy;
             evt_ch.adm_device_proxy = NULL;
         }
+        delete evt_ch.channel_monitor;
+    }
+
+//
+// Delete a Tango moniotr in Callback structs
+//
+
+    EvCbIte cb_it;
+
+    for (cb_it = event_callback_map.begin(); cb_it != event_callback_map.end(); ++cb_it)
+    {
+        EventCallBackStruct &evt_cb = cb_it->second;
+        delete evt_cb.callback_monitor;
     }
 
 //
@@ -997,6 +1038,12 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
         buffer[length] = ZMQ_CONNECT_HEARTBEAT;
         length++;
 
+        if (reconnect == true)
+            buffer[length] = 1;
+        else
+            buffer[length] = 0;
+        length++;
+
         ::strcpy(&(buffer[length]),ev_svr_data->svalue[0].in());
         length = length + ::strlen(ev_svr_data->svalue[0].in()) + 1;
 
@@ -1064,7 +1111,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 		EventChannelStruct &evt_ch = evt_it->second;
 		evt_ch.last_heartbeat = time(NULL);
 		evt_ch.heartbeat_skipped = false;
-		evt_ch.notifd_failed = false;
+		evt_ch.event_system_failed = false;
 	}
 	else
 	{
@@ -1078,7 +1125,7 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
 		// set the timeout for the channel monitor to 500ms not to block the event consumer for to long.
 		new_event_channel_struct.channel_monitor->timeout(500);
 
-		new_event_channel_struct.notifd_failed = false;
+		new_event_channel_struct.event_system_failed = false;
 		set_channel_type(new_event_channel_struct);
 
 		channel_map[channel_name] = new_event_channel_struct;
@@ -1366,6 +1413,12 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
             buffer[length] = ZMQ_CONNECT_EVENT;
         length++;
 
+        if (filters.size() == 1 && filters[0] == "reconnect")
+            buffer[length] = 1;
+        else
+            buffer[length] = 0;
+        length++;
+
         ::strcpy(&(buffer[length]),endpoint.c_str());
         length = length + endpoint.size() + 1;
 
@@ -1452,6 +1505,7 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
 
 void ZmqEventConsumer::push_heartbeat_event(string &ev_name)
 {
+
 //
 // Remove ".heartbeat" at the end of event name
 //

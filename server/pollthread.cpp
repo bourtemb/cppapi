@@ -1660,13 +1660,13 @@ void PollThread::eve_heartbeat()
 
 	EventSupplier *event_supplier;
 	event_supplier = Util::instance()->get_zmq_event_supplier();
-	if ((event_supplier != NULL) && (send_heartbeat == true))
+	if ((event_supplier != NULL) && (send_heartbeat == true) && (event_supplier->get_one_subscription_cmd() == true))
 	{
 		event_supplier->push_heartbeat_event();
 	}
 
 	event_supplier = Util::instance()->get_notifd_event_supplier();
-	if ((event_supplier != NULL) && (send_heartbeat == true))
+	if ((event_supplier != NULL) && (send_heartbeat == true) && (event_supplier->get_one_subscription_cmd() == true))
 	{
 		event_supplier->push_heartbeat_event();
 	}

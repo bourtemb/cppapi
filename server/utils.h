@@ -511,6 +511,13 @@ public:
  * @return A boolean set to true if the server is in its shutting down phase.
  */
 	bool is_svr_shutting_down() {return ext->svr_stopping;}
+/**
+ * Check if the device is actually restarted by the device server
+ * process admin device with its DevRestart command
+ *
+ * @return A boolean set to true if the device is restarting.
+ */
+    bool is_device_restarting(string &d_name);
 //@}
 
 /**@name Database related methods */
@@ -777,7 +784,7 @@ private:
               py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
               svr_starting(true),svr_stopping(false),poll_pool_size(ULONG_MAX),
               conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
-              endpoint_specified(false),user_pub_hwm(-1)
+              endpoint_specified(false),user_pub_hwm(-1),wattr_nan_allowed(false)
         {shared_data.cmd_pending=false;shared_data.trigger=false;
         cr_py_lock = new CreatePyLock();}
 
@@ -826,6 +833,9 @@ private:
         bool                        endpoint_specified;     // Endpoint specified on cmd line
         string                      specified_ip;           // IP address specified in the endpoint
         DevLong                     user_pub_hwm;           // User defined pub HWM
+
+        vector<string>              restarting_devices;     // Restarting devices name
+        bool                        wattr_nan_allowed;      // NaN allowed when writing attribute
     };
 
 public:
@@ -914,6 +924,12 @@ public:
 
 	DevLong get_user_pub_hwm() {return ext->user_pub_hwm;}
 
+	void add_restarting_device(string &d_name) {ext->restarting_devices.push_back(d_name);}
+	void delete_restarting_device(string &d_name);
+
+    bool is_wattr_nan_allowed() {return ext->wattr_nan_allowed;}
+	void set_wattr_nan_allowed(bool val) {ext->wattr_nan_allowed=val;}
+
 private:
 	TANGO_IMP static Util	*_instance;
 	static bool				_constructed;
@@ -999,6 +1015,40 @@ private:
 // Add template methods definitions
 
 #include <utils.tpp>
+
+//***************************************************************************
+//
+//              Some inline methods
+//
+//***************************************************************************
+
+//+----------------------------------------------------------------------------
+//
+// method : 		Util::is_device_restarting()
+//
+// description : 	Return a boolean if the device with name given as parameter
+//                  is actually executing a RestartDevice command
+//
+// args: - d_name : - The device name
+//
+// Returns true if the devce is restarting. False otherwise
+//
+//-----------------------------------------------------------------------------
+
+inline bool Util::is_device_restarting(string &d_name)
+{
+    bool ret = false;
+
+    if (ext->restarting_devices.size() != 0)
+    {
+        vector<string>::iterator pos;
+        pos = find(ext->restarting_devices.begin(),ext->restarting_devices.end(),d_name);
+        if (pos != ext->restarting_devices.end())
+            ret = true;
+    }
+
+    return ret;
+}
 
 //+-------------------------------------------------------------------------
 //
