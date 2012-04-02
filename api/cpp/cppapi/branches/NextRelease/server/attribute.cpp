@@ -5419,7 +5419,6 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		prop_to_delete++;
 	}
 
-cout << "prop to update = " << prop_to_update << ", prop to delete = " << prop_to_delete << endl;
 //
 // Update db only if needed
 //
@@ -5478,7 +5477,6 @@ cout << "prop to update = " << prop_to_update << ", prop to delete = " << prop_t
 			}
 		}
 	}
-cout << "leaving upd_database" << endl;
 
 	cout4 << "Leaving upd_database method" << endl;
 }
