@@ -784,7 +784,7 @@ void DeviceClass::delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_
 // Wait for CORBA to call the device dtor
 //
 
-    if (device_list[idx] != NULL)
+    if (device_list[idx] != NULL && exported_device == true)
     {
 #ifdef _TG_WINDOWS_
         while (device_list[idx] != NULL)

@@ -300,7 +300,7 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 
 	switch (data_type)
@@ -632,19 +632,22 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
             AutoTangoMonitor sync1(mon_ptr);
             for (i = 0;i < nb_data;i++)
             {
-#ifdef _TG_WINDOWS_
-                if (_finite((*db_ptr)[i]) == 0)
-#else
-                if (isfinite((*db_ptr)[i]) == 0)
-#endif
+                if (tg->is_wattr_nan_allowed() == false)
                 {
-                    TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                    if (_finite((*db_ptr)[i]) == 0)
+#else
+                    if (isfinite((*db_ptr)[i]) == 0)
+#endif
+                    {
+                        TangoSys_OMemStream o;
 
-                    o << "Set value for attribute " << name;
-                    o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                    Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                              o.str(),
-                              (const char *)"WAttribute::check_written_value()");
+                        o << "Set value for attribute " << name;
+                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                  o.str(),
+                                  (const char *)"WAttribute::check_written_value()");
+                    }
                 }
 
                 if (check_min_value == true)
@@ -794,19 +797,22 @@ void WAttribute::check_written_value(const CORBA::Any &any,unsigned long x,unsig
             AutoTangoMonitor sync1(mon_ptr);
             for (i = 0;i < nb_data;i++)
             {
-#ifdef _TG_WINDOWS_
-                if (_finite((*fl_ptr)[i]) == 0)
-#else
-                if (isfinite((*fl_ptr)[i]) == 0)
-#endif
+                if (tg->is_wattr_nan_allowed() == false)
                 {
-                    TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                    if (_finite((*fl_ptr)[i]) == 0)
+#else
+                    if (isfinite((*fl_ptr)[i]) == 0)
+#endif
+                    {
+                        TangoSys_OMemStream o;
 
-                    o << "Set value for attribute " << name;
-                    o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                    Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                              o.str(),
-                              (const char *)"WAttribute::check_written_value()");
+                        o << "Set value for attribute " << name;
+                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                  o.str(),
+                                  (const char *)"WAttribute::check_written_value()");
+                    }
                 }
 
                 if (check_min_value == true)
@@ -1290,7 +1296,7 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 
     Tango::Util *tg = Tango::Util::instance();
     Tango::TangoMonitor *mon_ptr = NULL;
-    if (tg->is_svr_starting() == false)
+    if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
         mon_ptr = &(get_att_device()->get_att_conf_monitor());
 
 	switch (data_type)
@@ -1620,19 +1626,22 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
                 AutoTangoMonitor sync1(mon_ptr);
                 for (i = 0;i < nb_data;i++)
                 {
-#ifdef _TG_WINDOWS_
-                    if (_finite(db_seq[i]) == 0)
-#else
-                    if (isfinite(db_seq[i]) == 0)
-#endif
+                    if (tg->is_wattr_nan_allowed() == false)
                     {
-                        TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                        if (_finite(db_seq[i]) == 0)
+#else
+                        if (isfinite(db_seq[i]) == 0)
+#endif
+                        {
+                            TangoSys_OMemStream o;
 
-                        o << "Set value for attribute " << name;
-                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                                  o.str(),
-                                  (const char *)"WAttribute::check_written_value()");
+                            o << "Set value for attribute " << name;
+                            o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                            Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                      o.str(),
+                                      (const char *)"WAttribute::check_written_value()");
+                        }
                     }
 
                     if (check_min_value == true)
@@ -1782,19 +1791,22 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
                 AutoTangoMonitor sync1(mon_ptr);
                 for (i = 0;i < nb_data;i++)
                 {
-#ifdef _TG_WINDOWS_
-                    if (_finite(fl_seq[i]) == 0)
-#else
-                    if (isfinite(fl_seq[i]) == 0)
-#endif
+                    if (tg->is_wattr_nan_allowed() == false)
                     {
-                        TangoSys_OMemStream o;
+#ifdef _TG_WINDOWS_
+                        if (_finite(fl_seq[i]) == 0)
+#else
+                        if (isfinite(fl_seq[i]) == 0)
+#endif
+                        {
+                            TangoSys_OMemStream o;
 
-                        o << "Set value for attribute " << name;
-                        o << " is a NaN or INF value (at least element " << i << ")" << ends;
-                        Except::throw_exception((const char *)"API_WAttrOutsideLimit",
-                                  o.str(),
-                                  (const char *)"WAttribute::check_written_value()");
+                            o << "Set value for attribute " << name;
+                            o << " is a NaN or INF value (at least element " << i << ")" << ends;
+                            Except::throw_exception((const char *)"API_WAttrOutsideLimit",
+                                      o.str(),
+                                      (const char *)"WAttribute::check_written_value()");
+                        }
                     }
 
                     if (check_min_value == true)
@@ -3640,9 +3652,12 @@ void WAttribute::set_max_value(const char *new_max_value_str)
 //
 //--------------------------------------------------------------------------
 
-bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_value)
+bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &ret_mem_value)
 {
 	bool ret = false;
+
+    if (mem_value == MemNotUsed)
+        return false;
 
 //
 // Check last written attribute value with the new threshold
@@ -3662,7 +3677,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (short_array_val[i] < min_value.sh)
                 {
                     ss << short_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3672,7 +3687,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (short_array_val[i] > max_value.sh)
                 {
                     ss << short_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3689,7 +3704,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (long_array_val[i] < min_value.lg)
                 {
                     ss << long_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3699,7 +3714,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (long_array_val[i] > max_value.lg)
                 {
                     ss << long_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3716,7 +3731,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->long64_array_val[i] < min_value.lg64)
                 {
                     ss << w_ext->long64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3726,7 +3741,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->long64_array_val[i] > max_value.lg64)
                 {
                     ss << w_ext->long64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3743,7 +3758,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (double_array_val[i] < min_value.db)
                 {
                     ss << double_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3753,7 +3768,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (double_array_val[i] > max_value.db)
                 {
                     ss << double_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3770,7 +3785,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (float_array_val[i] < min_value.fl)
                 {
                     ss << float_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3780,7 +3795,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (float_array_val[i] > max_value.fl)
                 {
                     ss << float_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3797,7 +3812,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (ushort_array_val[i] < min_value.ush)
                 {
                     ss << ushort_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3807,7 +3822,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (ushort_array_val[i] > max_value.ush)
                 {
                     ss << ushort_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3824,7 +3839,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (uchar_array_val[i] < min_value.uch)
                 {
                     ss << uchar_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3834,7 +3849,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (uchar_array_val[i] > max_value.uch)
                 {
                     ss << uchar_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3851,7 +3866,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong_array_val[i] < min_value.ulg)
                 {
                     ss << w_ext->ulong_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3861,7 +3876,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong_array_val[i] > max_value.ulg)
                 {
                     ss << w_ext->ulong_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3878,7 +3893,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong64_array_val[i] < min_value.ulg64)
                 {
                     ss << w_ext->ulong64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3888,7 +3903,7 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
                 if (w_ext->ulong64_array_val[i] > max_value.ulg64)
                 {
                     ss << w_ext->ulong64_array_val[i];
-                    mem_value = ss.str();
+                    ret_mem_value = ss.str();
                     ret = true;
                     break;
                 }
@@ -3902,6 +3917,5 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &mem_v
 
 	return ret;
 }
-
 
 } // End of Tango namespace

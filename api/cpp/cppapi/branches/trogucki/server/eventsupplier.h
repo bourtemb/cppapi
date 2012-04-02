@@ -136,6 +136,9 @@ public :
 	omni_mutex &get_push_mutex() {return push_mutex;}
 	string &get_fqdn_prefix() {return fqdn_prefix;}
 
+	bool get_one_subscription_cmd() {return one_subscription_cmd;}
+	void set_one_subscription_cmd(bool val) {one_subscription_cmd = val;}
+
 protected :
 	inline int timeval_diff(TimeVal before, TimeVal after)
 	{
@@ -159,6 +162,9 @@ protected :
 	//	detect_event which is used
 	// from different threads
 	static omni_mutex		detect_mutex;
+
+private:
+	bool        one_subscription_cmd;
 };
 
 //---------------------------------------------------------------------
@@ -252,6 +258,7 @@ class ZmqEventSupplier : public EventSupplier
 {
 public :
 	TANGO_IMP_EXP static ZmqEventSupplier *create(Util *);
+	virtual ~ZmqEventSupplier();
 
 //------------------ Push event -------------------------------
 

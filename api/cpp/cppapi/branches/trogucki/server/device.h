@@ -3505,11 +3505,11 @@ private:
         TangoMonitor		only_one;		        // Device monitor
         Tango::DevState		device_prev_state;	    // Device previous state
 
-    #ifdef TANGO_HAS_LOG4TANGO
+#ifdef TANGO_HAS_LOG4TANGO
         log4tango::Logger* 	logger;
         log4tango::Level::Value saved_log_level;
         size_t rft;
-    #endif
+#endif
         string				device_name_lower;
         long				idl_version;
 

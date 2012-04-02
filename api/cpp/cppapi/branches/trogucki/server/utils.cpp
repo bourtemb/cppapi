@@ -265,6 +265,19 @@ void Util::effective_job(int argc,char *argv[])
 		}
 
 //
+// Destroy the ORB created as a client (in case there is one)
+//
+
+        ApiUtil *au = Tango::ApiUtil::instance();
+        CORBA::ORB_ptr orb_clnt  = au->get_orb();
+        if (CORBA::is_nil(orb_clnt) == false)
+        {
+            orb_clnt->destroy();
+            CORBA::release(orb_clnt);
+            au->set_orb(CORBA::ORB::_nil());
+        }
+
+//
 // Initialise CORBA ORB
 //
 
@@ -2345,6 +2358,23 @@ void Util::clean_dyn_attr_prop()
 
 		db->delete_all_device_attribute_property(ext->dyn_att_dev_name,send_data);
 	}
+}
+
+//+----------------------------------------------------------------------------
+//
+// method : 		Util::delete_restarting_device()
+//
+// description : 	Delete a device from the vector of restarting device
+//
+// args: - d_name : - The device name
+//
+//-----------------------------------------------------------------------------
+
+void Util::delete_restarting_device(string &d_name)
+{
+    vector<string>::iterator pos;
+    pos = remove(ext->restarting_devices.begin(),ext->restarting_devices.end(),d_name);
+    ext->restarting_devices.erase(pos,ext->restarting_devices.end());
 }
 
 #ifdef _TG_WINDOWS_

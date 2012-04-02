@@ -51,8 +51,8 @@ private:
 	// and its sub devices.
 	typedef struct sub_dev_list
 	{
-	bool modified;               // was the list modified?
-	vector<string> sub_devices; // list of sub devices
+        bool modified;               // was the list modified?
+        vector<string> sub_devices; // list of sub devices
 	} SubDeviceList;
 
 	// map and mutex to keep a list of sub devices per device

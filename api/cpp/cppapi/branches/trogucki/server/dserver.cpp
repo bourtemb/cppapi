@@ -186,7 +186,7 @@ void DServer::init_device()
 // Retrieve event related properties (multicast and other)
 //
 
-			get_event_prop(tg);
+			get_event_misc_prop(tg);
 
 //
 // A loop for each class
@@ -854,34 +854,41 @@ void DServer::restart(string &d_name)
 // Delete the device (deactivate it and remove it)
 //
 
-	PortableServer::POA_ptr r_poa = tg->get_poa();
-	bool py_device = dev_to_del->is_py_device();
-	if (py_device == true)
-	{
-		AutoPyLock PyLo;
+    try
+    {
+        tg->add_restarting_device(d_name);
+        PortableServer::POA_ptr r_poa = tg->get_poa();
+        bool py_device = dev_to_del->is_py_device();
+        if (py_device == true)
+        {
+            AutoPyLock PyLo;
 
-		Device_3Impl *dev_to_del_3 = static_cast<Device_3Impl *>(dev_to_del);
-		dev_to_del_3->delete_dev();
-	}
-	if (dev_to_del->get_exported_flag() == true)
-		r_poa->deactivate_object(dev_to_del->get_obj_id().in());
-	CORBA::release(r_poa);
+            Device_3Impl *dev_to_del_3 = static_cast<Device_3Impl *>(dev_to_del);
+            dev_to_del_3->delete_dev();
+        }
+        if (dev_to_del->get_exported_flag() == true)
+            r_poa->deactivate_object(dev_to_del->get_obj_id().in());
+        CORBA::release(r_poa);
 
 //
 // Re-create device. Take the monitor in case of class or process serialisation
 // model
 //
 
-	tg->set_svr_starting(true);
-	dev_cl->set_device_factory_done(false);
-	{
-		AutoTangoMonitor sync(dev_cl);
-		AutoPyLock PyLo;
+        dev_cl->set_device_factory_done(false);
+        {
+            AutoTangoMonitor sync(dev_cl);
+            AutoPyLock PyLo;
 
-		dev_cl->device_factory(&name);
-	}
-	dev_cl->set_device_factory_done(true);
-	tg->set_svr_starting(false);
+            dev_cl->device_factory(&name);
+        }
+        dev_cl->set_device_factory_done(true);
+        tg->delete_restarting_device(d_name);
+    }
+    catch (...)
+    {
+        tg->delete_restarting_device(d_name);
+    }
 
 //
 // Apply memorized values for memorized attributes (if any)
@@ -1517,16 +1524,17 @@ void DServer::check_lock_owner(DeviceImpl *dev,const char *cmd_name,const char *
 
 //+----------------------------------------------------------------------------
 //
-// method : 		DServer::get_event_prop()
+// method : 		DServer::get_event_misc_prop()
 //
-// description : 	Get the property defining which event has to be transported
+// description : 	Get the properties defining which event has to be transported
 //					using multicast protocol
+//                  Also retrieve property for Nan allowed in writing attribute
 //
 // argin: tg : Tango Util instance pointer
 //
 //-----------------------------------------------------------------------------
 
-void DServer::get_event_prop(Tango::Util *tg)
+void DServer::get_event_misc_prop(Tango::Util *tg)
 {
 
 	if (tg->_UseDb == true)
@@ -1544,6 +1552,7 @@ void DServer::get_event_prop(Tango::Util *tg)
 		db_data.push_back(DbDatum("MulticastIvl"));
 		db_data.push_back(DbDatum("DSEventBufferHwm"));
 		db_data.push_back(DbDatum("EventBufferHwm"));
+		db_data.push_back(DbDatum("WAttrNaNAllowed"));
 
 		try
 		{
@@ -1681,6 +1690,17 @@ void DServer::get_event_prop(Tango::Util *tg)
             zmq_sub_event_hwm = SUB_HWM;
             if (db_data[5].is_empty() == false)
                 db_data[5] >> zmq_sub_event_hwm;
+
+//
+// Nan allowed in writing attribute
+//
+
+            if (db_data[6].is_empty() == false)
+            {
+                bool new_val;
+                db_data[6] >> new_val;
+                tg->set_wattr_nan_allowed(new_val);
+            }
 
 		}
 		catch (Tango::DevFailed &)
