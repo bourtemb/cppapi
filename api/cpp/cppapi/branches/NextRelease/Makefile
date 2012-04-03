@@ -314,6 +314,7 @@ SERVER_INCLUDE =	attrdesc.h \
             attribute.tpp \
 			attrmanip.h \
 			attrprop.h \
+			attrprop.tpp \
 			auto_tango_monitor.h \
 			basiccommand.h \
 			blackbox.h \
