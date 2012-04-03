@@ -2366,7 +2366,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << min_value_usr_def;
 				str >> min_value_usr_def_db;
                 min_value_str = min_value_usr_def;
-			}            
+			}
 		}
 		else
 		{
@@ -2391,7 +2391,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			str << min_value_usr_def;
 			str >> min_value_usr_def_db;
             min_value_str = min_value_usr_def;
-		}            
+		}
 	}
 	else
 	{
@@ -2500,7 +2500,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -2513,7 +2513,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		str << min_value_str;
 		if(str >> db && str.eof() && db == min_value_class_def_db)
 			min_value_str = min_value_class_def;
-	}	
+	}
 	else if(usr_defaults && min_value_str != AlrmValueNotSpec)
 	{
 		double db;
@@ -2559,7 +2559,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << max_value_usr_def;
 				str >> max_value_usr_def_db;
                 max_value_str = max_value_usr_def;
-			}            
+			}
 		}
 		else
 		{
@@ -2584,7 +2584,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			str << max_value_usr_def;
 			str >> max_value_usr_def_db;
             max_value_str = max_value_usr_def;
-		}            
+		}
 	}
 	else
 	{
@@ -2686,8 +2686,8 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
             {
                 WAttribute *w_att = static_cast<WAttribute *>(this);
                 string mem_value;
-                if ((w_att->is_memorized() == true) && (w_att->mem_value_below_above(MIN,mem_value) == true))
-                    throw_min_max_value(dev_name,mem_value,MIN);
+                if ((w_att->is_memorized() == true) && (w_att->mem_value_below_above(MAX,mem_value) == true))
+                    throw_min_max_value(dev_name,mem_value,MAX);
             }
 		}
 		else
@@ -2695,7 +2695,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -2708,7 +2708,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		str << max_value_str;
 		if(str >> db && str.eof() && db == max_value_class_def_db)
 			max_value_str = max_value_class_def;
-	}	
+	}
 	else if(usr_defaults && max_value_str != AlrmValueNotSpec)
 	{
 		double db;
@@ -2754,7 +2754,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << min_alarm_usr_def;
 				str >> min_alarm_usr_def_db;
                 min_alarm_str = min_alarm_usr_def;
-			}            
+			}
 		}
 		else
 		{
@@ -2779,7 +2779,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			str << min_alarm_usr_def;
 			str >> min_alarm_usr_def_db;
             min_alarm_str = min_alarm_usr_def;
-		}            
+		}
 	}
 	else
 	{
@@ -2890,7 +2890,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -2903,7 +2903,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		str << min_alarm_str;
 		if(str >> db && str.eof() && db == min_alarm_class_def_db)
 			min_alarm_str = min_alarm_class_def;
-	}	
+	}
 	else if(usr_defaults && min_alarm_str != AlrmValueNotSpec)
 	{
 		double db;
@@ -2949,7 +2949,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 				str << max_alarm_usr_def;
 				str >> max_alarm_usr_def_db;
                 max_alarm_str = max_alarm_usr_def;
-			}            
+			}
 		}
 		else
 		{
@@ -2974,7 +2974,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 			str << max_alarm_usr_def;
 			str >> max_alarm_usr_def_db;
             max_alarm_str = max_alarm_usr_def;
-		}            
+		}
 	}
 	else
 	{
@@ -3085,7 +3085,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 	}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -3098,7 +3098,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		str << max_alarm_str;
 		if(str >> db && str.eof() && db == max_alarm_class_def_db)
 			max_alarm_str = max_alarm_class_def;
-	}	
+	}
 	else if(usr_defaults && max_alarm_str != AlrmValueNotSpec)
 	{
 		double db;
@@ -3264,7 +3264,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str << min_warning_usr_def;
 				str >> min_warning_usr_def_db;
                 min_warning_str = min_warning_usr_def;
-			}            
+			}
 		}
 		else
 		{
@@ -3361,7 +3361,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -3542,7 +3542,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -3722,7 +3722,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 
 //
-// For string representation: If there is a default (class or user) and if the user 
+// For string representation: If there is a default (class or user) and if the user
 // entered a value equal to the default but with a different precision (3.2 and 3.20), take the
 // default one instead of the user one
 //
@@ -5098,9 +5098,9 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         bool delta_t_class_defaults = false;
         bool delta_t_is_number = true;
 
-        delta_t_user_defaults = prop_in_list("delta_val",delta_t_usr_def_val,nb_user,def_user_prop);
+        delta_t_user_defaults = prop_in_list("delta_t",delta_t_usr_def_val,nb_user,def_user_prop);
 
-        delta_t_class_defaults = prop_in_list("delta_val",delta_t_class_def_val,nb_class,def_class_prop);
+        delta_t_class_defaults = prop_in_list("delta_t",delta_t_class_def_val,nb_class,def_class_prop);
 
         if (delta_t_class_defaults)
         {
@@ -11907,7 +11907,7 @@ void Attribute::set_quality(Tango::AttrQuality qua,bool send_event)
 
 //+-------------------------------------------------------------------------
 //
-// method : 		Attribute::upd_database
+// method : 		Attribute::upd_att_prop_db
 //
 // description : 	Update the tango database with the new attribute
 //			values

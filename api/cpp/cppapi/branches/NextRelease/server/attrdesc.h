@@ -223,7 +223,7 @@ public:
  *
  * @param	def_abs_change	The user default change event abs_change property
  */
-	void set_abs_change(const char *def_abs_change)
+	void set_event_abs_change(const char *def_abs_change)
 	{
 		abs_change = def_abs_change;
 	}
@@ -233,7 +233,7 @@ public:
  *
  * @param	def_rel_change	The user default change event rel_change property
  */
-	void set_rel_change(const char *def_rel_change)
+	void set_event_rel_change(const char *def_rel_change)
 	{
 		rel_change = def_rel_change;
 	}
@@ -243,7 +243,7 @@ public:
  *
  * @param	def_period	The user default periodic event period property
  */
-	void set_period(const char *def_period)
+	void set_event_period(const char *def_period)
 	{
 		period = def_period;
 	}
@@ -253,7 +253,7 @@ public:
  *
  * @param	def_archive_abs_change	The user default archive event abs_change property
  */
-	void set_archive_abs_change(const char *def_archive_abs_change)
+	void set_archive_event_abs_change(const char *def_archive_abs_change)
 	{
 		archive_abs_change = def_archive_abs_change;
 	}
@@ -263,7 +263,7 @@ public:
  *
  * @param	def_archive_rel_change	The user default archive event rel_change property
  */
-	void set_archive_rel_change(const char *def_archive_rel_change)
+	void set_archive_event_rel_change(const char *def_archive_rel_change)
 	{
 		archive_rel_change = def_archive_rel_change;
 	}
@@ -273,7 +273,7 @@ public:
  *
  * @param	def_archive_period	The user default archive event period property
  */
-	void set_archive_period(const char *def_archive_period)
+	void set_archive_event_period(const char *def_archive_period)
 	{
 		archive_period = def_archive_period;
 	}

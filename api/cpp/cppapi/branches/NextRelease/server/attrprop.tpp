@@ -39,192 +39,6 @@
 namespace Tango
 {
 
-//template <>
-//class AttrProp<DevEncoded>
-//{
-//public:
-///**@name Constructors
-// * Miscellaneous constructors */
-////@{
-///**
-// * Default constructor.
-// */
-//	AttrProp() {}
-///**
-// * Create a new AttrProp object.
-// *
-// * @param value The attribute property value.
-// */
-//	AttrProp(const DevUChar &value) : val(value), is_value(true)
-//	{
-//		TangoSys_MemStream st;
-//		st.precision(TANGO_FLOAT_PRECISION);
-//		st << (short)value; // to represent the numeric value
-//		str = st.str();
-//	}
-///**
-// * Create a new AttrProp object.
-// *
-// * @param value_str The 'C string' representation of attribute property.
-// */
-//	AttrProp(const char *value_str) : str(string(value_str)), is_value(false) {}
-///**
-// * Create a new AttrProp object.
-// *
-// * @param value_str The string representation of attribute property value.
-// */
-//	AttrProp(const string &value_str) : str(value_str), is_value(false) {}
-////@}
-//
-//	operator string()
-//	{
-//		return str;
-//	}
-//	operator const char *()
-//	{
-//		return str.c_str();
-//	}
-//
-///**@name Assignment operators
-// * These operators allow to assign the value of the property by providing
-// * the value or its string representation.
-// */
-////@{
-///**
-// * Assign the value of the attribute property.
-// *
-// * @param value A value of the attribute property.
-// *
-// * @return AttrProp object with both value and its string representation set.
-// */
-//	AttrProp &operator=(const DevUChar &value)
-//	{
-//		TangoSys_MemStream st;
-//		st.precision(TANGO_FLOAT_PRECISION);
-//		st << (short)value; // to represent the numeric value
-//		str = st.str();
-//		val = value;
-//		is_value = true;
-//		return *this;
-//	}
-///**
-// * Assign the string representation of the attribute property value.
-// *
-// * @param value_str A 'C string' representation of the attribute property value.
-// *
-// * @return AttrProp object with the string representation of its value set.
-// */
-//	AttrProp &operator=(const char *value_str)
-//	{
-//		str = value_str;
-//		is_value = false;
-//		return *this;
-//	}
-///**
-// * Assign the string representation of the attribute property value.
-// *
-// * @param value_str A string representation of the attribute property value.
-// *
-// * @return AttrProp object with the string representation of its value set.
-// */
-//	AttrProp &operator=(const string &value_str)
-//	{
-//		str = value_str;
-//		is_value = false;
-//		return *this;
-//	}
-////@}
-//
-///**@name Get/Set object members.
-// * These methods allow the external world to get/set AttrProp instance
-// * data members
-// */
-////@{
-///**
-// * Get the attribute property value.
-// *
-// * @return The attribute property value.
-// */
-//	DevUChar get_val()
-//	{
-//		if(is_value == false)
-//		{
-//			string err_msg = "Numeric representation of the property's value (" + str + ") has not been set";
-//			Tango::Except::throw_exception("API_AttrPropValueNotSet",err_msg,"AttrProp::get_val",Tango::ERR);
-//		}
-//		return val;
-//	}
-///**
-// * Get string representation of the attribute property value.
-// *
-// * @return The string representation of the attribute property value.
-// */
-//	string &get_str() {return str;}
-///**
-// * Set the attribute property value.
-// *
-// * The value is automatically converted to its string representation.
-// *
-// * @param value The value of the attribute property.
-// */
-//	void set_val(const DevUChar &value)
-//	{
-//		TangoSys_MemStream st;
-//		st.precision(TANGO_FLOAT_PRECISION);
-//		st << (short)value; // to represent the numeric value
-//		str = st.str();
-//		val = value;
-//		is_value = true;
-//	}
-///**
-// * Set string representation of the attribute property value.
-// *
-// * @param value_str The the 'C string' representation of the attribute property value.
-// */
-//	void set_str(const char *value_str) {str = string(value_str); is_value = false;}
-///**
-// * Set string representation of the attribute property value.
-// *
-// * @param value_str The the string representation of the attribute property value.
-// */
-//	void set_str(const string &value_str) {str = value_str; is_value = false;}
-////@}
-//
-///**@name Check method
-// * A method returning a boolean flag set to true if
-// * the attribute property value has been assigned.
-// */
-////@{
-///**
-// * Check if the attribute property value has been assigned.
-// *
-// * This method returns a boolean set to true if the attribute property value has been assigned.
-// *
-// * @return A boolean set to true if the attribute property value has been assigned
-// */
-//	bool is_val() {return is_value;}
-////@}
-//
-//private:
-//	DevUChar val;
-//	string str;
-//	bool is_value;
-//
-////
-//// The extension class
-////
-//
-//	class AttrPropExt {};
-//
-//#ifdef HAS_UNIQUE_PTR
-//    unique_ptr<AttrPropExt>		ext;           // Class extension
-//#else
-//    AttrPropExt					*ext;
-//#endif
-//};
-
-
-
 template <>
 class MultiAttrProp<DevEncoded>
 {
@@ -235,34 +49,34 @@ public:
 /**
  * Default constructor.
  */
-	MultiAttrProp() {}
+        MultiAttrProp() {}
 //@}
 /**@name Class data members */
 //@{
 /**
  * Attribute label
  */
-		string 					label;
+		string 					            label;
 /**
  * Attribute description
  */
-		string 					description;
+		string 					            description;
 /**
  * Attribute unit
  */
-		string 					unit;
+		string 					            unit;
 /**
  * Attribute standard_unit
  */
-		string 					standard_unit;
+		string 					            standard_unit;
 /**
  * Attribute display_unit
  */
-		string 					display_unit;
+		string 					            display_unit;
 /**
  * Attribute format
  */
-		string 					format;
+		string 					            format;
 /**
  * Attribute min_value
  */

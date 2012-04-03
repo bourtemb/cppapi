@@ -2272,6 +2272,16 @@ protected:
 // Some inline methods
 //
 
+//+-------------------------------------------------------------------------
+//
+// method :		Attribute::throw_hard_coded_prop
+//
+// description : Throw a "Hard coded properties can't be changed" exception
+//
+// args: in : - prop_name : The name of the property which should be modified
+//
+//--------------------------------------------------------------------------
+
 inline void Attribute::throw_hard_coded_prop(const char *prop_name)
 {
     TangoSys_OMemStream desc;
@@ -2280,6 +2290,16 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
     Except::throw_exception((const char *)"API_AttrNotAllowed",desc.str(),
 				      	  (const char *)"Attribute::check_hard_coded_properties()");
 }
+
+//+-------------------------------------------------------------------------
+//
+// method :		Attribute::throw_startup_exception
+//
+// description : Throw a startup exception
+//
+// args: in : - origin : The method name where this method is called from
+//
+//--------------------------------------------------------------------------
 
 inline void Attribute::throw_startup_exception(const char* origin)
 {
@@ -2334,6 +2354,19 @@ inline void Attribute::throw_startup_exception(const char* origin)
 		Except::throw_exception("API_AttrConfig",err_msg,origin);
 	}
 }
+
+//+-------------------------------------------------------------------------
+//
+// method :		Attribute::prop_in_list
+//
+// description : Search for a property in a list
+//
+// args: in : - prop_name : The property name
+//            - list_size : The size list
+//            - list : The list
+//       out : - prop_str : String initialized with prop. value (if found)
+//
+//--------------------------------------------------------------------------
 
 
 inline bool Attribute::prop_in_list(const char *prop_name,string &prop_str,size_t list_size,vector<AttrProperty> &list)
