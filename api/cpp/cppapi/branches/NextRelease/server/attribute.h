@@ -44,7 +44,6 @@
 #include <functional>
 #include <time.h>
 #include <iterator>
-#include <attrprop.h>
 
 #ifdef _TG_WINDOWS_
 	#include <sys/types.h>
@@ -53,39 +52,6 @@
 
 namespace Tango
 {
-
-// Ranges type-enum-string conversions
-
-template <typename T>
-struct ranges_type2const
-{
-	static CmdArgType enu;
-	static string str;
-};
-
-template <CmdArgType>
-struct ranges_const2type
-{
-	static string str;
-};
-
-#define RANGES_TYPE2CONST(type,constant) \
-	template <> \
-	struct ranges_type2const<type> \
-	{ \
-		static CmdArgType enu; \
-		static string str; \
-	}; \
-	CmdArgType ranges_type2const<type>::enu = constant; \
-	string ranges_type2const<type>::str = #type; \
-	template<> \
-	struct ranges_const2type<Tango::constant> \
-	{ \
-		typedef type Type; \
-		static string str; \
-	}; \
-	string ranges_const2type<Tango::constant>::str = #type;
-
 
 //
 // Binary function objects to be used by the find_if algorithm.
@@ -2169,6 +2135,9 @@ public:
 
 	void save_alarm_quality() {ext->old_quality=quality;ext->old_alarm=alarm;}
 
+	bool is_startup_exception() {return ext->check_startup_exceptions;}
+	void throw_startup_exception(const char*);
+
 #ifndef TANGO_HAS_LOG4TANGO
 	friend ostream &operator<<(ostream &,Attribute &);
 #endif // TANGO_HAS_LOG4TANGO
@@ -2196,7 +2165,7 @@ protected:
     class AttributeExt
     {
     public:
-        AttributeExt() {}
+        AttributeExt() : check_startup_exceptions(false), startup_exceptions_clear(true) {}
 
         Tango::DispLevel 	disp_level;						// Display level
         long				poll_period;					// Polling period
@@ -2246,6 +2215,9 @@ protected:
         vector<string>      mcast_event;                    // In case of multicasting used for event transport
         AttrQuality         old_quality;                    // Previous attribute quality
         bitset<numFlags>    old_alarm;                      // Previous attribute alarm
+        map<string,const DevFailed> startup_exceptions;		// Map containing exceptions related to attribute configuration raised during the server startup sequence
+        bool 				check_startup_exceptions;		// Flag set to true if there is at least one exception in startup_exceptions map
+        bool 				startup_exceptions_clear;		// Flag set to true when the cause for the device startup exceptions has been fixed
     };
 
 	AttributeExt		*ext;
@@ -2262,6 +2234,9 @@ protected:
 
 	template <typename T>
     void check_hard_coded_properties(const T &);
+
+	void add_startup_exception(string,const DevFailed);
+	void delete_startup_exception(string);
 
     void throw_hard_coded_prop(const char *);
 	void throw_err_format(const char *,const string &,const char *);
@@ -2303,7 +2278,61 @@ inline void Attribute::throw_hard_coded_prop(const char *prop_name)
     desc << "Attribute property " << prop_name << " is not changeable at run time" << ends;
 
     Except::throw_exception((const char *)"API_AttrNotAllowed",desc.str(),
-				      	  (const char *)"Attribute::check_hard_coded_properties");
+				      	  (const char *)"Attribute::check_hard_coded_properties()");
+}
+
+inline void Attribute::throw_startup_exception(const char* origin)
+{
+	if(ext->check_startup_exceptions)
+	{
+		string err_msg;
+		vector<string> event_exceptions;
+		vector<string> opt_exceptions;
+		for(map<string,const DevFailed>::iterator it = ext->startup_exceptions.begin(); it != ext->startup_exceptions.end(); ++it)
+		{
+			if(it->first == "event_period" || it->first == "archive_period" || it->first == "rel_change" || it->first == "abs_change" || it->first == "archive_rel_change" || it->first == "archive_abs_change")
+				event_exceptions.push_back(it->first);
+			else
+				opt_exceptions.push_back(it->first);
+			for(size_t i = 0 ; i < it->second.errors.length(); i++)
+			{
+				string tmp_msg = string(it->second.errors[i].desc);
+				size_t pos = tmp_msg.rfind('\n');
+				if(pos != string::npos)
+					tmp_msg.erase(0,pos+1);
+				err_msg += "\n" + tmp_msg;
+			}
+		}
+		err_msg = "\nDevice " + ext->d_name + "-> Attribute : " + name + err_msg;
+
+		if(event_exceptions.size() == ext->startup_exceptions.size())
+		{
+			if(event_exceptions.size() == 1)
+				err_msg += "\nSetting a valid value (also 'NaN', 'Not specified' and '' - empty string) for any property for this attribute will automatically bring the above-mentioned property to its library defaults";
+			else
+				err_msg += "\nSetting a valid value (also 'NaN', 'Not specified' and '' - empty string) for any property for this attribute will automatically bring the above-listed properties to their library defaults";
+		}
+		else if(event_exceptions.size() > 0)
+		{
+			if(opt_exceptions.size() == 1)
+				err_msg += "\nSetting valid value (also 'NaN', 'Not specified' and '' - empty string) for " + opt_exceptions[0] + " ";
+			else
+			{
+				err_msg += "\nSetting valid values (also 'NaN', 'Not specified' and '' - empty string) for ";
+				for(size_t i = 0; i < opt_exceptions.size(); i++)
+					err_msg += ((i == (opt_exceptions.size() - 1) && i != 0) ? "and " : "") + opt_exceptions[i] + ((i != (opt_exceptions.size() - 1) && i != (opt_exceptions.size() - 2)) ? "," : "") + " ";
+			}
+			err_msg += "will automatically bring ";
+			for(size_t i = 0; i < event_exceptions.size(); i++)
+				err_msg += ((i == (event_exceptions.size() - 1) && i != 0) ? "and " : "") + event_exceptions[i] + ((i != (event_exceptions.size() - 1) && i != (event_exceptions.size() - 2)) ? "," : "") + " ";
+			if(event_exceptions.size() == 1)
+				err_msg += "to its library defaults";
+			else
+				err_msg += "to their library defaults";
+		}
+
+		Except::throw_exception("API_AttrConfig",err_msg,origin);
+	}
 }
 
 
@@ -2361,6 +2390,27 @@ inline bool Attribute::prop_in_list(const char *prop_name,string &prop_str,size_
 //      J : Default class properties vector ref
 //
 // Too many parameters ?
+//
+// Comment 1: If the user input value is equal to user default value do not store it in
+// the database.
+//
+// Comment 2: User default value (if defined) has to be converted to double before it is
+// compared with the user input to determine if to store the new value in the database.
+// String comparison is not appropriate in case of floating point numbers,
+// e.g. "5.0" is numerically equal to "5.00" but the strings differ.
+//
+// Comment 3: If user defaults are defined - at first place the input string is converted
+// to double to determine if it is a number. If so, the double value is cast to the type
+// corresponding with the type of the attribute and further compared with the double
+// representation of the user default value.
+// The purpose of casting is as follows.
+// Lets take an example of an attribute of DevShort data type with user default value for
+// min_alarm set to 5. Now, if the user inputs "5.678" as a new value for min_alarm
+// it would normally be cast to DevShort and stored in the database as "5" (this is the
+// standard behaviour if the user inputs a floating point value for a property of
+// non-floating point type). But now the outcome "5" is equal to the user default value 5
+// and should not be stored in the database. This is why there is the cast of the user
+// input value to the attribute data type before comparison with the user default value.
 //
 
 #define CHECK_PROP(A,B,C,D,E,F,G,H,I,J) \

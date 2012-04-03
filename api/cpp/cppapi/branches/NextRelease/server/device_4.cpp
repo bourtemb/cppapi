@@ -823,7 +823,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 // method : 		Device_4Impl::write_read_attributes_4
 //
 // description : 	CORBA operation to write then read attribute(s) value
-//					Nowdays, it is possible to write then read attribute for
+//					Nowadays, it is possible to write then read attribute for
 //					only 1 attribute at a time even if the IDL is written for
 //					several attribute
 //
