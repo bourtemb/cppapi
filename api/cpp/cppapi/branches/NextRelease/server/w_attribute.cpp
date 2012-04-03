@@ -3666,246 +3666,475 @@ bool WAttribute::mem_value_below_above(MinMaxValueCheck check_type,string &ret_m
     long nb_written,i;
     stringstream ss;
 
+    DevLong lg_val;
+    DevShort sh_val;
+    DevLong64 lg64_val;
+    DevDouble db_val;
+    DevFloat fl_val;
+    DevUShort ush_val;
+    DevUChar uch_val;
+    DevULong ulg_val;
+    DevULong64 ulg64_val;
+
+    Tango::Util *tg = Tango::Util::instance();
+    bool svr_starting = tg->is_svr_starting();
+
     switch (data_type)
     {
     case Tango::DEV_SHORT:
-        nb_written = short_array_val.length();
-        for (i = 0;i < nb_written;i++)
+       if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> sh_val;
             if (check_type == MIN)
             {
-                if (short_array_val[i] < min_value.sh)
+                if (sh_val < min_value.sh)
                 {
-                    ss << short_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (short_array_val[i] > max_value.sh)
+                if (sh_val > max_value.sh)
                 {
-                    ss << short_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = short_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (short_array_val[i] < min_value.sh)
+                    {
+                        ss << short_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (short_array_val[i] > max_value.sh)
+                    {
+                        ss << short_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_LONG:
-        nb_written = long_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> lg_val;
             if (check_type == MIN)
             {
-                if (long_array_val[i] < min_value.lg)
+                if (lg_val < min_value.lg)
                 {
-                    ss << long_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (long_array_val[i] > max_value.lg)
+                if (lg_val > max_value.lg)
                 {
-                    ss << long_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = long_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (long_array_val[i] < min_value.lg)
+                    {
+                        ss << long_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (long_array_val[i] > max_value.lg)
+                    {
+                        ss << long_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_LONG64:
-        nb_written = w_ext->long64_array_val.length();
-        for (i = 0;i < nb_written;i++)
+       if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> lg64_val;
             if (check_type == MIN)
             {
-                if (w_ext->long64_array_val[i] < min_value.lg64)
+                if (lg64_val < min_value.lg64)
                 {
-                    ss << w_ext->long64_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (w_ext->long64_array_val[i] > max_value.lg64)
+                if (lg64_val > max_value.lg64)
                 {
-                    ss << w_ext->long64_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = w_ext->long64_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (w_ext->long64_array_val[i] < min_value.lg64)
+                    {
+                        ss << w_ext->long64_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (w_ext->long64_array_val[i] > max_value.lg64)
+                    {
+                        ss << w_ext->long64_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_DOUBLE:
-        nb_written = double_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> db_val;
             if (check_type == MIN)
             {
-                if (double_array_val[i] < min_value.db)
+                if (db_val < min_value.db)
                 {
-                    ss << double_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (double_array_val[i] > max_value.db)
+                if (db_val > max_value.db)
                 {
-                    ss << double_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = double_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (double_array_val[i] < min_value.db)
+                    {
+                        ss << double_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (double_array_val[i] > max_value.db)
+                    {
+                        ss << double_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_FLOAT:
-        nb_written = float_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> fl_val;
             if (check_type == MIN)
             {
-                if (float_array_val[i] < min_value.fl)
+                if (fl_val < min_value.fl)
                 {
-                    ss << float_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (float_array_val[i] > max_value.fl)
+                if (fl_val > max_value.fl)
                 {
-                    ss << float_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = float_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (float_array_val[i] < min_value.fl)
+                    {
+                        ss << float_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (float_array_val[i] > max_value.fl)
+                    {
+                        ss << float_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_USHORT:
-        nb_written = ushort_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> ush_val;
             if (check_type == MIN)
             {
-                if (ushort_array_val[i] < min_value.ush)
+                if (ush_val < min_value.ush)
                 {
-                    ss << ushort_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (ushort_array_val[i] > max_value.ush)
+                if (ush_val > max_value.ush)
                 {
-                    ss << ushort_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = ushort_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (ushort_array_val[i] < min_value.ush)
+                    {
+                        ss << ushort_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (ushort_array_val[i] > max_value.ush)
+                    {
+                        ss << ushort_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_UCHAR:
-        nb_written = uchar_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> uch_val;
             if (check_type == MIN)
             {
-                if (uchar_array_val[i] < min_value.uch)
+                if (uch_val < min_value.uch)
                 {
-                    ss << uchar_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (uchar_array_val[i] > max_value.uch)
+                if (uch_val > max_value.uch)
                 {
-                    ss << uchar_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = uchar_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (uchar_array_val[i] < min_value.uch)
+                    {
+                        ss << uchar_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (uchar_array_val[i] > max_value.uch)
+                    {
+                        ss << uchar_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_ULONG:
-        nb_written = w_ext->ulong_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> ulg_val;
             if (check_type == MIN)
             {
-                if (w_ext->ulong_array_val[i] < min_value.ulg)
+                if (ulg_val < min_value.ulg)
                 {
-                    ss << w_ext->ulong_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (w_ext->ulong_array_val[i] > max_value.ulg)
+                if (ulg_val > max_value.ulg)
                 {
-                    ss << w_ext->ulong_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = w_ext->ulong_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (w_ext->ulong_array_val[i] < min_value.ulg)
+                    {
+                        ss << w_ext->ulong_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (w_ext->ulong_array_val[i] > max_value.ulg)
+                    {
+                        ss << w_ext->ulong_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }
         break;
 
     case Tango::DEV_ULONG64:
-        nb_written = w_ext->ulong64_array_val.length();
-        for (i = 0;i < nb_written;i++)
+        if (svr_starting == true)
         {
+            ss << mem_value;
+            ss >> ulg64_val;
             if (check_type == MIN)
             {
-                if (w_ext->ulong64_array_val[i] < min_value.ulg64)
+                if (ulg64_val < min_value.ulg64)
                 {
-                    ss << w_ext->ulong64_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
                 }
             }
             else
             {
-                if (w_ext->ulong64_array_val[i] > max_value.ulg64)
+                if (ulg64_val > max_value.ulg64)
                 {
-                    ss << w_ext->ulong64_array_val[i];
-                    ret_mem_value = ss.str();
+                    ret_mem_value = mem_value;
                     ret = true;
-                    break;
+                }
+            }
+        }
+        else
+        {
+            nb_written = w_ext->ulong64_array_val.length();
+            for (i = 0;i < nb_written;i++)
+            {
+                if (check_type == MIN)
+                {
+                    if (w_ext->ulong64_array_val[i] < min_value.ulg64)
+                    {
+                        ss << w_ext->ulong64_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (w_ext->ulong64_array_val[i] > max_value.ulg64)
+                    {
+                        ss << w_ext->ulong64_array_val[i];
+                        ret_mem_value = ss.str();
+                        ret = true;
+                        break;
+                    }
                 }
             }
         }

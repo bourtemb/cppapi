@@ -76,7 +76,6 @@ RANGES_TYPE2CONST(Tango::DevBoolean,DEV_BOOLEAN)
 RANGES_TYPE2CONST(Tango::DevString,DEV_STRING)
 RANGES_TYPE2CONST(Tango::DevState,DEV_STATE)
 
-
 //
 // A classical function which will be used as unary predicate for the find_if
 // algo. It must be used with the bind2nd adapter to be transform as unary and
