@@ -1026,185 +1026,200 @@ Tango::DevState DeviceImpl::dev_state()
 {
 	NoSyncModelTangoMonitor mon(this);
 
-	if ((device_state == Tango::ON) ||
-	    (device_state == Tango::ALARM))
-	{
+//
+// If we need to run att. conf loop, do it.
+// If the flag to force state is true, do not call state computation method,
+// simply set it to ALARM
+//
+
+    if (ext->run_att_conf_loop == true)
+        att_conf_loop();
+
+    if (ext->force_alarm_state == true)
+    {
+        return Tango::ALARM;
+    }
+    else
+    {
+        if ((device_state == Tango::ON) ||
+            (device_state == Tango::ALARM))
+        {
 
 //
 // Build attribute lists
 //
 
-		long vers = get_dev_idl_version();
-		bool set_alrm = false;
+            long vers = get_dev_idl_version();
+            bool set_alrm = false;
 
-		vector<long> attr_list = dev_attr->get_alarm_list();
-		vector<long> attr_list_2 = get_alarmed_not_read();
-		vector<long> attr_polled_list;
-		long nb_wanted_attr;
+            vector<long> attr_list = dev_attr->get_alarm_list();
+            vector<long> attr_list_2 = get_alarmed_not_read();
+            vector<long> attr_polled_list;
+            long nb_wanted_attr;
 
-		if (vers >= 3)
-        {
-            if (ext->state_from_read == true)
+            if (vers >= 3)
             {
-                vector<long>::iterator ite = attr_list_2.begin();
-				while (ite != attr_list_2.end())
+                if (ext->state_from_read == true)
                 {
-                    Attribute &att = dev_attr->get_attr_by_ind(*ite);
-                    if (att.is_polled() == true)
+                    vector<long>::iterator ite = attr_list_2.begin();
+                    while (ite != attr_list_2.end())
                     {
-                        ite = attr_list_2.erase(ite);
+                        Attribute &att = dev_attr->get_attr_by_ind(*ite);
+                        if (att.is_polled() == true)
+                        {
+                            ite = attr_list_2.erase(ite);
+                        }
+                        else
+                            ++ite;
                     }
-					else
-						++ite;
+                    nb_wanted_attr = attr_list_2.size();
                 }
-                nb_wanted_attr = attr_list_2.size();
+                else
+                {
+                    vector<long>::iterator ite = attr_list.begin();
+                    while (ite != attr_list.end())
+                    {
+                        Attribute &att = dev_attr->get_attr_by_ind(*ite);
+                        if (att.is_polled() == true)
+                            ite = attr_list.erase(ite);
+                        else
+                            ++ite;
+                    }
+                    nb_wanted_attr = attr_list.size();
+                }
             }
             else
             {
-                vector<long>::iterator ite = attr_list.begin();
-                while (ite != attr_list.end())
-                {
-                    Attribute &att = dev_attr->get_attr_by_ind(*ite);
-                    if (att.is_polled() == true)
-                        ite = attr_list.erase(ite);
-					else
-						++ite;
-                }
                 nb_wanted_attr = attr_list.size();
             }
-		}
-		else
-		{
-			nb_wanted_attr = attr_list.size();
-		}
 
-        cout4 << "State: Number of attribute(s) to read: " << nb_wanted_attr << endl;
+            cout4 << "State: Number of attribute(s) to read: " << nb_wanted_attr << endl;
 
-		if (nb_wanted_attr != 0)
-		{
+            if (nb_wanted_attr != 0)
+            {
 
 //
 // Read the hardware
 //
 
-			if (ext->state_from_read == false)
-			{
-				read_attr_hardware(attr_list);
-			}
+                if (ext->state_from_read == false)
+                {
+                    read_attr_hardware(attr_list);
+                }
 
 //
 // Set attr value
 //
 
-			long i,j;
-			vector<Tango::Attr *> &attr_vect = device_class->get_class_attr()->get_attr_list();
+                long i,j;
+                vector<Tango::Attr *> &attr_vect = device_class->get_class_attr()->get_attr_list();
 
-			for (i = 0;i < nb_wanted_attr;i++)
-			{
+                for (i = 0;i < nb_wanted_attr;i++)
+                {
 
 //
 // Starting with IDl 3, it is possible that some of the alarmed attribute have
 // already been read.
 //
 
-				long idx;
-				if ((vers >= 3) && (ext->state_from_read == true))
-					idx = attr_list_2[i];
-				else
-					idx = attr_list[i];
+                    long idx;
+                    if ((vers >= 3) && (ext->state_from_read == true))
+                        idx = attr_list_2[i];
+                    else
+                        idx = attr_list[i];
 
-				Attribute &att = dev_attr->get_attr_by_ind(idx);
-				att.save_alarm_quality();
+                    Attribute &att = dev_attr->get_attr_by_ind(idx);
+                    att.save_alarm_quality();
 
-				try
-				{
-					if (vers < 3)
-						read_attr(att);
-					else
-					{
+                    try
+                    {
+                        if (vers < 3)
+                            read_attr(att);
+                        else
+                        {
 
 //
 // Otherwise, get it from device
 //
 
-                        att.wanted_date(false);
-                        att.set_value_flag(false);
+                            att.wanted_date(false);
+                            att.set_value_flag(false);
 
-                        if (attr_vect[att.get_attr_idx()]->is_allowed(this,Tango::READ_REQ) == false)
-                        {
-                            att.wanted_date(true);
-                            continue;
-                        }
-                        attr_vect[att.get_attr_idx()]->read(this,att);
-                        Tango::AttrQuality qua = att.get_quality();
-                        if ((qua != Tango::ATTR_INVALID) && (att.get_value_flag() == false))
-                        {
-                            TangoSys_OMemStream o;
+                            if (attr_vect[att.get_attr_idx()]->is_allowed(this,Tango::READ_REQ) == false)
+                            {
+                                att.wanted_date(true);
+                                continue;
+                            }
+                            attr_vect[att.get_attr_idx()]->read(this,att);
+                            Tango::AttrQuality qua = att.get_quality();
+                            if ((qua != Tango::ATTR_INVALID) && (att.get_value_flag() == false))
+                            {
+                                TangoSys_OMemStream o;
 
-                            o << "Read value for attribute ";
-                            o << att.get_name();
-                            o << " has not been updated";
-                            o << "Hint: Did the server follow Tango V5 attribute reading framework ?" << ends;
+                                o << "Read value for attribute ";
+                                o << att.get_name();
+                                o << " has not been updated";
+                                o << "Hint: Did the server follow Tango V5 attribute reading framework ?" << ends;
 
-                            Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
-                                        (const char *)"DeviceImpl::dev_state");
+                                Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
+                                            (const char *)"DeviceImpl::dev_state");
+                            }
                         }
                     }
-				}
-				catch (Tango::DevFailed)
-				{
-					for (j = 0;j < i;j++)
-					{
-						long idx;
-						if ((vers >= 3) && (ext->state_from_read == true))
-							idx = attr_list_2[j];
-						else
-							idx = attr_list[j];
-						Tango::Attribute &tmp_att = dev_attr->get_attr_by_ind(idx);
-						if (att.get_wanted_date() == false)
-						{
-							if (tmp_att.get_quality() != Tango::ATTR_INVALID)
-								tmp_att.delete_seq();
-							tmp_att.wanted_date(true);
-						}
-					}
-					att.wanted_date(true);
-					throw;
-				}
-			}
+                    catch (Tango::DevFailed)
+                    {
+                        for (j = 0;j < i;j++)
+                        {
+                            long idx;
+                            if ((vers >= 3) && (ext->state_from_read == true))
+                                idx = attr_list_2[j];
+                            else
+                                idx = attr_list[j];
+                            Tango::Attribute &tmp_att = dev_attr->get_attr_by_ind(idx);
+                            if (att.get_wanted_date() == false)
+                            {
+                                if (tmp_att.get_quality() != Tango::ATTR_INVALID)
+                                    tmp_att.delete_seq();
+                                tmp_att.wanted_date(true);
+                            }
+                        }
+                        att.wanted_date(true);
+                        throw;
+                    }
+                }
 
 //
 // Check alarm level
 //
 
-            if (dev_attr->check_alarm() == true)
-            {
-                set_alrm = true;
-                device_state = Tango::ALARM;
-            }
-            else
-                device_state = Tango::ON;
+                if (dev_attr->check_alarm() == true)
+                {
+                    set_alrm = true;
+                    device_state = Tango::ALARM;
+                }
+                else
+                    device_state = Tango::ON;
 
 //
 // Free the sequence created to store the attribute value
 //
 
-			for (long i = 0;i < nb_wanted_attr;i++)
-			{
-				long idx;
-				if ((vers >= 3) && (ext->state_from_read == true))
-					idx = attr_list_2[i];
-				else
-					idx = attr_list[i];
-				Tango::Attribute &att = dev_attr->get_attr_by_ind(idx);
-				if (att.get_wanted_date() == false)
-				{
-					if (att.get_quality() != Tango::ATTR_INVALID)
-						att.delete_seq();
-					att.wanted_date(true);
-				}
-			}
-		}
+                for (long i = 0;i < nb_wanted_attr;i++)
+                {
+                    long idx;
+                    if ((vers >= 3) && (ext->state_from_read == true))
+                        idx = attr_list_2[i];
+                    else
+                        idx = attr_list[i];
+                    Tango::Attribute &att = dev_attr->get_attr_by_ind(idx);
+                    if (att.get_wanted_date() == false)
+                    {
+                        if (att.get_quality() != Tango::ATTR_INVALID)
+                            att.delete_seq();
+                        att.wanted_date(true);
+                    }
+                }
+            }
 
 //
 // Check if one of the remaining attributes has its quality factor
@@ -1212,14 +1227,15 @@ Tango::DevState DeviceImpl::dev_state()
 // that the state must switch to ALARM
 //
 
-		if ((set_alrm == false) && (device_state != Tango::ALARM))
-		{
-			if (dev_attr->is_att_quality_alarmed(false) == true)
-				device_state = Tango::ALARM;
-			else
-				device_state = Tango::ON;
-		}
-	}
+            if ((set_alrm == false) && (device_state != Tango::ALARM))
+            {
+                if (dev_attr->is_att_quality_alarmed(false) == true)
+                    device_state = Tango::ALARM;
+                else
+                    device_state = Tango::ON;
+            }
+        }
+    }
 
 	return device_state;
 }
@@ -1239,29 +1255,57 @@ Tango::ConstDevString DeviceImpl::dev_status()
 	NoSyncModelTangoMonitor mon(this);
 	const char *returned_str;
 
-	if (device_status == StatusNotSet)
-	{
-		alarm_status = "The device is in ";
-		alarm_status = alarm_status + DevStateName[device_state] + " state.";
-		if (device_state == Tango::ALARM)
-		{
-			dev_attr->read_alarm(alarm_status);
-			dev_attr->add_alarmed_quality_factor(alarm_status);
-		}
-		returned_str = alarm_status.c_str();
-	}
-	else
-	{
-		if (device_state == Tango::ALARM)
-		{
-			alarm_status = device_status;
-			dev_attr->read_alarm(alarm_status);
-			dev_attr->add_alarmed_quality_factor(alarm_status);
-			returned_str = alarm_status.c_str();
-		}
-		else
-			returned_str = device_status.c_str();
-	}
+    if (ext->run_att_conf_loop == true)
+        att_conf_loop();
+
+    if (ext->force_alarm_state == true)
+    {
+        alarm_status = "The device is in ALARM state.";
+        size_t nb_wrong_att = ext->att_wrong_db_conf.size();
+        alarm_status = alarm_status + "\nAttribute";
+        if (nb_wrong_att > 1)
+            alarm_status = alarm_status + "s";
+        alarm_status = alarm_status + " ";
+        for (size_t i = 0;i < nb_wrong_att;++i)
+        {
+            alarm_status = alarm_status + ext->att_wrong_db_conf[i];
+            if ((nb_wrong_att > 1) && (i <= nb_wrong_att - 2))
+                alarm_status = alarm_status + ", ";
+        }
+        if (nb_wrong_att == 1)
+            alarm_status = alarm_status + " has ";
+        else
+            alarm_status = alarm_status + " have ";
+        alarm_status = alarm_status + "wrong configuration in database";
+        returned_str = alarm_status.c_str();
+    }
+    else
+    {
+        if (device_status == StatusNotSet)
+        {
+            alarm_status = "The device is in ";
+            alarm_status = alarm_status + DevStateName[device_state] + " state.";
+            if (device_state == Tango::ALARM)
+            {
+                dev_attr->read_alarm(alarm_status);
+                dev_attr->add_alarmed_quality_factor(alarm_status);
+            }
+            returned_str = alarm_status.c_str();
+        }
+        else
+        {
+            if (device_state == Tango::ALARM)
+            {
+                alarm_status = device_status;
+                dev_attr->read_alarm(alarm_status);
+                dev_attr->add_alarmed_quality_factor(alarm_status);
+                returned_str = alarm_status.c_str();
+            }
+            else
+                returned_str = device_status.c_str();
+        }
+    }
+
 	return returned_str;
 }
 
@@ -1533,14 +1577,13 @@ throw (CORBA::SystemException)
 
 		blackbox_ptr->insert_corba_attr(Attr_State);
 
+		always_executed_hook();
 
 //
 // Return data to caller. If the state_cmd throw an exception, catch it and do
 // not re-throw it because we are in a CORBA attribute implementation
-//
 
-		always_executed_hook();
-		tmp = dev_state();
+        tmp = dev_state();
 	}
 	catch (Tango::DevFailed &e)
 	{
@@ -5067,5 +5110,49 @@ void DeviceImpl::polled_data_into_net_object(AttributeValueList_3 *back,
 		}
 	}
 }
+
+//+-------------------------------------------------------------------------
+//
+// method : 		DeviceImpl::att_conf_loop
+//
+// description : Set flags in DeviceImpl if any of the device
+//               attributes has some wrong configuration
+//               in DB generating startup exception when the server
+//               started.
+//               In DeviceImpl class , this method set the
+//               force_alarm_state flag and fills in the
+//               att_wrong_db_conf vector with attribute name(s)
+//               (for device status)
+//
+// argument: in :
+//
+//--------------------------------------------------------------------------
+
+void DeviceImpl::att_conf_loop()
+{
+    vector<Attribute *> &att_list = get_device_attr()->get_attribute_list();
+
+    size_t i;
+    bool att_wrong_conf = false;
+
+    vector<string> &wrong_conf_att_list = get_att_wrong_db_conf();
+    wrong_conf_att_list.clear();
+
+    for (i = 0;i < att_list.size();++i)
+    {
+        if (att_list[i]->is_startup_exception() == true)
+        {
+            ext->force_alarm_state = true;
+            wrong_conf_att_list.push_back(att_list[i]->get_name());
+            att_wrong_conf = true;
+        }
+    }
+
+    if (att_wrong_conf == false)
+        ext->force_alarm_state = false;
+
+    ext->run_att_conf_loop = false;
+}
+
 
 } // End of Tango namespace

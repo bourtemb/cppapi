@@ -1731,7 +1731,17 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 
         if (error == true)
         {
-            (DevErrorList &)del <<= event_data_cdr;
+            try
+            {
+                (DevErrorList &)del <<= event_data_cdr;
+            }
+            catch(...)
+            {
+                cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
+                if (map_lock == true)
+                    map_modification_lock.readerOut();
+                return;
+            }
             err_ptr = &del.in();
             errors = *err_ptr;
         }
@@ -1742,7 +1752,17 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 case ATT_CONF:
                 if (evt_cb.device_idl > 2)
                 {
-                    (AttributeConfig_3 &)ac3 <<= event_data_cdr;
+                    try
+                    {
+                        (AttributeConfig_3 &)ac3 <<= event_data_cdr;
+                    }
+                    catch(...)
+                    {
+                        cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
+                        if (map_lock == true)
+                            map_modification_lock.readerOut();
+                        return;
+                    }
                     attr_conf_3 = &ac3.in();
                     vers = 3;
                     attr_info_ex = new AttributeInfoEx();
@@ -1761,7 +1781,17 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 break;
 
                 case ATT_READY:
-                (AttDataReady &)adr <<= event_data_cdr;
+                try
+                {
+                    (AttDataReady &)adr <<= event_data_cdr;
+                }
+                catch(...)
+                {
+                    cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
+                    if (map_lock == true)
+                        map_modification_lock.readerOut();
+                    return;
+                }
                 att_ready = &adr.in();
                 ev_attr_ready = true;
                 break;
@@ -1769,7 +1799,17 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 case ATT_VALUE:
                 if (evt_cb.device_idl > 3)
                 {
-                    zav4.operator<<=(event_data_cdr);
+                    try
+                    {
+                        zav4.operator<<=(event_data_cdr);
+                    }
+                    catch(...)
+                    {
+                        cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
+                        if (map_lock == true)
+                            map_modification_lock.readerOut();
+                        return;
+                    }
                     z_attr_value_4 = &zav4;
                     vers = 4;
                     dev_attr = new (DeviceAttribute);
@@ -2101,11 +2141,13 @@ void ZmqAttrValUnion::operator<<= (TangoCdrMemoryStream& _n)
 // Get data length from cdr
 //
 
-        _CORBA_ULong length;
-        length <<= _n;
-
-        if (length == 0)
-            return;
+       _CORBA_ULong length;
+        if (_pd__d != NO_DATA)
+        {
+            length <<= _n;
+            if (length == 0)
+                return;
+        }
 
 //
 // Get att data depending on type
@@ -2210,7 +2252,6 @@ void ZmqAttrValUnion::operator<<= (TangoCdrMemoryStream& _n)
                 bo = _n.unmarshalBoolean();
 
                 union_no_data(bo);
-               _n.tango_get_octet_array((length * sizeof(DevBoolean)));
             }
             break;
 
@@ -2232,14 +2273,14 @@ void ZmqAttrValUnion::operator<<= (TangoCdrMemoryStream& _n)
 
 void Tango::ZmqAttributeValue_4::operator<<= (TangoCdrMemoryStream &_n)
 {
-  (ZmqAttrValUnion&)zvalue <<= _n;
-  (AttrQuality&)quality <<= _n;
-  (AttrDataFormat&)data_format <<= _n;
-  (TimeVal&)time <<= _n;
-  name = _n.unmarshalString(0);
-  (AttributeDim&)r_dim <<= _n;
-  (AttributeDim&)w_dim <<= _n;
-  (DevErrorList&)err_list <<= _n;
+    (ZmqAttrValUnion&)zvalue <<= _n;
+    (AttrQuality&)quality <<= _n;
+    (AttrDataFormat&)data_format <<= _n;
+    (TimeVal&)time <<= _n;
+    name = _n.unmarshalString(0);
+    (AttributeDim&)r_dim <<= _n;
+    (AttributeDim&)w_dim <<= _n;
+    (DevErrorList&)err_list <<= _n;
 }
 
 //+----------------------------------------------------------------------------

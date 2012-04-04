@@ -912,6 +912,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 //
 
             *(attr_value.attr_val_4) >>= data_call_cdr;
+
             mess_ptr = data_call_cdr.bufPtr();
             mess_ptr = (char *)mess_ptr + (sizeof(CORBA::Long) << 1);
 
@@ -954,7 +955,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
     mess_ptr = (char *)data_call_cdr.bufPtr() + sizeof(CORBA::Long);
 
 //
-// For event with samll amount of data, use memcpy to initialize
+// For event with small amount of data, use memcpy to initialize
 // the zmq message. For large amount of data, use zmq message
 // with no-copy option
 //

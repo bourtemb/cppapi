@@ -3453,6 +3453,9 @@ public:
 	void init_cmd_poll_ext_trig (string cmd_name);
 	void init_attr_poll_ext_trig (string cmd_name);
 
+    void set_run_att_conf_loop(bool val) {ext->run_att_conf_loop=val;}
+    vector<string> &get_att_wrong_db_conf() {return ext->att_wrong_db_conf;}
+
 #ifdef TANGO_HAS_LOG4TANGO
  	inline log4tango::Logger *get_logger(void)
 	{return ext->logger ? ext->logger : get_logger_i();}
@@ -3482,13 +3485,14 @@ private:
         att_conf_mon("att_config"),state_from_read(false),
         py_device(false),
         device_locked(false),locker_client(NULL),old_locker_client(NULL),
-        lock_ctr(0),min_poll_period(0) {};
+        lock_ctr(0),min_poll_period(0),run_att_conf_loop(true),force_alarm_state(false) {};
 #else
         DeviceImplExt(const char *d_name):exported(false),polled(false),poll_ring_depth(0)
                 only_one(d_name),store_in_bb(true),poll_mon("cache"),
                 att_conf_mon("att_config"),state_from_read(false),
                 py_device(false),device_locked(false),locker_client(NULL),
-                old_locker_client(NULL),lock_ctr(0),min_poll_period(0) {};
+                old_locker_client(NULL),lock_ctr(0),min_poll_period(0),
+                run_att_conf_loop(true),force_alarm_state(false) {};
 #endif
         ~DeviceImplExt();
 
@@ -3536,6 +3540,10 @@ private:
         long				min_poll_period;
         vector<string>		cmd_min_poll_period;
         vector<string>		attr_min_poll_period;
+
+        bool                run_att_conf_loop;
+        bool                force_alarm_state;
+        vector<string>      att_wrong_db_conf;
     };
 
 
@@ -3579,6 +3587,7 @@ private:
 	void real_ctor();
     void poll_object(const string &,int,PollObjType);
     void stop_poll_object(const string &,PollObjType);
+    void att_conf_loop();
 
 #ifdef TANGO_HAS_LOG4TANGO
   	log4tango::Logger *get_logger_i (void);

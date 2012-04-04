@@ -1509,6 +1509,9 @@ void Attribute::delete_startup_exception(string prop_name)
 			ext->startup_exceptions.erase(it);
 		if(ext->startup_exceptions.size() == 0)
 			ext->check_startup_exceptions = false;
+
+        DeviceImpl *dev = get_att_device();
+        dev->set_run_att_conf_loop(true);
 	}
 }
 
@@ -9673,7 +9676,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_SHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_sh[0] <= min_warning.sh)
+				Tango::DevShort tmp_val;
+				tmp_val = date == false ? (*value.sh_seq)[0] : tmp_sh[0];
+
+				if (tmp_val <= min_warning.sh)
 				{
 					returned = true;
 				}
@@ -9694,7 +9700,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_LONG:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_lo[0] <= min_warning.lg)
+				Tango::DevLong tmp_val;
+				tmp_val = date == false ? (*value.lg_seq)[0] : tmp_lo[0];
+
+				if (tmp_val <= min_warning.lg)
 				{
 					returned = true;
 				}
@@ -9715,7 +9724,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_LONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				if (ext->tmp_lo64[0] <= min_warning.lg64)
+				Tango::DevLong64 tmp_val;
+				tmp_val = date == false ? (*value.lg64_seq)[0] : ext->tmp_lo64[0];
+
+				if (tmp_val <= min_warning.lg64)
 				{
 					returned = true;
 				}
@@ -9736,7 +9748,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_DOUBLE:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_db[0] <= min_warning.db)
+				Tango::DevDouble tmp_val;
+				tmp_val = date == false ? (*value.db_seq)[0] : tmp_db[0];
+
+				if (tmp_val <= min_warning.db)
 				{
 					returned = true;
 				}
@@ -9757,7 +9772,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_FLOAT:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_fl[0] <= min_warning.fl)
+				Tango::DevFloat tmp_val;
+				tmp_val = date == false ? (*value.fl_seq)[0] : tmp_fl[0];
+
+				if (tmp_val <= min_warning.fl)
 				{
 					returned = true;
 				}
@@ -9778,7 +9796,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_USHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_ush[0] <= min_warning.ush)
+				Tango::DevUShort tmp_val;
+				tmp_val = date == false ? (*value.ush_seq)[0] : tmp_ush[0];
+
+				if (tmp_val <= min_warning.ush)
 				{
 					returned = true;
 				}
@@ -9799,7 +9820,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_UCHAR:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_cha[0] <= min_warning.uch)
+				Tango::DevUChar tmp_val;
+				tmp_val = date == false ? (*value.cha_seq)[0] : tmp_cha[0];
+
+				if (tmp_val <= min_warning.uch)
 				{
 					returned = true;
 				}
@@ -9820,7 +9844,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_ULONG:
 			if (check_scalar_wattribute() == true)
 			{
-				if (ext->tmp_ulo[0] <= min_warning.ulg)
+				Tango::DevULong tmp_val;
+				tmp_val = date == false ? (*value.ulg_seq)[0] : ext->tmp_ulo[0];
+
+				if (tmp_val <= min_warning.ulg)
 				{
 					returned = true;
 				}
@@ -9841,7 +9868,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_ULONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				if (ext->tmp_ulo64[0] <= min_warning.ulg64)
+				Tango::DevULong64 tmp_val;
+				tmp_val = date == false ? (*value.ulg64_seq)[0] : ext->tmp_ulo64[0];
+
+				if (tmp_val <= min_warning.ulg64)
 				{
 					returned = true;
 				}
@@ -9864,6 +9894,9 @@ bool Attribute::check_warn_alarm()
 			{
 				for (unsigned int i = 0;i < tmp_enc[0].encoded_data.length();i++)
 				{
+                    Tango::DevUChar tmp_val;
+                    tmp_val = date == false ? (*value.enc_seq)[0].encoded_data[i] : tmp_enc[0].encoded_data[i];
+
 					if (tmp_enc[0].encoded_data[i] <= min_warning.uch)
 					{
 						returned = true;
@@ -9904,7 +9937,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_SHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_sh[0] >= max_warning.sh)
+				Tango::DevShort tmp_val;
+				tmp_val = date == false ? (*value.sh_seq)[0] : tmp_sh[0];
+
+				if (tmp_val >= max_warning.sh)
 				{
 					returned = true;
 				}
@@ -9925,7 +9961,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_LONG:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_lo[0] >= max_warning.lg)
+				Tango::DevLong tmp_val;
+				tmp_val = date == false ? (*value.lg_seq)[0] : tmp_lo[0];
+
+				if (tmp_val >= max_warning.lg)
 				{
 					returned = true;
 				}
@@ -9946,7 +9985,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_LONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				if (ext->tmp_lo64[0] >= max_warning.lg64)
+				Tango::DevLong64 tmp_val;
+				tmp_val = date == false ? (*value.lg64_seq)[0] : ext->tmp_lo64[0];
+
+				if (tmp_val >= max_warning.lg64)
 				{
 					returned = true;
 				}
@@ -9967,7 +10009,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_DOUBLE:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_db[0] >= max_warning.db)
+				Tango::DevDouble tmp_val;
+				tmp_val = date == false ? (*value.db_seq)[0] : tmp_db[0];
+
+				if (tmp_val >= max_warning.db)
 				{
 					returned = true;
 				}
@@ -9988,7 +10033,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_FLOAT:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_fl[0] >= max_warning.fl)
+				Tango::DevFloat tmp_val;
+				tmp_val = date == false ? (*value.fl_seq)[0] : tmp_fl[0];
+
+				if (tmp_val >= max_warning.fl)
 				{
 					returned = true;
 				}
@@ -10009,7 +10057,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_USHORT:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_ush[0] >= max_warning.ush)
+				Tango::DevUShort tmp_val;
+				tmp_val = date == false ? (*value.ush_seq)[0] : tmp_ush[0];
+
+				if (tmp_val >= max_warning.ush)
 				{
 					returned = true;
 				}
@@ -10030,7 +10081,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_UCHAR:
 			if (check_scalar_wattribute() == true)
 			{
-				if (tmp_cha[0] >= max_warning.uch)
+				Tango::DevUChar tmp_val;
+				tmp_val = date == false ? (*value.cha_seq)[0] : tmp_cha[0];
+
+				if (tmp_val >= max_warning.uch)
 				{
 					returned = true;
 				}
@@ -10051,7 +10105,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_ULONG:
 			if (check_scalar_wattribute() == true)
 			{
-				if (ext->tmp_ulo[0] >= max_warning.ulg)
+				Tango::DevULong tmp_val;
+				tmp_val = date == false ? (*value.ulg_seq)[0] : ext->tmp_ulo[0];
+
+				if (tmp_val >= max_warning.ulg)
 				{
 					returned = true;
 				}
@@ -10072,7 +10129,10 @@ bool Attribute::check_warn_alarm()
 		case Tango::DEV_ULONG64:
 			if (check_scalar_wattribute() == true)
 			{
-				if (ext->tmp_ulo64[0] >= max_warning.ulg64)
+				Tango::DevULong64 tmp_val;
+				tmp_val = date == false ? (*value.ulg64_seq)[0] : ext->tmp_ulo64[0];
+
+				if (tmp_val >= max_warning.ulg64)
 				{
 					returned = true;
 				}
@@ -10095,7 +10155,10 @@ bool Attribute::check_warn_alarm()
 			{
 				for (unsigned int i = 0;i < tmp_enc[0].encoded_data.length();i++)
 				{
-					if (tmp_enc[0].encoded_data[i] >= max_warning.uch)
+                    Tango::DevUChar tmp_val;
+                    tmp_val = date == false ? (*value.enc_seq)[0].encoded_data[i] : tmp_enc[0].encoded_data[i];
+
+					if (tmp_val >= max_warning.uch)
 					{
 						returned = true;
 						break;
