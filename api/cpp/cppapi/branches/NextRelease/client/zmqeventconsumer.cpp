@@ -1839,10 +1839,10 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         AttrConfEventData *missed_conf_event_data = NULL;
         DataReadyEventData *missed_ready_event_data = NULL;
 
-        AutoTangoMonitor _mon(evt_cb.callback_monitor);
-
         try
         {
+
+            AutoTangoMonitor _mon(evt_cb.callback_monitor);
 
 //
 // In case we have missed some event, prepare srtucture to send to callback
@@ -2078,6 +2078,22 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
             delete missed_conf_event_data;
             delete missed_ready_event_data;
         }
+        catch (DevFailed &e)
+        {
+            delete missed_event_data;
+            delete missed_conf_event_data;
+            delete missed_ready_event_data;
+
+            // free the map lock if not already done
+            if ( map_lock == true )
+            {
+                map_modification_lock.readerOut();
+            }
+
+            string reason = e.errors[0].reason.in();
+            if (reason == "API_CommandTimedOut")
+                cerr << "Tango::ZmqEventConsumer::push_structured_event() timeout on callback monitor of " << ipos->first << endl;
+        }
         catch (...)
         {
             delete missed_event_data;
@@ -2090,7 +2106,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 map_modification_lock.readerOut();
             }
 
-            cerr << "Tango::ZmqEventConsumer::push_structured_event() timeout on callback monitor of " << ipos->first << endl;
+            cerr << "Tango::ZmqEventConsumer::push_structured_event(): - " << ipos->first << " - Unknown exception (Not a DevFailed) while calling Callback " << endl;
         }
     }
     else
