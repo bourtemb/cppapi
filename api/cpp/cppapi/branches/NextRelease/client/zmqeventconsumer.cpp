@@ -204,7 +204,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
         try
         {
             zmq::poll(items,nb_poll_item,-1);
-//cout << "Awaken !!!!!!!!" << endl;
+cout << "Awaken !!!!!!!!" << endl;
         }
         catch(zmq::error_t &e)
         {
@@ -218,7 +218,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[1].revents & ZMQ_POLLIN)
         {
-//cout << "For the heartbeat socket" << endl;
+cout << "For the heartbeat socket" << endl;
             heartbeat_sub_sock->recv(&received_event_name);
             heartbeat_sub_sock->recv(&received_endian);
             heartbeat_sub_sock->recv(&received_call);
@@ -234,7 +234,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[0].revents & ZMQ_POLLIN)
         {
-//cout << "For the control socket" << endl;
+cout << "For the control socket" << endl;
             control_sock->recv(&received_ctrl);
 
             string ret_str;
@@ -275,7 +275,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
         if (items[2].revents & ZMQ_POLLIN)
         {
-//cout << "For the event socket" << endl;
+cout << "For the event socket" << endl;
             event_sub_sock->recv(&received_event_name);
             event_sub_sock->recv(&received_endian);
             event_sub_sock->recv(&received_call);
@@ -455,6 +455,7 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
 
     unsigned char endian = ((char *)received_endian.data())[0];
     string event_name((char *)received_event_name.data(),(size_t)received_event_name.size());
+cout << "In process_event for event " << event_name << endl;
 
     cdrMemoryStream call_info((char *)received_call.data(),(size_t)received_call.size());
     call_info.setByteSwapFlag(endian);
@@ -467,6 +468,7 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
 // Call the event method
 //
 
+cout << "Going to call push_zmq_event" << endl;
     push_zmq_event(event_name,endian,event_data,receiv_call->call_is_except,receiv_call->ctr);
 
 }
@@ -1580,6 +1582,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
     ipos = event_callback_map.find(ev_name);
     if (ipos != event_callback_map.end())
     {
+cout << "Found event in map" << endl;
         const AttributeValue *attr_value = NULL;
         const AttributeValue_3 *attr_value_3 = NULL;
         const ZmqAttributeValue_4 *z_attr_value_4 = NULL;
@@ -1602,7 +1605,9 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 //
 
         bool err_missed_event = false;
-        DevLong missed_event = ds_ctr - evt_cb.ctr;
+        DevLong missed_event = 1;
+        if (evt_cb.ctr != 1)
+            missed_event = ds_ctr - evt_cb.ctr;
 
         if (missed_event >= 2)
         {
@@ -1611,10 +1616,11 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         else if (missed_event == 0)
         {
             map_modification_lock.readerOut();
+cout << "Returned here, ds_ctr = " << ds_ctr << ", evt_cb.ctr = " << evt_cb.ctr << endl;
             return;
         }
 
-
+cout << "Old evt_cb.ctr = " << evt_cb.ctr << ", Setting evt_cb.ctr to " << ds_ctr << endl;
         evt_cb.ctr = ds_ctr;
 
 //
@@ -1729,6 +1735,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // Unmarshall the data
 //
 
+cout << "Going to unmarshall the data" << endl;
         if (error == true)
         {
             try
@@ -1842,6 +1849,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         try
         {
 
+cout << "Going to call user callback" << endl;
             AutoTangoMonitor _mon(evt_cb.callback_monitor);
 
 //
