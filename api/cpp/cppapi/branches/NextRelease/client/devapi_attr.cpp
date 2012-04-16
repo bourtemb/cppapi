@@ -5798,12 +5798,12 @@ ostream &operator<<(ostream &o_str,DeviceAttribute &da)
 
 	if (da.time.tv_sec != 0)
 	{
-#ifdef _TG_WINDOWS_
 		time_t tmp_val = da.time.tv_sec;
-		struct tm *tmp_time = localtime(&tmp_val);
-		char *tmp_date = asctime(tmp_time);
+		char tmp_date[128];
+#ifdef _TG_WINDOWS_
+		ctime_s(tmp_date,128,&tmp_val);
 #else
-		char *tmp_date = asctime(localtime((time_t *)&da.time.tv_sec));
+        ctime_r(&tmp_val,tmp_date);
 #endif
 		tmp_date[strlen(tmp_date) - 1] = '\0';
 		o_str << tmp_date;

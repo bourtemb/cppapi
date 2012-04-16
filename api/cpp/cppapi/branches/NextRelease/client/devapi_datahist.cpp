@@ -283,12 +283,12 @@ ostream &operator<<(ostream &o_str,DeviceDataHistory &dh)
 // First, print date
 //
 
-#ifdef _TG_WINDOWS_
 	time_t tmp_val = dh.time.tv_sec;
-	struct tm *tmp_time = localtime(&tmp_val);
-	char *tmp_date = asctime(tmp_time);
+    char tmp_date[128];
+#ifdef _TG_WINDOWS_
+    ctime_s(tmp_date,128,&tmp_val);
 #else
-	char *tmp_date = asctime(localtime((time_t *)&dh.time.tv_sec));
+    ctime_r(&tmp_val,tmp_date);
 #endif
 	tmp_date[strlen(tmp_date) - 1] = '\0';
 	o_str << tmp_date;
@@ -782,12 +782,12 @@ ostream &operator<<(ostream &o_str,DeviceAttributeHistory &dah)
 
 	if (dah.time.tv_sec != 0)
 	{
-#ifdef _TG_WINDOWS_
+		char tmp_date[128];
 		time_t tmp_val = dah.time.tv_sec;
-		struct tm *tmp_time = localtime(&tmp_val);
-		char *tmp_date = asctime(tmp_time);
+#ifdef _TG_WINDOWS_
+		ctime_s(tmp_date,128,&tmp_val);
 #else
-		char *tmp_date = asctime(localtime((time_t *)&dah.time.tv_sec));
+        ctime_r(&tmp_val,tmp_date);
 #endif
 		tmp_date[strlen(tmp_date) - 1] = '\0';
 		o_str << tmp_date;

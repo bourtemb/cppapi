@@ -1489,20 +1489,17 @@ void BlackBox::date_ux_to_str(timeval &ux_date,char *str_date)
 {
 	long i;
 	char month[5];
-	char *ux_str;
-	char unix_date[30];
+	char unix_date[40];
 
 /* Convert UNIX date to a string in UNIX format */
 
+    time_t tmp_val = ux_date.tv_sec;
 #ifdef _TG_WINDOWS_
-	time_t win_time;
-	win_time = (time_t)ux_date.tv_sec;
-	ux_str = ctime(&win_time);
+    ctime_s(unix_date,40,&tmp_val);
 #else
-	ux_str = ctime((time_t *)&(ux_date.tv_sec));
+    ctime_r(&tmp_val,unix_date);
 #endif
-
-	strcpy(unix_date,ux_str);
+	unix_date[strlen(unix_date) - 1] = '\0';
 
 /* Copy day */
 

@@ -579,12 +579,6 @@ void ZmqEventSupplier::init_event_cptr(string &event_name)
                                    (const char *)"ZmqEventSupplier::init_event_cptr");
         }
     }
-    else
-    {
-        push_mutex.lock();
-        pos->second = 0;
-        push_mutex.unlock();
-    }
 }
 
 //+----------------------------------------------------------------------------
