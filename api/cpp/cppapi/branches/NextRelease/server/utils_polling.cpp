@@ -753,7 +753,7 @@ int Util::create_poll_thread(const char *dev_name,bool startup,int smallest_upd)
 	transform(local_dev_name.begin(),local_dev_name.end(),local_dev_name.begin(),::tolower);
 
 //
-// Is there is already a polling thread for this device, simply returns
+// If there is already a polling thread for this device, simply returns
 //
 
 	map<string,int>::iterator ite;
