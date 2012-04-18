@@ -138,6 +138,7 @@ protected :
 	vector<DeviceClass *>			class_list;
 
 	time_t							last_heartbeat;
+	time_t                          last_heartbeat_zmq;
 	bool							heartbeat_started;
 
 	unsigned long					polling_th_pool_size;

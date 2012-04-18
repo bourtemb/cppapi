@@ -98,6 +98,7 @@ DServer::DServer(DeviceClass *cl_ptr,const char *n,const char *d,Tango::DevState
 		fqdn = "dserver/" + full_name;
 
 	last_heartbeat = time(NULL);
+	last_heartbeat_zmq = last_heartbeat;
 	heartbeat_started = false;
 
 	polling_th_pool_size = DEFAULT_POLLING_THREADS_POOL_SIZE;

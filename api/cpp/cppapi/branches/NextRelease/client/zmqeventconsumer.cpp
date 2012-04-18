@@ -1730,21 +1730,30 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // Unmarshall the data
 //
 
+        bool unmarshal_error = false;
+
         if (error == true)
         {
             try
             {
                 (DevErrorList &)del <<= event_data_cdr;
+                err_ptr = &del.in();
+                errors = *err_ptr;
             }
             catch(...)
             {
-                cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
-                if (map_lock == true)
-                    map_modification_lock.readerOut();
-                return;
+                unmarshal_error = true;
+
+                TangoSys_OMemStream o;
+                o << "Received malformed data for event ";
+                o << ev_name << ends;
+
+                errors.length(1);
+                errors[0].reason = "API_WrongEventData";
+                errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                errors[0].desc = CORBA::string_dup(o.str().c_str());
+                errors[0].severity = ERR;
             }
-            err_ptr = &del.in();
-            errors = *err_ptr;
         }
         else
         {
@@ -1756,19 +1765,26 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     try
                     {
                         (AttributeConfig_3 &)ac3 <<= event_data_cdr;
+                        attr_conf_3 = &ac3.in();
+                        vers = 3;
+                        attr_info_ex = new AttributeInfoEx();
+                        *attr_info_ex = const_cast<AttributeConfig_3 *>(attr_conf_3);
+                        ev_attr_conf = true;
                     }
                     catch(...)
                     {
-                        cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
-                        if (map_lock == true)
-                            map_modification_lock.readerOut();
-                        return;
+                        unmarshal_error = true;
+
+                        TangoSys_OMemStream o;
+                        o << "Received malformed data for event ";
+                        o << ev_name << ends;
+
+                        errors.length(1);
+                        errors[0].reason = "API_WrongEventData";
+                        errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                        errors[0].desc = CORBA::string_dup(o.str().c_str());
+                        errors[0].severity = ERR;
                     }
-                    attr_conf_3 = &ac3.in();
-                    vers = 3;
-                    attr_info_ex = new AttributeInfoEx();
-                    *attr_info_ex = const_cast<AttributeConfig_3 *>(attr_conf_3);
-                    ev_attr_conf = true;
                 }
                 else if (evt_cb.device_idl == 2)
                 {
@@ -1785,16 +1801,23 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 try
                 {
                     (AttDataReady &)adr <<= event_data_cdr;
+                    att_ready = &adr.in();
+                    ev_attr_ready = true;
                 }
                 catch(...)
                 {
-                    cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
-                    if (map_lock == true)
-                        map_modification_lock.readerOut();
-                    return;
+                    unmarshal_error = true;
+
+                    TangoSys_OMemStream o;
+                    o << "Received malformed data for event ";
+                    o << ev_name << ends;
+
+                    errors.length(1);
+                    errors[0].reason = "API_WrongEventData";
+                    errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                    errors[0].desc = CORBA::string_dup(o.str().c_str());
+                    errors[0].severity = ERR;
                 }
-                att_ready = &adr.in();
-                ev_attr_ready = true;
                 break;
 
                 case ATT_VALUE:
@@ -1802,19 +1825,26 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 {
                     try
                     {
+                        vers = 4;
                         zav4.operator<<=(event_data_cdr);
+                        z_attr_value_4 = &zav4;
+                        dev_attr = new (DeviceAttribute);
+                        attr_to_device(z_attr_value_4,dev_attr);
                     }
                     catch(...)
                     {
-                        cerr << "Received a malformed data for event " << ev_name << "!!" << endl;
-                        if (map_lock == true)
-                            map_modification_lock.readerOut();
-                        return;
+                        unmarshal_error = true;
+
+                        TangoSys_OMemStream o;
+                        o << "Received malformed data for event ";
+                        o << ev_name << ends;
+
+                        errors.length(1);
+                        errors[0].reason = "API_WrongEventData";
+                        errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                        errors[0].desc = CORBA::string_dup(o.str().c_str());
+                        errors[0].severity = ERR;
                     }
-                    z_attr_value_4 = &zav4;
-                    vers = 4;
-                    dev_attr = new (DeviceAttribute);
-                    attr_to_device(z_attr_value_4,dev_attr);
                 }
                 else if (evt_cb.device_idl == 3)
                 {

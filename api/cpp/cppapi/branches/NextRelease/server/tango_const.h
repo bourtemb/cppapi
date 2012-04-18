@@ -1025,6 +1025,7 @@ struct ranges_const2type
  * API_MemoryAllocation
  * API_MethodArgument
  * API_MethodNotFound
+ * API_MissedEvents
  * API_NotSupportedFeature
  * API_NtDebugWindowError
  * API_OverloadingNotSupported
@@ -1036,6 +1037,7 @@ struct ranges_const2type
  * API_SystemCallFailed
  * API_WAttrOutsideLimit
  * API_WizardConfError
+ * API_WrongEventData
  * API_WrongHistoryDataBuffer
  * API_WrongLockingStatus
  * API_ZmqInitFailed

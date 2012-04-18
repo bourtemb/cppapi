@@ -603,7 +603,7 @@ void ZmqEventSupplier::push_heartbeat_event()
 	Tango::Util *tg = Tango::Util::instance();
 	DServer *adm_dev = tg->get_dserver_device();
 	now_time = time(NULL);
-	delta_time = now_time - adm_dev->last_heartbeat;
+	delta_time = now_time - adm_dev->last_heartbeat_zmq;
 	cout3 << "ZmqEventSupplier::push_heartbeat_event(): delta time since last heartbeat " << delta_time << endl;
 
 	if (heartbeat_name_init == false)
@@ -696,7 +696,7 @@ void ZmqEventSupplier::push_heartbeat_event()
 // Push the event
 //
 
-                adm_dev->last_heartbeat = now_time;
+                adm_dev->last_heartbeat_zmq = now_time;
 
                 heartbeat_pub_sock->send(name_mess,ZMQ_SNDMORE);
                 heartbeat_pub_sock->send(endian_mess,ZMQ_SNDMORE);
