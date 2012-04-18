@@ -519,6 +519,16 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 			}
 		}
 
+struct timeval now_timeval;
+#ifdef WIN32
+struct _timeb before_win;
+_ftime(&before_win);
+now_timeval.tv_sec = (unsigned long)before_win.time;
+now_timeval.tv_usec = (long)before_win.millitm * 1000;
+#else
+gettimeofday(&now_timeval,NULL);
+#endif
+printf("KeepAliveThread:: Awaken at %ld,%ld\n",now_timeval.tv_sec,now_timeval.tv_usec);
 //
 // Re-subscribe
 //
@@ -536,6 +546,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 		if ( !event_consumer->event_not_connected.empty() )
 		{
+printf("KeepAliveThread:: Entering reconnection loop\n");
 			std::vector<EventNotConnected>::iterator vpos;
 			for (vpos = event_consumer->event_not_connected.begin();
 				 vpos != event_consumer->event_not_connected.end();
@@ -543,6 +554,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 			{
 				bool inc_vpos = true;
 				// check wether it is necessary to try to subscribe again!
+printf("KeepAliveThread:: Subscribe again: %ld\n",now - vpos->last_heartbeat);
 				if ( (now - vpos->last_heartbeat) >= (EVENT_HEARTBEAT_PERIOD) )
 				{
 					try
@@ -1188,6 +1200,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 void EventConsumerKeepAliveThread::stateless_subscription_failed(vector<EventNotConnected>::iterator &vpos,DevFailed &e,time_t &now)
 {
+printf("Entering stateless_subscription_failed\n");
 //
 // subscribe has not worked, try again in the next hearbeat period
 //
