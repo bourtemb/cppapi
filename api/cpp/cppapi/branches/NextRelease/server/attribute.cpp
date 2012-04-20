@@ -6803,7 +6803,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 //
 //--------------------------------------------------------------------------
 
-void Attribute::event_prop_db(const char *prop_name,vector<double> &rel_change,vector<double> &rel_change_usr,DbData &db_del,long prop_to_delete,DbData &db_d,long prop_to_update)
+void Attribute::event_prop_db(const char *prop_name,vector<double> &rel_change,vector<double> &rel_change_usr,DbData &db_del,long &prop_to_delete,DbData &db_d,long &prop_to_update)
 {
     vector<string> rel_change_str_tmp(2);
     vector<bool> rel_change_usr_def_tmp(2);

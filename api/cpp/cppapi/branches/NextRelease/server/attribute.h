@@ -2150,7 +2150,7 @@ private:
 	void throw_min_max_value(string &,string &,MinMaxValueCheck);
 	void check_str_prop(const AttributeConfig &,DbData &,long &,DbData &,long &,vector<AttrProperty> &,vector<AttrProperty> &);
 	void log_quality();
-    void event_prop_db(const char *,vector<double> &,vector<double> &,DbData &,long,DbData &,long);
+    void event_prop_db(const char *,vector<double> &,vector<double> &,DbData &,long &,DbData &,long &);
 
 	unsigned long 		name_size;
 	string 				name_lower;
