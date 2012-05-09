@@ -1848,19 +1848,53 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 }
                 else if (evt_cb.device_idl == 3)
                 {
-                    (AttributeValue_3 &)av3 <<= event_data_cdr;
-                    attr_value_3 = &av3.in();
-                    vers = 3;
-                    dev_attr = new (DeviceAttribute);
-                    attr_to_device(attr_value,attr_value_3,vers,dev_attr);
+                    try
+                    {
+                        vers = 3;
+                        (AttributeValue_3 &)av3 <<= event_data_cdr;
+                        attr_value_3 = &av3.in();
+                        dev_attr = new (DeviceAttribute);
+                        attr_to_device(attr_value,attr_value_3,vers,dev_attr);
+                    }
+                    catch(...)
+                    {
+                        unmarshal_error = true;
+
+                        TangoSys_OMemStream o;
+                        o << "Received malformed data for event (AttributeValue_3 -> Device_3Impl....) ";
+                        o << ev_name << ends;
+
+                        errors.length(1);
+                        errors[0].reason = "API_WrongEventData";
+                        errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                        errors[0].desc = CORBA::string_dup(o.str().c_str());
+                        errors[0].severity = ERR;
+                    }
                 }
                 else if (evt_cb.device_idl < 3)
                 {
-                    (AttributeValue &)av <<= event_data_cdr;
-                    attr_value = &av.in();
-                    vers = 2;
-                    dev_attr = new (DeviceAttribute);
-                    attr_to_device(attr_value,attr_value_3,vers,dev_attr);
+                    try
+                    {
+                        vers = 2;
+                        (AttributeValue &)av <<= event_data_cdr;
+                        attr_value = &av.in();
+                        dev_attr = new (DeviceAttribute);
+                        attr_to_device(attr_value,attr_value_3,vers,dev_attr);
+                    }
+                    catch(...)
+                    {
+                        unmarshal_error = true;
+
+                        TangoSys_OMemStream o;
+                        o << "Received malformed data for event (AttributeValue -> Device_2Impl....) ";
+                        o << ev_name << ends;
+
+                        errors.length(1);
+                        errors[0].reason = "API_WrongEventData";
+                        errors[0].origin = "ZmqEventConsumer::push_zmq_event()";
+                        errors[0].desc = CORBA::string_dup(o.str().c_str());
+                        errors[0].severity = ERR;
+                    }
                 }
                 break;
             }
