@@ -433,10 +433,8 @@ void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventC
                         string prefix = fqen.substr(0,pos + 1);
                         d_name.insert(0,prefix);
 
-					    event_consumer->connect_event_system(d_name,
-                                                             epos->second.attr_name,
-                                                             epos->second.event_name,
-                                                             vs,ipos,ecbs,dd);
+					    event_consumer->connect_event_system(d_name,epos->second.attr_name,epos->second.event_name,vs,ipos,ecbs,dd);
+
 						cout3 << "Reconnected to ZMQ event" << endl;
 					}
 					catch(...)

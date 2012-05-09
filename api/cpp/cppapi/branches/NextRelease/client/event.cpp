@@ -2562,6 +2562,27 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
                 }
                 EventChannelStruct &evt_ch = evt_it->second;
                 ret = evt_ch.channel_type;
+                break;
+            }
+            if (found == true)
+                break;
+        }
+    }
+
+//
+// Also search in the not connected event vector
+// The returned value in this case is not relevant
+//
+
+    if (found == false && event_not_connected.empty() == false)
+    {
+        std::vector<EventNotConnected>::iterator vpos;
+        for (vpos = event_not_connected.begin();vpos != event_not_connected.end();vpos++)
+        {
+            if (vpos->event_id == event_id)
+            {
+                found = true;
+                break;
             }
         }
     }
