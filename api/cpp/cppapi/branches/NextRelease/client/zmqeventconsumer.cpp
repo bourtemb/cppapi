@@ -460,7 +460,20 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
     call_info.setByteSwapFlag(endian);
 
     ZmqCallInfo_var c_info_var = new ZmqCallInfo;
-    (ZmqCallInfo &)c_info_var <<= call_info;
+    try
+    {
+        (ZmqCallInfo &)c_info_var <<= call_info;
+    }
+    catch (...)
+    {
+        cerr << "Received a malformed event call info data for event " << event_name << endl;
+        unsigned char *tmp = (unsigned char *)received_call.data();
+        for (unsigned int loop = 0;loop < received_call.size();loop++)
+        {
+           cerr << "Event data[" << loop << "] = " << (int)tmp[loop] << endl;
+        }
+        return;
+    }
     receiv_call = &c_info_var.in();
 
 //
@@ -523,7 +536,20 @@ void ZmqEventConsumer::process_event(zmq_msg_t &received_event_name,zmq_msg_t &r
     call_info.setByteSwapFlag(endian);
 
     ZmqCallInfo_var c_info_var = new ZmqCallInfo;
-    (ZmqCallInfo &)c_info_var <<= call_info;
+    try
+    {
+        (ZmqCallInfo &)c_info_var <<= call_info;
+    }
+    catch (...)
+    {
+        cerr << "Received a malformed event call info data for event " << event_name << endl;
+        unsigned char *tmp = (unsigned char *)zmq_msg_data(&received_call);
+        for (unsigned int loop = 0;loop < zmq_msg_size(&received_call);loop++)
+        {
+           cerr << "Event data[" << loop << "] = " << (int)tmp[loop] << endl;
+        }
+        return;
+    }
     receiv_call = &c_info_var.in();
 
 //
@@ -1730,8 +1756,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // Unmarshall the data
 //
 
-        bool unmarshal_error = false;
-
         if (error == true)
         {
             try
@@ -1742,8 +1766,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
             }
             catch(...)
             {
-                unmarshal_error = true;
-
                 TangoSys_OMemStream o;
                 o << "Received malformed data for event ";
                 o << ev_name << ends;
@@ -1773,8 +1795,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     }
                     catch(...)
                     {
-                        unmarshal_error = true;
-
                         TangoSys_OMemStream o;
                         o << "Received malformed data for event ";
                         o << ev_name << ends;
@@ -1806,8 +1826,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                 }
                 catch(...)
                 {
-                    unmarshal_error = true;
-
                     TangoSys_OMemStream o;
                     o << "Received malformed data for event ";
                     o << ev_name << ends;
@@ -1833,8 +1851,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     }
                     catch(...)
                     {
-                        unmarshal_error = true;
-
                         TangoSys_OMemStream o;
                         o << "Received malformed data for event ";
                         o << ev_name << ends;
@@ -1858,8 +1874,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     }
                     catch(...)
                     {
-                        unmarshal_error = true;
-
                         TangoSys_OMemStream o;
                         o << "Received malformed data for event (AttributeValue_3 -> Device_3Impl....) ";
                         o << ev_name << ends;
@@ -1883,8 +1897,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                     }
                     catch(...)
                     {
-                        unmarshal_error = true;
-
                         TangoSys_OMemStream o;
                         o << "Received malformed data for event (AttributeValue -> Device_2Impl....) ";
                         o << ev_name << ends;

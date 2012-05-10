@@ -115,7 +115,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
     string mcast;
     int rate,ivl;
 
-    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast,rate,ivl);
+    event_subscription(dev_name,attr_name,action,event,attr_name_lower,NOTIFD,mcast,rate,ivl,NULL);
 
 //
 // Init one subscription command flag in Eventsupplier
@@ -149,10 +149,11 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 //      - mcast_data : The multicast transport data
 //      - rate : PGM rate parameter
 //      - ivl : PGM ivl paramteter
+//      - dev : The device pointer
 //
 //-----------------------------------------------------------------------------
 
-DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct,string &mcast_data,int &rate,int &ivl)
+void DServer::event_subscription(string &dev_name,string &attr_name,string &action,string &event,string &attr_name_lower,ChannelType ct,string &mcast_data,int &rate,int &ivl,DeviceImpl *dev)
 {
     Tango::Util *tg = Tango::Util::instance();
 
@@ -160,18 +161,21 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 // Get device reference
 //
 
-	DeviceImpl *dev_impl = NULL;
+	DeviceImpl *dev_impl = dev;
 
-	try
+	if (dev_impl == NULL)
 	{
-		dev_impl = tg->get_device_by_name(dev_name);
-	}
-	catch (Tango::DevFailed &e)
-	{
-		TangoSys_OMemStream o;
-		o << "Device " << dev_name << " not found" << ends;
-		Except::re_throw_exception(e,(const char *)"API_DeviceNotFound",o.str(),
-                                   (const char *)"DServer::event_subscription");
+        try
+        {
+            dev_impl = tg->get_device_by_name(dev_name);
+        }
+        catch (Tango::DevFailed &e)
+        {
+            TangoSys_OMemStream o;
+            o << "Device " << dev_name << " not found" << ends;
+            Except::re_throw_exception(e,(const char *)"API_DeviceNotFound",o.str(),
+                                       (const char *)"DServer::event_subscription");
+        }
 	}
 
     MultiAttribute *m_attr = dev_impl->get_device_attr();
@@ -476,8 +480,6 @@ DeviceImpl *DServer::event_subscription(string &dev_name,string &attr_name,strin
 		{
 		}
 	}
-
-	return dev_impl;
 }
 
 //+----------------------------------------------------------------------------
@@ -584,13 +586,44 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
         }
 
 //
+// Get device pointer and check which IDL release it implements
+// If it is less than IDL 4, refuse to use ZMQ event. To do so,
+// simulate a Tango 7 DS (throw command not exist exception)
+//
+
+        DeviceImpl *dev = NULL;
+
+        try
+        {
+            dev = tg->get_device_by_name(dev_name);
+        }
+        catch (Tango::DevFailed &e)
+        {
+            TangoSys_OMemStream o;
+            o << "Device " << dev_name << " not found" << ends;
+            Except::re_throw_exception(e,(const char *)"API_DeviceNotFound",o.str(),
+                                       (const char *)"DServer::event_subscription");
+        }
+
+        if (dev->get_dev_idl_version() < 4)
+        {
+            TangoSys_OMemStream o;
+
+            o << "Device " << dev_name << " too old to use ZMQ event (it does not implement IDL 4)";
+            o << "\nSimulate a CommandNotFound exception to move to notifd event system" << ends;
+            Except::throw_exception((const char *)"API_CommandNotFound",
+				      o.str(),
+				      (const char *)"DServer::zmq_event_subscription_change");
+        }
+
+//
 // Call common method (common between old and new command)
 //
 
         string mcast;
         int rate,ivl;
 
-        DeviceImpl *dev = event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl);
+        event_subscription(dev_name,attr_name,action,event,attr_name_lower,ZMQ,mcast,rate,ivl,dev);
 
 //
 // Check if the client is a new one
