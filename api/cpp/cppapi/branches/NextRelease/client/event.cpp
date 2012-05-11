@@ -169,6 +169,57 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 
             for (size_t loop = 0;loop < env_var_fqdn_prefix.size();++loop)
                 transform(env_var_fqdn_prefix[loop].begin(),env_var_fqdn_prefix[loop].end(),env_var_fqdn_prefix[loop].begin(),::tolower);
+
+//
+// Also get Db server defined in DB but not in the user TANGO_HOST env. variable
+//
+
+            try
+            {
+                DeviceData dd;
+                dd = db->command_inout("DbGetCSDbServerList");
+                vector<string> vs;
+                dd >> vs;
+
+                vector<string>::iterator pos;
+
+                for (unsigned int i = 0;i < vs.size();i++)
+                {
+                    transform(vs[i].begin(),vs[i].end(),vs[i].begin(),::tolower);
+#ifdef HAS_LAMBDA_FUNC
+                    pos = find_if(env_var_fqdn_prefix.begin(),env_var_fqdn_prefix.end(),
+                            [&] (string str) -> bool
+                            {
+                                if (str.find(vs[i]) != string::npos)
+                                    return true;
+                                else
+                                    return false;
+                            });
+
+                    if (pos == env_var_fqdn_prefix.end())
+                    {
+                        string prefix = "tango://" + vs[i] + '/' ;
+                        env_var_fqdn_prefix.push_back(prefix);
+                    }
+#else
+                    unsigned int j;
+                    for (j = 0;j < env_var_fqdn_prefix.size();++j)
+                    {
+                        if (env_var_fqdn_prefix.find(vs[i]) != string::npos)
+                        {
+                            break;
+                        }
+
+                        if (j == env_var_fqdn_prefix.size())
+                        {
+                            string prefix = "tango://" + vs[i] + '/';
+                            env_var_fqdn_prefix.push_back(prefix);
+                        }
+                    }
+#endif
+                }
+            }
+            catch(...) {}
         }
         catch (Tango::DevFailed)
         {
@@ -176,6 +227,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
         }
     }
 
+copy(env_var_fqdn_prefix.begin(),env_var_fqdn_prefix.end(),ostream_iterator<string>(cout,"\n"));
 //
 // initialise the unique event id for the client;
 //
