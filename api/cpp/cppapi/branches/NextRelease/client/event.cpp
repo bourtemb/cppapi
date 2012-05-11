@@ -205,7 +205,7 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
                     unsigned int j;
                     for (j = 0;j < env_var_fqdn_prefix.size();++j)
                     {
-                        if (env_var_fqdn_prefix.find(vs[i]) != string::npos)
+                        if (env_var_fqdn_prefix[j].find(vs[i]) != string::npos)
                         {
                             break;
                         }
