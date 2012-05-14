@@ -984,7 +984,6 @@ bool EventSupplier::detect_change(Attribute &attr,struct AttributeData &attr_val
     {
         if (enable_check == true)
         {
-
 			if (the_new_any != NULL)
 				ty = the_new_any->type();
 
@@ -1465,6 +1464,7 @@ bool EventSupplier::detect_change(Attribute &attr,struct AttributeData &attr_val
                         force_change = true;
                         return true;
                     }
+
                     for (i=0; i<curr_seq_fl->length(); i++)
                     {
                         if (rel_change[0] != INT_MAX)

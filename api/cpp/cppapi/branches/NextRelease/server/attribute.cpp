@@ -9897,7 +9897,7 @@ bool Attribute::check_warn_alarm()
                     Tango::DevUChar tmp_val;
                     tmp_val = date == false ? (*value.enc_seq)[0].encoded_data[i] : tmp_enc[0].encoded_data[i];
 
-					if (tmp_enc[0].encoded_data[i] <= min_warning.uch)
+					if (tmp_val <= min_warning.uch)
 					{
 						returned = true;
 						break;
