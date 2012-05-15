@@ -587,7 +587,7 @@ void MultiAttribute::add_attribute(string &dev_name,
 				long nb = db_list[ind].size();
 				for (int k = 1;k < nb;k++)
 				{
-					tmp = tmp + " ";
+                    tmp = tmp + ",";
 					tmp = tmp + db_list[ind].value_string[k];
 				}
 				dev_prop.push_back(AttrProperty(db_list[ind].name,tmp));
