@@ -511,8 +511,10 @@ protected:
 	vector<AttrProperty>	class_properties;
 	vector<AttrProperty>	user_default_properties;
 
+ 	void convert_def_prop(const string &, double &);
  	void validate_def_prop(const string &, const char *);
  	void validate_def_change_prop(const string &, const char *);
+ 	void throw_incoherent_def_prop(const char *, const char *);
  	void throw_invalid_def_prop(const char *, const char *);
 
 private:

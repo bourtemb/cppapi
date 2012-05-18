@@ -3934,7 +3934,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		rel_change_class_def = prop_in_list("rel_change",rel_change_class_str,nb_class,def_class_prop);
 
 //
-// Validate user or classs default properties
+// Validate user or class default properties
 //
 
 		if(rel_change_usr_def)
@@ -3981,8 +3981,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 		else if(rel_change_usr_def)
 		{
-			ext->rel_change[0] = (rel_change_set_usr_def[0]) ? rel_change_usr[0] : rel_change[0];
-			ext->rel_change[1] = (rel_change_set_usr_def[1]) ? rel_change_usr[1] : rel_change[1];
+			ext->rel_change[0] = (rel_change_set_class_def[0]) ? rel_change_usr[0] : ((rel_change_set_usr_def[0]) ? rel_change_usr[0] : rel_change[0]);
+			ext->rel_change[1] = (rel_change_set_class_def[1]) ? rel_change_usr[1] : ((rel_change_set_usr_def[1]) ? rel_change_usr[1] : rel_change[1]);
 		}
 		else
 		{
@@ -4060,8 +4060,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 		else if(abs_change_usr_def)
 		{
-			ext->abs_change[0] = (abs_change_set_usr_def[0]) ? abs_change_usr[0] : abs_change[0];
-			ext->abs_change[1] = (abs_change_set_usr_def[1]) ? abs_change_usr[1] : abs_change[1];
+			ext->abs_change[0] = (abs_change_set_class_def[0]) ? abs_change_usr[0] : ((abs_change_set_usr_def[0]) ? abs_change_usr[0] : abs_change[0]);
+			ext->abs_change[1] = (abs_change_set_class_def[1]) ? abs_change_usr[1] : ((abs_change_set_usr_def[1]) ? abs_change_usr[1] : abs_change[1]);
 		}
 		else
 		{
@@ -4139,8 +4139,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 		else if(archive_rel_change_usr_def)
 		{
-			ext->archive_rel_change[0] = (archive_rel_change_set_usr_def[0]) ? archive_rel_change_usr[0] : archive_rel_change[0];
-			ext->archive_rel_change[1] = (archive_rel_change_set_usr_def[1]) ? archive_rel_change_usr[1] : archive_rel_change[1];
+			ext->archive_rel_change[0] = (archive_rel_change_set_class_def[0]) ? archive_rel_change_usr[0] : ((archive_rel_change_set_usr_def[0]) ? archive_rel_change_usr[0] : archive_rel_change[0]);
+			ext->archive_rel_change[1] = (archive_rel_change_set_class_def[1]) ? archive_rel_change_usr[1] : ((archive_rel_change_set_usr_def[1]) ? archive_rel_change_usr[1] : archive_rel_change[1]);
 		}
 		else
 		{
@@ -4217,8 +4217,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		}
 		else if(archive_abs_change_usr_def)
 		{
-			ext->archive_abs_change[0] = (archive_abs_change_set_usr_def[0]) ? archive_abs_change_usr[0] : archive_abs_change[0];
-			ext->archive_abs_change[1] = (archive_abs_change_set_usr_def[1]) ? archive_abs_change_usr[1] : archive_abs_change[1];
+			ext->archive_abs_change[0] = (archive_abs_change_set_class_def[0]) ? archive_abs_change_usr[0] : ((archive_abs_change_set_usr_def[0]) ? archive_abs_change_usr[0] : archive_abs_change[0]);
+			ext->archive_abs_change[1] = (archive_abs_change_set_class_def[1]) ? archive_abs_change_usr[1] : ((archive_abs_change_set_usr_def[1]) ? archive_abs_change_usr[1] : archive_abs_change[1]);
 		}
 		else
 		{
@@ -5295,8 +5295,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         }
         else if(rel_change_usr_def)
         {
-            rel_change[0] = (rel_change_set_usr_def[0]) ? rel_change_usr[0] : rel_change[0];
-            rel_change[1] = (rel_change_set_usr_def[1]) ? rel_change_usr[1] : rel_change[1];
+            rel_change[0] = (rel_change_set_class_def[0]) ? rel_change_usr[0] : ((rel_change_set_usr_def[0]) ? rel_change_usr[0] : rel_change[0]);
+            rel_change[1] = (rel_change_set_class_def[1]) ? rel_change_usr[1] : ((rel_change_set_usr_def[1]) ? rel_change_usr[1] : rel_change[1]);
         }
 
         rel_change[0] = fabs(rel_change[0]);
@@ -5313,7 +5313,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (rel_change_usr_def == true || rel_change_class_def == true)
                 {
                     DbDatum desc("rel_change");
-                    desc << rel_change;
+                    desc << rel_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5329,7 +5329,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (rel_change_class_def == true)
                 {
                     DbDatum desc("rel_change");
-                    desc << rel_change;
+                    desc << rel_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5349,7 +5349,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
             else
             {
                 DbDatum desc("rel_change");
-                desc << rel_change;
+                desc << rel_change[0];
                 db_d.push_back(desc);
                 prop_to_update++;
             }
@@ -5394,7 +5394,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         abs_change_class_def = prop_in_list("abs_change",abs_change_class_str,nb_class,def_class_prop);
 
 //
-// Validate user or classs default properties
+// Validate user or class default properties
 //
 
         if(abs_change_usr_def)
@@ -5433,8 +5433,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         }
         else if(abs_change_usr_def)
         {
-            abs_change[0] = (abs_change_set_usr_def[0]) ? abs_change_usr[0] : abs_change[0];
-            abs_change[1] = (abs_change_set_usr_def[1]) ? abs_change_usr[1] : abs_change[1];
+            abs_change[0] = (abs_change_set_class_def[0]) ? abs_change_usr[0] : ((abs_change_set_usr_def[0]) ? abs_change_usr[0] : abs_change[0]);
+            abs_change[1] = (abs_change_set_class_def[1]) ? abs_change_usr[1] : ((abs_change_set_usr_def[1]) ? abs_change_usr[1] : abs_change[1]);
         }
 
         abs_change[0] = fabs(abs_change[0]);
@@ -5451,7 +5451,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (abs_change_usr_def == true || abs_change_class_def == true)
                 {
                     DbDatum desc("abs_change");
-                    desc << abs_change;
+                    desc << abs_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5467,7 +5467,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (abs_change_class_def == true)
                 {
                     DbDatum desc("abs_change");
-                    desc << abs_change;
+                    desc << abs_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5487,7 +5487,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
             else
             {
                 DbDatum desc("abs_change");
-                desc << abs_change;
+                desc << abs_change[0];
                 db_d.push_back(desc);
                 prop_to_update++;
             }
@@ -5532,7 +5532,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         archive_rel_change_class_def = prop_in_list("archive_rel_change",archive_rel_change_class_str,nb_class,def_class_prop);
 
 //
-// Validate user or classs default properties
+// Validate user or class default properties
 //
 
         if(archive_rel_change_usr_def)
@@ -5571,8 +5571,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         }
         else if(archive_rel_change_usr_def)
         {
-            archive_rel_change[0] = (archive_rel_change_set_usr_def[0]) ? archive_rel_change_usr[0] : archive_rel_change[0];
-            archive_rel_change[1] = (archive_rel_change_set_usr_def[1]) ? archive_rel_change_usr[1] : archive_rel_change[1];
+        	archive_rel_change[0] = (archive_rel_change_set_class_def[0]) ? archive_rel_change_usr[0] : ((archive_rel_change_set_usr_def[0]) ? archive_rel_change_usr[0] : archive_rel_change[0]);
+        	archive_rel_change[1] = (archive_rel_change_set_class_def[1]) ? archive_rel_change_usr[1] : ((archive_rel_change_set_usr_def[1]) ? archive_rel_change_usr[1] : archive_rel_change[1]);
         }
 
         archive_rel_change[0] = fabs(archive_rel_change[0]);
@@ -5589,7 +5589,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (archive_rel_change_usr_def == true || archive_rel_change_class_def == true)
                 {
                     DbDatum desc("archive_rel_change");
-                    desc << archive_rel_change;
+                    desc << archive_rel_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5605,7 +5605,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (archive_rel_change_class_def == true)
                 {
                     DbDatum desc("archive_rel_change");
-                    desc << archive_rel_change;
+                    desc << archive_rel_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5625,7 +5625,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
             else
             {
                 DbDatum desc("archive_rel_change");
-                desc << archive_rel_change;
+                desc << archive_rel_change[0];
                 db_d.push_back(desc);
                 prop_to_update++;
             }
@@ -5670,7 +5670,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         archive_abs_change_class_def = prop_in_list("archive_abs_change",archive_abs_change_class_str,nb_class,def_class_prop);
 
 //
-// Validate user or classs default properties
+// Validate user or class default properties
 //
 
         if(archive_abs_change_usr_def)
@@ -5709,8 +5709,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         }
         else if(archive_abs_change_usr_def)
         {
-            archive_abs_change[0] = (archive_abs_change_set_usr_def[0]) ? archive_abs_change_usr[0] : archive_abs_change[0];
-            archive_abs_change[1] = (archive_abs_change_set_usr_def[1]) ? archive_abs_change_usr[1] : archive_abs_change[1];
+        	archive_abs_change[0] = (archive_abs_change_set_class_def[0]) ? archive_abs_change_usr[0] : ((archive_abs_change_set_usr_def[0]) ? archive_abs_change_usr[0] : archive_abs_change[0]);
+        	archive_abs_change[1] = (archive_abs_change_set_class_def[1]) ? archive_abs_change_usr[1] : ((archive_abs_change_set_usr_def[1]) ? archive_abs_change_usr[1] : archive_abs_change[1]);
         }
 
         archive_abs_change[0] = fabs(archive_abs_change[0]);
@@ -5727,7 +5727,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (archive_abs_change_usr_def == true || archive_abs_change_class_def == true)
                 {
                     DbDatum desc("archive_abs_change");
-                    desc << archive_abs_change;
+                    desc << archive_abs_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5743,7 +5743,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
                 if (archive_abs_change_class_def == true)
                 {
                     DbDatum desc("archive_abs_change");
-                    desc << archive_abs_change;
+                    desc << archive_abs_change[0];
                     db_d.push_back(desc);
                     prop_to_update++;
                 }
@@ -5763,7 +5763,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
             else
             {
                 DbDatum desc("archive_abs_change");
-                desc << archive_abs_change;
+                desc << archive_abs_change[0];
                 db_d.push_back(desc);
                 prop_to_update++;
             }
@@ -5804,17 +5804,6 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 
     user_defaults = prop_in_list("event_period",usr_def_val,nb_user,def_user_prop);
-    if (user_defaults)
-    {
-        if((TG_strcasecmp(usr_def_val.c_str(),AlrmValueNotSpec) == 0) ||
-                (TG_strcasecmp(usr_def_val.c_str(),NotANumber) == 0) ||
-                (strlen(usr_def_val.c_str()) == 0))
-        {
-            TangoSys_MemStream str;
-            str << (int)(DEFAULT_EVENT_PERIOD);
-            usr_def_val = str.str();
-        }
-    }
 
     class_defaults = prop_in_list("event_period",class_def_val,nb_class,def_class_prop);
     if (class_defaults)
@@ -5831,23 +5820,66 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
     if (class_defaults)
     {
+    	bool input_equal_def = false;
+		str.str("");
+		str.clear();
+		str << conf.event_prop.per_event.period.in();
+		double db;
+		if (str >> db && str.eof())
+		{
+			str.str("");
+			str.clear();
+			str << class_def_val;
+			int i;
+			str >> i;
+			if((int)db == i)
+				input_equal_def = true;
+		}
 		if ((TG_strcasecmp(conf.event_prop.per_event.period,NotANumber) == 0) ||
-				(strcmp(conf.event_prop.per_event.period,class_def_val.c_str()) == 0))
+				(strcmp(conf.event_prop.per_event.period,class_def_val.c_str()) == 0) ||
+				(input_equal_def == true))
 			store_in_db = false;
     }
 	else if(user_defaults)
 	{
+    	bool input_equal_def = false;
+		str.str("");
+		str.clear();
+		str << conf.event_prop.per_event.period.in();
+		double db;
+		if (str >> db && str.eof())
+		{
+			str.str("");
+			str.clear();
+			str << usr_def_val;
+			int i;
+			str >> i;
+			if((int)db == i)
+				input_equal_def = true;
+		}
 		if ((TG_strcasecmp(conf.event_prop.per_event.period,NotANumber) == 0) ||
 				(strcmp(conf.event_prop.per_event.period,usr_def_val.c_str()) == 0) ||
-				(strlen(conf.event_prop.per_event.period) == 0))
+				(strlen(conf.event_prop.per_event.period) == 0) ||
+				(input_equal_def == true))
 			store_in_db = false;
 	}
 	else
 	{
+    	bool input_equal_def = false;
+		str.str("");
+		str.clear();
+		str << conf.event_prop.per_event.period.in();
+		double db;
+		if (str >> db && str.eof())
+		{
+			if((int)db == (int)(DEFAULT_EVENT_PERIOD))
+				input_equal_def = true;
+		}
 		if ((TG_strcasecmp(conf.event_prop.per_event.period,AlrmValueNotSpec) == 0) ||
 				(TG_strcasecmp(conf.event_prop.per_event.period,def_event_period.c_str()) == 0) ||
 				(TG_strcasecmp(conf.event_prop.per_event.period,NotANumber) == 0) ||
-				(strlen(conf.event_prop.per_event.period) == 0))
+				(strlen(conf.event_prop.per_event.period) == 0) ||
+				(input_equal_def == true))
 			store_in_db = false;
 	}
 
@@ -5904,17 +5936,6 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 
     user_defaults = prop_in_list("archive_period",usr_def_val,nb_user,def_user_prop);
-    if (user_defaults)
-    {
-        if((TG_strcasecmp(usr_def_val.c_str(),AlrmValueNotSpec) == 0) ||
-                (TG_strcasecmp(usr_def_val.c_str(),NotANumber) == 0) ||
-                (strlen(usr_def_val.c_str()) == 0))
-        {
-            TangoSys_MemStream str;
-            str << (int)(INT_MAX);
-            usr_def_val = str.str();
-        }
-    }
 
     class_defaults = prop_in_list("archive_period",class_def_val,nb_class,def_class_prop);
     if (class_defaults)
@@ -5931,23 +5952,66 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
     if (class_defaults)
     {
+    	bool input_equal_def = false;
+		str.str("");
+		str.clear();
+		str << conf.event_prop.arch_event.period.in();
+		double db;
+		if (str >> db && str.eof())
+		{
+			str.str("");
+			str.clear();
+			str << class_def_val;
+			int i;
+			str >> i;
+			if((int)db == i)
+				input_equal_def = true;
+		}
 		if ((TG_strcasecmp(conf.event_prop.arch_event.period,NotANumber) == 0) ||
-				(strcmp(conf.event_prop.arch_event.period,class_def_val.c_str()) == 0))
+				(strcmp(conf.event_prop.arch_event.period,class_def_val.c_str()) == 0) ||
+				(input_equal_def == true))
 			store_in_db = false;
     }
 	else if(user_defaults)
 	{
+    	bool input_equal_def = false;
+		str.str("");
+		str.clear();
+		str << conf.event_prop.arch_event.period.in();
+		double db;
+		if (str >> db && str.eof())
+		{
+			str.str("");
+			str.clear();
+			str << usr_def_val;
+			int i;
+			str >> i;
+			if((int)db == i)
+				input_equal_def = true;
+		}
 		if ((TG_strcasecmp(conf.event_prop.arch_event.period,NotANumber) == 0) ||
 				(strcmp(conf.event_prop.arch_event.period,usr_def_val.c_str()) == 0) ||
-				(strlen(conf.event_prop.arch_event.period) == 0))
+				(strlen(conf.event_prop.arch_event.period) == 0) ||
+				(input_equal_def == true))
 			store_in_db = false;
 	}
 	else
 	{
+    	bool input_equal_def = false;
+		str.str("");
+		str.clear();
+		str << conf.event_prop.arch_event.period.in();
+		double db;
+		if (str >> db && str.eof())
+		{
+			if((int)db == (int)(INT_MAX))
+				input_equal_def = true;
+		}
 		if ((TG_strcasecmp(conf.event_prop.arch_event.period,AlrmValueNotSpec) == 0) ||
 				(TG_strcasecmp(conf.event_prop.arch_event.period,def_arch_event_period.c_str()) == 0) ||
 				(TG_strcasecmp(conf.event_prop.arch_event.period,NotANumber) == 0) ||
-				(strlen(conf.event_prop.arch_event.period) == 0))
+				(strlen(conf.event_prop.arch_event.period) == 0) ||
+				(input_equal_def == true))
 			store_in_db = false;
 	}
 
@@ -6721,8 +6785,6 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 		bring_usr_def[0] = true;
 		bring_usr_def[1] = true;
 	}
-	else if(!one_param && prop_min == "")
-		throw_err_format(prop_name,dev_name,"Attribute::validate_change_properties()");
 	else if(prop_min == "")
 	{
 		bring_usr_def[0] = true;
@@ -6743,7 +6805,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 					validated_prop[1] = fabs(prop_tmp);
 				}
 				else
-					throw_err_data_type(prop_name,const_cast<string&>(dev_name),"Attribute::validate_change_properties");
+					throw_err_data_type(prop_name,const_cast<string&>(dev_name),"Attribute::validate_change_properties()");
 			}
 		}
 		else
@@ -6761,7 +6823,7 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 		else if(TG_strcasecmp(prop_max.c_str(),NotANumber) == 0)
 			bring_class_def[1] = true;
 		else if(prop_max == "")
-			throw_err_format(prop_name,dev_name,"Attribute::validate_change_properties()");
+			bring_usr_def[1] = true;
 		else
 		{
 			str.str("");

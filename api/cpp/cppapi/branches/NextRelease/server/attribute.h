@@ -2351,6 +2351,8 @@ inline void Attribute::throw_startup_exception(const char* origin)
 				err_msg += "to their library defaults";
 		}
 
+		err_msg += "\nHint : Check also class level attribute properties";
+
 		Except::throw_exception("API_AttrConfig",err_msg,origin);
 	}
 }

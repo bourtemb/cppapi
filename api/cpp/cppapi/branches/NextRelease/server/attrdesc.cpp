@@ -216,6 +216,21 @@ void Attr::check_type()
 
 void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 {
+	enum ranges_names
+	{
+		min_value,
+		max_value,
+		min_alarm,
+		max_alarm,
+		min_warning,
+		max_warning,
+		delta_val,
+		delta_t,
+		num_ranges
+	};
+
+	bitset<num_ranges> ranges;
+
 	if ((prop_list.label.empty() == false) &&
 		(TG_strcasecmp(prop_list.label.c_str(),AlrmValueNotSpec) != 0) &&
 		(TG_strcasecmp(prop_list.label.c_str(),NotANumber) != 0))
@@ -252,6 +267,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.min_value, "min_value");
 		user_default_properties.push_back(AttrProperty("min_value",prop_list.min_value));
+		ranges.set(min_value);
 	}
 
 	if (prop_list.max_value.empty() == false &&
@@ -260,6 +276,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.max_value, "max_value");
 		user_default_properties.push_back(AttrProperty("max_value",prop_list.max_value));
+		ranges.set(max_value);
 	}
 
 	if (prop_list.min_alarm.empty() == false &&
@@ -268,6 +285,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.min_alarm, "min_alarm");
 		user_default_properties.push_back(AttrProperty("min_alarm",prop_list.min_alarm));
+		ranges.set(min_alarm);
 	}
 
 	if (prop_list.max_alarm.empty() == false &&
@@ -276,6 +294,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.max_alarm, "max_alarm");
 		user_default_properties.push_back(AttrProperty("max_alarm",prop_list.max_alarm));
+		ranges.set(max_alarm);
 	}
 
 	if (prop_list.min_warning.empty() == false &&
@@ -284,6 +303,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.min_warning, "min_warning");
 		user_default_properties.push_back(AttrProperty("min_warning",prop_list.min_warning));
+		ranges.set(min_warning);
 	}
 
 	if (prop_list.max_warning.empty() == false &&
@@ -292,6 +312,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.max_warning, "max_warning");
 		user_default_properties.push_back(AttrProperty("max_warning",prop_list.max_warning));
+		ranges.set(max_warning);
 	}
 
 	if (prop_list.delta_val.empty() == false &&
@@ -300,6 +321,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 	{
 		validate_def_prop(prop_list.delta_val, "delta_val");
 		user_default_properties.push_back(AttrProperty("delta_val",prop_list.delta_val));
+		ranges.set(delta_val);
 	}
 
 	if (prop_list.delta_t.empty() == false &&
@@ -314,6 +336,7 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 		if(!(str >> lg && str.eof()))
 			throw_invalid_def_prop("delta_t","DevLong");
 		user_default_properties.push_back(AttrProperty("delta_t",prop_list.delta_t));
+		ranges.set(delta_t);
 	}
 
 	if (prop_list.abs_change.empty() == false &&
@@ -379,9 +402,53 @@ void Attr::set_default_properties(UserDefaultAttrProp &prop_list)
 			throw_invalid_def_prop("archive_period","DevLong");
 		user_default_properties.push_back(AttrProperty("archive_period",prop_list.archive_period));
 	}
+
+	if(ranges.test(min_value) && ranges.test(max_value))
+	{
+		double min = 0.0, max = 0.0;
+		convert_def_prop(prop_list.min_value, min);
+		convert_def_prop(prop_list.max_value, max);
+		if(min >= max)
+			throw_incoherent_def_prop("min_value","max_value");
+	}
+
+	if(ranges.test(min_alarm) && ranges.test(max_alarm))
+	{
+		double min = 0.0, max = 0.0;
+		convert_def_prop(prop_list.min_alarm, min);
+		convert_def_prop(prop_list.max_alarm, max);
+		if(min >= max)
+			throw_incoherent_def_prop("min_alarm","max_alarm");
+	}
+
+	if(ranges.test(min_warning) && ranges.test(max_warning))
+	{
+		double min = 0.0, max = 0.0;
+		convert_def_prop(prop_list.min_warning, min);
+		convert_def_prop(prop_list.max_warning, max);
+		if(min >= max)
+			throw_incoherent_def_prop("min_warning","max_warning");
+	}
+
+	if(ranges.test(delta_val) ^ ranges.test(delta_t))
+	{
+		string err_msg = "Just one of the user default properties : delta_val or delta_t is set. Both or none of the values have to be set";
+		Except::throw_exception("API_IncoherentValues",err_msg,"Attr::set_default_properties()");
+	}
 }
 
-void Attr::validate_def_prop(const string &val, const char * prop)
+void Attr::convert_def_prop(const string &val, double &db)
+{
+	TangoSys_MemStream str;
+	str.precision(TANGO_FLOAT_PRECISION);
+
+	str.str("");
+	str.clear();
+	str << val;
+	str >> db;
+}
+
+void Attr::validate_def_prop(const string &val, const char* prop)
 {
 	TangoSys_MemStream str;
 	str.precision(TANGO_FLOAT_PRECISION);
@@ -483,7 +550,13 @@ void Attr::validate_def_change_prop(const string &val, const char * prop)
 	}
 }
 
-void Attr::throw_invalid_def_prop(const char * prop, const char *type)
+void Attr::throw_incoherent_def_prop(const char* min, const char* max)
+{
+	string err_msg = "User default property " + string(min) + " for attribute : " + get_name() + " is grater then or equal " + string(max);
+	Except::throw_exception("API_IncoherentValues",err_msg,"Attr::set_default_properties()");
+}
+
+void Attr::throw_invalid_def_prop(const char* prop, const char* type)
 {
 	string err_msg = "User default property " + string(prop) + " for attribute : " + get_name() + " is defined in unsupported format. Expected " + string(type);
 	Except::throw_exception("API_IncompatibleAttrDataType",err_msg,"Attr::set_default_properties()");
