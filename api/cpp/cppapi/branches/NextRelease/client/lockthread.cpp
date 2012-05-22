@@ -74,6 +74,8 @@ shared_cmd(cmd),p_mon(m),admin_proxy(adm)
 	ld.validity = per;
 	locked_devices.push_back(ld);
 
+	local_cmd.cmd_pending = false;
+
 	DevLong tmp_usec = (per * 1000000) - 500000;
 	period = tmp_usec;
 	period_ms = tmp_usec / 1000;

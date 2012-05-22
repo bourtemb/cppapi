@@ -974,8 +974,6 @@ void DbServerCache::prop_att_indexes(int &start,int &stop,AttPropEltIdx &obj,con
 
 const DevVarStringArray *DbServerCache::get_obj_property(DevVarStringArray *in_param)
 {
-	int ret_length = 2;
-
 	int obj_ind;
 	int res = find_obj((*in_param)[0],obj_ind);
 	if (res == -1)
@@ -988,6 +986,8 @@ const DevVarStringArray *DbServerCache::get_obj_property(DevVarStringArray *in_p
 	}
 	else
 	{
+	    int ret_length = 2;
+
 		ret_obj_prop.length(ret_length);
 		ret_obj_prop[0] = CORBA::string_dup((*in_param)[0]);
 

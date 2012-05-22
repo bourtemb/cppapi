@@ -1010,7 +1010,6 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 
 			if (local_act == ACCESS_READ)
 			{
-				int db_num;
 				ApiUtil *au = ApiUtil::instance();
 
 				vector<Database *> & v_d = au->get_db_vect();
@@ -1019,6 +1018,8 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 					db = static_cast<Database *>(this);
 				else
 				{
+				    int db_num;
+
 					if (get_from_env_var() == true)
 						db_num = au->get_db_ind();
 					else
@@ -1196,7 +1197,6 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 
 			if (local_act == ACCESS_READ)
 			{
-				int db_num;
 				ApiUtil *au = ApiUtil::instance();
 
 				vector<Database *> & v_d = au->get_db_vect();
@@ -1205,6 +1205,8 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 					db = static_cast<Database *>(this);
 				else
 				{
+				    int db_num;
+
 					if (get_from_env_var() == true)
 						db_num = au->get_db_ind();
 					else
@@ -7034,8 +7036,6 @@ void DeviceProxy::lock(int lock_validity)
 // of locked devices
 //
 
-	int interupted;
-
 	{
 		omni_mutex_lock oml(au->lock_th_map);
 
@@ -7062,6 +7062,8 @@ void DeviceProxy::lock(int lock_validity)
 			}
 			else
 			{
+			    int interupted;
+
 				omni_mutex_lock sync(*(pos->second.mon));
 				if (pos->second.shared->cmd_pending == true)
 				{
@@ -7181,7 +7183,6 @@ void DeviceProxy::unlock(bool force)
 	if ((local_lock_ctr == 0) || (force == true))
 	{
 		Tango::ApiUtil *au = Tango::ApiUtil::instance();
-		int interupted;
 
 		{
 			omni_mutex_lock oml(au->lock_th_map);
@@ -7204,6 +7205,8 @@ void DeviceProxy::unlock(bool force)
 				}
 				else
 				{
+                    int interupted;
+
 					omni_mutex_lock sync(*(pos->second.mon));
 					if (pos->second.shared->cmd_pending == true)
 					{
@@ -7831,9 +7834,10 @@ DeviceAttribute DeviceProxy::write_read_attribute(DeviceAttribute &dev_attr)
 
 void DeviceProxy::same_att_name(vector<string> &attr_list,const char *met_name)
 {
-	unsigned int i;
+
 	if (attr_list.size() > 1)
 	{
+	    unsigned int i;
 		vector<string> same_att = attr_list;
 
 		for (i = 0;i < same_att.size();++i)

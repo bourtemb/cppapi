@@ -58,7 +58,7 @@ public:
 	NamedDevFailedList() {};
 
 	size_t get_faulty_attr_nb() {return err_list.size();}
-	bool call_failed() {if ((err_list.size()==0) && (errors.length()!=0))return true;else return false;}
+	bool call_failed() {if ((err_list.empty()==true) && (errors.length()!=0))return true;else return false;}
 
 	vector<NamedDevFailed>	err_list;
 };

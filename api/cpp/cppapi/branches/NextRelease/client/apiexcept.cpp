@@ -82,7 +82,7 @@ static const char *RcsId = "$Id$\n$Name$";
 namespace Tango
 {
 
-NamedDevFailed::NamedDevFailed()
+NamedDevFailed::NamedDevFailed():idx_in_call(0)
 {
 }
 

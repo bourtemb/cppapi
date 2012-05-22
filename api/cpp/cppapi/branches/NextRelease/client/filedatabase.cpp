@@ -247,18 +247,18 @@ FileDatabase::~FileDatabase()
 //	write_file();
 
 	std::vector<t_device*>::iterator i;
-	for(i = m_server.devices.begin(); i != m_server.devices.end(); i++)
+	for(i = m_server.devices.begin(); i != m_server.devices.end(); ++i)
 	{
 		std::vector<t_property*>::iterator p;
-		for(p = (*i)->properties.begin(); p != (*i)->properties.end(); p++)
+		for(p = (*i)->properties.begin(); p != (*i)->properties.end(); ++p)
 		{
 			delete (*p);
 		}
 		std::vector<t_attribute_property*>::iterator pa;
-		for(pa = (*i)->attribute_properties.begin(); pa != (*i)->attribute_properties.end(); pa++)
+		for(pa = (*i)->attribute_properties.begin(); pa != (*i)->attribute_properties.end(); ++pa)
 		{
 			std::vector<t_property*>::iterator p;
-			for(p = (*pa)->properties.begin(); p != (*pa)->properties.end(); p++)
+			for(p = (*pa)->properties.begin(); p != (*pa)->properties.end(); ++p)
 			{
 				delete (*p);
 			}
@@ -267,18 +267,18 @@ FileDatabase::~FileDatabase()
 		delete (*i);
 	}
 	std::vector<t_tango_class*>::iterator j;
-	for(j = m_server.classes.begin(); j != m_server.classes.end(); j++)
+	for(j = m_server.classes.begin(); j != m_server.classes.end(); ++j)
 	{
 		std::vector<t_property*>::iterator p;
-		for(p = (*j)->properties.begin(); p != (*j)->properties.end(); p++)
+		for(p = (*j)->properties.begin(); p != (*j)->properties.end(); ++p)
 		{
 			delete (*p);
 		}
 		std::vector<t_attribute_property*>::iterator pa;
-		for(pa = (*j)->attribute_properties.begin(); pa != (*j)->attribute_properties.end(); pa++)
+		for(pa = (*j)->attribute_properties.begin(); pa != (*j)->attribute_properties.end(); ++pa)
 		{
 			std::vector<t_property*>::iterator p;
-			for(p = (*pa)->properties.begin(); p != (*pa)->properties.end(); p++)
+			for(p = (*pa)->properties.begin(); p != (*pa)->properties.end(); ++p)
 			{
 				delete (*p);
 			}
@@ -1125,7 +1125,6 @@ CORBA::Any*   FileDatabase :: DbGetDeviceProperty(CORBA::Any& send)
 	char num_prop_str[256];
 	char num_vals_str[256];
 	unsigned int num_prop = 0;
-	int num_val  = 0;
 
 	cout4 << "FILEDATABASE: entering DbGetDeviceProperty" << endl;
 
@@ -1134,7 +1133,6 @@ CORBA::Any*   FileDatabase :: DbGetDeviceProperty(CORBA::Any& send)
 	CORBA::Any* any_ptr;
 	any_ptr = new CORBA::Any();
 	int index = 0;
-	int seq_length = 2;
 
 	data_out->length(2);
 	(*data_out)[0] = CORBA::string_dup( (*data_in)[0] ); index++;
@@ -1146,6 +1144,8 @@ CORBA::Any*   FileDatabase :: DbGetDeviceProperty(CORBA::Any& send)
 	{
 		unsigned long nb_defined_dev = m_server.devices.size();
 		unsigned long i;
+        int seq_length = 2;
+
 		for(i = 0; i < nb_defined_dev; i++)
 		{
 			if ( equalsIgnoreCase((*data_in)[0].in(), m_server.devices[i]->name))
@@ -1153,12 +1153,15 @@ CORBA::Any*   FileDatabase :: DbGetDeviceProperty(CORBA::Any& send)
 				for (unsigned int j = 1; j < data_in->length(); j++)
 				{
 					unsigned long m;
+
 					unsigned long nb_defined_prop = m_server.devices[i]->properties.size();
 					for (m = 0; m < nb_defined_prop; m++)
 					{
 						//if ( strcmp((*data_in)[j], m_server.devices[i]->properties[m]->name.c_str()) == 0 )
 						if ( equalsIgnoreCase((*data_in)[j].in(), m_server.devices[i]->properties[m]->name))
 						{
+                            int num_val  = 0;
+
 							num_prop++;
 							num_val = m_server.devices[i]->properties[m]->value.size();
 							seq_length = seq_length + 2 + m_server.devices[i]->properties[m]->value.size();
@@ -1218,14 +1221,12 @@ CORBA::Any*   FileDatabase :: DbPutDeviceProperty(CORBA::Any& send)
 	const Tango::DevVarStringArray* data_in;
 	unsigned int n_properties=0;
 	int n_values=0;
-	int index = 0;
-
 
 	send >>= data_in;
 
 	if ((*data_in).length() > 1)
 	{
-
+        int index = 0;
 		std::vector<t_device*>::iterator it;
 		it = find_if(m_server.devices.begin(), m_server.devices.end(), hasName<t_device>(string((*data_in)[index])));index++;
 		if (it == m_server.devices.end())
@@ -1316,9 +1317,7 @@ CORBA::Any*   FileDatabase :: DbGetDeviceAttributeProperty(CORBA::Any& send)
 	const Tango::DevVarStringArray* data_in;
 	char num_prop_str[256];
 	char num_attr_str[256];
-	unsigned int num_prop = 0;
 	unsigned int num_attr = 0;
-	int num_attr_find = 0;
 
 	CORBA::Any* any_ptr;
 	any_ptr = new CORBA::Any();
@@ -1352,6 +1351,9 @@ CORBA::Any*   FileDatabase :: DbGetDeviceAttributeProperty(CORBA::Any& send)
 			 {
 				if (equalsIgnoreCase((*dev_it)->attribute_properties[j]->attribute_name, (*data_in)[k+1].in()))
 				{
+                    unsigned int num_prop = 0;
+                    int num_attr_find = 0;
+
 					//cout << "Proprieta' " << (*dev_it)->attribute_properties[j]->attribute_name << " trovata." << endl;
 					num_prop = (*dev_it)->attribute_properties[j]->properties.size();
 					sprintf(num_prop_str, "%d", num_prop);
@@ -1511,7 +1513,6 @@ CORBA::Any*   FileDatabase :: DbDeleteDeviceAttributeProperty(CORBA::Any& send)
 
 	std::vector<t_device*>::iterator it;
 	it = find_if(m_server.devices.begin(), m_server.devices.end(), hasName<t_device>(string((*data_in)[0])));
-	std::string attribute_name = string((*data_in)[0]);
 
 	if (it != m_server.devices.end())
 	{
@@ -1642,7 +1643,6 @@ CORBA::Any*   FileDatabase :: DbPutClassProperty(CORBA::Any& send)
 	const Tango::DevVarStringArray* data_in;
 	unsigned int n_properties=0;
 	int n_values=0;
-	unsigned int index = 0;
 
 	cout4 << "FILEDATABASE: entering DbPutClassProperty" << endl;
 
@@ -1652,7 +1652,7 @@ CORBA::Any*   FileDatabase :: DbPutClassProperty(CORBA::Any& send)
 
 	if ((*data_in).length() > 1)
 	{
-
+        unsigned int index = 0;
 		std::vector<t_tango_class*>::iterator it;
 		it = find_if(m_server.classes.begin(), m_server.classes.end(), hasName<t_tango_class>(string((*data_in)[index])));index++;
 		if (it == m_server.classes.end())
@@ -2028,25 +2028,25 @@ CORBA::Any*  FileDatabase :: DbInfo(CORBA::Any&){
 	(*data_out)[7] = CORBA::string_dup("Device servers exported = 1");
 	(*data_out)[8] = CORBA::string_dup("");
 	long temp_long = 0;
-	for(std::vector<t_tango_class*>::iterator it = m_server.classes.begin(); it != m_server.classes.end(); it++)
+	for(std::vector<t_tango_class*>::iterator it = m_server.classes.begin(); it != m_server.classes.end(); ++it)
 		temp_long += (*it)->properties.size();
 	sprintf(temp_str,"Class properties defined = %ld", temp_long);
 	(*data_out)[9] = CORBA::string_dup(temp_str);
 
 	temp_long = 0;
-	for(std::vector<t_device*>::iterator ite = m_server.devices.begin(); ite != m_server.devices.end(); ite++)
+	for(std::vector<t_device*>::iterator ite = m_server.devices.begin(); ite != m_server.devices.end(); ++ite)
 		temp_long += (*ite)->properties.size();
 	sprintf(temp_str,"Device properties defined = %ld", temp_long);
 	(*data_out)[10] = CORBA::string_dup(temp_str);
 
 	temp_long = 0;
-	for(std::vector<t_tango_class*>::iterator iter = m_server.classes.begin(); iter != m_server.classes.end(); iter++)
+	for(std::vector<t_tango_class*>::iterator iter = m_server.classes.begin(); iter != m_server.classes.end(); ++iter)
 		temp_long += (*iter)->attribute_properties.size();
 	sprintf(temp_str,"Class attribute properties defined = %ld", temp_long);
 	(*data_out)[11] = CORBA::string_dup(temp_str);
 
 	temp_long = 0;
-	for(std::vector<t_device*>::iterator itera = m_server.devices.begin(); itera != m_server.devices.end(); itera++)
+	for(std::vector<t_device*>::iterator itera = m_server.devices.begin(); itera != m_server.devices.end(); ++itera)
 		temp_long += (*itera)->attribute_properties.size();
 	sprintf(temp_str,"Device attribute properties defined = %ld", temp_long);
 	(*data_out)[12] = CORBA::string_dup(temp_str);

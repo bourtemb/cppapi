@@ -155,7 +155,7 @@ void NotifdEventConsumer::cleanup_EventChannel_map()
 {
 	std::map<std::string,EventCallBackStruct>::iterator epos;
 	EvChanIte evt_it;
-	for (epos = event_callback_map.begin(); epos != event_callback_map.end(); epos++)
+	for (epos = event_callback_map.begin(); epos != event_callback_map.end(); ++epos)
 	{
 		EventCallBackStruct &evt_cb = epos->second;
 	    evt_it = channel_map.find(evt_cb.channel_name);

@@ -1713,11 +1713,11 @@ void EventConsumer::unsubscribe_event(int event_id)
 
 	// check also the vector of not yet connected events
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -1819,11 +1819,11 @@ void EventConsumer::get_events (int event_id, EventDataList &event_list)
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -1912,11 +1912,11 @@ void EventConsumer::get_events (int event_id, AttrConfEventDataList &event_list)
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -1991,11 +1991,11 @@ void EventConsumer::get_events (int event_id, DataReadyEventDataList &event_list
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -2085,11 +2085,11 @@ void EventConsumer::get_events (int event_id, CallBack *cb)
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -2172,11 +2172,11 @@ int  EventConsumer::event_queue_size(int event_id)
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -2264,11 +2264,11 @@ bool EventConsumer::is_event_queue_empty(int event_id)
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -2355,11 +2355,11 @@ TimeVal EventConsumer::get_last_event_date(int event_id)
 	// check also the vector of not yet connected events
 	//
 
-	if ( event_not_connected.size() > 0 )
+	if ( event_not_connected.empty() == false )
 	{
 		std::vector<EventNotConnected>::iterator vpos;
 		for (vpos =  event_not_connected.begin();
-			 vpos != event_not_connected.end(); vpos++)
+			 vpos != event_not_connected.end(); ++vpos)
 		{
 			if ( vpos->event_id == event_id)
 			{
@@ -2629,7 +2629,7 @@ ChannelType EventConsumer::get_event_system_for_event_id(int event_id)
     if (found == false && event_not_connected.empty() == false)
     {
         std::vector<EventNotConnected>::iterator vpos;
-        for (vpos = event_not_connected.begin();vpos != event_not_connected.end();vpos++)
+        for (vpos = event_not_connected.begin();vpos != event_not_connected.end();++vpos)
         {
             if (vpos->event_id == event_id)
             {

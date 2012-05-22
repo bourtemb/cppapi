@@ -117,7 +117,6 @@ inline long TangoMonitor::get_locking_ctr()
 
 inline void TangoMonitor::get_monitor()
 {
-	int interupted;
 	omni_thread *th = omni_thread::self();
 
 	omni_mutex_lock synchronized(*this);
@@ -136,6 +135,7 @@ inline void TangoMonitor::get_monitor()
 #if !defined(_TG_WINDOWS_) || (defined(_MSC_VER) && _MSC_VER >= 1300)
 			cout4 << "Thread " << th->id() << ": waiting !!" << endl;
 #endif
+            int interupted;
 
 			interupted = wait(_timeout);
 			if (interupted == false)

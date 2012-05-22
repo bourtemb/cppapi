@@ -688,7 +688,7 @@ std::vector<std::string> Group::get_device_list (bool fwd)
   std::vector<std::string> sub_dl(0);
   GroupElementsIterator it = elements.begin();
   GroupElementsIterator end = elements.end();
-  for (; it != end; it++) {
+  for (; it != end; ++it) {
     if ((*it)->is_device_i()) {
       dl.push_back((*it)->get_name());
     }
@@ -709,7 +709,7 @@ GroupElements Group::get_hiearchy ()
   GroupElements sub_te(0);
   GroupElementsIterator it = elements.begin();
   GroupElementsIterator end = elements.end();
-  for (; it != end; it++) {
+  for (; it != end; ++it) {
     if ((*it)->is_device_i()) {
       te.push_back(*it);
     }
@@ -737,7 +737,7 @@ long Group::get_size_i (bool fwd)
   long size = 0;
   GroupElementsIterator it = elements.begin();
   GroupElementsIterator end = elements.end();
-  for (; it != end; it++) {
+  for (; it != end; ++it) {
     if ((*it)->is_device_i() || fwd) {
       size += (*it)->get_size_i();
     }
@@ -865,7 +865,7 @@ void Group::remove_i (const std::string& p, bool fwd)
   }
   GroupElementsIterator it;
   if (p.find('*', 0) == std::string::npos) {
-    for (it = elements.begin(); it != elements.end(); it++) {
+    for (it = elements.begin(); it != elements.end(); ++it) {
       if ((*it)->name_equals(p)) {
         delete *it;
         elements.erase(it);
@@ -875,7 +875,7 @@ void Group::remove_i (const std::string& p, bool fwd)
   }
   else {
     std::vector<GroupElement*> remove_list(0);
-    for (it = elements.begin(); it != elements.end(); it++) {
+    for (it = elements.begin(); it != elements.end(); ++it) {
       if ((*it)->name_matches(p)) {
         remove_list.push_back(*it);
       }
@@ -892,7 +892,7 @@ void Group::remove_i (const std::string& p, bool fwd)
     }
   }
   if ( fwd ) {
-    for (it = elements.begin(); it != elements.end(); it++) {
+    for (it = elements.begin(); it != elements.end(); ++it) {
       if ( (*it)->is_group_i() ) {
         reinterpret_cast<Group*>((*it))->remove(p, fwd);
       }
@@ -955,7 +955,7 @@ GroupElement* Group::find_i (const std::string& n, bool fwd)
     end = elements.end();
     while (it != end && e == 0) {
       e = (*it)->find_i(n);
-      it++;
+      ++it;
     }
   }
   return e;
@@ -971,7 +971,7 @@ DeviceProxy* Group::get_device (const std::string& n)
   GroupElementsIterator end = elements.end();
   while (it != end && dp == 0) {
     dp = (*it)->get_device(n);
-    it++;
+    ++it;
   }
   return dp;
 }
@@ -986,7 +986,7 @@ DeviceProxy* Group::get_device (long idx)
   GroupElementsIterator end = elements.end();
   while (it != end && dp == 0) {
     dp = (*it)->get_device(idx--);
-    it++;
+    ++it;
   }
   return dp;
 }

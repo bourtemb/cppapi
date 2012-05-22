@@ -947,11 +947,13 @@ void BlackBox::build_info_as_str(long index)
 //
 
 	elt_str = elt_str + " : ";
-	unsigned long nb_in_vect;
+
 	if (box[index].req_type == Req_Operation)
 	{
 		elt_str = elt_str + "Operation ";
 		unsigned long i;
+		unsigned long nb_in_vect;
+
 		switch (box[index].op_type)
 		{
 		case Op_Command_inout :

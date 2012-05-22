@@ -239,7 +239,7 @@ inline void ZmqAttrValUnion::init_seq(char *base_ptr,_CORBA_ULong &length,TangoC
 class KeepAliveThCmd:public omni_mutex
 {
 public :
-	KeepAliveThCmd():cond(this) {};
+	KeepAliveThCmd():cmd_pending(false),cond(this) {};
 
 	bool				cmd_pending;	// The new command flag
 	KeepAliveCmdCode	cmd_code;		// The command code

@@ -95,7 +95,7 @@ bool EventConsumerKeepAliveThread::reconnect_to_channel(EvChanIte &ipos,EventCon
 
 	cout3 << "Entering KeepAliveThread::reconnect()" << endl;
 
-	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); ++epos)
 	{
 		if (epos->second.channel_name == ipos->first)
 		{
@@ -163,7 +163,7 @@ bool EventConsumerKeepAliveThread::reconnect_to_zmq_channel(EvChanIte &ipos,Even
 
 	cout3 << "Entering KeepAliveThread::reconnect_to_zmq_channel()" << endl;
 
-	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); ++epos)
 	{
 		if (epos->second.channel_name == ipos->first)
 		{
@@ -236,7 +236,7 @@ void EventConsumerKeepAliveThread::reconnect_to_event(EvChanIte &ipos,EventConsu
 
 	cout3 << "Entering KeepAliveThread::reconnect_to_event()" << endl;
 
-	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); ++epos)
 	{
 		if (epos->second.channel_name == ipos->first)
 		{
@@ -397,7 +397,7 @@ void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventC
 
 	cout3 << "Entering KeepAliveThread::reconnect_to_zmq_event()" << endl;
 
-	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+	for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); ++epos)
 	{
 		if (epos->second.channel_name == ipos->first)
 		{
@@ -610,7 +610,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 			std::map<std::string,EventChannelStruct>::iterator ipos;
 			std::map<std::string,EventCallBackStruct>::iterator epos;
 
-			for (ipos = event_consumer->channel_map.begin(); ipos != event_consumer->channel_map.end(); ipos++)
+			for (ipos = event_consumer->channel_map.begin(); ipos != event_consumer->channel_map.end(); ++ipos)
 			{
 				try
 				{
@@ -619,7 +619,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 
 					if ((now - ipos->second.last_subscribed) > EVENT_RESUBSCRIBE_PERIOD/3)
 					{
-						for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+						for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); ++epos)
 						{
 							if (epos->second.channel_name == ipos->first )
 							{
@@ -769,7 +769,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 						DeviceAttribute *dev_attr = NULL;
 						AttributeInfoEx *dev_attr_conf = NULL;
 
-						for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); epos++)
+						for (epos = event_consumer->event_callback_map.begin(); epos != event_consumer->event_callback_map.end(); ++epos)
 						{
 							if (epos->second.channel_name == ipos->first)
 							{

@@ -780,11 +780,12 @@ private:
     class UtilExt
     {
     public:
-        UtilExt():poll_mon("utils_poll"),ser_model(BY_DEVICE),only_one("process"),
-              py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),inter(NULL),
-              svr_starting(true),svr_stopping(false),poll_pool_size(ULONG_MAX),
+        UtilExt():heartbeat_th(NULL),heartbeat_th_id(0),
+              poll_mon("utils_poll"),poll_on(false),ser_model(BY_DEVICE),only_one("process"),
+              nd_event_supplier(NULL),py_interp(NULL),py_ds(false),py_dbg(false),db_cache(NULL),
+              inter(NULL),svr_starting(true),svr_stopping(false),poll_pool_size(ULONG_MAX),
               conf_needs_db_upd(false),ev_loop_func(NULL),shutdown_server(false),_dummy_thread(false),
-              endpoint_specified(false),user_pub_hwm(-1),wattr_nan_allowed(false)
+              zmq_event_supplier(NULL),endpoint_specified(false),user_pub_hwm(-1),wattr_nan_allowed(false)
         {shared_data.cmd_pending=false;shared_data.trigger=false;
         cr_py_lock = new CreatePyLock();}
 
@@ -996,7 +997,7 @@ private:
 	static void print_err_message(const char *,Tango::MessBoxType type = Tango::STOP);
 	void print_err_message(const string &mess,Tango::MessBoxType type = Tango::STOP)
 	{
-		Util::print_err_message(mess.c_str(),type);
+		print_err_message(mess.c_str(),type);
 	}
 	void check_args(int, char *[]);
 	void display_help_message();
@@ -1039,7 +1040,7 @@ inline bool Util::is_device_restarting(string &d_name)
 {
     bool ret = false;
 
-    if (ext->restarting_devices.size() != 0)
+    if (ext->restarting_devices.empty() == false)
     {
         vector<string>::iterator pos;
         pos = find(ext->restarting_devices.begin(),ext->restarting_devices.end(),d_name);
@@ -1133,7 +1134,7 @@ struct PollingThreadInfo
 	int 								smallest_upd;		// Smallest thread update period
 	vector<DevVarLongStringArray *> 	v_poll_cmd;			// Command(s) to send
 
-	PollingThreadInfo():poll_mon("Polling_thread_mon"),nb_polled_objects(0),smallest_upd(0)
+	PollingThreadInfo():thread_id(0),poll_th(NULL),poll_mon("Polling_thread_mon"),nb_polled_objects(0),smallest_upd(0)
 	{shared_data.cmd_pending = false;shared_data.trigger=false;}
 };
 

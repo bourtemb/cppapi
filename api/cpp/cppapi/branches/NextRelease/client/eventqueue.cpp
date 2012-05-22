@@ -159,7 +159,7 @@ void EventQueue::insert_event (EventData *new_event)
 	else
     {
 		// allocate ring buffer when not yet done
-		if ( event_buffer.size() == 0 )
+		if ( event_buffer.empty() == true )
         {
 			event_buffer.resize (max_elt, NULL);
         }
@@ -211,7 +211,7 @@ void EventQueue::insert_event (AttrConfEventData *new_event)
 	else
     {
 		// allocate ring buffer when not yet done
-		if ( conf_event_buffer.size() == 0 )
+		if ( conf_event_buffer.empty() == true )
         {
 			conf_event_buffer.resize (max_elt, NULL);
         }
@@ -263,7 +263,7 @@ void EventQueue::insert_event (DataReadyEventData *new_event)
 	else
     {
 		// allocate ring buffer when not yet done
-		if ( ready_event_buffer.size() == 0 )
+		if ( ready_event_buffer.empty() == true )
         {
 			ready_event_buffer.resize (max_elt, NULL);
         }
@@ -347,7 +347,7 @@ TimeVal EventQueue::get_last_event_date()
 	// lock the event queue
 	omni_mutex_lock l(modification_mutex);
 
-	if ( event_buffer.size() > 0 )
+	if ( event_buffer.empty() == false )
 		{
 		if (insert_elt == 0)
 			{
@@ -360,7 +360,7 @@ TimeVal EventQueue::get_last_event_date()
 		}
 	else
 	{
-		if ( conf_event_buffer.size() > 0 )
+		if ( conf_event_buffer.empty() == false )
 			{
 			if (insert_elt == 0)
 				{
@@ -373,7 +373,7 @@ TimeVal EventQueue::get_last_event_date()
 			}
 		else
 		{
-			if ( ready_event_buffer.size() > 0 )
+			if ( ready_event_buffer.empty() == false )
 			{
 				if (insert_elt == 0)
 					return ready_event_buffer[max_elt - 1]->get_date();
@@ -619,7 +619,7 @@ void EventQueue::get_events(CallBack *cb)
 
 	// Check the event type
 
-	if ( event_buffer.size() > 0 )
+	if ( event_buffer.empty() == false )
 	{
 		// Get event data for a local data copy.
 		// The event reception should not be blocked in
@@ -629,7 +629,7 @@ void EventQueue::get_events(CallBack *cb)
 
 		// Loop over all events
 		EventDataList::iterator vpos;
-		for (vpos=event_list.begin(); vpos!=event_list.end(); vpos++)
+		for (vpos=event_list.begin(); vpos!=event_list.end(); ++vpos)
 		{
 			// call the callback method
 			try
@@ -643,7 +643,7 @@ void EventQueue::get_events(CallBack *cb)
 			}
 		}
 	}
-	else if ( conf_event_buffer.size() > 0 )
+	else if ( conf_event_buffer.empty() == false )
 	{
 		// Get event data for a local data copy.
 		// The event reception should not be blocked in
@@ -653,7 +653,7 @@ void EventQueue::get_events(CallBack *cb)
 
 		// Loop over all events
 		AttrConfEventDataList::iterator vpos;
-		for (vpos=attr_conf_event_list.begin(); vpos!=attr_conf_event_list.end(); vpos++)
+		for (vpos=attr_conf_event_list.begin(); vpos!=attr_conf_event_list.end(); ++vpos)
 		{
 			// call the callback method
 			try
@@ -678,7 +678,7 @@ void EventQueue::get_events(CallBack *cb)
 
 		// Loop over all events
 		DataReadyEventDataList::iterator vpos;
-		for (vpos=d_ready_event_list.begin(); vpos!=d_ready_event_list.end(); vpos++)
+		for (vpos=d_ready_event_list.begin(); vpos!=d_ready_event_list.end(); ++vpos)
 		{
 			// call the callback method
 			try

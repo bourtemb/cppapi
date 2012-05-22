@@ -109,7 +109,7 @@ public:
 		if (size() > 0)
 			{
 			EventDataList::iterator vpos;
-			for (vpos=begin(); vpos!=end(); vpos++)
+			for (vpos=begin(); vpos!=end(); ++vpos)
 				{
 				delete (*vpos);
 				}
@@ -120,7 +120,7 @@ public:
 		if (size() > 0)
 			{
 			EventDataList::iterator vpos;
-			for (vpos=begin(); vpos!=end(); vpos++)
+			for (vpos=begin(); vpos!=end(); ++vpos)
 				{
 				delete (*vpos);
 				}
@@ -178,7 +178,7 @@ public:
 		if (size() > 0)
 			{
 			AttrConfEventDataList::iterator vpos;
-			for (vpos=begin(); vpos!=end(); vpos++)
+			for (vpos=begin(); vpos!=end(); ++vpos)
 				{
 				delete (*vpos);
 				}
@@ -189,7 +189,7 @@ public:
 		if (size() > 0)
 			{
 			AttrConfEventDataList::iterator vpos;
-			for (vpos=begin(); vpos!=end(); vpos++)
+			for (vpos=begin(); vpos!=end(); ++vpos)
 				{
 				delete (*vpos);
 				}
@@ -246,7 +246,7 @@ public:
 		if (size() > 0)
 		{
 			DataReadyEventDataList::iterator vpos;
-			for (vpos=begin(); vpos!=end(); vpos++)
+			for (vpos=begin(); vpos!=end(); ++vpos)
 			{
 				delete (*vpos);
 			}
@@ -257,7 +257,7 @@ public:
 		if (size() > 0)
 		{
 			DataReadyEventDataList::iterator vpos;
-			for (vpos=begin(); vpos!=end(); vpos++)
+			for (vpos=begin(); vpos!=end(); ++vpos)
 			{
 				delete (*vpos);
 			}
@@ -287,7 +287,7 @@ public:
 
 	int      size();
 	TimeVal get_last_event_date();
-	bool     is_empty() {if (event_buffer.size() == 0) return true;else return false;}
+	bool     is_empty() {if (event_buffer.empty() == true) return true;else return false;}
 
 	void get_events(EventDataList         	&event_list);
 	void get_events(AttrConfEventDataList 	&event_list);

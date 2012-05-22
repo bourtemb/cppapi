@@ -1531,7 +1531,7 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 		{
 			for (unsigned int i=0; i<db_data.size();)
 			{
-				short n_props;
+				short n_props = 0;
 				index++; property_values->length(index);
 				(*property_values)[index-1] = string_dup(db_data[i].name.c_str());
 				db_data[i] >> n_props;
@@ -1575,7 +1575,7 @@ void Database::put_device_attribute_property(string dev, DbData &db_data)
 		{
 			for (unsigned int i=0; i<db_data.size();)
 			{
-				short n_props;
+				short n_props = 0;
 				index++; property_values->length(index);
 				(*property_values)[index-1] = string_dup(db_data[i].name.c_str());
 				db_data[i] >> n_props;
@@ -2076,7 +2076,7 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 		{
 			for (unsigned int i=0; i<db_data.size(); )
 			{
-				short n_props;
+				short n_props = 0;
 				index++; property_values->length(index);
 				(*property_values)[index-1] = string_dup(db_data[i].name.c_str());
 				db_data[i] >> n_props;
@@ -2120,7 +2120,7 @@ void Database::put_class_attribute_property(string device_class, DbData &db_data
 		{
 			for (unsigned int i=0; i<db_data.size(); )
 			{
-				short n_props;
+				short n_props = 0;
 				index++; property_values->length(index);
 				(*property_values)[index-1] = string_dup(db_data[i].name.c_str());
 				db_data[i] >> n_props;
@@ -2844,7 +2844,6 @@ DbDatum Database::make_string_array(string name,Any_var &received) {
 
 	const DevVarStringArray *prop_list = NULL;
 	DbDatum db_datum;
-	int n_props;
 
 	received.inout() >>= prop_list;
     if (prop_list == NULL)
@@ -2855,6 +2854,8 @@ DbDatum Database::make_string_array(string name,Any_var &received) {
     }
     else
     {
+        int n_props;
+
         n_props = prop_list->length();
         db_datum.name = name;
         db_datum.value_string.resize(n_props);
@@ -3392,7 +3393,7 @@ DbDatum Database::get_class_inheritance_for_device(string &devname)
 
 	  // Check if an old API else re-throw
 	  if (strcmp(e.errors[0].reason.in(),"API_CommandNotFound") != 0) {
-	    throw e;
+	    throw;
 	  } else {
 	    DbDatum db_datum;
 	    db_datum.name = "class";
@@ -4194,7 +4195,7 @@ AccessControlType Database::check_access_control(string &devname)
 				DbDatum db_serv = get_services(service_name,service_inst_name);
 				vector<string> serv_dev_list;
 				db_serv >> serv_dev_list;
-				if (serv_dev_list.size() > 0)
+				if (serv_dev_list.empty() == false)
 				{
 					access_devname_str = serv_dev_list[0];
 					access_service_defined = true;

@@ -1723,7 +1723,6 @@ void DeviceData::insert (vector<DevLong> &long_datum, vector<string>& string_dat
 bool DeviceData::extract(vector<DevLong> &long_datum, vector<string>& string_datum)
 {
 	bool ret;
-	unsigned int i;
 	const DevVarLongStringArray *long_string_array = NULL;
 	ret = (any.inout() >>= long_string_array);
 	if (ret == false)
@@ -1749,6 +1748,8 @@ bool DeviceData::extract(vector<DevLong> &long_datum, vector<string>& string_dat
 	    }
         else
         {
+            unsigned int i;
+
             long_datum.resize(long_string_array->lvalue.length());
             for (i=0; i<long_datum.size(); i++)
             {
@@ -1826,7 +1827,6 @@ void DeviceData::insert (vector<double> &double_datum, vector<string>& string_da
 bool DeviceData::extract (vector<double> &double_datum, vector<string>& string_datum)
 {
 	bool ret;
-	unsigned int i;
 	const DevVarDoubleStringArray *double_string_array = NULL;
 	ret = (any.inout() >>= double_string_array);
 	if (ret == false)
@@ -1852,6 +1852,8 @@ bool DeviceData::extract (vector<double> &double_datum, vector<string>& string_d
 	    }
         else
         {
+            unsigned int i;
+
             double_datum.resize(double_string_array->dvalue.length());
             for (i=0; i<double_datum.size(); i++)
             {
