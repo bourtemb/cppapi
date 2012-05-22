@@ -26,8 +26,8 @@ AM_LDFLAGS=-flat_namespace --disable-dependency-tracking
 endif
 
 # The sources
-libtango_la_SOURCES = idl/tangoSK.cpp 		\
-		      idl/tangoDynSK.cpp 			\
+libtango_la_SOURCES = tangoSK.cpp 		\
+		      tangoDynSK.cpp 			\
 		      attrdesc.cpp 				\
 		      attribute.cpp 			\
 		      attrmanip.cpp 			\
@@ -36,7 +36,7 @@ libtango_la_SOURCES = idl/tangoSK.cpp 		\
 		      class_factory.cpp 		\
 		      classattribute.cpp 		\
 		      command.cpp 				\
-			  coutappender.cpp 			\
+		      coutappender.cpp 			\
 		      dev_event.cpp				\
 		      dev_poll.cpp              \
 		      device.cpp 				\
