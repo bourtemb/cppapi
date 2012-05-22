@@ -478,6 +478,12 @@ public :
 	    ATT_VALUE
 	};
 
+    enum SocketCmd
+    {
+        SUBSCRIBE = 0,
+        UNSUBSCRIBE
+    };
+
 protected :
 	ZmqEventConsumer(ApiUtil *ptr);
 	virtual void connect_event_channel(string &,Database *,bool,DeviceData &);
@@ -515,6 +521,7 @@ private :
     void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
     void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);
     void process_event(zmq_msg_t &,zmq_msg_t &,zmq_msg_t &,zmq_msg_t &);
+    void multi_tango_host(zmq::socket_t *,SocketCmd,string &);
 
     friend class DelayEvent;
 };

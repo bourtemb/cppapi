@@ -192,6 +192,8 @@ void DeviceImpl::init_logger (void)
     }
     if (tg->_UseDb == false) {
       // done if we are not using the database
+      if (level_set_from_cmd_line)
+        the_logger->set_level(cmd_line_level);
       cout4 << "Leaving DeviceImpl::init_logger" << endl;
       return;
     }

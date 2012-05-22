@@ -227,8 +227,6 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
         }
     }
 
-//copy(env_var_fqdn_prefix.begin(),env_var_fqdn_prefix.end(),ostream_iterator<string>(cout,"\n"));
-
 //
 // initialise the unique event id for the client;
 //
