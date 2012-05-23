@@ -91,7 +91,7 @@ inline void operator<<(DevVarCharArray &lval,const vector<unsigned char> &rval)
 inline void operator<<(vector<unsigned char> &lval,const DevVarCharArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -130,7 +130,7 @@ inline void operator<<(DevVarShortArray &lval,const vector<short> &rval)
 inline void operator<<(vector<short> &lval,const DevVarShortArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -168,7 +168,7 @@ inline void operator<<(DevVarLongArray &lval,const vector<DevLong> &rval)
 inline void operator<<(vector<DevLong> &lval,const DevVarLongArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -246,7 +246,7 @@ inline void operator<<(DevVarFloatArray &lval,const vector<float> &rval)
 inline void operator<<(vector<float> &lval,const DevVarFloatArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -285,7 +285,7 @@ inline void operator<<(DevVarDoubleArray &lval,const vector<double> &rval)
 inline void operator<<(vector<double> &lval,const DevVarDoubleArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -325,7 +325,7 @@ inline void operator<<(DevVarBooleanArray &lval,const vector<bool> &rval)
 inline void operator<<(vector<bool> &lval,const DevVarBooleanArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -364,7 +364,7 @@ inline void operator<<(DevVarUShortArray &lval,const vector<unsigned short> &rva
 inline void operator<<(vector<unsigned short> &lval,const DevVarUShortArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);
@@ -481,7 +481,7 @@ inline void operator<<(DevVarStringArray &lval,const vector<string> &rval)
 inline void operator<<(vector<string> &lval,const DevVarStringArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	string str;
 	for (long i = 0;i < nb_elt;i++)
@@ -523,7 +523,7 @@ inline void operator<<(DevVarStateArray &lval,const vector<DevState> &rval)
 inline void operator<<(vector<DevState> &lval,const DevVarStateArray &rval)
 {
 	long nb_elt = rval.length();
-	if (lval.size() != 0)
+	if (lval.empty() == false)
 		lval.clear();
 	for (long i = 0;i < nb_elt;i++)
 		lval.push_back(rval[i]);

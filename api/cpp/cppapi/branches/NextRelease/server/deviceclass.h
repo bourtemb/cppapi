@@ -438,7 +438,7 @@ private:
     class DeviceClassExt
     {
     public:
-        DeviceClassExt():only_one("class"),default_cmd(NULL),py_class(false) {};
+        DeviceClassExt():only_one("class"),default_cmd(NULL),py_class(false),device_factory_done(false) {};
 
         vector<string>		nodb_name_list;
         TangoMonitor		only_one;

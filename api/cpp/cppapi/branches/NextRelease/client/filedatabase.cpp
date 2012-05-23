@@ -1236,7 +1236,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceProperty(CORBA::Any& send)
 		}
 		t_device& device_trovato = *(*(it));
 
-		sscanf((*data_in)[1],"%d",&n_properties); index++;
+		sscanf((*data_in)[1],"%6d",&n_properties); index++;
 		for (unsigned int i=0; i< n_properties; i++)
 		{
 			std::vector<t_property*>::iterator prop_it;
@@ -1245,7 +1245,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceProperty(CORBA::Any& send)
 			{
 				/* we found a  property */
 				t_property& prop = (*(*prop_it));
-				sscanf((*data_in)[index],"%d",&n_values); index++;
+				sscanf((*data_in)[index],"%6d",&n_values); index++;
 				prop.value.resize(n_values);
 				for(int j = 0; j< n_values; j++)
 				{
@@ -1257,7 +1257,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceProperty(CORBA::Any& send)
 				/* it is a new property */
 				t_property* temp_property = new t_property;
 				temp_property->name = (*data_in)[index-1];
-				sscanf((*data_in)[index],"%d",&n_values); index++;
+				sscanf((*data_in)[index],"%6d",&n_values); index++;
 				for(int j = 0; j < n_values; j++)
 				{
 					temp_property->value.push_back(string((*data_in)[index])); index++;
@@ -1425,7 +1425,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceAttributeProperty(CORBA::Any& send)
 	dev_it = find_if(m_server.devices.begin(), m_server.devices.end(), hasName<t_device>(string((*data_in)[index])));index++;
 	if (dev_it != m_server.devices.end())
 	{
-		sscanf((*data_in)[index],"%d",&num_attr); index++;
+		sscanf((*data_in)[index],"%6d",&num_attr); index++;
 		for(unsigned int j = 0; j < num_attr; j++)
 		{
 			t_attribute_property* temp_attribute_property;
@@ -1444,7 +1444,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceAttributeProperty(CORBA::Any& send)
 			//if (equalsIgnoreCase((*dev_it)->attribute_properties[j]->attribute_name, (*data_in)[index].in()))
 
 			index++;
-			sscanf((*data_in)[index],"%d",&num_prop); index++;
+			sscanf((*data_in)[index],"%6d",&num_prop); index++;
 			for (unsigned int i = 0; i < num_prop; i++)
 			{
 				bool exist = false;
@@ -1455,7 +1455,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceAttributeProperty(CORBA::Any& send)
 						index++;
 						temp_attribute_property->properties[k]->value.erase(temp_attribute_property->properties[k]->value.begin(),
                                                         temp_attribute_property->properties[k]->value.begin()+temp_attribute_property->properties[k]->value.size());
-						sscanf((*data_in)[index],"%d",&num_vals); index++;
+						sscanf((*data_in)[index],"%6d",&num_vals); index++;
 						for(unsigned int n = 0; n < num_vals; n++)
 						{
 							temp_attribute_property->properties[k]->value.push_back(string((*data_in)[index])); index++;
@@ -1475,7 +1475,7 @@ CORBA::Any*   FileDatabase :: DbPutDeviceAttributeProperty(CORBA::Any& send)
 					t_property* new_prop = new t_property;
 					new_prop->name = (*data_in)[index]; index++;
 
-					sscanf((*data_in)[index],"%d",&num_vals); index++;
+					sscanf((*data_in)[index],"%6d",&num_vals); index++;
 					for(unsigned int n = 0; n < num_vals; n++)
 					{
 						new_prop->value.push_back(string((*data_in)[index])); index++;
@@ -1662,7 +1662,7 @@ CORBA::Any*   FileDatabase :: DbPutClassProperty(CORBA::Any& send)
 		}
 		t_tango_class& classe_trovata = *(*(it));
 
-		sscanf((*data_in)[index],"%d",&n_properties); index++;
+		sscanf((*data_in)[index],"%6d",&n_properties); index++;
 		for (unsigned int i=0; i< n_properties; i++)
 		{
 			std::vector<t_property*>::iterator prop_it;
@@ -1672,7 +1672,7 @@ CORBA::Any*   FileDatabase :: DbPutClassProperty(CORBA::Any& send)
 				/* we found a  property */
 				index++;
 				t_property& prop = (*(*prop_it));
-				sscanf((*data_in)[index],"%d",&n_values); index++;
+				sscanf((*data_in)[index],"%6d",&n_values); index++;
 				prop.value.resize(n_values);
 				for(int j = 0; j< n_values; j++)
 				{
@@ -1685,7 +1685,7 @@ CORBA::Any*   FileDatabase :: DbPutClassProperty(CORBA::Any& send)
 				/* it is a new property */
 				t_property* temp_property = new t_property;
 				temp_property->name = (*data_in)[index]; index++;
-				sscanf((*data_in)[index],"%d",&n_values); index++;
+				sscanf((*data_in)[index],"%6d",&n_values); index++;
 				for(int j = 0; j < n_values; j++)
 				{
 					temp_property->value.push_back(string((*data_in)[index])); index++;
@@ -1852,7 +1852,7 @@ CORBA::Any*  FileDatabase :: DbPutClassAttributeProperty(CORBA::Any& send)
 	{
 		cout4 << "FILEDATABASE:  DbPutClassAttributeProperty class " << string((*data_in)[0]) << " not found." << endl;
 	} else {
-		sscanf((*data_in)[index],"%d",&num_attr); index++;
+		sscanf((*data_in)[index],"%6d",&num_attr); index++;
 		t_tango_class& classe_trovata = *(*(it));
 		t_attribute_property* temp_attribute_property;
 		std::vector<t_attribute_property*>::iterator attr_prop_it;
@@ -1872,7 +1872,7 @@ CORBA::Any*  FileDatabase :: DbPutClassAttributeProperty(CORBA::Any& send)
 
 			}
 			index++;
-			sscanf((*data_in)[index],"%d",&num_prop); index++;
+			sscanf((*data_in)[index],"%6d",&num_prop); index++;
 			for (unsigned int i = 0; i < num_prop; i++)
 			{
 				bool exist = false;
@@ -1883,7 +1883,7 @@ CORBA::Any*  FileDatabase :: DbPutClassAttributeProperty(CORBA::Any& send)
 						index++;
 						temp_attribute_property->properties[k]->value.erase(temp_attribute_property->properties[k]->value.begin(),
                                                         temp_attribute_property->properties[k]->value.begin()+temp_attribute_property->properties[k]->value.size());
-						sscanf((*data_in)[index],"%d",&num_vals); index++;
+						sscanf((*data_in)[index],"%6d",&num_vals); index++;
 						for(unsigned int n = 0; n < num_vals; n++)
 						{
 							temp_attribute_property->properties[k]->value.push_back(string((*data_in)[index])); index++;
@@ -1903,7 +1903,7 @@ CORBA::Any*  FileDatabase :: DbPutClassAttributeProperty(CORBA::Any& send)
 					t_property* new_prop = new t_property;
 					new_prop->name = (*data_in)[index]; index++;
 
-					sscanf((*data_in)[index],"%d",&num_vals); index++;
+					sscanf((*data_in)[index],"%6d",&num_vals); index++;
 					for(unsigned int n = 0; n < num_vals; n++)
 					{
 						new_prop->value.push_back(string((*data_in)[index])); index++;

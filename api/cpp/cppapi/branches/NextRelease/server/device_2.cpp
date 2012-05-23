@@ -579,7 +579,7 @@ throw (Tango::DevFailed, CORBA::SystemException)
 
 				bool found;
 				vector<long> poll_period;
-				if (non_polled.size() != 0)
+				if (non_polled.empty() == false)
 				{
 
 //
@@ -1248,7 +1248,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 				attr.get_properties_2((*back)[i]);
 			}
 		}
-		catch (Tango::DevFailed e)
+		catch (Tango::DevFailed &)
 		{
 			delete back;
 			throw;

@@ -74,6 +74,8 @@ PollThread::PollThread(PollThCmd &cmd,TangoMonitor &m,bool heartbeat): shared_cm
 					    attr_names(1),tune_ctr(1),
 					    need_two_tuning(false),auto_upd(-1),send_heartbeat(heartbeat)
 {
+    local_cmd.cmd_pending = false;
+
 	attr_names.length(1);
 
 	cci = 0;
@@ -393,7 +395,7 @@ void PollThread::execute_cmd()
 					}
 				}
 			}
-			ite++;
+			++ite;
 		}
 #else
 		works.remove_if(pred);
@@ -444,7 +446,7 @@ void PollThread::execute_cmd()
 				ite = works.erase(ite);
 			}
 			else
-				ite++;
+				++ite;
 		}
 		nb_elt = ext_trig_works.size();
 		et_ite = ext_trig_works.begin();
@@ -455,7 +457,7 @@ void PollThread::execute_cmd()
 				et_ite = ext_trig_works.erase(et_ite);
 			}
 			else
-				et_ite++;
+				++et_ite;
 		}
 #else
 		works.remove_if(pred_dev);
@@ -517,7 +519,7 @@ void PollThread::execute_cmd()
 							}
 						}
 					}
-					ite++;
+					++ite;
 				}
 #else
 				works.remove_if(pred);
@@ -553,7 +555,7 @@ void PollThread::execute_cmd()
 							}
 						}
 					}
-					ite++;
+					++ite;
 				}
 #else
 				works.remove_if(pred);
@@ -651,7 +653,7 @@ void PollThread::execute_cmd()
 				works.erase(ite);
 				break;
 			}
-			ite++;
+			++ite;
 		}
 		break;
 
@@ -893,7 +895,7 @@ void PollThread::print_list()
           		<< "," << setw(6) << setfill('0')
           		<< ite->wake_up_date.tv_usec << endl;
 		}
-		ite++;
+		++ite;
 	}
 }
 
@@ -912,7 +914,7 @@ void PollThread::print_list()
 void PollThread::insert_in_list(WorkItem &new_work)
 {
 	list<WorkItem>::iterator ite;
-	for (ite = works.begin();ite != works.end();ite++)
+	for (ite = works.begin();ite != works.end();++ite)
 	{
 		if (ite->wake_up_date.tv_sec < new_work.wake_up_date.tv_sec)
 			continue;
@@ -970,12 +972,12 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 // period
 //
 
-	unsigned long needed_sum = 0;
-	unsigned long min_upd = 0;
-	long max_delta_needed;
-
 	if (from_needed == true)
 	{
+        unsigned long needed_sum = 0;
+        unsigned long min_upd = 0;
+        long max_delta_needed;
+
 		for (ite = works.begin();ite != works.end();++ite)
 		{
 			long needed_time_usec = (ite->needed_time.tv_sec * 1000000) + ite->needed_time.tv_usec;

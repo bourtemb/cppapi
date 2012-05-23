@@ -114,22 +114,9 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 	ext = new Attribute::AttributeExt();
 	ext->idx_in_attr = idx;
 	ext->d_name = dev_name;
-	ext->dev = NULL;
 
-	ext->change_event_implmented = false;
-	ext->check_change_event_criteria = true;
-	ext->archive_event_implmented = false;
-	ext->check_archive_event_criteria = true;
-	ext->dr_event_implmented = false;
-
-	ext->event_periodic_client_3 = false;
-	ext->event_change_client_3 = false;
-	ext->event_archive_client_3 = false;
-	ext->event_user_client_3 = false;
 
 	ext->attr_serial_model = ATTR_BY_KERNEL;
-	ext->user_attr_mutex = NULL;
-
 	ext->scalar_str_attr_release = false;
 
 //
@@ -1482,7 +1469,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 //
 //--------------------------------------------------------------------------
 
-void Attribute::add_startup_exception(string prop_name,const DevFailed except)
+void Attribute::add_startup_exception(string prop_name,const DevFailed &except)
 {
 	ext->startup_exceptions.insert(pair<string,const DevFailed>(prop_name,except));
 	ext->check_startup_exceptions = true;
@@ -1507,7 +1494,7 @@ void Attribute::delete_startup_exception(string prop_name)
 		map<string,const DevFailed>::iterator it = ext->startup_exceptions.find(prop_name);
 		if(it != ext->startup_exceptions.end())
 			ext->startup_exceptions.erase(it);
-		if(ext->startup_exceptions.size() == 0)
+		if(ext->startup_exceptions.empty() == true)
 			ext->check_startup_exceptions = false;
 
         DeviceImpl *dev = get_att_device();
@@ -4630,7 +4617,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 		{
 			upd_database(conf,dev_name);
 		}
-		catch(DevFailed &db_except)
+		catch(DevFailed &)
 		{
 
 //
@@ -4658,10 +4645,10 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 							  (const char *)"Attribute::set_upd_properties()");
 			}
 
-			throw db_except;
+			throw;
 		}
 	}
-	catch(DevFailed &except)
+	catch(DevFailed &)
 	{
 
 //
@@ -4671,7 +4658,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 
 		if(is_startup_exception == false && ext->startup_exceptions_clear == true)
 			set_properties(old_conf,dev_name);
-		throw except;
+		throw;
 	}
 }
 

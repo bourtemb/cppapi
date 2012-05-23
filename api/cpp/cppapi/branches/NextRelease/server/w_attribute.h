@@ -810,7 +810,10 @@ private:
     class WAttributeExt
     {
     public:
-        WAttributeExt() {}
+        WAttributeExt():long64_ptr(NULL),ulong_ptr(NULL),
+                        ulong64_ptr(NULL),state_ptr(NULL),
+                        uswv(false)
+                        {}
 
         Tango::DevLong64			long64_val;
         Tango::DevLong64			old_long64_val;

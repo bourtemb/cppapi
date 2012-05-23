@@ -2165,7 +2165,15 @@ protected:
     class AttributeExt
     {
     public:
-        AttributeExt() : check_startup_exceptions(false), startup_exceptions_clear(true) {}
+        AttributeExt() : poll_period(0),event_period(0),archive_period(0),
+                         last_periodic(0.0),archive_last_periodic(0.0),periodic_counter(0),
+                         archive_periodic_counter(0),archive_last_event(0.0),
+                         dev(NULL),change_event_implmented(false),archive_event_implmented(false),
+                         check_change_event_criteria(true),check_archive_event_criteria(true),
+                         event_periodic_client_3(false),event_change_client_3(false),event_archive_client_3(false),
+                         event_user_client_3(false),user_attr_mutex(NULL),dr_event_implmented(false),
+                         scalar_str_attr_release(false),notifd_event(false),zmq_event(false),
+                         check_startup_exceptions(false), startup_exceptions_clear(true) {}
 
         Tango::DispLevel 	disp_level;						// Display level
         long				poll_period;					// Polling period
@@ -2235,7 +2243,7 @@ protected:
 	template <typename T>
     void check_hard_coded_properties(const T &);
 
-	void add_startup_exception(string,const DevFailed);
+	void add_startup_exception(string,const DevFailed &);
 	void delete_startup_exception(string);
 
     void throw_hard_coded_prop(const char *);
@@ -2332,7 +2340,7 @@ inline void Attribute::throw_startup_exception(const char* origin)
 			else
 				err_msg += "\nSetting a valid value (also 'NaN', 'Not specified' and '' - empty string) for any property for this attribute will automatically bring the above-listed properties to their library defaults";
 		}
-		else if(event_exceptions.size() > 0)
+		else if(event_exceptions.empty() == false)
 		{
 			if(opt_exceptions.size() == 1)
 				err_msg += "\nSetting valid value (also 'NaN', 'Not specified' and '' - empty string) for " + opt_exceptions[0] + " ";

@@ -101,7 +101,7 @@ Tango::DevVarStringArray *DServer::polled_device()
 // Return an empty sequence if no devices are polled
 //
 
-	if (dev_name.size() == 0)
+	if (dev_name.empty() == true)
 	{
 		Tango::DevVarStringArray *ret = new Tango::DevVarStringArray();
 		ret->length(0);
@@ -705,7 +705,6 @@ void DServer::add_obj_polling(const Tango::DevVarLongStringArray *argin,
 //
 
 	cout4 << "Sending cmd to polling thread" << endl;
-	int interupted;
 
 	TangoMonitor &mon = th_info->poll_mon;
 	PollThCmd &shared_cmd = th_info->shared_data;
@@ -739,7 +738,7 @@ void DServer::add_obj_polling(const Tango::DevVarLongStringArray *argin,
 		{
 			while (shared_cmd.cmd_pending == true)
 			{
-				interupted = mon.wait(DEFAULT_TIMEOUT);
+				int interupted = mon.wait(DEFAULT_TIMEOUT);
 				if ((shared_cmd.cmd_pending == true) && (interupted == false))
 				{
 					cout4 << "TIME OUT" << endl;
@@ -1363,7 +1362,6 @@ void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db
 //
 
 		cout4 << "Sending cmd to polling thread" << endl;
-		int interupted;
 		TangoMonitor &mon = th_info->poll_mon;
 		PollThCmd &shared_cmd = th_info->shared_data;
 
@@ -1398,7 +1396,7 @@ void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db
 			{
 				while (shared_cmd.cmd_pending == true)
 				{
-					interupted = mon.wait(DEFAULT_TIMEOUT);
+					int interupted = mon.wait(DEFAULT_TIMEOUT);
 					if ((shared_cmd.cmd_pending == true) && (interupted == false))
 					{
 						cout4 << "TIME OUT" << endl;
@@ -1484,7 +1482,7 @@ void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db
 			if (update_needed == false)
 			{
 				vector<string> &non_auto_cmd = dev->get_non_auto_polled_cmd();
-				for (s_ite = non_auto_cmd.begin();s_ite < non_auto_cmd.end();s_ite++)
+				for (s_ite = non_auto_cmd.begin();s_ite < non_auto_cmd.end();++s_ite)
 				{
 					if (TG_strcasecmp((*s_ite).c_str(),obj_name.c_str()) == 0)
 						break;
@@ -1517,7 +1515,7 @@ void DServer::rem_obj_polling(const Tango::DevVarStringArray *argin,bool with_db
 			if (update_needed == false)
 			{
 				vector<string> &non_auto_attr = dev->get_non_auto_polled_attr();
-				for (s_ite = non_auto_attr.begin();s_ite < non_auto_attr.end();s_ite++)
+				for (s_ite = non_auto_attr.begin();s_ite < non_auto_attr.end();++s_ite)
 				{
 					if (TG_strcasecmp((*s_ite).c_str(),obj_name.c_str()) == 0)
 						break;
@@ -1725,7 +1723,6 @@ void DServer::start_polling()
 // Send command to the polling thread(s) and wait for its execution
 //
 
-	int interupted;
 	Tango::Util *tg = Tango::Util::instance();
 
 	vector<PollingThreadInfo *> &th_info = tg->get_polling_threads_info();
@@ -1749,7 +1746,7 @@ void DServer::start_polling()
 
 			while (shared_cmd.cmd_pending == true)
 			{
-				interupted = mon.wait(DEFAULT_TIMEOUT);
+				int interupted = mon.wait(DEFAULT_TIMEOUT);
 
 				if ((shared_cmd.cmd_pending == true) && (interupted == false))
 				{
@@ -1775,7 +1772,6 @@ void DServer::start_polling(PollingThreadInfo *th_info)
 {
 	TangoMonitor &mon = th_info->poll_mon;
 	PollThCmd &shared_cmd = th_info->shared_data;
-	int interupted;
 
 	{
 		omni_mutex_lock sync(mon);
@@ -1790,7 +1786,7 @@ void DServer::start_polling(PollingThreadInfo *th_info)
 
 		while (shared_cmd.cmd_pending == true)
 		{
-			interupted = mon.wait(DEFAULT_TIMEOUT);
+			int interupted = mon.wait(DEFAULT_TIMEOUT);
 
 			if ((shared_cmd.cmd_pending == true) && (interupted == false))
 			{
@@ -1824,7 +1820,6 @@ void DServer::add_event_heartbeat()
 //
 
 	cout4 << "Sending cmd to polling thread" << endl;
-	int interupted;
 	Tango::Util *tg = Tango::Util::instance();
 
 	TangoMonitor &mon = tg->get_heartbeat_monitor();
@@ -1853,7 +1848,7 @@ void DServer::add_event_heartbeat()
 		{
 			while (shared_cmd.cmd_pending == true)
 			{
-				interupted = mon.wait(DEFAULT_TIMEOUT);
+				int interupted = mon.wait(DEFAULT_TIMEOUT);
 				if ((shared_cmd.cmd_pending == true) && (interupted == false))
 				{
 					cout4 << "TIME OUT" << endl;
@@ -1889,7 +1884,6 @@ void DServer::rem_event_heartbeat()
 //
 
 	cout4 << "Sending cmd to polling thread" << endl;
-	int interupted;
 	Tango::Util *tg = Tango::Util::instance();
 	TangoMonitor &mon = tg->get_heartbeat_monitor();
 	PollThCmd &shared_cmd = tg->get_heartbeat_shared_cmd();
@@ -1917,7 +1911,7 @@ void DServer::rem_event_heartbeat()
 		{
 			while (shared_cmd.cmd_pending == true)
 			{
-				interupted = mon.wait(DEFAULT_TIMEOUT);
+				int interupted = mon.wait(DEFAULT_TIMEOUT);
 				if ((shared_cmd.cmd_pending == true) && (interupted == false))
 				{
 					cout4 << "TIME OUT" << endl;
@@ -1963,7 +1957,7 @@ void DServer::check_upd_authorized(DeviceImpl *dev,int upd,PollObjType obj_type,
 	vector<string>::iterator ite = find(v_ptr->begin(),v_ptr->end(),obj_name);
 	if (ite != v_ptr->end())
 	{
-		ite++;
+		++ite;
 		TangoSys_MemStream s;
 		s << *ite;
 		if ((s >> min_upd) == false)

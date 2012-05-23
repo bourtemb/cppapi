@@ -179,7 +179,7 @@ MultiAttribute::MultiAttribute(string &dev_name,DeviceClass *dev_class_ptr)
 
 			if (tg->_UseDb == true)
 			{
-				long nb_prop;
+				long nb_prop = 0;
 				db_list[ind] >> nb_prop;
 				ind++;
 
@@ -556,8 +556,6 @@ void MultiAttribute::add_attribute(string &dev_name,
 		}
 	}
 
-	long ind = 0;
-
 //
 // Get attribute class properties
 //
@@ -575,6 +573,7 @@ void MultiAttribute::add_attribute(string &dev_name,
 
 	if (tg->_UseDb == true)
 	{
+	    long ind = 0;
 		long nb_prop = 0;
 		db_list[ind] >> nb_prop;
 		ind++;

@@ -789,6 +789,8 @@ private:
         {shared_data.cmd_pending=false;shared_data.trigger=false;
         cr_py_lock = new CreatePyLock();}
 
+        ~UtilExt() {delete cr_py_lock;}
+
         vector<string>				cmd_line_name_list;
 
         PollThread					*heartbeat_th;			// The heartbeat thread object

@@ -631,10 +631,10 @@ void ZmqEventSupplier::push_heartbeat_event()
 // seconds will be 9 even if in reality it is 9,9
 //
 
-    int nb_event = 1;
-
 	if (delta_time >= 8)
 	{
+	    int nb_event = 1;
+
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): detected heartbeat event for " << heartbeat_event_name << endl;
 		cout3 << "ZmqEventSupplier::push_heartbeat_event(): delta _time " << delta_time << endl;
 

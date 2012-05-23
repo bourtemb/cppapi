@@ -104,7 +104,7 @@ CORBA::Any *DevRestartCmd::execute(DeviceImpl *device, const CORBA::Any &in_any)
 // call DServer method which implements this command
 //
 
-	((DServer *)device)->restart(d_name);
+	(static_cast<DServer *>(device))->restart(d_name);
 
 //
 // return to the caller
@@ -147,7 +147,7 @@ CORBA::Any *DevRestartServerCmd::execute(DeviceImpl *device,TANGO_UNUSED(const C
 // call DServer method which implements this command
 //
 
-	((DServer *)device)->restart_server();
+	(static_cast<DServer *>(device))->restart_server();
 
 //
 // return to the caller
@@ -193,7 +193,7 @@ CORBA::Any *DevQueryClassCmd::execute(DeviceImpl *device,TANGO_UNUSED(const CORB
 // call DServer method which implements this command
 //
 
-	Tango::DevVarStringArray *ret = ((DServer *)device)->query_class();
+	Tango::DevVarStringArray *ret = (static_cast<DServer *>(device))->query_class();
 
 //
 // return data to the caller
@@ -254,7 +254,7 @@ CORBA::Any *DevQueryDeviceCmd::execute(DeviceImpl *device,TANGO_UNUSED(const COR
 // call DServer method which implements this command
 //
 
-	Tango::DevVarStringArray *ret = ((DServer *)device)->query_device();
+	Tango::DevVarStringArray *ret = (static_cast<DServer *>(device))->query_device();
 
 //
 // return data to the caller
@@ -313,7 +313,7 @@ CORBA::Any *DevQuerySubDeviceCmd::execute(DeviceImpl *device,TANGO_UNUSED(const 
 // call DServer method which implements this command
 //
 
-	Tango::DevVarStringArray *ret = ((DServer *)device)->query_sub_device();
+	Tango::DevVarStringArray *ret = (static_cast<DServer *>(device))->query_sub_device();
 
 //
 // return data to the caller
@@ -373,7 +373,7 @@ CORBA::Any *DevKillCmd::execute(DeviceImpl *device,TANGO_UNUSED(const CORBA::Any
 // call DServer method which implements this command
 //
 
-	((DServer *)device)->kill();
+	(static_cast<DServer *>(device))->kill();
 
 //
 // return to the caller
@@ -750,7 +750,7 @@ CORBA::Any *QueryWizardClassPropertyCmd::execute(DeviceImpl *device,const CORBA:
 // call DServer method which implements this command
 //
 
-	Tango::DevVarStringArray *ret = ((DServer *)device)->query_class_prop(class_name);
+	Tango::DevVarStringArray *ret = (static_cast<DServer *>(device))->query_class_prop(class_name);
 
 //
 // return data to the caller
@@ -827,7 +827,7 @@ CORBA::Any *QueryWizardDevPropertyCmd::execute(DeviceImpl *device,const CORBA::A
 // call DServer method which implements this command
 //
 
-	Tango::DevVarStringArray *ret = ((DServer *)device)->query_dev_prop(class_name);
+	Tango::DevVarStringArray *ret = (static_cast<DServer *>(device))->query_dev_prop(class_name);
 
 //
 // return data to the caller
@@ -969,7 +969,7 @@ CORBA::Any *LockDeviceCmd::execute(DeviceImpl *device,const CORBA::Any &in_any)
 // call DServer method which implements this command
 //
 
-	((DServer *)device)->lock_device(in_data);
+	(static_cast<DServer *>(device))->lock_device(in_data);
 
 //
 // return data to the caller
@@ -1022,7 +1022,7 @@ CORBA::Any *ReLockDevicesCmd::execute(DeviceImpl *device,const CORBA::Any &in_an
 // call DServer method which implements this command
 //
 
-	((DServer *)device)->re_lock_devices(in_data);
+	(static_cast<DServer *>(device))->re_lock_devices(in_data);
 
 //
 // return data to the caller
@@ -1077,7 +1077,7 @@ CORBA::Any *UnLockDeviceCmd::execute(DeviceImpl *device,const CORBA::Any &in_any
 // call DServer method which implements this command
 //
 
-	Tango::DevLong ret = ((DServer *)device)->un_lock_device(in_data);
+	Tango::DevLong ret = (static_cast<DServer *>(device))->un_lock_device(in_data);
 
 //
 // return data to the caller
@@ -1145,7 +1145,7 @@ CORBA::Any *DevLockStatusCmd::execute(DeviceImpl *device,const CORBA::Any &in_an
 // call DServer method which implements this command
 //
 
-	Tango::DevVarLongStringArray *ret = ((DServer *)device)->dev_lock_status(in_data);
+	Tango::DevVarLongStringArray *ret = (static_cast<DServer *>(device))->dev_lock_status(in_data);
 
 //
 // return to the caller
@@ -1251,7 +1251,7 @@ CORBA::Any *EventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,const 
 // call DServer method which implements this command
 //
 
-	Tango::DevLong ret = ((DServer *)device)->event_subscription_change(in_data);
+	Tango::DevLong ret = (static_cast<DServer *>(device))->event_subscription_change(in_data);
 
 //
 // return to the caller
@@ -1355,7 +1355,7 @@ CORBA::Any *ZmqEventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,con
 // call DServer method which implements this command
 //
 
-	Tango::DevVarLongStringArray *ret = ((DServer *)device)->zmq_event_subscription_change(in_data);
+	Tango::DevVarLongStringArray *ret = (static_cast<DServer *>(device))->zmq_event_subscription_change(in_data);
 
 //
 // return to the caller

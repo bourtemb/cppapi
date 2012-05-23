@@ -945,11 +945,8 @@ bool EventSupplier::detect_change(Attribute &attr,struct AttributeData &attr_val
     const DevVarULongArray *curr_seq_ulo, *prev_seq_ulo;
     const DevVarULong64Array *curr_seq_u64, *prev_seq_u64;
     const DevVarStateArray *curr_seq_state, *prev_seq_state;
-    DevState curr_sta, prev_sta;
 
     double rel_change[2], abs_change[2];
-    unsigned int i;
-    unsigned int curr_seq_nb,prev_seq_nb;
     bool inited;
     CORBA::TypeCode_var ty;
     delta_change_rel = delta_change_abs = 0;
@@ -984,6 +981,9 @@ bool EventSupplier::detect_change(Attribute &attr,struct AttributeData &attr_val
     {
         if (enable_check == true)
         {
+            unsigned int curr_seq_nb,prev_seq_nb;
+            unsigned int i;
+
 			if (the_new_any != NULL)
 				ty = the_new_any->type();
 
@@ -1073,6 +1073,7 @@ bool EventSupplier::detect_change(Attribute &attr,struct AttributeData &attr_val
 
             else
             {
+                DevState curr_sta, prev_sta;
                 bool dev_state_type = false;
                 if ((attr_value.attr_val_4 != NULL) && (attr_value.attr_val_4->value._d() == DEVICE_STATE))
                 {

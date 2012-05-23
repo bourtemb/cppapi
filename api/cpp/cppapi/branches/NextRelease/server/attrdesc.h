@@ -521,8 +521,14 @@ private:
     class AttrExt
     {
     public:
-        AttrExt():poll_period(0),cl_name("Attr") {disp_level = Tango::OPERATOR;}
-        AttrExt(DispLevel level):poll_period(0),cl_name("Attr") {disp_level = level;}
+        AttrExt():poll_period(0),fire_change_event(false),fire_archive_event(false),
+                  check_change_event(false),check_archive_event(false),
+                  fire_dr_event(false),cl_name("Attr")
+                  {disp_level = Tango::OPERATOR;}
+        AttrExt(DispLevel level):poll_period(0),fire_change_event(false),fire_archive_event(false),
+                                 check_change_event(false),check_archive_event(false),
+                                 fire_dr_event(false),cl_name("Attr")
+                                 {disp_level = level;}
 
         Tango::DispLevel	disp_level;			// Display  level
         long				poll_period;		// Polling period

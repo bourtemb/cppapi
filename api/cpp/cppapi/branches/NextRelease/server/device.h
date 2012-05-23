@@ -3476,11 +3476,10 @@ private:
     {
     public:
 #ifdef TANGO_HAS_LOG4TANGO
-        DeviceImplExt(const char *d_name): exported(false),
-        polled(false),
-        poll_ring_depth(0),only_one(d_name),
-        logger(0),saved_log_level(log4tango::Level::WARN),
-        rft(Tango::kDefaultRollingThreshold),
+        DeviceImplExt(const char *d_name): exported(false),polled(false),
+        poll_ring_depth(0),poll_old_factor(0),only_one(d_name),
+        logger(NULL),saved_log_level(log4tango::Level::WARN),
+        rft(Tango::kDefaultRollingThreshold),idl_version(1),
         store_in_bb(true),poll_mon("cache"),
         att_conf_mon("att_config"),state_from_read(false),
         py_device(false),
@@ -3512,7 +3511,7 @@ private:
 #ifdef TANGO_HAS_LOG4TANGO
         log4tango::Logger* 	logger;
         log4tango::Level::Value saved_log_level;
-        size_t rft;
+        size_t              rft;
 #endif
         string				device_name_lower;
         long				idl_version;

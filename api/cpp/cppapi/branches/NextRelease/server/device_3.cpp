@@ -361,7 +361,6 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 
 		for (i = 0;i < nb_names;i++)
 		{
-			long j;
 			AttIdx x;
 			x.idx_in_names = i;
 			string att_name(names[i]);
@@ -387,6 +386,8 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 			{
 				try
 				{
+				    long j;
+
 					j = dev_attr->get_attr_ind_by_name(names[i]);
 					if ((dev_attr->get_attr_by_ind(j).get_writable() == Tango::READ_WRITE) ||
 				    	(dev_attr->get_attr_by_ind(j).get_writable() == Tango::READ_WITH_WRITE))
@@ -483,7 +484,7 @@ void Device_3Impl::read_attributes_no_except(const Tango::DevVarStringArray& nam
 					add_alarmed(tmp_idx);
 			}
 
-			if (tmp_idx.size() != 0)
+			if (tmp_idx.empty() == false)
 				read_attr_hardware(tmp_idx);
 		}
 
@@ -1135,7 +1136,7 @@ void Device_3Impl::read_attributes_from_cache(const Tango::DevVarStringArray& na
 	vector<long> poll_period;
 	unsigned long not_polled_attr = 0;
 
-	if (non_polled.size() != 0)
+	if (non_polled.empty() == false)
 	{
 
 //
@@ -1844,7 +1845,7 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 				att.set_written_date();
 		}
 
-		if ((Tango::Util::_UseDb == true) && (att_in_db.size() != 0))
+		if ((Tango::Util::_UseDb == true) && (att_in_db.empty() == false))
 		{
 			try
 			{
@@ -2200,7 +2201,7 @@ throw(Tango::DevFailed, CORBA::SystemException)
 				attr.get_properties_3((*back)[i]);
 			}
 		}
-		catch (Tango::DevFailed e)
+		catch (Tango::DevFailed &)
 		{
 			delete back;
 			throw;

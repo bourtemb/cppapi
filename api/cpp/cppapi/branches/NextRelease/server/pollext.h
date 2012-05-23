@@ -158,8 +158,8 @@ public:
 
 // For error
 
-	AttrData(DevErrorList &e): err(e)
-	{}
+	AttrData(DevErrorList &e): ptr(NULL),x(0),y(0),release(false),err(e),
+                               wr_x(0),wr_y(0),wr_ptr(NULL) {}
 };
 
 
@@ -846,10 +846,10 @@ template <typename T>
 class TimedCmdData
 {
 public:
-	T		*ptr;
+	T		        *ptr;
 	DevErrorList	err;
 	struct timeval	t_val;
-	bool		release;
+	bool		    release;
 
 /**@name Constructors
  * Miscellaneous constructors
@@ -884,7 +884,7 @@ public:
  * @param p_data Pointer to the command result data
  * @param when The date
  */
-	TimedCmdData(T *p_data,struct timeval when): ptr(p_data),t_val(when) {}
+	TimedCmdData(T *p_data,struct timeval when): ptr(p_data),t_val(when),release(false) {}
 
 /**
  * Create a new TimedCmdData object with memory management.
@@ -910,7 +910,7 @@ public:
  * @param errs The error stack
  * @param when The date
  */
-	TimedCmdData(DevErrorList errs,time_t when): err(errs) {t_val.tv_sec = when;t_val.tv_usec = 0;}
+	TimedCmdData(DevErrorList errs,time_t when): ptr(NULL),err(errs),release(false) {t_val.tv_sec = when;t_val.tv_usec = 0;}
 /**
  * Create a new TimedCmdData object for errors.
  *
@@ -920,7 +920,7 @@ public:
  * @param errs The error stack
  * @param when The date
  */
-	TimedCmdData(DevErrorList errs,timeval when): err(errs),t_val(when) {}
+	TimedCmdData(DevErrorList errs,timeval when): ptr(NULL),err(errs),t_val(when),release(false) {}
 
 //@}
 };

@@ -1381,10 +1381,14 @@ Util::~Util()
 		orb->shutdown(true);
 		//JM : 9.8.2005 : destroy() should be called at the exit of run()!
 		//orb->destroy();
-#ifdef TANGO_HAS_LOG4TANGO
+    #ifdef TANGO_HAS_LOG4TANGO
 	  	Logging::cleanup();
-#endif
+    #endif
 	}
+#endif
+
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
 #endif
 }
 

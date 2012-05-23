@@ -222,7 +222,6 @@ void DeviceImpl::real_ctor()
 
 void DeviceImpl::stop_polling(bool with_db_upd)
 {
-	int interupted;
 	Tango::Util *tg = Tango::Util::instance();
 
 //
@@ -272,7 +271,7 @@ void DeviceImpl::stop_polling(bool with_db_upd)
 
 		while (shared_cmd.cmd_pending == true)
 		{
-			interupted = mon.wait(DEFAULT_TIMEOUT);
+			int interupted = mon.wait(DEFAULT_TIMEOUT);
 
 			if ((shared_cmd.cmd_pending == true) && (interupted == false))
 			{

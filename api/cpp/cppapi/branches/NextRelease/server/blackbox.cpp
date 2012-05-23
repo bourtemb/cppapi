@@ -316,8 +316,8 @@ void BlackBox::insert_cmd_cl_ident(const char *cmd,const ClntIdent &cl_id,long v
 // and into the box
 //
 
-	add_cl_ident(cl_id,(client_addr *)ip);
-	update_client_host((client_addr *)ip);
+	add_cl_ident(cl_id,static_cast<client_addr *>(ip));
+	update_client_host(static_cast<client_addr *>(ip));
 
 	sync.unlock();
 }
@@ -429,8 +429,8 @@ void BlackBox::insert_op(BlackBoxElt_OpType op,const ClntIdent &cl_id)
 // and into the box
 //
 
-	add_cl_ident(cl_id,(client_addr *)ip);
-	update_client_host((client_addr *)ip);
+	add_cl_ident(cl_id,static_cast<client_addr *>(ip));
+	update_client_host(static_cast<client_addr *>(ip));
 
 	sync.unlock();
 }
@@ -642,8 +642,8 @@ void BlackBox::insert_attr(const Tango::DevVarStringArray &names,const ClntIdent
 // and into the box
 //
 
-	add_cl_ident(cl_id,(client_addr *)ip);
-	update_client_host((client_addr *)ip);
+	add_cl_ident(cl_id,static_cast<client_addr *>(ip));
+	update_client_host(static_cast<client_addr *>(ip));
 
 //
 // Release mutex
@@ -684,8 +684,8 @@ void BlackBox::insert_attr(const Tango::AttributeValueList_4 &att_list, const Cl
 // and into the box
 //
 
-	add_cl_ident(cl_id,(client_addr *)ip);
-	update_client_host((client_addr *)ip);
+	add_cl_ident(cl_id,static_cast<client_addr *>(ip));
+	update_client_host(static_cast<client_addr *>(ip));
 
 	sync.unlock();
 }
@@ -818,8 +818,8 @@ void BlackBox::insert_wr_attr(const Tango::AttributeValueList_4 &att_list, const
 // and into the box
 //
 
-	add_cl_ident(cl_id,(client_addr *)ip);
-	update_client_host((client_addr *)ip);
+	add_cl_ident(cl_id,static_cast<client_addr *>(ip));
+	update_client_host(static_cast<client_addr *>(ip));
 
 	sync.unlock();
 }
@@ -918,7 +918,7 @@ void BlackBox::get_client_host()
             strcpy(box[insert_elt].host_ip_str,"polling");
     }
 	else
-		strcpy(box[insert_elt].host_ip_str,((client_addr *)(ip))->client_ip);
+		strcpy(box[insert_elt].host_ip_str,(static_cast<client_addr *>(ip))->client_ip);
 }
 
 //+-------------------------------------------------------------------------

@@ -115,13 +115,11 @@ AttrProperty::AttrProperty(const char *name,const char *value):attr_name(name),
 	}
 }
 
-AttrProperty::AttrProperty(const char *name,long value):attr_name(name),
-							attr_lg(value)
+AttrProperty::AttrProperty(const char *name,long value):attr_name(name),attr_lg(value)
 {
 }
 
-AttrProperty::AttrProperty(const char *name,string &value):attr_name(name),
-							   attr_value(value)
+AttrProperty::AttrProperty(const char *name,string &value):attr_name(name),attr_value(value),attr_lg(0)
 {
 }
 
@@ -261,7 +259,7 @@ void MultiClassAttribute::init_class_attribute(string &class_name,long base)
 			vector<AttrProperty> prop_list;
 
 			string attr_name = db_list[ind].name;
-			long nb_prop;
+			long nb_prop = 0;
 			db_list[ind] >> nb_prop;
 
 			ind++;

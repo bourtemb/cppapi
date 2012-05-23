@@ -183,7 +183,7 @@ void Logging::init (const std::string& ds_name, // dserver name
         Logging::_rft = kDefaultRollingThreshold;
         // set rolling file threshold
         if (db_data[1].is_empty() == false) {
-          unsigned long rtf;
+          unsigned long rtf = 0;
           db_data[1] >> rtf;
           Logging::_rft = static_cast<size_t>(rtf);
           if (rtf <  kMinRollingThreshold) {
@@ -273,10 +273,6 @@ void Logging::add_logging_target (const Tango::DevVarStringArray *argin)
     }
     // device name pattern
     std::string pattern;
-    // target type
-    std::string tg_type;
-    // target name
-    std::string tg_name;
     // the device list (devices which name matches pattern)
     std::vector<DeviceImpl*> dl;
     // for each tuple{dev_name, target_type, target_name} in argin
@@ -911,8 +907,6 @@ void Logging::kill_zombie_appenders (void)
   std::vector<DeviceImpl*> dl(0);
   dl = Util::instance()->get_device_list("*");
   // for each device in <dl>
-  std::string dprefix;
-  std::string fprefix;
   log4tango::AppenderList al;
   log4tango::Logger *logger = 0;
   unsigned int i, j;
