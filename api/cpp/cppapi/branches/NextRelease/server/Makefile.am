@@ -126,7 +126,8 @@ tangoinclude_HEADERS = attrdesc.h		\
 		  		  w_attribute.h		\
 				  attribute.tpp     \
 				  utils.tpp         \
-				  w_attribute.tpp
+				  w_attribute.tpp	\
+				  attrprop.tpp
 
 
 
