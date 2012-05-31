@@ -219,11 +219,39 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
         if (items[1].revents & ZMQ_POLLIN)
         {
 //cout << "For the heartbeat socket" << endl;
-            heartbeat_sub_sock->recv(&received_event_name);
-            heartbeat_sub_sock->recv(&received_endian);
-            heartbeat_sub_sock->recv(&received_call);
+            bool res;
+            try
+            {
+                res = heartbeat_sub_sock->recv(&received_event_name);
+                if (res == false)
+                {
+                    cerr << "First Zmq recv call on heartbeat socket returned false!" << endl;
+                    continue;
+                }
 
-            process_heartbeat(received_event_name,received_endian,received_call);
+                res = heartbeat_sub_sock->recv(&received_endian);
+                if (res == false)
+                {
+                    cerr << "Second Zmq recv call on heartbeat socket returned false!" << endl;
+                    continue;
+                }
+
+                res = heartbeat_sub_sock->recv(&received_call);
+                if (res == false)
+                {
+                    cerr << "Third Zmq recv call on heartbeat socket returned false!" << endl;
+                    continue;
+                }
+
+                process_heartbeat(received_event_name,received_endian,received_call);
+            }
+            catch (zmq::error_t &e)
+            {
+                cerr << "Zmq exception while receiving heartbeat data!" << endl;
+                cerr << "Error number: " << e.num() << ", error message: " << e.what() << endl;
+                items[1].revents = 0;
+                continue;
+            }
 
             items[1].revents = 0;
         }
@@ -276,12 +304,46 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
         if (items[2].revents & ZMQ_POLLIN)
         {
 //cout << "For the event socket" << endl;
-            event_sub_sock->recv(&received_event_name);
-            event_sub_sock->recv(&received_endian);
-            event_sub_sock->recv(&received_call);
-            event_sub_sock->recv(&received_event_data);
+            bool res;
+            try
+            {
+                res = event_sub_sock->recv(&received_event_name);
+                if (res == false)
+                {
+                    cerr << "First Zmq recv call on event socket returned false!" << endl;
+                    continue;
+                }
 
-            process_event(received_event_name,received_endian,received_call,received_event_data);
+                res = event_sub_sock->recv(&received_endian);
+                if (res == false)
+                {
+                    cerr << "Second Zmq recv call on event socket returned false!" << endl;
+                    continue;
+                }
+
+                res = event_sub_sock->recv(&received_call);
+                if (res == false)
+                {
+                    cerr << "Third Zmq recv call on event socket returned false!" << endl;
+                    continue;
+                }
+
+                res = event_sub_sock->recv(&received_event_data);
+                if (res == false)
+                {
+                    cerr << "Forth Zmq recv call on event socket returned false!" << endl;
+                    continue;
+                }
+
+                process_event(received_event_name,received_endian,received_call,received_event_data);
+            }
+            catch (zmq::error_t &e)
+            {
+                cerr << "Zmq exception while receiving event data!" << endl;
+                cerr << "Error number: " << e.num() << ", error message: " << e.what() << endl;
+                items[2].revents = 0;
+                continue;
+            }
 
             items[2].revents = 0;
         }
