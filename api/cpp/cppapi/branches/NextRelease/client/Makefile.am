@@ -57,4 +57,5 @@ tangoinclude_HEADERS = accessproxy.h		\
 				  eventconsumer.h	\
 		  		  filedatabase.h    \
 		  		  group.h			\
-				  lockthread.h
+				  lockthread.h  \
+				  zmq.hpp
