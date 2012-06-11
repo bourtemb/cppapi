@@ -468,7 +468,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual void read_attr_hardware(vector<long> &attr_list) {};
+	virtual void read_attr_hardware(vector<long> &attr_list) {(void)attr_list;};
 /**
  * Set the attribute read value.
  *
@@ -481,7 +481,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual void read_attr(Attribute &attr) {};
+	virtual void read_attr(Attribute &attr) {(void)attr;};
 /**
  * Write the hardware for attributes.
  *
@@ -498,7 +498,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual void write_attr_hardware(vector<long> &attr_list) {};
+	virtual void write_attr_hardware(vector<long> &attr_list) {(void)attr_list;};
 /**
  * Get device state.
  *

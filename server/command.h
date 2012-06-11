@@ -260,7 +260,7 @@ public:
  * @return A boolean set to true is the command is allowed. Otherwise, the
  * return value is false.
  */
-	virtual bool is_allowed (DeviceImpl *dev, const CORBA::Any &in_any) {return true;}
+	virtual bool is_allowed (DeviceImpl *dev, const CORBA::Any &in_any) {(void)dev;(void)in_any;return true;}
 
 /**
  * Init command parameters type.

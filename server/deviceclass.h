@@ -159,7 +159,7 @@ public:
  * @param list Reference to the device name list
  */
 
-	virtual void device_name_factory(vector<string> &list) {};
+	virtual void device_name_factory(vector<string> &list) {(void)list;};
 
 /**
  * Delete device.
