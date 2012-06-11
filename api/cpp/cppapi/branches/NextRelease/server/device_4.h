@@ -70,6 +70,9 @@ namespace Tango
  *
  * $Author$
  * $Revision$
+ *
+ * @headerfile tango.h
+ * @ingroup Server
  */
 
 class Device_4Impl : public virtual POA_Tango::Device_4,
@@ -334,8 +337,6 @@ public:
     		throw (Tango::MultiDevFailed,Tango::DevFailed, CORBA::SystemException);
 
 //@}
-
-public:
 
 private:
     class Device_4ImplExt

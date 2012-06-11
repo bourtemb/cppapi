@@ -77,6 +77,9 @@ struct AttIdx
  *
  * $Author$
  * $Revision$
+ *
+ * @headerfile tango.h
+ * @ingroup Server
  */
 
 class Device_3Impl : public virtual POA_Tango::Device_3,
@@ -289,10 +292,15 @@ public:
     	virtual void set_attribute_config_3(const Tango::AttributeConfigList_3& new_conf)
     	throw (Tango::DevFailed, CORBA::SystemException);
 //@}
+
+/// @privatesection
 	void write_attributes_in_db(vector<long> &,vector<long> &);
 	void add_state_status_attrs();
+	void read_attributes_from_cache(const Tango::DevVarStringArray&,Tango::AttributeValueList_3 *&,Tango::AttributeValueList_4 *&);
+	void delete_dev() {ext_3->delete_dev();}
 
 protected:
+/// @privatesection
 	void read_attributes_no_except(const Tango::DevVarStringArray&,Tango::AttributeValueList_3 *&,Tango::AttributeValueList_4 *&,bool,vector<long> &);
 	void write_attributes_in_db(vector<long> &,vector<AttIdx> &);
 	void add_alarmed(vector<long> &);
@@ -304,10 +312,6 @@ protected:
 	void alarmed_not_read(vector<AttIdx> &);
 
 	void write_attributes_34(const Tango::AttributeValueList *,const Tango::AttributeValueList_4 *);
-
-public:
-	void read_attributes_from_cache(const Tango::DevVarStringArray&,Tango::AttributeValueList_3 *&,Tango::AttributeValueList_4 *&);
-	void delete_dev() {ext_3->delete_dev();}
 
 private:
 

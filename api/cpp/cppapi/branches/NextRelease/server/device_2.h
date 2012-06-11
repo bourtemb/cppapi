@@ -69,6 +69,9 @@ class DeviceClass;
  *
  * $Author$
  * $Revision$
+ *
+ * @headerfile tango.h
+ * @ingroup Server
  */
 
 class Device_2Impl : public virtual POA_Tango::Device_2,
