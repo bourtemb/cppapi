@@ -62,6 +62,10 @@ namespace Tango
  *
  * $Author$
  * $Revision$
+ *
+ * @headerfile tango.h
+ * @ingroup Server
+ * @ingroup Client
  */
 
 class Except
@@ -1717,10 +1721,13 @@ public:
 
 //@}
 
+/// @privatesection
+
 	static char *print_CORBA_SystemException(const CORBA::SystemException *);
 	static omni_mutex the_mutex;
 
 protected:
+/// @privatesection
 	static char mess[256];
 };
 

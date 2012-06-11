@@ -56,6 +56,7 @@ class EventSupplier;
 class EventSubscriptionChangeCmd;
 class Util;
 
+/** @defgroup Server Server classes */
 
 //=============================================================================
 //
@@ -78,6 +79,9 @@ class Util;
  *
  * $Author$
  * $Revision$
+ *
+ * @headerfile tango.h
+ * @ingroup Server
  */
 
 class DeviceImpl : public virtual POA_Tango::Device
@@ -391,7 +395,7 @@ protected:
  *
  * @param   att_name    The attribute name
  */
-    void stop_poll_attribute(const string &);
+    void stop_poll_attribute(const string &att_name);
 /**
  * Stop polling one command.
  *
@@ -399,7 +403,7 @@ protected:
  *
  * @param   cmd_name    The command name
  */
-    void stop_poll_command(const string &);
+    void stop_poll_command(const string &cmd_name);
 //@}
 
 public:
@@ -464,7 +468,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual void read_attr_hardware(vector<long> &) {};
+	virtual void read_attr_hardware(vector<long> &attr_list) {};
 /**
  * Set the attribute read value.
  *
@@ -477,7 +481,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual void read_attr(Attribute &) {};
+	virtual void read_attr(Attribute &attr) {};
 /**
  * Write the hardware for attributes.
  *
@@ -494,7 +498,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual void write_attr_hardware(vector<long> &) {};
+	virtual void write_attr_hardware(vector<long> &attr_list) {};
 /**
  * Get device state.
  *
@@ -3383,6 +3387,8 @@ protected:
 
 
 public:
+/// @privatesection
+
 	void set_exported_flag(bool exp) {ext->exported = exp;}
 	bool get_exported_flag() {return ext->exported;}
 
@@ -3547,6 +3553,7 @@ private:
 
 
 protected:
+/// @privatesection
 	void check_lock(const char *,const char *cmd = NULL);
 	void throw_locked_exception(const char *meth);
 
