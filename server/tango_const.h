@@ -851,14 +851,21 @@ const char * const DevStateName[] = {
 	"UNKNOWN"
 };
 
+/**
+ * Possible event type
+ *
+ * @ingroup Client
+ * @headerfile tango.h
+ */
+
 enum EventType {
-	CHANGE_EVENT=0,
-	QUALITY_EVENT,
-	PERIODIC_EVENT,
-	ARCHIVE_EVENT,
-	USER_EVENT,
-	ATTR_CONF_EVENT,
-	DATA_READY_EVENT,
+	CHANGE_EVENT=0,         ///< Change event
+	QUALITY_EVENT,          ///< Quality change event (deprecated - do not use)
+	PERIODIC_EVENT,         ///< Periodic event
+	ARCHIVE_EVENT,          ///< Archive event
+	USER_EVENT,             ///< User event
+	ATTR_CONF_EVENT,        ///< attribute configuration change event
+	DATA_READY_EVENT,       ///< Data ready event
 	numEventType
 };
 
