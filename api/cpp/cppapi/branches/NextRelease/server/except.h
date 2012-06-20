@@ -56,6 +56,7 @@ namespace Tango
 
 #define NOSPACEINDOC_EXCEPT
 
+
 /**
  * Container class for all exception related methods. Most of these methods are
  * static methods
