@@ -798,7 +798,7 @@ public:
  *
  * @return The device name
  */
-	virtual char *name() throw (CORBA::SystemException);
+	virtual char *name();
 
 /**
  * Get administrator device name.
@@ -809,7 +809,7 @@ public:
  *
  * @return The device name
  */
-	virtual char *adm_name() throw (CORBA::SystemException);
+	virtual char *adm_name();
 
 /**
  * Get device description.
@@ -820,7 +820,7 @@ public:
  *
  * @return The device description
  */
-	virtual char *description() throw (CORBA::SystemException);
+	virtual char *description();
 
 /**
  * Get device status.
@@ -833,7 +833,7 @@ public:
  *
  * @return The device status
  */
-	virtual char *status() throw (CORBA::SystemException);
+	virtual char *status();
 
 /**
  * Get device state.
@@ -846,7 +846,7 @@ public:
  *
  * @return The device state
  */
-	virtual Tango::DevState state() throw (CORBA::SystemException);
+	virtual Tango::DevState state();
 //@}
 
 
@@ -869,8 +869,7 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	virtual CORBA::Any *command_inout(const char *in_cmd,
-					  const CORBA::Any &in_data)
-	throw (Tango::DevFailed, CORBA::SystemException);
+					  const CORBA::Any &in_data);
 
 /**
  * Get device black box.
@@ -888,8 +887,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual Tango::DevVarStringArray *black_box(CORBA::Long n)
-	throw (Tango::DevFailed, CORBA::SystemException);
+	virtual Tango::DevVarStringArray *black_box(CORBA::Long n);
 
 /**
  * Get device command list.
@@ -901,8 +899,7 @@ public:
  * @return The device command list. One DevCmdInfo is initialised for each
  * device command
  */
-	virtual Tango::DevCmdInfoList *command_list_query()
-	throw (Tango::DevFailed, CORBA::SystemException);
+	virtual Tango::DevCmdInfoList *command_list_query();
 
 /**
  * Get command info.
@@ -918,8 +915,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-	virtual Tango::DevCmdInfo *command_query(const char *command)
-	throw (Tango::DevFailed, CORBA::SystemException);
+	virtual Tango::DevCmdInfo *command_query(const char *command);
 
 /**
  * Get device info.
@@ -930,7 +926,7 @@ public:
  *
  * @return A DevInfo object
  */
-	virtual Tango::DevInfo *info() throw (Tango::DevFailed, CORBA::SystemException);
+	virtual Tango::DevInfo *info();
 
 /**
  * Ping the device to check if it is still alive.
@@ -939,7 +935,7 @@ public:
  * It updates the device black box and simply returns
  *
  */
-	virtual void ping() throw (Tango::DevFailed, CORBA::SystemException);
+	virtual void ping();
 
 /**
  * Get attribute(s) configuration.
@@ -958,8 +954,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual Tango::AttributeConfigList* get_attribute_config(const Tango::DevVarStringArray& names)
-	throw (Tango::DevFailed, CORBA::SystemException);
+    	virtual Tango::AttributeConfigList* get_attribute_config(const Tango::DevVarStringArray& names);
 
 /**
  * Set attribute(s) configuration.
@@ -976,8 +971,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual void set_attribute_config(const Tango::AttributeConfigList& new_conf)
-    	throw (Tango::DevFailed, CORBA::SystemException);
+    	virtual void set_attribute_config(const Tango::AttributeConfigList& new_conf);
 
 /**
  * Read attribute(s) value.
@@ -995,8 +989,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual Tango::AttributeValueList* read_attributes(const Tango::DevVarStringArray& names)
-	throw (Tango::DevFailed, CORBA::SystemException);
+    	virtual Tango::AttributeValueList* read_attributes(const Tango::DevVarStringArray& names);
 
 /**
  * Write attribute(s) value.
@@ -1013,8 +1006,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual void write_attributes(const Tango::AttributeValueList& values)
-	throw (Tango::DevFailed, CORBA::SystemException);
+    	virtual void write_attributes(const Tango::AttributeValueList& values);
 
 //@}
 
@@ -3461,6 +3453,8 @@ public:
 
     void set_run_att_conf_loop(bool val) {ext->run_att_conf_loop=val;}
     vector<string> &get_att_wrong_db_conf() {return ext->att_wrong_db_conf;}
+    void check_att_conf();
+    bool is_alarm_state_forced() {return ext->force_alarm_state;}
 
 #ifdef TANGO_HAS_LOG4TANGO
  	inline log4tango::Logger *get_logger(void)

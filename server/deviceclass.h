@@ -435,6 +435,8 @@ public:
 	bool get_device_factory_done() {return ext->device_factory_done;}
 	void set_device_factory_done(bool val) {ext->device_factory_done = val;}
 
+	void check_att_conf();
+
 protected:
 /// @privatesection
 	Command *get_default_command() {return ext->default_cmd;}

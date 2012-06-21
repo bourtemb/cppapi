@@ -1442,4 +1442,21 @@ Command &DeviceClass::get_cmd_by_name(const string &cmd_name)
 	return *(*pos);
 }
 
+//+----------------------------------------------------------------------------
+//
+// method :		DeviceClass::check_att_conf
+//
+// description :	Get a reference to the Command object
+//
+// in : 	cmd_name : The command name
+//
+//-----------------------------------------------------------------------------
+void DeviceClass::check_att_conf()
+{
+    vector<DeviceImpl *>::iterator ite;
+
+    for (ite = device_list.begin();ite != device_list.end();++ite)
+        (*ite)->check_att_conf();
+}
+
 } // End of Tango namespace

@@ -196,8 +196,7 @@ public:
  * <b>DevFailed</b> exception specification
  */
     	virtual Tango::AttributeValueList_3 *read_attributes_3(const Tango::DevVarStringArray& names,
-							     Tango::DevSource source)
-	throw (Tango::DevFailed, CORBA::SystemException);
+							     Tango::DevSource source);
 
 /**
  * Write attribute(s) value.
@@ -214,8 +213,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual void write_attributes_3(const Tango::AttributeValueList& values)
-	throw (Tango::MultiDevFailed, Tango::DevFailed,CORBA::SystemException);
+    	virtual void write_attributes_3(const Tango::AttributeValueList& values);
 
 /**
  * Read attribute value history.
@@ -238,8 +236,7 @@ public:
  * <b>DevFailed</b> exception specification
  */
 	virtual Tango::DevAttrHistoryList_3 *read_attribute_history_3(const char* name,
-								  CORBA::Long n)
-	throw(Tango::DevFailed, CORBA::SystemException);
+								  CORBA::Long n);
 
 /**
  * Get device info.
@@ -250,7 +247,7 @@ public:
  *
  * @return A DevInfo object
  */
-	virtual Tango::DevInfo_3 *info_3() throw (Tango::DevFailed, CORBA::SystemException);
+	virtual Tango::DevInfo_3 *info_3();
 
 /**
  * Get attribute(s) configuration.
@@ -271,8 +268,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual Tango::AttributeConfigList_3 *get_attribute_config_3(const Tango::DevVarStringArray& names)
-        throw(Tango::DevFailed, CORBA::SystemException);
+    	virtual Tango::AttributeConfigList_3 *get_attribute_config_3(const Tango::DevVarStringArray& names);
 
 /**
  * Set attribute(s) configuration.
@@ -289,8 +285,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual void set_attribute_config_3(const Tango::AttributeConfigList_3& new_conf)
-    	throw (Tango::DevFailed, CORBA::SystemException);
+    	virtual void set_attribute_config_3(const Tango::AttributeConfigList_3& new_conf);
 //@}
 
 /// @privatesection
