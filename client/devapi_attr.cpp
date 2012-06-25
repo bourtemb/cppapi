@@ -2548,7 +2548,7 @@ void DeviceAttribute::insert(char *&str,unsigned char *&ptr,unsigned int size)
 	del_mem(Tango::DEV_ENCODED);
 }
 
-void DeviceAttribute::insert(const char *&str,unsigned char *&ptr,unsigned int size)
+void DeviceAttribute::insert(const char *str,unsigned char *ptr,unsigned int size)
 {
 	dim_x = 1;
 	dim_y = 0;
@@ -2564,7 +2564,7 @@ void DeviceAttribute::insert(const char *&str,unsigned char *&ptr,unsigned int s
 	del_mem(Tango::DEV_ENCODED);
 }
 
-void DeviceAttribute::insert(string &str,vector<unsigned char> &array)
+void DeviceAttribute::insert(const string &str,vector<unsigned char> &array)
 {
 	dim_x = 1;
 	dim_y = 0;
@@ -4524,7 +4524,7 @@ void DeviceAttribute::insert(DevVarStateArray *datum,int x,int y)
 //
 //-----------------------------------------------------------------------------
 
-bool DeviceAttribute::extract(const char *&str,unsigned char *&data_ptr,unsigned int &data_size)
+bool DeviceAttribute::extract(char *&str,unsigned char *&data_ptr,unsigned int &data_size)
 {
 // check for available data
 
@@ -4551,6 +4551,11 @@ bool DeviceAttribute::extract(const char *&str,unsigned char *&data_ptr,unsigned
 		ret = check_wrong_type_exception();
 	}
 	return ret;
+}
+
+bool DeviceAttribute::extract(const char *&str,unsigned char *&data_ptr,unsigned int &data_size)
+{
+    return extract(const_cast<char *&>(str),data_ptr,data_size);
 }
 
 //-----------------------------------------------------------------------------
