@@ -236,6 +236,17 @@ public :
  */
 	void unexport_device(string dev_name);
 /**
+ * Get device information
+ *
+ * Return miscellaneous device information from the database (not from the device itself)
+ *
+ * @param [in] dev_name The device name
+ * @return The device information class instance
+ *
+ * @exception ConnectionFailed,CommunicationFailed,DevFailed from device
+ */
+	DbDevFullInfo get_device_info(string &dev_name);
+/**
  * Get class name for a device
  *
  * Return the class of the specified device.

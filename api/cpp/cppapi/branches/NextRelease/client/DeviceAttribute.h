@@ -478,16 +478,19 @@ public :
  * Insert attribute data for DevEncoded attribute
  *
  * Insert attribute data when the attribute data type is DevEncoded
- * Similar method with following signature also exist
- * insert(string &,vector<unsigned char> &);
+ * @n Similar methods with following signature also exist
+ * @li <B> insert(string &str, vector<unsigned char> &data);</B>
+ * @li <B> insert(const char *str, DevVarCharArray *data);</B>
+ *
+ * These three methods do not take ownership of the memory used for the data buffer.
  * @n See DeviceAttribute::operator<< for example of inserting and extracting data to/from DeviceAttribute instance
-
+ *
  * @param [in] str The DevEncoded string
  * @param [in] data The DevEncoded data pointer
  * @param [in] length The DevEncoded data length
  * @exception WrongData if requested
  */
-	void insert(char *&str,unsigned char *&data,unsigned int length);
+	void insert(const char *&str,unsigned char *&data,unsigned int length);
 /**
  * Insert attribute data for image attribute (from C++ vector)
  *
@@ -631,8 +634,10 @@ public :
  * Extract attribute data for DevEncoded attribute
  *
  * Extract attribute data when the attribute data type is DevEncoded
- * Similar method with following signature also exist
- * extract(string &,vector<unsigned char> &);
+ * It's the user responsability to release the memory pointed to by the two
+ * pointers method parameter.
+ * @n Similar method with following signature also exist
+ * @b extract(string &,vector<unsigned char> &);
  * @n See DeviceAttribute::operator<< for example of inserting and extracting data to/from DeviceAttribute instance
  *
  * @param [out] str The DevEncoded string
@@ -795,8 +800,10 @@ public :
 	void insert(DevVarULong64Array *datum,int,int);
 	void insert(DevVarStateArray *datum,int,int);
 
-//	void insert(char *&,unsigned char *&,unsigned int);
+	void insert(char *&,unsigned char *&,unsigned int);
+//	void insert(const char *&str,unsigned char *&data,unsigned int length);
 	void insert(string &,vector<unsigned char> &);
+	void insert(const char *,DevVarCharArray *);
 
 //
 // Extract operators for  C++ types

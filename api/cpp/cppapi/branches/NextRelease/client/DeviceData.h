@@ -105,6 +105,8 @@ public :
  * @li DevULong
  * @li DevLong64
  * @li DevULong64
+ * @li DevState
+ * @li DevEncoded
  * @li float
  * @li double
  * @li string
@@ -242,9 +244,12 @@ public :
  * Insert data into a DeviceData for the DevEncoded data type
  *
  * Insert data into a DeviceData for the DevEncoded data type
- * A similar method with different parameters data type exist for
+ * @n Similar methods with different parameters data type exist for
  * inserting data for a DevEncoded data type
- * void insert(const char *, DevVarCharArray *);
+ * @li <B>void insert(const char *str, DevVarCharArray *data);</B>
+ * @li <B>void insert(const char *str, unsigned char *&data,unsigned int length);</B>
+ *
+ * These three methods do not take ownership of the memory used for the data buffer.
  *
  * @param [in] str The string part of the DevEncoded instance
  * @param [in] buffer The data part of the DevEncoded instance
@@ -267,6 +272,8 @@ public :
  * @li string
  * @li char* (insert only)
  * @li const char *
+ * @li DevEncoded
+ * @li DevState
  * @li vector<unsigned char>
  * @li vector<string>
  * @li vector<short>
@@ -325,12 +332,26 @@ public :
  *
  * Extract data from a DeviceData for the DevVarDoubleStringArray data type
  *
- * @param [out] vd The doubhle vector to be initialized
+ * @param [out] vd The double vector to be initialized
  * @param [out] vs The string vector to be initialized
  * @return Boolean set to false if the extraction failed
  * @exception WrongData if requested
  */
 	bool extract(vector<double> &vd, vector<string> &vs);
+/**
+ * Extract data from a DeviceData for the DevEncoded data type
+ *
+ * Extract command data when the command data type is DevEncoded
+ * Similar method with following signature also exist
+ * @li <B>extract(string &str,vector<unsigned char> &data);</B>
+ *
+ * @param [out] str The DevEncoded string
+ * @param [out] data The DevEncoded data pointer
+ * @param [out] length The DevEncoded data length
+ * @return Boolean set to false if the extraction failed
+ * @exception WrongData if requested
+ */
+    bool extract(const char *&str,const unsigned char *&data,unsigned int &length);
 //@}
 
 ///@privatesection
@@ -367,6 +388,7 @@ public :
 
 //	void insert(const string &,vector<unsigned char>&);
 	void insert(const char *,DevVarCharArray *);
+	void insert(const char *&,unsigned char *&,unsigned int);
 
 //
 // insert methods for TANGO CORBA sequence types
@@ -427,6 +449,9 @@ public :
 	bool operator >> (DevState&);
 //	bool extract(vector<DevLong>&, vector<string>&);
 //	bool extract(vector<double>&, vector<string>&);
+
+//    bool extract(const char *&,unsigned char *&,unsigned int &);
+    bool extract(string &,vector<unsigned char> &);
 
 //
 // extract methods for TANGO CORBA sequence types
