@@ -47,6 +47,7 @@ class DbDevInfo;
 class DbDevImportInfo;
 class DbDevExportInfo;
 class DbServerInfo;
+class DbDevFullInfo;
 class DbHistory;
 
 class FileDatabase;
@@ -780,11 +781,35 @@ public :
 class DbDevImportInfo
 {
 public :
-	string name;    ///< The device name
-	long exported;  ///< The exported flag
-	string ior;     ///< The device IOR
-	string version; ///< The device version (as a string)
+	string  name;       ///< The device name
+	long    exported;   ///< The exported flag
+	string  ior;        ///< The device IOR
+	string  version;    ///< The device version (as a string)
 };
+
+/****************************************************************
+ *                                                              *
+ *                  DbDevFullInfo                               *
+ *                                                              *
+ ****************************************************************/
+
+/**
+ * Device information from the database
+ *
+ * @headerfile tango.h
+ * @ingroup DBase
+ */
+class DbDevFullInfo: public DbDevImportInfo
+{
+public :
+    string  class_name;         ///< The device class name
+	string  ds_full_name;       ///< The full device server process name
+	string  host;               ///< The host name where the device server process is running
+	string  started_date;       ///< Date of the last device export (empty if not set in DB)
+	string  stopped_date;       ///< Date of the last device un-export (empty if not set in DB)
+	long    pid;                ///< The device server process PID (-1 if not set in DB)
+};
+
 
 /**********************************************************************
  *                                                                    *
@@ -801,11 +826,11 @@ public :
 class DbDevExportInfo
 {
 public :
-	string name;        ///< The device name
-	string ior;         ///< The device IOR
-	string host;        ///< The host name where the device server process runs
-	string version;     ///< The device version
-	int pid;            ///< The device server process PID
+	string  name;        ///< The device name
+	string  ior;         ///< The device IOR
+	string  host;        ///< The host name where the device server process runs
+	string  version;     ///< The device version
+	int     pid;         ///< The device server process PID
 };
 
 /**********************************************************************
@@ -817,10 +842,10 @@ public :
 class DbServerInfo
 {
 public :
-	string name;
-	string host;
-	int mode;
-	int level;
+	string  name;
+	string  host;
+	int     mode;
+	int     level;
 };
 
 
