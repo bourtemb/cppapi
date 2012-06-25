@@ -479,7 +479,7 @@ public :
  *
  * Insert attribute data when the attribute data type is DevEncoded
  * @n Similar methods with following signature also exist
- * @li <B> insert(string &str, vector<unsigned char> &data);</B>
+ * @li <B> insert(const string &str, vector<unsigned char> &data);</B>
  * @li <B> insert(const char *str, DevVarCharArray *data);</B>
  *
  * These three methods do not take ownership of the memory used for the data buffer.
@@ -490,7 +490,7 @@ public :
  * @param [in] length The DevEncoded data length
  * @exception WrongData if requested
  */
-	void insert(const char *&str,unsigned char *&data,unsigned int length);
+	void insert(const char *str,unsigned char *data,unsigned int length);
 /**
  * Insert attribute data for image attribute (from C++ vector)
  *
@@ -645,7 +645,7 @@ public :
  * @param [out] length The DevEncoded data length
  * @exception WrongData if requested, DevFailed from device
  */
-	bool extract(const char *&str,unsigned char *&data,unsigned int &length);
+	bool extract(char *&str,unsigned char *&data,unsigned int &length);
 /**
  * Extract only read part of attribute data
  *
@@ -800,9 +800,9 @@ public :
 	void insert(DevVarULong64Array *datum,int,int);
 	void insert(DevVarStateArray *datum,int,int);
 
-	void insert(char *&,unsigned char *&,unsigned int);
-//	void insert(const char *&str,unsigned char *&data,unsigned int length);
-	void insert(string &,vector<unsigned char> &);
+	void insert(char *&,unsigned char *&,unsigned int);     // Deprecated. For compatibility purpose
+//	void insert(const char *str,unsigned char *data,unsigned int length);
+	void insert(const string &,vector<unsigned char> &);
 	void insert(const char *,DevVarCharArray *);
 
 //
@@ -882,7 +882,8 @@ public :
 	bool extract_set  (vector<DevState>&);
 	bool extract_set  (string &,vector<unsigned char> &);
 
-//	bool extract(const char *&,unsigned char *&,unsigned int &);
+	bool extract(const char *&,unsigned char *&,unsigned int &);
+//	bool extract(char *&,unsigned char *&,unsigned int &);
 	bool extract(string &,vector<unsigned char> &);
 
 ///@publicsection

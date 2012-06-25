@@ -247,7 +247,7 @@ public :
  * @n Similar methods with different parameters data type exist for
  * inserting data for a DevEncoded data type
  * @li <B>void insert(const char *str, DevVarCharArray *data);</B>
- * @li <B>void insert(const char *str, unsigned char *&data,unsigned int length);</B>
+ * @li <B>void insert(const char *str, unsigned char *data,unsigned int length);</B>
  *
  * These three methods do not take ownership of the memory used for the data buffer.
  *
@@ -388,7 +388,7 @@ public :
 
 //	void insert(const string &,vector<unsigned char>&);
 	void insert(const char *,DevVarCharArray *);
-	void insert(const char *&,unsigned char *&,unsigned int);
+	void insert(const char *,unsigned char *,unsigned int);
 
 //
 // insert methods for TANGO CORBA sequence types

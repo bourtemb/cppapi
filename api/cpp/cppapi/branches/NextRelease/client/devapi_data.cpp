@@ -1934,7 +1934,7 @@ void DeviceData::insert (const char *str_datum, DevVarCharArray *char_datum)
 //
 //-----------------------------------------------------------------------------
 
-void DeviceData::insert (const char *&str_datum,unsigned char *&data,unsigned int length)
+void DeviceData::insert (const char *str_datum,unsigned char *data,unsigned int length)
 {
 	DevEncoded *the_enc = new DevEncoded();
 	the_enc->encoded_format = CORBA::string_dup(str_datum);
