@@ -660,6 +660,8 @@ public:
   virtual void dump (int indent_level = 0) = 0;
   //-
   virtual void dump (TangoSys_OMemStream& oms, int indent_level = 0) = 0;
+  //-
+  virtual bool is_connected();
 
 protected:
   //- ctor: creates an GroupElement named <name>
@@ -1654,6 +1656,8 @@ public:
   virtual void dump (int indent_level = 0);
   //-
   virtual void dump (TangoSys_OMemStream& oms, int indent_level = 0);
+  //-
+  virtual bool is_connected();
 
 private:
   //- the device proxy
