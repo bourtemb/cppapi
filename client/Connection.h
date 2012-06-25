@@ -531,6 +531,7 @@ public :
 
 	void connect(string &name);
 	virtual void reconnect(bool);
+	bool is_connected();
 
 	Tango::Device_var &get_device() {return device;} 	// For CORBA expert !!
 

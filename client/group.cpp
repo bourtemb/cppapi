@@ -653,6 +653,11 @@ GroupElement* GroupElement::set_parent (GroupElement* _parent)
   parent = _parent;
   return previous_parent;
 }
+//-----------------------------------------------------------------------------
+bool GroupElement::is_connected ()
+{
+  return true;
+}
 
 //=============================================================================
 // class Group
@@ -1239,13 +1244,19 @@ long Group::read_attribute_asynch_i (const std::string& a, bool fwd, long id)
   if (id == -1) {
     id = next_asynch_request_id();
   }
+  GroupElements disconnected;
   GroupElementsIterator it = elements.begin();
   GroupElementsIterator end = elements.end();
   for (; it != end; ++it) {
     if ((*it)->is_device_i() || fwd) {
-      id = (*it)->read_attribute_asynch_i(a, fwd, id);
+    	if((*it)->is_connected())
+    		id = (*it)->read_attribute_asynch_i(a, fwd, id);
+    	else
+    		disconnected.push_back(*it);
     }
   }
+  for(size_t i = 0; i < disconnected.size(); i++)
+	  id = disconnected[i]->read_attribute_asynch_i(a, fwd, id);
   push_async_request(id, fwd);
   return id;
 }
@@ -2184,6 +2195,11 @@ void GroupDeviceElement::dump (TangoSys_OMemStream& oms, int indent_level)
     oms << "\t";
   }
   oms << "|- DEVICE: " << get_name() << endl;
+}
+//-----------------------------------------------------------------------------
+bool GroupDeviceElement::is_connected ()
+{
+  return dev_proxy()->is_connected();
 }
 //-----------------------------------------------------------------------------
 bool GroupDeviceElement::is_device_i ()
