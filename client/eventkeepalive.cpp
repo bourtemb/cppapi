@@ -521,7 +521,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 // Re-subscribe
 //
 
-        cout4 << "KeepAliveThread at work" << endl;
+		cout4 << "KeepAliveThread at work" << endl;
 
 		// lock the maps only for reading
 		event_consumer->map_modification_lock.writerIn();

@@ -2441,7 +2441,7 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 void ZmqEventConsumer::print_error_message(const char *mess)
 {
 	time_t tmp_val = time(NULL);
-
+					
 	char tmp_date[128];
 #ifdef _TG_WINDOWS_
 	ctime_s(tmp_date,128,&tmp_val);

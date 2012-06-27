@@ -862,7 +862,7 @@ void NotifdEventConsumer::push_structured_event(const CosNotification::Structure
 			EventCallBackStruct &evt_cb = ipos->second;
 			try
 			{
-                AutoTangoMonitor _mon(evt_cb.callback_monitor);
+				AutoTangoMonitor _mon(evt_cb.callback_monitor);
 
 				AttributeValue *attr_value = NULL;
 				AttributeValue_3 *attr_value_3 = NULL;
