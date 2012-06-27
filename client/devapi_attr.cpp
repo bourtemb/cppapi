@@ -2582,7 +2582,8 @@ void DeviceAttribute::insert(const string &str,vector<unsigned char> &array)
 
 void DeviceAttribute::insert(string &str,vector<unsigned char> &array)
 {
-    insert(str,array);
+    const string &tmp_str = str;
+    insert(tmp_str,array);
 }
 
 void DeviceAttribute::insert(const char *str,DevVarCharArray *array)
