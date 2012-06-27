@@ -1446,9 +1446,8 @@ Command &DeviceClass::get_cmd_by_name(const string &cmd_name)
 //
 // method :		DeviceClass::check_att_conf
 //
-// description :	Get a reference to the Command object
-//
-// in : 	cmd_name : The command name
+// description :	Check attribute configuration (for wrong conf. in db
+//                  exception) for all devices in the class
 //
 //-----------------------------------------------------------------------------
 void DeviceClass::check_att_conf()
