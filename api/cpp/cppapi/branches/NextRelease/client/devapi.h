@@ -877,6 +877,7 @@ public :
 	void insert(char *&,unsigned char *&,unsigned int);     // Deprecated. For compatibility purpose
 	void insert(const char *,unsigned char *,unsigned int);
 	void insert(const string &,vector<unsigned char> &);
+	void insert(string &,vector<unsigned char> &);         // Deprecated. For compatibility purpose
 	void insert(const char *,DevVarCharArray *);
 
 //
