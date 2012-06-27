@@ -2580,6 +2580,11 @@ void DeviceAttribute::insert(const string &str,vector<unsigned char> &array)
 	del_mem(Tango::DEV_ENCODED);
 }
 
+void DeviceAttribute::insert(string &str,vector<unsigned char> &array)
+{
+    insert(str,array);
+}
+
 void DeviceAttribute::insert(const char *str,DevVarCharArray *array)
 {
 	dim_x = 1;
