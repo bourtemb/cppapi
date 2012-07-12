@@ -497,7 +497,7 @@ public:
  *
  * @return The maximun number of threads in the polling threads pool
  */
-	unsigned long get_polling_threads_pool_size() {return ext->poll_pool_size;}
+    unsigned long get_polling_threads_pool_size() {return ext->poll_pool_size;}
 //@}
 
 /**@name Miscellaneous methods */
