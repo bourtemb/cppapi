@@ -1279,7 +1279,6 @@ void DServer::kill()
 
 }
 
-
 void *KillThread::run_undetached(TANGO_UNUSED(void *ptr))
 {
 	cout4 << "In the killer thread !!!" << endl;
