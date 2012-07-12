@@ -1394,10 +1394,10 @@ CORBA::Any *ZmqEventSubscriptionChangeCmd::execute(Tango::DeviceImpl *device,con
 EventConfirmSubscriptionCmd::EventConfirmSubscriptionCmd(const char *name,
 								Tango::CmdArgType in,
 								Tango::CmdArgType out,
-								const char *out_desc)
+								const char *in_desc)
 :Command(name,in,out)
 {
-	set_out_type_desc(out_desc);
+	set_in_type_desc(in_desc);
 }
 
 //
