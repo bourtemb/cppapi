@@ -4413,7 +4413,118 @@ cout << "Class received in one call" << endl;
 	}
 
 	return(dev_info);
+}
 
+//-----------------------------------------------------------------------------
+//
+// Database::get_device_from_alias() - Get device name from an alias
+//
+//-----------------------------------------------------------------------------
+void Database::get_device_from_alias(string alias_name, string &dev_name)
+{
+	Any send;
+	Any_var received;
+	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
+
+	check_access_and_get();
+
+	send <<= alias_name.c_str();
+
+	if (filedb != 0)
+		received = filedb->DbGetAliasDevice(send);
+	else
+		CALL_DB_SERVER("DbGetAliasDevice",send,received);
+	const char *dev_name_tmp = NULL;
+	received.inout() >>= dev_name_tmp;
+	dev_name = dev_name_tmp;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Database::get_alias_from_device() - Get alias name from a device name
+//
+//-----------------------------------------------------------------------------
+void Database::get_alias_from_device(string dev_name, string &alias_name)
+{
+	Any send;
+	Any_var received;
+	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
+
+	check_access_and_get();
+
+	send <<= dev_name.c_str();
+
+	if (filedb != 0)
+		received = filedb->DbGetDeviceAlias(send);
+	else
+		CALL_DB_SERVER("DbGetDeviceAlias",send,received);
+	const char *dev_name_tmp = NULL;
+	received.inout() >>= dev_name_tmp;
+	alias_name = dev_name_tmp;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Database::get_attribute_from_alias() - Get attribute name from an alias
+//
+//-----------------------------------------------------------------------------
+void Database::get_attribute_from_alias(string attr_alias, string &attr_name)
+{
+	Any send;
+	Any_var received;
+	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
+
+	check_access_and_get();
+
+	send <<= attr_alias.c_str();
+
+/*	if (filedb != 0)
+		received = filedb->DbGetAliasAttribute(send);
+	else*/
+		CALL_DB_SERVER("DbGetAliasAttribute",send,received);
+	const char* attr_name_tmp = NULL;
+	received.inout() >>= attr_name_tmp;
+
+	if (attr_name_tmp == NULL)
+	{
+		Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_attribute_from_alias()");
+	}
+	else
+		attr_name = attr_name_tmp;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Database::get_alias_from_attribute() - Get alias name from an attribute name
+//
+//-----------------------------------------------------------------------------
+void Database::get_alias_from_attribute(string attr_name, string &attr_alias)
+{
+	Any send;
+	Any_var received;
+	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
+
+	check_access_and_get();
+
+	send <<= attr_name.c_str();
+
+/*	if (filedb != 0)
+		received = filedb->DbGetAttributeAlias2(send);
+	else*/
+		CALL_DB_SERVER("DbGetAttributeAlias2",send,received);
+	const char* attr_alias_tmp = NULL;
+	received.inout() >>= attr_alias_tmp;
+
+	if (attr_alias_tmp == NULL)
+	{
+		Tango::Except::throw_exception((const char *)"API_IncoherentDbData",
+                                   (const char *)"Incoherent data received from database",
+                                   (const char *)"Database::get_alias_from_attribute()");
+	}
+	else
+		attr_name = attr_alias_tmp;
 }
 
 } // End of Tango namespace

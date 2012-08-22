@@ -270,6 +270,13 @@ public :
 	void unexport_event(string &);
 	CORBA::Any *import_event(string &);
 
+// alias methods
+
+	void get_device_from_alias(string, string &);
+	void get_alias_from_device(string, string &);
+	void get_attribute_from_alias(string, string &);
+	void get_alias_from_attribute(string, string &);
+
 };
 
 //
