@@ -1234,7 +1234,7 @@ Tango::DevVarStringArray *DServer::query_dev_prop(string &class_name)
 	try
 	{
 		ret = new Tango::DevVarStringArray(nb_prop);
-                ret->length(nb_prop);
+		ret->length(nb_prop);
 
 		for (int i = 0;i < nb_prop;i++)
 		{
@@ -1447,7 +1447,7 @@ void DServer::get_dev_prop(Tango::Util *tg)
 		}
 		if (db_data[1].is_empty() == false)
 		{
-            vector<string> tmp_vect;
+			vector<string> tmp_vect;
 			db_data[1] >> tmp_vect;
 
 //
@@ -1455,33 +1455,33 @@ void DServer::get_dev_prop(Tango::Util *tg)
 // max device property length of 255 chars, rebuilt a real pool conf
 //
 
-            string rebuilt_str;
-            bool ended = true;
-            vector<string>::iterator iter;
-            polling_th_pool_conf.clear();
+			string rebuilt_str;
+			bool ended = true;
+			vector<string>::iterator iter;
+			polling_th_pool_conf.clear();
 
-            for (iter = tmp_vect.begin();iter != tmp_vect.end();++iter)
-            {
-                string tmp_str = (*iter);
-                if (tmp_str[tmp_str.size() - 1] == '\\')
-                {
-                    tmp_str.resize(tmp_str.size() - 1);
-                    ended = false;
-                }
-                else
-                    ended = true;
+			for (iter = tmp_vect.begin();iter != tmp_vect.end();++iter)
+			{
+				string tmp_str = (*iter);
+				if (tmp_str[tmp_str.size() - 1] == '\\')
+				{
+					tmp_str.resize(tmp_str.size() - 1);
+					ended = false;
+				}
+				else
+					ended = true;
 
-                rebuilt_str = rebuilt_str + tmp_str;
+				rebuilt_str = rebuilt_str + tmp_str;
 
-                if (ended == true)
-                {
-                    polling_th_pool_conf.push_back(rebuilt_str);
-                    rebuilt_str.clear();
-                }
-            }
+				if (ended == true)
+				{
+					polling_th_pool_conf.push_back(rebuilt_str);
+					rebuilt_str.clear();
+				}
+			}
 		}
 		else
-            polling_th_pool_conf.clear();
+			polling_th_pool_conf.clear();
 	}
 }
 
@@ -1655,58 +1655,58 @@ void DServer::get_event_misc_prop(Tango::Util *tg)
 // Multicast Hops
 //
 
-            mcast_hops = MCAST_HOPS;
-            if (db_data[1].is_empty() == false)
-                db_data[1] >> mcast_hops;
+			mcast_hops = MCAST_HOPS;
+			if (db_data[1].is_empty() == false)
+				db_data[1] >> mcast_hops;
 
 //
 // Multicast PGM rate
 //
 
-            mcast_rate = PGM_RATE;
-            if (db_data[2].is_empty() == false)
-            {
-                db_data[2] >> mcast_rate;
-                mcast_rate = mcast_rate * 1024;
-            }
+			mcast_rate = PGM_RATE;
+			if (db_data[2].is_empty() == false)
+			{
+				db_data[2] >> mcast_rate;
+				mcast_rate = mcast_rate * 1024;
+			}
 
 //
 // Multicast IVL
 //
 
-            mcast_ivl = PGM_IVL;
-            if (db_data[3].is_empty() == false)
-            {
-                db_data[3] >> mcast_ivl;
-                mcast_ivl = mcast_ivl * 1000;
-            }
+			mcast_ivl = PGM_IVL;
+			if (db_data[3].is_empty() == false)
+			{
+				db_data[3] >> mcast_ivl;
+				mcast_ivl = mcast_ivl * 1000;
+			}
 
 //
 // Publisher Hwm
 //
 
-            zmq_pub_event_hwm = PUB_HWM;
-            if (db_data[4].is_empty() == false)
-                db_data[4] >> zmq_pub_event_hwm;
+			zmq_pub_event_hwm = PUB_HWM;
+			if (db_data[4].is_empty() == false)
+				db_data[4] >> zmq_pub_event_hwm;
 
 //
 // Subscriber Hwm
 //
 
-            zmq_sub_event_hwm = SUB_HWM;
-            if (db_data[5].is_empty() == false)
-                db_data[5] >> zmq_sub_event_hwm;
+			zmq_sub_event_hwm = SUB_HWM;
+			if (db_data[5].is_empty() == false)
+				db_data[5] >> zmq_sub_event_hwm;
 
 //
 // Nan allowed in writing attribute
 //
 
-            if (db_data[6].is_empty() == false)
-            {
-                bool new_val;
-                db_data[6] >> new_val;
-                tg->set_wattr_nan_allowed(new_val);
-            }
+			if (db_data[6].is_empty() == false)
+			{
+				bool new_val;
+				db_data[6] >> new_val;
+				tg->set_wattr_nan_allowed(new_val);
+			}
 
 		}
 		catch (Tango::DevFailed &)
