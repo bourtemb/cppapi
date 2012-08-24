@@ -4389,10 +4389,7 @@ DbDevFullInfo Database::get_device_info(string &dev)
             dev_info.stopped_date = string(dev_info_db->svalue[6]);
 
         if (dev_info_db->svalue.length() > 7)
-{
-cout << "Class received in one call" << endl;
             dev_info.class_name = string(dev_info_db->svalue[7]);
-}
         else
         {
             try
@@ -4524,7 +4521,7 @@ void Database::get_alias_from_attribute(string attr_name, string &attr_alias)
                                    (const char *)"Database::get_alias_from_attribute()");
 	}
 	else
-		attr_name = attr_alias_tmp;
+		attr_alias = attr_alias_tmp;
 }
 
 } // End of Tango namespace
