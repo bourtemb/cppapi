@@ -733,7 +733,7 @@ string Database::get_info()
 	{
 		ostream << (*db_info_list)[i].in() << endl;
 	}
-	ostream << ends;
+
 	string ret_str = ostream.str();
 
 	return(ret_str);

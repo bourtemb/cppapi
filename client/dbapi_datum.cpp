@@ -77,6 +77,9 @@ DbDatum::DbDatum():ext(Tango_NullPtr)
 
 DbDatum::~DbDatum()
 {
+#ifndef HAS_UNIQUE_PTR
+    delete ext;
+#endif
 }
 
 //-----------------------------------------------------------------------------
