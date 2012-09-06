@@ -78,7 +78,9 @@ DbDatum::DbDatum():ext(Tango_NullPtr)
 DbDatum::~DbDatum()
 {
 #ifndef HAS_UNIQUE_PTR
+	#ifndef _TG_WINDOWS_
     delete ext;
+    #endif
 #endif
 }
 
