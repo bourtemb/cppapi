@@ -300,6 +300,12 @@ void DServer::init_device()
 //
 
 					class_list[i]->get_mcast_event(this);
+					
+//
+// Release device(s) monitor
+//
+
+					class_list[i]->release_devices_mon();
 				}
 				else
 				{
@@ -363,13 +369,14 @@ void DServer::init_device()
 			o << "Can't allocate memory in server while creating class number " << class_err << ends;
 			if (class_list.empty() == false)
 			{
-
 				for (unsigned long j = 0;j < class_list.size();j++)
 				{
-					if (class_list[i]->is_py_class() == false)
-						delete class_list[i];
+					class_list[j]->release_devices_mon();
+					
+					if (class_list[j]->is_py_class() == false)
+						delete class_list[j];
 					else
-						class_list[i]->delete_class();
+						class_list[j]->delete_class();
 				}
 				class_list.clear();
 			}
@@ -379,10 +386,12 @@ void DServer::init_device()
 			o << "Can't allocate memory in server while building command(s) or device(s) for class number " << i + 1 << ends;
 			for (unsigned long j = i;j < class_list.size();j++)
 			{
-				if (class_list[i]->is_py_class() == false)
-					delete class_list[i];
+				class_list[j]->release_devices_mon();
+				
+				if (class_list[j]->is_py_class() == false)
+					delete class_list[j];
 				else
-					class_list[i]->delete_class();
+					class_list[j]->delete_class();
 			}
 			class_list.erase(class_list.begin() + i,class_list.end());
 		}
@@ -406,10 +415,12 @@ void DServer::init_device()
 			{
 				for (unsigned long j = 0;j < class_list.size();j++)
 				{
-					if (class_list[i]->is_py_class() == false)
-						delete class_list[i];
+					class_list[j]->release_devices_mon();
+					
+					if (class_list[j]->is_py_class() == false)
+						delete class_list[j];
 					else
-						class_list[i]->delete_class();
+						class_list[j]->delete_class();
 				}
 				class_list.clear();
 			}
@@ -418,10 +429,12 @@ void DServer::init_device()
 		{
 			for (unsigned long j = i;j < class_list.size();j++)
 			{
-				if (class_list[i]->is_py_class() == false)
-					delete class_list[i];
+				class_list[j]->release_devices_mon();
+				
+				if (class_list[j]->is_py_class() == false)
+					delete class_list[j];
 				else
-					class_list[i]->delete_class();
+					class_list[j]->delete_class();
 			}
 			class_list.erase(class_list.begin() + i,class_list.end());
 		}
