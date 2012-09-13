@@ -521,14 +521,15 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 //
 
 					if ( att.is_memorized_init() == false )
-                    {
+					{
 						nb_wr--;
 						att_val.length(nb_wr);
 						// reset memorized flag
 						att.set_memorized(true);
-                    }
+					}
 					else
-                    {
+					{
+
 //
 // Init the AttributeValue structure
 //
@@ -902,6 +903,13 @@ void DeviceClass::export_device(DeviceImpl *dev,const char *corba_obj_name)
 {
 	cout4 << "DeviceClass::export_device() arrived" << endl;
 
+//
+// Take the Tango monitor in order to protect the device against external world access
+// until memorized attribute (in any) are set
+//
+
+	dev->get_dev_monitor().get_monitor();
+	
 	Device_var d;
 
 	if ((Tango::Util::_UseDb == true) && (Tango::Util::_FileDb == false))
@@ -1450,12 +1458,32 @@ Command &DeviceClass::get_cmd_by_name(const string &cmd_name)
 //                  exception) for all devices in the class
 //
 //-----------------------------------------------------------------------------
+
 void DeviceClass::check_att_conf()
 {
     vector<DeviceImpl *>::iterator ite;
 
     for (ite = device_list.begin();ite != device_list.end();++ite)
         (*ite)->check_att_conf();
+}
+
+//+----------------------------------------------------------------------------
+//
+// method :		DeviceClass::release_devices_mon
+//
+// description :	Release all device(s) class monitor. This is needed in DS 
+//					startup sequence. Each device monitor is taken before the
+//					device is known to CORBA and released after the memorized
+//					attributes (if any) are set
+//
+//-----------------------------------------------------------------------------
+
+void DeviceClass::release_devices_mon()
+{
+    vector<DeviceImpl *>::iterator ite;
+
+    for (ite = device_list.begin();ite != device_list.end();++ite)
+		(*ite)->get_dev_monitor().rel_monitor();
 }
 
 } // End of Tango namespace
