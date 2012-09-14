@@ -917,6 +917,14 @@ void DServer::restart(string &d_name)
 	dev_cl->set_memorized_values(false,dev_cl->get_device_list().size() - 1);
 
 //
+// Unlock the device (locked by export_device for memorized attribute)
+//
+
+	vector<DeviceImpl *> &dev_list = dev_cl->get_device_list();
+	DeviceImpl *last_dev = dev_list.back();
+	last_dev->get_dev_monitor().rel_monitor();
+
+//
 // Re-start device polling (if any)
 //
 
