@@ -293,14 +293,14 @@ void DServer::init_device()
 // Check attribute configuration
 //
 
-                    class_list[i]->check_att_conf();
+					class_list[i]->check_att_conf();
 
 //
 // Get mcast event parameters (in case of)
 //
 
 					class_list[i]->get_mcast_event(this);
-					
+
 //
 // Release device(s) monitor
 //
@@ -336,12 +336,12 @@ void DServer::init_device()
 // Create all device(s)
 //
 
-                    class_list[i]->set_device_factory_done(false);
+					class_list[i]->set_device_factory_done(false);
 					{
 						AutoTangoMonitor sync(class_list[i]);
 						class_list[i]->device_factory(dev_list_nodb);
 					}
-                    class_list[i]->set_device_factory_done(true);
+					class_list[i]->set_device_factory_done(true);
 
 					delete dev_list_nodb;
 				}
@@ -372,7 +372,7 @@ void DServer::init_device()
 				for (unsigned long j = 0;j < class_list.size();j++)
 				{
 					class_list[j]->release_devices_mon();
-					
+
 					if (class_list[j]->is_py_class() == false)
 						delete class_list[j];
 					else
@@ -387,7 +387,7 @@ void DServer::init_device()
 			for (unsigned long j = i;j < class_list.size();j++)
 			{
 				class_list[j]->release_devices_mon();
-				
+
 				if (class_list[j]->is_py_class() == false)
 					delete class_list[j];
 				else
@@ -397,8 +397,8 @@ void DServer::init_device()
 		}
 
 		Except::throw_exception((const char *)"API_MemoryAllocation",
-				      o.str(),
-				      (const char *)"DServer::init_device");
+						o.str(),
+						(const char *)"DServer::init_device");
 	}
 	catch (Tango::NamedDevFailedList &)
 	{
@@ -416,7 +416,7 @@ void DServer::init_device()
 				for (unsigned long j = 0;j < class_list.size();j++)
 				{
 					class_list[j]->release_devices_mon();
-					
+
 					if (class_list[j]->is_py_class() == false)
 						delete class_list[j];
 					else
@@ -430,7 +430,7 @@ void DServer::init_device()
 			for (unsigned long j = i;j < class_list.size();j++)
 			{
 				class_list[j]->release_devices_mon();
-				
+
 				if (class_list[j]->is_py_class() == false)
 					delete class_list[j];
 				else
