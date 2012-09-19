@@ -903,20 +903,20 @@ void DeviceClass::export_device(DeviceImpl *dev,const char *corba_obj_name)
 {
 	cout4 << "DeviceClass::export_device() arrived" << endl;
 
+	Device_var d;
+
+	if ((Tango::Util::_UseDb == true) && (Tango::Util::_FileDb == false))
+	{
+
 //
 // Take the Tango monitor in order to protect the device against external world access
 // until memorized attribute (in any) are set but forget the admin device
 // (which does not have any memorized attribute)
 //
 
-	string &dev_name = dev->get_name_lower();
-	if (dev_name.find("dserver") != 0)
-		dev->get_dev_monitor().get_monitor();
-
-	Device_var d;
-
-	if ((Tango::Util::_UseDb == true) && (Tango::Util::_FileDb == false))
-	{
+		string &dev_name = dev->get_name_lower();
+		if (dev_name.find("dserver") != 0)
+			dev->get_dev_monitor().get_monitor();
 
 //
 // Activate the CORBA object incarnated by the dev C++ object
