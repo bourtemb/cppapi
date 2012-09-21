@@ -3868,6 +3868,93 @@ DbDatum Database::get_services(string &servname,string &instname)
 
 //-----------------------------------------------------------------------------
 //
+// Database::get_device_service_list() - Query database for all devices for all
+//										 instances of a specified service
+//
+//-----------------------------------------------------------------------------
+
+DbDatum Database::get_device_service_list(string &servname)
+{
+	DbData data;
+	DbDatum db_datum;
+	vector<string> services;
+	vector<string> filter_services;
+
+//
+// Get list of services
+//
+
+	ApiUtil *au = ApiUtil::instance();
+	DbServerCache *dsc;
+	if (au->in_server() == true)
+	{
+		if (from_env_var == false)
+			dsc = NULL;
+		else
+		{
+			try
+			{
+				Tango::Util *tg = Tango::Util::instance(false);
+				dsc = tg->get_db_cache();
+			}
+			catch (Tango::DevFailed &e)
+			{
+				string reason = e.errors[0].reason.in();
+				if (reason == "API_UtilSingletonNotCreated" && ext->db_tg != NULL)
+					dsc = ext->db_tg->get_db_cache();
+				else
+					dsc = NULL;
+			}
+		}
+	}
+	else
+		dsc = NULL;
+
+	DbDatum db_d(SERVICE_PROP_NAME);
+	data.push_back(db_d);
+	get_property_forced(CONTROL_SYSTEM, data,dsc);
+	data[0] >> services;
+
+//
+// Filter the required service
+//
+
+	string filter = servname + "/";
+
+	transform(filter.begin(),filter.end(),filter.begin(),::tolower);
+
+	for(unsigned int i = 0;i < services.size();i++)
+	{
+		transform(services[i].begin(),services[i].end(),services[i].begin(),::tolower);
+		if (strncmp(services[i].c_str(),filter.c_str(),filter.length()) == 0)
+		{
+			string::size_type pos,pos_end;
+			pos = services[i].find('/');
+			if (pos != string::npos)
+			{
+				pos_end = services[i].find(':');
+				if (pos != string::npos)
+				{
+					filter_services.push_back(services[i].substr(pos + 1,pos_end - pos - 1));
+					filter_services.push_back(services[i].substr(pos_end + 1));
+				}
+			}
+		}
+	}
+
+//
+// Build return value
+//
+
+	db_datum.name = "services";
+	db_datum.value_string.resize(filter_services.size());
+	for (unsigned int i = 0;i < filter_services.size();i++)
+		db_datum.value_string[i] = filter_services[i];
+
+	return db_datum;
+}
+//-----------------------------------------------------------------------------
+//
 // Database::register_service() - Register a new service
 //
 //-----------------------------------------------------------------------------
