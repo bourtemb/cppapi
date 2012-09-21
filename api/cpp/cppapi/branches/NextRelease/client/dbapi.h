@@ -164,6 +164,7 @@ public :
 	DbDatum get_host_list();
 	DbDatum get_host_list(string &);
 	DbDatum get_services(string &,string &);
+	DbDatum get_device_service_list(string &);
 	void register_service(string &,string &,string &);
 	void unregister_service(string &,string &);
 	CORBA::Any *fill_server_cache(string &,string &);
