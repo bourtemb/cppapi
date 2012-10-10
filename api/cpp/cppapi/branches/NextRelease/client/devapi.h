@@ -1389,6 +1389,8 @@ public :
 	virtual string name();
 	virtual string alias();
 
+	int get_tango_lib_version();
+
 	virtual int ping();
 	virtual vector<string> *black_box(int);
 //
