@@ -8010,49 +8010,42 @@ int DeviceProxy::get_tango_lib_version()
 // IDL 4 is for Tango 7 and 8.
 //
 
-#ifdef HAS_LAMBDA_FUNC
-		auto pos_event_confirm = find_if((*cmd_list).begin(),(*cmd_list).end(),
-                  		[] (Tango::CommandInfo &cc) -> bool
-                  		{
-							return cc.cmd_name == "EventConfirmSubscription";
-                  		});
-		if (pos_event_confirm != (*cmd_list).end())
-			ret = 810;
-		else
+		bool ecs = false;
+		bool zesc = false;
+
+#ifdef HAS_RANGE_BASE_FOR
+		for (const auto &cmd : *cmd_list)
 		{
-			auto pos_zmq = find_if((*cmd_list).begin(),(*cmd_list).end(),
-                  		[] (Tango::CommandInfo &cc) -> bool
-                  		{
-							return cc.cmd_name == "ZmqEventSubscriptionChange";
-						});
-			if (pos_zmq != (*cmd_list).end())
-				ret = 800;
-			else
-				ret = 700;
+			if (cmd.cmd_name == "EventConfirmSubscription")
+			{
+				ecs = true;
+				break;
+			}
+
+			if (cmd.cmd_name == "ZmqEventSubscriptionChange")
+				zesc = true;
 		}
 #else
-		vector<CommandInfo>::iterator pos_event_confirm,pos_event_confirm_end;
-		for (pos_event_confirm = (*cmd_list).begin(), pos_event_confirm_end = (*cmd_list).end();pos != end;++pos)
+		vector<CommandInfo>::iterator pos,pos_end;
+		for (pos = (*cmd_list).begin(), pos_end = (*cmd_list).end();pos != pos_end;++pos)
 		{
-			if (pos_event_confirm->cmd_name == "EventConfirmSubscription")
-				break;
-		}
-		if (pos_event_confirm != pos_event_confirm_end)
-			ret = 810;
-		else
-		{
-			vector<CommandInfo>::iterator pos_zmq,pos_zmq_end;
-			for (pos_zmq = (*cmd_list).begin(), pos_zmq_end = (*cmd_list).end();pos != end;++pos)
+			if (pos->cmd_name == "EventConfirmSubscription")
 			{
-				if (pos_zmq->cmd_name == "ZmqEventSubscriptionChange")
-					break;
+				ecs = true;
+				break;
 			}
-			if (pos_zmq != pos_zmq_end)
-				ret = 800;
-			else
-				ret = 700;
+
+			if  (pos->cmd_name == "ZmqEventSubscriptionChange")
+				zesc = true;
 		}
 #endif
+		if (ecs == true)
+			ret = 810;
+		else if (zesc == true)
+			ret = 800;
+		else
+			ret = 700;
+
 		break;
 	}
 
