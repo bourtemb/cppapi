@@ -7990,7 +7990,7 @@ int DeviceProxy::get_tango_lib_version()
 					});
 #else
 		vector<CommandInfo>::iterator pos,end;
-		for (pos = *cmd_list.begin(), end = *cmd_list.end();pos != end;++pos)
+		for (pos = (*cmd_list).begin(), end = (*cmd_list).end();pos != end;++pos)
 		{
 			if (pos->cmd_name == "QueryWizardClassProperty")
 				break;
@@ -8032,7 +8032,7 @@ int DeviceProxy::get_tango_lib_version()
 		}
 #else
 		vector<CommandInfo>::iterator pos_event_confirm,pos_event_confirm_end;
-		for (pos_event_confirm = *cmd_list.begin(), pos_event_confirm_end = *cmd_list.end();pos != end;++pos)
+		for (pos_event_confirm = (*cmd_list).begin(), pos_event_confirm_end = (*cmd_list).end();pos != end;++pos)
 		{
 			if (pos_event_confirm->cmd_name == "EventConfirmSubscription")
 				break;
@@ -8042,7 +8042,7 @@ int DeviceProxy::get_tango_lib_version()
 		else
 		{
 			vector<CommandInfo>::iterator pos_zmq,pos_zmq_end;
-			for (pos_zmq = *cmd_list.begin(), pos_zmq_end = *cmd_list.end();pos != end;++pos)
+			for (pos_zmq = (*cmd_list).begin(), pos_zmq_end = (*cmd_list).end();pos != end;++pos)
 			{
 				if (pos_zmq->cmd_name == "ZmqEventSubscriptionChange")
 					break;
@@ -8059,6 +8059,8 @@ int DeviceProxy::get_tango_lib_version()
 	default:
 		break;
 	}
+
+	delete cmd_list;
 
 	return ret;
 }
