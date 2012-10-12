@@ -744,6 +744,7 @@ public :
     void set_w_dim_x(int val) {ext->w_dim_x = val;}
     void set_w_dim_y(int val) {ext->w_dim_y = val;}
     void set_err_list(DevErrorList *ptr) {ext->err_list = ptr;}
+    void set_error_list(DevErrorList *ptr) {ext->err_list = ptr;}
     void set_Encoded_data(DevVarEncodedArray *ptr) {ext->EncodedSeq = ptr;}
     void set_Long64_data(DevVarLong64Array *ptr) {ext->Long64Seq = ptr;}
     void set_ULong_data(DevVarULongArray *ptr) {ext->ULongSeq = ptr;}
