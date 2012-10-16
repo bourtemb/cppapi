@@ -516,8 +516,8 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 
 //
 // Check the initialisation flag for memorized attributes.
-// The the flag is false, do not add the element to the att_val
-// vector. This avoids a call to write the memorozied value to the attribute.
+// If the flag is false, do not add the element to the att_val
+// vector. This avoids a call to write the memorized value to the attribute.
 //
 
 					if ( att.is_memorized_init() == false )
@@ -560,8 +560,7 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 		{
 
 //
-// Write attribute values. Re-throw exception if any but reset memorized flags before the
-// re-throw.
+// Write attribute values. Print exception if any.
 //
 
 			try
@@ -571,32 +570,22 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 			}
 			catch (Tango::DevFailed &e)
 			{
-				cout3 << "Cannot write setpoint(s) value for memorized attribute(s) " << device_list[i]->get_name() << endl;
+				cout3 << "Cannot write setpoint(s) value for any memorized attribute(s) on device " << device_list[i]->get_name() << endl;
 				Tango::Except::print_exception(e);
-
-				//for (unsigned long k = 0;k < att_val.length();k++)
-				//{
-				//	WAttribute &att = device_list[i]->get_device_attr()->get_w_attr_by_name(att_val[k].name.in());
-				//	att.set_memorized(true);
-				//}
-				//throw;
 			}
 			catch (Tango::MultiDevFailed &e)
 			{
-				cout3 << "Cannot write setpoint(s) value for memorized attribute(s) " << device_list[i]->get_name() << endl;
+				cout3 << "Cannot write setpoint(s) value for memorized attribute(s) of device " << device_list[i]->get_name() << endl;
 
+				for (unsigned long k = 0;k < e.errors.length();k++)
+				{
+					WAttribute &att = device_list[i]->get_device_attr()->get_w_attr_by_name(att_val[e.errors[k].index_in_call].name.in());
+					att.set_mem_exception(e.errors[k].err_list);
+				}
+				device_list[i]->set_run_att_conf_loop(true);
 				Tango::NamedDevFailedList e_list (e, device_list[i]->get_name(), (const char *)"DeviceClass::set_memorized_values()",
 					       			(const char *)"API_AttributeFailed");
 				Tango::Except::print_exception(e_list);
-
-				//for (unsigned long k = 0;k < att_val.length();k++)
-				//{
-				//	WAttribute &att = device_list[i]->get_device_attr()->get_w_attr_by_name(att_val[k].name.in());
-				//	att.set_memorized(true);
-				//}
-				//throw Tango::NamedDevFailedList(e,device_list[i]->get_name(),
-				//	       			(const char *)"DeviceClass::set_memorized_values()",
-				//	       			(const char *)"API_AttributeFailed");
 			}
 
 //

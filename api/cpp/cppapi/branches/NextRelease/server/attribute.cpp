@@ -1,14 +1,12 @@
 static const char *RcsId = "$Id$\n$Name$";
 
-//+============================================================================
+//=====================================================================================================================
 //
 // file :               Attribute.cpp
 //
-// description :        C++ source code for the Attribute and WAttribute classes.
-//			These classes are used to manage attribute.
-//			A Tango Device object instance has one
-//			MultiAttribute object which is an aggregate of
-//			Attribute or WAttribute objects
+// description :        C++ source code for the Attribute and WAttribute classes. These classes are used to manage
+//						attribute. A Tango Device object instance has one MultiAttribute object which is an aggregate of
+//						Attribute or WAttribute objects
 //
 // project :            TANGO
 //
@@ -21,22 +19,19 @@ static const char *RcsId = "$Id$\n$Name$";
 //
 // This file is part of Tango.
 //
-// Tango is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Tango is free software: you can redistribute it and/or modify it under the terms of the GNU
+// Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Tango is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
+// Tango is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU Lesser General Public License
-// along with Tango.  If not, see <http://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU Lesser General Public License along with Tango.
+// If not, see <http://www.gnu.org/licenses/>.
 //
 // $Revision$
 //
-//-============================================================================
+//=====================================================================================================================
 
 #if HAVE_CONFIG_H
 #include <ac_config.h>
@@ -88,19 +83,21 @@ static bool WantedProp_f(AttrProperty a,const char *n)
 }
 
 
-//+-------------------------------------------------------------------------
+//+--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::Attribute
+// method :
+//		Attribute::Attribute
 //
-// description : 	constructor for the Attribute class from the
-//			attribute property vector, its type and the device
-//			name
+// description :
+//		constructor for the Attribute class from the attribute property vector, its type and the device name
 //
-// argument : in : 	- prop_list : The attribute property list
+// argument :
+//		in :
+//			- prop_list : The attribute property list
 //			- type : The attribute data type
 //			- dev_name : The device name
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 Attribute::Attribute(vector<AttrProperty> &prop_list,
 		     Attr &tmp_attr,string &dev_name,long idx)
@@ -191,15 +188,21 @@ Attribute::Attribute(vector<AttrProperty> &prop_list,
 }
 
 
-//+-------------------------------------------------------------------------
+//+--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::init_event_prop
+// method :
+//		Attribute::init_event_prop
 //
-// description : 	Init the event related properties
+// description :
+//		Init the event related properties
 //
-// in :			prop_list : The property vector
+// argument:
+// 		in :
+//			- prop_list : The property vector
+//			- dev_name : The device name
+//			- att : The user attribute object
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &dev_name,Attr &att)
 {
@@ -458,7 +461,6 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 		add_startup_exception("archive_abs_change",e);
 	}
 
-
 //
 // Init period for periodic event
 //
@@ -548,9 +550,8 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	ext->prev_archive_event.inited = false;
 
 //
-// do not start sending events automatically, wait for the first
-// client to subscribe. Sending events automatically will put an
-// unnecessary load on the server because all attributes will be polled
+// do not start sending events automatically, wait for the first client to subscribe. Sending events automatically
+// will put an unnecessary load on the server because all attributes will be polled
 //
 
 	ext->event_change_subscription = 0;
@@ -562,16 +563,20 @@ void Attribute::init_event_prop(vector<AttrProperty> &prop_list,const string &de
 	ext->event_data_ready_subscription = 0;
 }
 
-//+-------------------------------------------------------------------------
+//+--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::init_opt_prop
+// method :
+//		Attribute::init_opt_prop
 //
-// description : 	Init the optional properties
+// description :
+//		Init the optional properties
 //
-// in :			prop_list : The property vector
-//			dev_name : The device name (usefull for error)
+// argument :
+// 		in :
+//			- prop_list : The property vector
+//			- dev_name : The device name (usefull for error)
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 {
@@ -1456,18 +1461,20 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 	}
 }
 
-//+-------------------------------------------------------------------------
+//+-------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::add_startup_exception
+// method :
+//		Attribute::add_startup_exception
 //
-// description : 	Stores an exception raised during the device startup
-//			sequence in a map
+// description :
+//		Stores an exception raised during the device startup sequence in a map
 //
-// in :			prop_name : The property name for which the exception was
-//			raised
-//			except : The raised exceptoin
+// argument :
+// 		in :
+//			- prop_name : The property name for which the exception was raised
+//			- except : The raised exceptoin
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::add_startup_exception(string prop_name,const DevFailed &except)
 {
@@ -1475,17 +1482,20 @@ void Attribute::add_startup_exception(string prop_name,const DevFailed &except)
 	ext->check_startup_exceptions = true;
 }
 
-//+-------------------------------------------------------------------------
+//+------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::delete_startup_exception
+// method :
+//		Attribute::delete_startup_exception
 //
-// description : 	Deletes the exception related to the property name from
-//			startup_exceptoins map
+// description :
+//		Deletes the exception related to the property name from startup_exceptoins map
 //
-// in :			prop_name : The property name as a key for which the
-//			exception is to be deleted from startup_exceptions map
+// argument :
+// 		in :
+//			- prop_name : The property name as a key for which the exception is to be deleted from startup_exceptions
+//			  			  map
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::delete_startup_exception(string prop_name)
 {
@@ -1502,19 +1512,22 @@ void Attribute::delete_startup_exception(string prop_name)
 	}
 }
 
-//+-------------------------------------------------------------------------
+//+------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::throw_err_format
+// method :
+//		Attribute::throw_err_format
 //
-// description : 	Throw a Tango DevFailed exception when an error format
-//			is detected in the string which should be converted
-//			to a number
+// description :
+//		Throw a Tango DevFailed exception when an error format is detected in the string which should be converted
+//		to a number
 //
-// in :			prop_name : The property name
-//			dev_name : The device name
-//			origin : The origin of the exception
+// argument :
+// 		in :
+//			- prop_name : The property name
+//			- dev_name : The device name
+//			- origin : The origin of the exception
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::throw_err_format(const char *prop_name,const string &dev_name,const char *origin)
 {
@@ -1528,19 +1541,22 @@ void Attribute::throw_err_format(const char *prop_name,const string &dev_name,co
 }
 
 
-//+-------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::throw_incoherent_val_err
+// method :
+//		Attribute::throw_incoherent_val_err
 //
-// description : 	Throw a Tango DevFailed exception when the min or max
-//				property is incoherent with its counterpart
+// description :
+//		Throw a Tango DevFailed exception when the min or max property is incoherent with its counterpart
 //
-// in :			min_prop : The min property name
-//			max_prop : The max property name
-//			dev_name : The device name
-//			origin : The origin of the exception
+// argument :
+// 		in :
+//			- min_prop : The min property name
+//			- max_prop : The max property name
+//			- dev_name : The device name
+//			- origin : The origin of the exception
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::throw_incoherent_val_err(const char *min_prop,const char *max_prop,const string &dev_name,const char *origin)
 {
@@ -1553,18 +1569,21 @@ void Attribute::throw_incoherent_val_err(const char *min_prop,const char *max_pr
 			      (const char *)origin);
 }
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::throw_err_data_type
+// method :
+//		Attribute::throw_err_data_type
 //
-// description : 	Throw a Tango DevFailed exception when an error on
-//					data type is detected
+// description :
+//		Throw a Tango DevFailed exception when an error on data type is detected
 //
-// in :		prop_name : The property name
-//			dev_name : The device name
-//			origin : The origin of the exception
+// argument :
+// 		in :
+//			- prop_name : The property name
+//			- dev_name : The device name
+//			- origin : The origin of the exception
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::throw_err_data_type(const char *prop_name,const string &dev_name,const char *origin)
 {
@@ -1577,18 +1596,21 @@ void Attribute::throw_err_data_type(const char *prop_name,const string &dev_name
 			      (const char *)origin);
 }
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::throw_min_max_value
+// method :
+//		Attribute::throw_min_max_value
 //
-// description : 	Throw a Tango DevFailed exception when an error on
-//					min/max value is detected
+// description :
+//		Throw a Tango DevFailed exception when an error on min/max value is detected
 //
-// in :	dev_name : The device name
-//      memorized_value : The attribute memorized value
-//      check_type : The type of check which was done (min_value or max_value)
+// argument :
+// 		in :
+//			- dev_name : The device name
+//      	- memorized_value : The attribute memorized value
+//      	- check_type : The type of check which was done (min_value or max_value)
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,MinMaxValueCheck check_type)
 {
@@ -1606,15 +1628,18 @@ void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,Min
 			      (const char *)"Attribute::throw_min_max_value()");
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::is_polled
+// method :
+//		Attribute::is_polled
 //
-// description : 	Check if the attribute polled
+// description :
+//		Check if the attribute polled
 //
-// This method returns a boolean set to true if the attribute is polled
+// return:
+// 		This method returns a boolean set to true if the attribute is polled
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 bool Attribute::is_polled()
 {
@@ -1641,8 +1666,8 @@ bool Attribute::is_polled()
 		{
 
 //
-// when the polling buffer is externally filled (polling period == 0)
-// mark the attribute as not polled! No events can be send by the polling thread!
+// When the polling buffer is externally filled (polling period == 0), mark the attribute as not polled!
+// No events can be send by the polling thread!
 //
 
 			if ( attr_list[i+1] == "0" )
@@ -1655,15 +1680,14 @@ bool Attribute::is_polled()
 	}
 
 //
-// now check wether a polling period is set ( for example by pogo)
+// Now check wether a polling period is set ( for example by pogo)
 //
 
 	if ( get_polling_period() > 0 )
 	{
 
 //
-// check the list of non_auto_polled attributes to verify wether
-// the polling was disabled
+// Check the list of non_auto_polled attributes to verify wether the polling was disabled
 //
 
 		vector<string> &napa = ext->dev->get_non_auto_polled_attr();
@@ -1695,17 +1719,18 @@ bool Attribute::is_polled(DeviceImpl *the_dev)
     return is_polled();
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::is_writ_associated
+// method :
+//		Attribute::is_writ_associated
 //
-// description : 	Check if the attribute has an associated writable
-//			attribute
+// description :
+//		Check if the attribute has an associated writable attribute
 //
-// This method returns a boolean set to true if the atribute has an associatied
-// writable attribute
+// return :
+// 		This method returns a boolean set to true if the atribute has an associatied writable attribute
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 bool Attribute::is_writ_associated()
 {
@@ -1715,18 +1740,20 @@ bool Attribute::is_writ_associated()
 		return false;
 }
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::get_attr_value
+// method :
+//		Attribute::get_attr_value
 //
-// description : 	Retrieve a property value as a string from the vector
-//			of properties
+// description :
+//		Retrieve a property value as a string from the vector of properties
 //
-// in :			prop_list : The property vector
-//			prop_name : the property name
+// argument :
+// 		in :
+//			- prop_list : The property vector
+//			- prop_name : the property name
 //
-//--------------------------------------------------------------------------
-
+//--------------------------------------------------------------------------------------------------------------------
 
 string &Attribute::get_attr_value(vector <AttrProperty> &prop_list,const char *prop_name)
 {
@@ -1750,17 +1777,20 @@ string &Attribute::get_attr_value(vector <AttrProperty> &prop_list,const char *p
 	return pos->get_value();
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::get_lg_attr_value
+// method :
+//		Attribute::get_lg_attr_value
 //
-// description : 	Retrieve a property value as a long from the vector
-//			of properties
+// description :
+//		Retrieve a property value as a long from the vector of properties
 //
-// in :			prop_list : The property vector
-//			prop_name : the property name
+// argument :
+// 		in :
+//			- prop_list : The property vector
+//			- prop_name : the property name
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 
 long Attribute::get_lg_attr_value(vector <AttrProperty> &prop_list,const char *prop_name)
@@ -1786,14 +1816,19 @@ long Attribute::get_lg_attr_value(vector <AttrProperty> &prop_list,const char *p
 	return pos->get_lg_value();
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::get_properties
+// method :
+//		Attribute::get_properties
 //
-// description : 	Init the Tango::AttributeConfig with all the attribute
-//			properties value
+// description :
+//		Init the Tango::AttributeConfig with all the attribute properties value
 //
-//--------------------------------------------------------------------------
+// argument :
+//		in :
+//			- conf
+//
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::get_properties(Tango::AttributeConfig &conf)
 {
@@ -2036,14 +2071,19 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 	}
 }
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::set_properties
+// method :
+//		Attribute::set_properties
 //
-// description : 	Init the Tango::AttributeConfig with all the attribute
-//			properties value
+// description :
+//		Init the Tango::AttributeConfig with all the attribute properties value
 //
-//--------------------------------------------------------------------------
+// argument :
+// 		in :
+//			- conf
+//			- d
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_properties(const Tango::AttributeConfig &conf,Tango::DeviceImpl *d)
 {
@@ -2060,17 +2100,14 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
         return;
 
 //
-// Check if the caller try to change "hard coded" properties
-// Throw exception in case of
+// Check if the caller try to change "hard coded" properties. Throw exception in case of
 //
 
     check_hard_coded_properties(conf);
 
 //
-// Copy only a sub-set of the new properties
-// For each "string" property, an empty string means returns to its
-// default value which could be the library default value or the
-// user defined default value
+// Copy only a sub-set of the new properties. For each "string" property, an empty string means returns to its
+// default value which could be the library default value or the user defined default value
 //
 
     Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
@@ -3147,10 +3184,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 	set_properties(tmp_conf,dev_name);
 
 //
-// Add a check of the display level property because it is not
-// checked by the check_hard_coded_properties() template method
-// called by the set_properties() method.
-// Display level is available only in AttributeConfig_3
+// Add a check of the display level property because it is not checked by the check_hard_coded_properties() template
+// method called by the set_properties() method. Display level is available only in AttributeConfig_3
 //
 
     check_hard_coded_properties(conf);
@@ -4621,8 +4656,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 		{
 
 //
-// In case of exception, try to store old properties in the database and
-// inform the user about the error
+// In case of exception, try to store old properties in the database and inform the user about the error
 //
 
 			try
@@ -4652,8 +4686,8 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 	{
 
 //
-// If there are any device startup exceptions, do not roll back the attribute configuration
-// unless the new configuration is correct
+// If there are any device startup exceptions, do not roll back the attribute configuration unless the new
+// configuration is correct
 //
 
 		if(is_startup_exception == false && ext->startup_exceptions_clear == true)
@@ -4705,14 +4739,20 @@ void Attribute::set_max_warning(const char *new_max_warning_str)
 	set_max_warning(string(new_max_warning_str));
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::upd_database
+// method :
+//		Attribute::upd_database
 //
-// description : 	Update the tango database with the new attribute
-//			values
+// description :
+//		Update the tango database with the new attribute values
 //
-//--------------------------------------------------------------------------
+// argument:
+//		in :
+//			- conf :
+//			-dev_name :
+//
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name)
 {
@@ -4732,8 +4772,8 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 	long prop_to_delete = 0;
 
 //
-// Get the vector of user default properties to store the library defaults in
-// the data base in case there are user defaults declared for the property
+// Get the vector of user default properties to store the library defaults in the database in case there are user
+// defaults declared for the property
 //
 
 	Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
@@ -4743,16 +4783,14 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 	vector<AttrProperty> unused;
 
 //
-// Check if "string" properties must be updated in db and if
-// needed insert a corresponding DbDatum object in the DbData
+// Check if "string" properties must be updated in db and if needed insert a corresponding DbDatum object in the DbData
 // vector
 //
 
 	check_str_prop(conf,db_d,prop_to_update,db_del,prop_to_delete,def_user_prop,unused);
 
 //
-// For the last four, if the data type is not string, checks that the input
-// strings are really number
+// For the last four, if the data type is not string, checks that the input strings are really number
 //
 
 	TangoSys_MemStream str;
@@ -4782,9 +4820,8 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 		Tango::Util *tg = Tango::Util::instance();
 
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 		bool retry = true;
@@ -4808,9 +4845,8 @@ void Attribute::upd_database(const Tango::AttributeConfig &conf,string &dev_name
 
 		Tango::Util *tg = Tango::Util::instance();
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 		bool retry = true;
@@ -4853,8 +4889,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	long prop_to_delete = 0;
 
 //
-// Get the vector of user default properties to store the library defaults in
-// the data base in case there are user defaults declared for the property
+// Get the vector of user default properties to store the library defaults in the database in case there are user
+// defaults declared for the property
 //
 
 	vector<AttrProperty> fake_attr_prop;
@@ -4885,8 +4921,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	{
 
 //
-// Check if "string" properties must be updated in db and if
-// needed insert a corresponding DbDatum object in the DbData
+// Check if "string" properties must be updated in db and if needed insert a corresponding DbDatum object in the DbData
 // vector
 //
 
@@ -4901,8 +4936,7 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		check_str_prop(tmp_conf,db_d,prop_to_update,db_del,prop_to_delete,def_user_prop,def_class_prop);
 
 //
-// For the last two, if the data type is not string, checks that the input
-// strings are really number
+// For the last two, if the data type is not string, checks that the input strings are really number
 //
 
 
@@ -4930,8 +4964,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 
 //
-// RDS alarm values (delta_val and delta_t) are stored in or deleted from
-// the database only if both are set or both not specified.
+// RDS alarm values (delta_val and delta_t) are stored in or deleted from the database only if both are set or both not
+// specified.
 //
 
 //
@@ -6053,9 +6087,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		Tango::Util *tg = Tango::Util::instance();
 
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 		bool retry = true;
@@ -6080,9 +6113,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 
 		Tango::Util *tg = Tango::Util::instance();
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 		bool retry = true;
@@ -6103,24 +6135,25 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	cout4 << "Leaving upd_database method" << endl;
 }
 
-//+--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::check_str_prop
+// method :
+//		Attribute::check_str_prop
 //
-// description : 	Check if attribute properties which are real string
-//			needs to be updated in db
+// description :
+//		Check if attribute properties which are real string needs to be updated in db
 //
-// in :			conf : The attribute configuration structure
-//			    db_d : The DbData which will be used to update database
-//			    prop_to_update : The number of property(ies) to update
-//					            in database
-//              db_del : The DbData which will be used to delete database
-//              prop_to_delete :  The number of property(ies) to delete
-//					            from database
-//              def_user_prop :
-//              def_class_prop :
+// argument :
+// 		in :
+//			- conf : The attribute configuration structure
+//			- db_d : The DbData which will be used to update database
+//			- prop_to_update : The number of property(ies) to update in database
+//          - db_del : The DbData which will be used to delete database
+//          - prop_to_delete :  The number of property(ies) to delete from database
+//          - def_user_prop :
+//          - def_class_prop :
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 			       Tango::DbData &db_d,long &prop_to_update,
@@ -6130,11 +6163,9 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 {
 
 //
-// Check if the value of attribute property is to be stored in the database.
-// There are 5 value alternatives distinguished: value (Val), empty string (""),
-// NotANumber (NaN), AlrmValueNotSpec (AVNS) and default library value (Def).
-// There are also 2 use cases, for which the above value alternatives imply
-// different behaviour:
+// Check if the value of attribute property is to be stored in the database. There are 5 value alternatives
+// distinguished: value (Val), empty string (""), NotANumber (NaN), AlrmValueNotSpec (AVNS) and default library
+// value (Def). There are also 2 use cases, for which the above value alternatives imply different behaviour:
 // 1) No user default values defined
 // 		"", NaN, Def and AVNS - delete database entry for the property
 //		Val - store value in database
@@ -6679,21 +6710,24 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 }
 
 
-//+--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::validate_change_properties
+// method :
+//		Attribute::validate_change_properties
 //
-// description : 	Check if attribute change properties are properly defined
+// description :
+//		Check if attribute change properties are properly defined
 //
-// in :				dev_name : The name of the device
-//				    prop_name : The name of the property
-//				    change_prop_str : A string representing the change property
-//					(in the form of either "value" or "value1,value2")
+// argument :
+// 		in :
+//				- dev_name : The name of the device
+//				- prop_name : The name of the property
+//				- change_prop_str : A string representing the change property (in the form of either "value" or
+//									"value1,value2")
+//		out :
+//				- validated_prop : A vector of parsed change properties values in the form of numbers of type double
 //
-// out :			validated_prop : A vector of parsed change properties values
-//					in the form of numbers of type double
-//
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::validate_change_properties(const string &dev_name, const char *prop_name, string &change_prop_str, vector<double> &validated_prop)
 {
@@ -6703,27 +6737,28 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 	validate_change_properties(dev_name, prop_name, change_prop_str, validated_prop, bring_usr_def,bring_class_def);
 }
 
-//+--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::validate_change_properties
+// method :
+//		Attribute::validate_change_properties
 //
-// description : 	Check if attribute change properties are properly defined
+// description :
+//		Check if attribute change properties are properly defined
 //
-// in :				dev_name : The name of the device
-//				    prop_name : The name of the property
-//				    change_prop_str : A string representing the change property
-//					                (in the form of either "value" or "value1,value2")
+// argument :
+// 		in :
+//				- dev_name : The name of the device
+//				- prop_name : The name of the property
+//				- change_prop_str : A string representing the change property
+//									(in the form of either "value" or "value1,value2")
+//		 out :
+//				- validated_prop : A vector of parsed change properties values in the form of numbers of type double
+//				- bring_usr_def : A vector of boolean values indicating if for a corresponding value in validated_prop
+//								  vector there was a request to restore the user defined value
+//				- bring_class_def : A vector of boolean values indicating if for a corresponding value in
+//									validated_prop vector there was a request to restore the class defined value
 //
-// out :			validated_prop : A vector of parsed change properties values
-//					                in the form of numbers of type double
-//				    bring_usr_def : A vector of boolean values indicating if for
-//					            a corresponding value in validated_prop vector there
-//					            was a request to restore the user defined value
-//				    bring_class_def : A vector of boolean values indicating if for
-//					            a corresponding value in validated_prop vector there
-//					            was a request to restore the class defined value
-//
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::validate_change_properties(const string &dev_name, const char *prop_name, string &change_prop_str, vector<double> &validated_prop,
                                            vector<bool> &bring_usr_def,vector<bool> &bring_class_def)
@@ -6836,23 +6871,27 @@ void Attribute::validate_change_properties(const string &dev_name, const char *p
 	}
 }
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::event_prop_db
+// method :
+//		Attribute::event_prop_db
 //
 // description :
 //
-// in :		prop_name :
-//          rel_change :
-//			rel_change_str :
-//			db_del :
-//			prop_to_delete :
-//          db_d :
-//          prop_to_update :
+// argument :
+// 		in :
+//			- prop_name :
+//          - rel_change :
+//			- rel_change_usr :
+//			- db_del :
+//			- prop_to_delete :
+//          - db_d :
+//          - prop_to_update :
 //
 //--------------------------------------------------------------------------
 
-void Attribute::event_prop_db(const char *prop_name,vector<double> &rel_change,vector<double> &rel_change_usr,DbData &db_del,long &prop_to_delete,DbData &db_d,long &prop_to_update)
+void Attribute::event_prop_db(const char *prop_name,vector<double> &rel_change,vector<double> &rel_change_usr,
+							  DbData &db_del,long &prop_to_delete,DbData &db_d,long &prop_to_update)
 {
     vector<string> rel_change_str_tmp(2);
     vector<bool> rel_change_usr_def_tmp(2);
@@ -6903,22 +6942,23 @@ void Attribute::event_prop_db(const char *prop_name,vector<double> &rel_change,v
     }
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::set_value
+// method :
+//		Attribute::set_value
 //
-// description : 	Set the attribute read value and quality. This method
-//			automatically set the date when it has been called
-//			This method is overloaded several times for all the
-//			supported attribute data type
+// description :
+//		Set the attribute read value and quality. This method automatically set the date when it has been called
+//		This method is overloaded several times for all the supported attribute data type
 //
-// in :			p_data : The attribute read value
-//			x : The attribute x dimension (default is 1)
-//			y : The atttribute y dimension (default is 0)
-//			release : A flag set to true if memory must be
-//				  de-allocated (default is false)
+// argument :
+// 		in :
+//			- p_data : The attribute read value
+//			- x : The attribute x dimension (default is 1)
+//			- y : The atttribute y dimension (default is 0)
+//			- release : A flag set to true if memory must be de-allocated (default is false)
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_value(Tango::DevShort *p_data,long x,long y,bool release)
 {
@@ -6967,9 +7007,8 @@ void Attribute::set_value(Tango::DevShort *p_data,long x,long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7072,9 +7111,8 @@ void Attribute::set_value(Tango::DevLong *p_data,long x,long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7178,9 +7216,8 @@ void Attribute::set_value(Tango::DevLong64 *p_data,long x,long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7283,9 +7320,8 @@ void Attribute::set_value(Tango::DevFloat *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7387,9 +7423,8 @@ void Attribute::set_value(Tango::DevDouble *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7491,9 +7526,8 @@ void Attribute::set_value(Tango::DevString *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7603,9 +7637,8 @@ void Attribute::set_value(Tango::DevUShort *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7708,9 +7741,8 @@ void Attribute::set_value(Tango::DevBoolean *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7812,9 +7844,8 @@ void Attribute::set_value(Tango::DevUChar *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -7917,9 +7948,8 @@ void Attribute::set_value(Tango::DevULong *p_data,long x,long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -8022,9 +8052,8 @@ void Attribute::set_value(Tango::DevULong64 *p_data,long x,long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -8127,9 +8156,8 @@ void Attribute::set_value(Tango::DevState *p_data,long x,long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -8230,9 +8258,8 @@ void Attribute::set_value(Tango::DevEncoded *p_data,long x, long y,bool release)
 	quality = Tango::ATTR_VALID;
 
 //
-// If the data is wanted from the DevState command, store it in a sequence.
-// If the attribute  has an associated writable attribute, store data in a
-// temporary buffer (the write value must be added before the data is sent
+// If the data is wanted from the DevState command, store it in a sequence. If the attribute  has an associated
+// writable attribute, store data in a temporary buffer (the write value must be added before the data is sent
 // back to the caller)
 //
 
@@ -8334,23 +8361,25 @@ void Attribute::set_value(Tango::EncodedAttribute *attr) {
 
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::set_value_date_quality
+// method :
+//		Attribute::set_value_date_quality
 //
-// description : 	Set the attribute read value date and quality.
-//			This method is overloaded several times for all the
-//			supported attribute data type
+// description :
+//		Set the attribute read value date and quality. This method is overloaded several times for all the
+//		supported attribute data type
 //
-// in :			p_data : The attribute read value
-//			t : The attribute date
-//			qual : The attribute quality
-//			x : The attribute x dimension (default is 1)
-//			y : The atttribute y dimension (default is 0)
-//			release : A flag set to true if memory must be
-//				  de-allocated (default is false)
+// argument :
+// 		in :
+//			- p_data : The attribute read value
+//			- t : The attribute date
+//			- qual : The attribute quality
+//			- x : The attribute x dimension (default is 1)
+//			- y : The atttribute y dimension (default is 0)
+//			- release : A flag set to true if memory must be de-allocated (default is false)
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_value_date_quality(Tango::DevShort *p_data,time_t t,
 				    Tango::AttrQuality qual,
@@ -8997,13 +9026,15 @@ void Attribute::set_value_date_quality(Tango::DevString *p_data_str,Tango::DevUC
 }
 #endif
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::set_data_size
+// method :
+//		Attribute::set_data_size
 //
-// description : 	Compute the attribute amount of data
+// description :
+//		Compute the attribute amount of data
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_data_size()
 {
@@ -9027,13 +9058,15 @@ void Attribute::set_data_size()
 	}
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::set_time
+// method :
+//		Attribute::set_time
 //
-// description : 	Set the date if the date flag is true
+// description :
+//		Set the date if the date flag is true
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_time()
 {
@@ -9058,16 +9091,19 @@ void Attribute::set_time()
 	}
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method :		Attribute::check_alarm
+// method :
+//		Attribute::check_alarm
 //
-// description :	Check if the attribute is in alarm
+// description :
+//		Check if the attribute is in alarm
 //
-// This method returns a boolean set to true if the atribute is in alarm. In
-// this case, it also set the attribute quality factor to ALARM
+// retrun :
+// 		This method returns a boolean set to true if the atribute is in alarm. In this case, it also set the attribute
+//		quality factor to ALARM
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 bool Attribute::check_alarm()
 {
@@ -9087,9 +9123,8 @@ bool Attribute::check_alarm()
 	}
 
 //
-// If the attribute quality is different than VALID don`t do any checking to avoid
-// to override a user positioned quality value.
-// If no alarms levels are specified, just return without alarm.
+// If the attribute quality is different than VALID don`t do any checking to avoid to override a user positioned
+// quality value. If no alarms levels are specified, just return without alarm.
 //
 
 	if ( quality != Tango::ATTR_VALID )
@@ -9143,16 +9178,19 @@ bool Attribute::check_alarm()
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method :		Attribute::check_level_alarm
+// method :
+//		Attribute::check_level_alarm
 //
-// description :	Check if the attribute is in alarm level
+// description :
+//		Check if the attribute is in alarm level
 //
-// This method returns a boolean set to true if the atribute is in alarm. In
-// this case, it also set the attribute quality factor to ALARM
+// return :
+// 		This method returns a boolean set to true if the atribute is in alarm. In this case, it also set the attribute
+// 		quality factor to ALARM
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 bool Attribute::check_level_alarm()
 {
@@ -9697,16 +9735,19 @@ bool Attribute::check_level_alarm()
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method :		Attribute::check_warn_alarm
+// method :
+//		Attribute::check_warn_alarm
 //
-// description :	Check if the attribute is in warning alarm
+// description :
+//		Check if the attribute is in warning alarm
 //
-// This method returns a boolean set to true if the atribute is in alarm. In
-// this case, it also set the attribute quality factor to ALARM
+// return :
+// 		This method returns a boolean set to true if the atribute is in alarm. In this case, it also set the attribute
+// 		quality factor to ALARM
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 bool Attribute::check_warn_alarm()
 {
@@ -10239,14 +10280,15 @@ bool Attribute::check_warn_alarm()
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method :		Attribute::check_scalar_wattribute
+// method :
+//		Attribute::check_scalar_wattribute
 //
-// description :	Check whether the attribute is a READ_WRITE or
-//						READ_WITH_WRITE scalar attribute.
+// description :
+//		Check whether the attribute is a READ_WRITE or READ_WITH_WRITE scalar attribute.
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 bool Attribute::check_scalar_wattribute()
 {
@@ -10259,21 +10301,18 @@ bool Attribute::check_scalar_wattribute()
 	return false;
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method :		Attribute::delete_seq
+// method :
+//		Attribute::delete_seq
 //
-// description :	Delete the sequence created to store attribute
-//			value.
-//			In case of a read_attributes CORBA operation,
-//			this delete will be done automatically because the
-//			sequence is inserted in an CORBA::Any object which will
-//			delete the sequence when it is destroyed.
-//			This method is usefull only to delete the sequence
-//			created in case of the attribute is read during a
-//			DevState command to evaluate  device state
+// description :
+//		Delete the sequence created to store attribute value. In case of a read_attributes CORBA operation,
+//		this delete will be done automatically because the sequence is inserted in an CORBA::Any object which will
+//		delete the sequence when it is destroyed. This method is usefull only to delete the sequence
+//		created in case of the attribute is read during a DevState command to evaluate  device state
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::delete_seq()
 {
@@ -10334,17 +10373,20 @@ void Attribute::delete_seq()
 }
 
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::add_write_value
+// method :
+//		Attribute::add_write_value
 //
-// description : 	These methods add the associated writable attribute
-//					value to the read attribute buffer and create a
-//					sequence from the attribute internal buffer
+// description :
+//		These methods add the associated writable attribute value to the read attribute buffer and create a
+//		sequence from the attribute internal buffer
 //
-// in :	val : The associated write attribute value
+// argument :
+// 		in :
+//			- val_ptr : The associated write attribute value
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::add_write_value(Tango::DevVarShortArray *val_ptr)
 {
@@ -10554,20 +10596,20 @@ void Attribute::add_write_value(Tango::DevEncoded &val_ref)
 	value.enc_seq = new Tango::DevVarEncodedArray(data_size + 1,data_size + 1,tmp_enc,false);
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::Attribute_2_AttributeValue
+// method :
+//		Attribute::Attribute_2_AttributeValue
 //
-// description : 	Build an AttributeValue_3 object from the Attribute
-//			object content
+// description :
+//		Build an AttributeValue_3 object from the Attribute object content
 //
-// in :		ptr : Pointer to the AttributeValue_3 object to
-//			      be filled in.
-//			ptr_4 : Pointer to the AttributeValue_4 object to be filled
-//					in.
-//			dev : The device to which the attribute belongs to
+// argument :
+// 		in :
+//			- ptr : Pointer to the AttributeValue_3 object to be filled in.
+//			- dev : The device to which the attribute belongs to
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 
 void Attribute::Attribute_2_AttributeValue(Tango::AttributeValue_3 *ptr,Tango::DeviceImpl *dev)
@@ -10876,18 +10918,21 @@ void Attribute::Attribute_2_AttributeValue(Tango::AttributeValue_4 *ptr_4,Tango:
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::AttributeValue_4_2_AttributeValue_3
+// method :
+//		Attribute::AttributeValue_4_2_AttributeValue_3
 //
-// description : 	Build an AttributeValue_3 object from the AttributeValue_4
-//					object. This method is used in case an event is requested
-//					by a client knowing only IDL release 3
+// description :
+//		Build an AttributeValue_3 object from the AttributeValue_4 object. This method is used in case an event is
+//		requested by a client knowing only IDL release 3
 //
-// in :		ptr_4 : Pointer to the AttributeValue_4 object
-//			ptr_3 : Pointer to the AttributeValue_3 object to be filled in
+// argument :
+// 		in :
+//			- ptr_4 : Pointer to the AttributeValue_4 object
+//			- ptr_3 : Pointer to the AttributeValue_3 object to be filled in
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 
 void Attribute::AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_4 *ptr_4,Tango::AttributeValue_3 *ptr_3)
@@ -11019,15 +11064,19 @@ void Attribute::AttributeValue_4_2_AttributeValue_3(const Tango::AttributeValue_
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::fire_change_event
+// method :
+//		Attribute::fire_change_event
 //
-// description : 	Fire a change change event for the attribute value.
-// in :			   ptr : Pointer to a DevFailed exception to fire in case of
-// 							an error to indicate.
+// description :
+//		Fire a change change event for the attribute value.
 //
-//--------------------------------------------------------------------------
+// argument :
+// 		in :
+//			- except : Pointer to a DevFailed exception to fire in case of an error to indicate.
+//
+//--------------------------------------------------------------------------------------------------------------------
 
 
 void Attribute::fire_change_event(DevFailed *except)
@@ -11200,9 +11249,8 @@ void Attribute::fire_change_event(DevFailed *except)
 
 //
 // Eventually push the event (if detected)
-// When we have both notifd and zmq event supplier, do not detect the event
-// two times. The detect_and_push_events() method returns true if the event
-// is detected.
+// When we have both notifd and zmq event supplier, do not detect the event two times. The detect_and_push_events()
+// method returns true if the event is detected.
 //
 
             bool send_event = false;
@@ -11230,12 +11278,11 @@ void Attribute::fire_change_event(DevFailed *except)
 		{
 
 //
-// Send event, if the read_attribute failed or if it is the first time
-// that the read_attribute succeed after a failure.
+// Send event, if the read_attribute failed or if it is the first time that the read_attribute succeed after a failure.
 // Same thing if the attribute quality factor changes to INVALID
 //
-// This is done only to be able to set-up the same filters with events
-// comming with the standard mechanism or coming from a manual fire event call.
+// This is done only to be able to set-up the same filters with events comming with the standard mechanism or coming
+// from a manual fire event call.
 //
 
 			bool force_change   = false;
@@ -11378,15 +11425,19 @@ void Attribute::fire_change_event(DevFailed *except)
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::fire_archive_event
+// method :
+//		Attribute::fire_archive_event
 //
-// description : 	Fire a archive change event for the attribute value.
-// in :			   ptr : Pointer to a DevFailed exception to fire in case of
-// 							an error to indicate.
+// description :
+//		Fire a archive change event for the attribute value.
 //
-//--------------------------------------------------------------------------
+// argument :
+// 		in :
+//			- except : Pointer to a DevFailed exception to fire in case of an error to indicate.
+//
+//--------------------------------------------------------------------------------------------------------------------
 
 
 void Attribute::fire_archive_event(DevFailed *except)
@@ -11427,8 +11478,7 @@ void Attribute::fire_archive_event(DevFailed *except)
                 {
 
 //
-// For writable scalar attributes the sequence for the
-// attribute data is not yet allcoated. This will happen
+// For writable scalar attributes the sequence for the attribute data is not yet allcoated. This will happen
 // only when adding the set point!
 //
 
@@ -11470,8 +11520,7 @@ void Attribute::fire_archive_event(DevFailed *except)
                 {
 
 //
-// For writable scalar attributes the sequence for the
-// attribute data is not yet allcoated. This will happen
+// For writable scalar attributes the sequence for the attribute data is not yet allocated. This will happen
 // only when adding the set point!
 //
 
@@ -11588,9 +11637,8 @@ void Attribute::fire_archive_event(DevFailed *except)
 
 //
 // Eventually push the event (if detected)
-// When we have both notifd and zmq event supplier, do not detect the event
-// two times. The detect_and_push_events() method returns true if the event
-// is detected.
+// When we have both notifd and zmq event supplier, do not detect the event two times. The detect_and_push_events()
+// method returns true if the event is detected.
 //
 
             bool send_event = false;
@@ -11618,8 +11666,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 		{
 
 //
-// Execute detect_change only to calculate the delta_change_rel and
-// delta_change_abs and force_change !
+// Execute detect_change only to calculate the delta_change_rel and delta_change_abs and force_change !
 //
 
 			bool force_change   = false;
@@ -11767,18 +11814,21 @@ void Attribute::fire_archive_event(DevFailed *except)
 }
 
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::fire_event
+// method :
+//		Attribute::fire_event
 //
-// description : 	Fire a user event for the attribute value.
+// description :
+//		Fire a user event for the attribute value.
 //
-// in :			filt_names : The filterable fields name
-//			filt_vals : The filterable fields value (as double)
-//			except : Pointer to a DevFailed exception to fire in case of
-// 			         an error to indicate.
+// argument :
+// 		in :
+//			- filt_names : The filterable fields name
+//			- filt_vals : The filterable fields value (as double)
+//			- except : Pointer to a DevFailed exception to fire in case of an error to indicate.
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 
 void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,DevFailed *except)
@@ -11825,8 +11875,7 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 				{
 
 //
-// For writable scalar attributes the sequence for the
-// attribute data is not yet allcoated. This will happen
+// For writable scalar attributes the sequence for the attribute data is not yet allcoated. This will happen
 // only when adding the set point!
 //
 
@@ -11999,13 +12048,15 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 }
 
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// operator overloading : 	set_quality
+// method :
+//		Attribute::set_quality
 //
-// description : 	Set the attribute quality factor
+// description :
+//		Set the attribute quality factor
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_quality(Tango::AttrQuality qua,bool send_event)
 {
@@ -12016,14 +12067,15 @@ void Attribute::set_quality(Tango::AttrQuality qua,bool send_event)
 
 }
 
-//+-------------------------------------------------------------------------
+//+-----------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::upd_att_prop_db
+// method :
+//		Attribute::upd_att_prop_db
 //
-// description : 	Update the tango database with the new attribute
-//			values
+// description :
+//		Update the tango database with the new attribute values
 //
-//--------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 
 void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 				const char *prop_name)
@@ -12086,9 +12138,8 @@ void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 	db_data.push_back(prop);
 
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 	Tango::Util *tg = Tango::Util::instance();
@@ -12109,18 +12160,20 @@ void Attribute::upd_att_prop_db(Tango::Attr_CheckVal &new_value,
 }
 
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::remove_configuration()
+// method :
+//		Attribute::remove_configuration()
 //
-// description : 	Remove the attribute configuration from the database.
-// 					This method can be used to clean-up all the configuration
-//                  of an attribute to come back to its default values or the
-//                  remove all configuration of a dynamic attribute before deleting it.
+// description :
+//		Remove the attribute configuration from the database. This method can be used to clean-up all the configuration
+//      of an attribute to come back to its default values or the remove all configuration of a dynamic attribute
+//		before deleting it.
 //
-// 					The method removes all configured attribute properties
-//                  and removes the attribute from the list of polled attributes.
-//--------------------------------------------------------------------------
+// 		The method removes all configured attribute properties and removes the attribute from the list of polled
+//		attributes.
+//
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::remove_configuration()
 {
@@ -12129,8 +12182,7 @@ void Attribute::remove_configuration()
 	Tango::Util *tg = Tango::Util::instance();
 
 //
-// read all configured properties of the attribute from the database and
-// delete them!
+// read all configured properties of the attribute from the database and delete them!
 //
 
 	DbData db_read_data;
@@ -12140,9 +12192,8 @@ void Attribute::remove_configuration()
  	db_delete_data.push_back(DbDatum(name));
 
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 	bool retry = true;
@@ -12170,9 +12221,8 @@ void Attribute::remove_configuration()
     }
 
 //
-// Implement a reconnection schema. The first exception received if the db
-// server is down is a COMM_FAILURE exception. Following exception received
-// from following calls are TRANSIENT exception
+// Implement a reconnection schema. The first exception received if the db server is down is a COMM_FAILURE exception.
+// Following exception received from following calls are TRANSIENT exception
 //
 
 	if ( nb_prop > 0 )
@@ -12193,13 +12243,15 @@ void Attribute::remove_configuration()
 	}
 }
 
-//+-------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::get_att_device
+// method :
+//		Attribute::get_att_device
 //
-// description : 	Return a pointer to the attribute device
+// description :
+//		Return a pointer to the attribute device
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 DeviceImpl *Attribute::get_att_device()
 {
@@ -12212,13 +12264,19 @@ DeviceImpl *Attribute::get_att_device()
 	return ext->dev;
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::set_attr_serial_method
+// method :
+//		Attribute::set_attr_serial_method
 //
-// description : 	Set attribute serialization method
+// description :
+//		Set attribute serialization method
 //
-//--------------------------------------------------------------------------
+// argument :
+//		in :
+//			- ser_model : The serial model
+//
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 {
@@ -12236,25 +12294,28 @@ void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 	ext->attr_serial_model=ser_model;
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::get_att_device_class
+// method :
+//		Attribute::get_att_device_class
 //
-// description : 	Return a pointer to the attribute device class
+// description :
+//		Return a pointer to the attribute device class
 //
-//--------------------------------------------------------------------------
+// argument :
+//		in :
+//			- dev_name :
+//
+//--------------------------------------------------------------------------------------------------------------------
 
 DeviceClass *Attribute::get_att_device_class(string &dev_name)
 {
 
 //
 // Get device class
-// When the server is started, it's an easy task
-// When the server is in its starting phase, it's more tricky
-// Get from the DeviceClass list the first one for which the device
-// factory method has not yet been fully executed.
-// This is the DeviceClass with the device in its init_device() method
-// has called Attribute::set_properties()
+// When the server is started, it's an easy task . When the server is in its starting phase, it's more tricky
+// Get from the DeviceClass list the first one for which the device factory method has not yet been fully executed.
+// This is the DeviceClass with the device in its init_device() method has called Attribute::set_properties()
 //
 
     Tango::Util *tg = Tango::Util::instance();
@@ -12294,14 +12355,15 @@ DeviceClass *Attribute::get_att_device_class(string &dev_name)
     return dev_class;
 }
 
-//+-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::log_quality
+// method :
+//		Attribute::log_quality
 //
-// description :    Send a logging message (on the device) when the attribute
-//                  quality factor changes
+// description :
+//		Send a logging message (on the device) when the attribute quality factor changes
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::log_quality()
 {
@@ -12422,16 +12484,19 @@ void Attribute::log_quality()
     }
 }
 
-//+-------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::avns_in_db()
+// method :
+//		Attribute::avns_in_db()
 //
-// description : 	Store in db the famous AVNS (AlrmValueNotSpec)
-//                  for a specific attribute property
+// description :
+//		Store in db the famous AVNS (AlrmValueNotSpec) for a specific attribute property
 //
-// Arg in :			prop_name : Property name
+// argument :
+//		in :
+//			- prop_name : Property name
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::avns_in_db(const char *prop_name,string &dev_name)
 {
@@ -12462,14 +12527,17 @@ void Attribute::avns_in_db(const char *prop_name,string &dev_name)
     }
 }
 
-//+-------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 //
-// method : 		Attribute::avns_in_att()
+// method :
+//		Attribute::avns_in_att()
 //
-// description : 	Store in att the famous AVNS (AlrmValueNotSpec)
-//                  for a specific attribute property
+// description :
+//		Store in att the famous AVNS (AlrmValueNotSpec) for a specific attribute property
 //
-// Arg in :			pt : Property type
+// argument :
+//		in :
+//			- pt : Property type
 //
 //--------------------------------------------------------------------------
 
@@ -12520,14 +12588,15 @@ void Attribute::avns_in_att(prop_type pt)
     }
 }
 
-//+-------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 //
-// operator overloading : 	<<
+// operator overloading :
+//		<<
 //
-// description : 	Friend function to ease printing instance of the
-//			Attribute class
+// description :
+//		Friend function to ease printing instance of the Attribute class
 //
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 
 #ifndef TANGO_HAS_LOG4TANGO
 ostream &operator<<(ostream &o_str,Attribute &p)
