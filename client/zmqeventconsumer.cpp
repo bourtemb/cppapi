@@ -2185,12 +2185,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                         EventQueue *ev_queue;
                         ev_queue = esspos->ev_queue;
 
-                        if (cb_ctr == cb_nb)
-                        {
-                            map_lock = false;
-                            map_modification_lock.readerOut();
-                        }
-
                         if ((ev_attr_conf == false) && (ev_attr_ready == false))
                         {
                             EventData *event_data;
@@ -2360,20 +2354,11 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
                             }
                         }
                     }
-                    else // id < 0
-                    {
-                        if (cb_ctr == cb_nb)
-                        {
-                            map_lock = false;
-                            map_modification_lock.readerOut();
-                        }
 
-                        if ((ev_attr_conf == false) && (ev_attr_ready == false))
-                            delete dev_attr;
-                        else if (ev_attr_ready == false)
-                            delete attr_info_ex;
-                    }
                 } // End of for
+
+				map_lock = false;
+				map_modification_lock.readerOut();
 
                 delete missed_event_data;
                 delete missed_conf_event_data;
