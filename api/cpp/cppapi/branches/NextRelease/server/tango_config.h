@@ -132,9 +132,9 @@
 //
 // Some C++11 feature
 // Unique_ptr -> gcc 4.3
+// rvalues -> gcc 4.3
 // Lambda function -> gcc 4.5
 // nullptr -> gcc 4.6
-// rvalues -> gcc 4.3
 //
 
 #ifndef _TG_WINDOWS_
