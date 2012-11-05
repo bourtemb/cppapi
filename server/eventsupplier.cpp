@@ -420,24 +420,28 @@ bool EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 // Specify the precision interval for the archive period testing
 // 2% are used for periods < 5000 ms and
 // 100ms are used for periods > 5000 ms.
+// If the attribute archive period is INT_MAX, this means that the user does not want the periodic part of the
+// archive event
 //
 
-	if ( arch_period >= 5000 )
+	if (arch_period != INT_MAX)
 	{
-		arch_period = arch_period - DELTA_PERIODIC_LONG;
-	}
-	else
-	{
-#ifdef _TG_WINDOWS_
-		double tmp = (double)arch_period * DELTA_PERIODIC;
-		double int_part,eve_round;
-		double frac = modf(tmp,&int_part);
-		if (frac >= 0.5)
-			eve_round = ceil(tmp);
+		if ( arch_period >= 5000 )
+		{
+			arch_period = arch_period - DELTA_PERIODIC_LONG;
+		}
 		else
-			eve_round = floor(tmp);
+		{
+#ifdef _TG_WINDOWS_
+			double tmp = (double)arch_period * DELTA_PERIODIC;
+			double int_part,eve_round;
+			double frac = modf(tmp,&int_part);
+			if (frac >= 0.5)
+				eve_round = ceil(tmp);
+			else
+				eve_round = floor(tmp);
 #else
-		double eve_round = round((double)arch_period * DELTA_PERIODIC);
+			double eve_round = round((double)arch_period * DELTA_PERIODIC);
 #endif
 			arch_period = (int)eve_round;
 		}
@@ -447,6 +451,7 @@ bool EventSupplier::detect_and_push_archive_event(DeviceImpl *device_impl,Attrib
 			is_change = true;
 			period_change = true;
 		}
+	}
 
 //
 // if no attribute of this name is registered with change then

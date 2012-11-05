@@ -2215,7 +2215,7 @@ protected:
         bool				change_event_implmented;		// Flag true if a manual fire change event is implemented.
         bool				archive_event_implmented;		// Flag true if a manual fire archive event is implemented.
         bool				check_change_event_criteria;	// True if change event criteria should be checked when sending the event
-        bool				check_archive_event_criteria;	// True if change event criteria should be checked when sending the event
+        bool				check_archive_event_criteria;	// True if archive event criteria should be checked when sending the event
         bool				event_periodic_client_3;		// True if at least one periodic event client is using IDL 3
         bool				event_change_client_3;			// True if at least one periodic event client is using IDL 3
         bool				event_archive_client_3;			// True if at least one periodic event client is using IDL 3
