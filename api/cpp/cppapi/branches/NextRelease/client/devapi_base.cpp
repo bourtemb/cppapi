@@ -1537,9 +1537,10 @@ void DeviceProxy::real_constructor (string &name,bool need_check_acc)
 		}
 	}
 
-
+//
 // get the name of the asscociated device when connecting
 // inside a device server
+//
 
 	try
 	{

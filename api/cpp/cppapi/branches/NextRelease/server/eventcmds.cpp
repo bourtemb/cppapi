@@ -451,7 +451,7 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 			}
 
 //
-// If one of the 2 parameters are not deefined, get the default value
+// If one of the 2 parameters are not defined, get the default value
 //
 
             if (rate == 0)
