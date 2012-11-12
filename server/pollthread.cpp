@@ -1224,7 +1224,7 @@ void PollThread::err_out_of_sync(WorkItem &to_do)
 					event_supplier_zmq->push_event(to_do.dev,"periodic",f_names,f_data,f_names_lg,f_data_lg,ad,to_do.name,&except);
 			}
 			else
-				event_supplier_nd->detect_and_push_events(to_do.dev,ad,&except,to_do.name,(struct timeval *)NULL);
+				event_supplier_zmq->detect_and_push_events(to_do.dev,ad,&except,to_do.name,(struct timeval *)NULL);
 		}
 	}
 }
