@@ -135,12 +135,12 @@ Util *Util::instance(bool exit)
 	if (_instance == NULL)
 	{
 		if (exit == true)
-                	Util::print_err_message("Tango is not initialised !!!\nExiting");
+			Util::print_err_message("Tango is not initialised !!!\nExiting");
 		else
 		{
 			Except::throw_exception((const char*)"API_UtilSingletonNotCreated",
                         		   	(const char*)"Util singleton not created",
-					   	(const char*)"Util::instance");
+									(const char*)"Util::instance");
 		}
 	}
 	return _instance;
