@@ -347,10 +347,12 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
         }
 
 //
-// Something received by the event socket (mcast transport)? What is stored in the zmq::pollitem_t structure is the
-// real C zmq socket, not the C++ zmq::socket_t class instance. There is no way to create a zmq::socket_t class instance
-// from a C zmq socket. Only in 11/2012, some C++11 move ctor/assignment operator has been added to the socket_t class
-// allowing creation of zmq::socket_t class from C zmq socket. Nevertheless, today (11/2012), it is still not official
+// Something received by the event socket (mcast transport)?
+//
+// What is stored in the zmq::pollitem_t structure is the real C zmq socket, not the C++ zmq::socket_t class instance.
+// There is no way to create a zmq::socket_t class instance from a C zmq socket. Only in 11/2012, some C++11 move
+// ctor/assignment operator has been added to the socket_t class allowing creation of zmq::socket_t class from C zmq
+// socket. Nevertheless, today (11/2012), it is still not official
 //
 
         for (int loop = 3;loop < nb_poll_item;loop++)
@@ -910,8 +912,8 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 // First extract the endpoint and the event name from received buffer
 //
 
-            const char *endpoint = &(tmp_ptr[1]);
-            int start = ::strlen(endpoint) + 2;
+            const char *endpoint = &(tmp_ptr[2]);
+            int start = ::strlen(endpoint) + 3;
             const char *event_name = &(tmp_ptr[start]);
             start = start + ::strlen(event_name) + 1;
             Tango::DevLong sub_hwm,rate,ivl;
@@ -1001,12 +1003,12 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 // Update poll item list
 //
 
-                poll_list[poll_nb].socket = *tmp_sock;
-                poll_list[poll_nb].fd = 0;
-                poll_list[poll_nb].events = ZMQ_POLLIN;
-                poll_list[poll_nb].revents = 0;
+                poll_list[old_poll_nb].socket = *tmp_sock;
+                poll_list[old_poll_nb].fd = 0;
+                poll_list[old_poll_nb].events = ZMQ_POLLIN;
+                poll_list[old_poll_nb].revents = 0;
 
-                poll_nb++;
+                old_poll_nb++;
             }
         }
         break;

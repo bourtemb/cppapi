@@ -211,6 +211,16 @@ ZmqEventSupplier::~ZmqEventSupplier()
 
     delete heartbeat_pub_sock;
     delete event_pub_sock;
+
+    if (event_mcast.empty() == false)
+	{
+		map<string,McastSocketPub>::iterator ite,ite_stop;
+		ite = event_mcast.begin();
+		ite_stop = event_mcast.end();
+
+		for (ite = event_mcast.begin(); ite != ite_stop;++ite)
+			delete ite->second.pub_socket;
+	}
 }
 
 //+----------------------------------------------------------------------------
@@ -644,6 +654,8 @@ void ZmqEventSupplier::push_heartbeat_event()
             double_send_heartbeat = false;
         }
 
+		cout3 << "ZmqEventSupplier::push_heartbeat_event(): nb_event = " << nb_event << endl;
+
         while (nb_event != 0)
         {
 
@@ -1025,22 +1037,23 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         zmq::message_t *event_call_mess_ptr = &event_call_mess;
         zmq::message_t *data_mess_ptr = &data_mess;
 
+		map<string,McastSocketPub>::iterator mcast_ite;
+		map<string,McastSocketPub>::iterator mcast_ite_end = event_mcast.end();
+
         if (event_mcast.empty() == false)
         {
-            map<string,McastSocketPub>::iterator ite;
-
-            if ((ite = event_mcast.find(event_name)) != event_mcast.end())
+            if ((mcast_ite = event_mcast.find(event_name)) != mcast_ite_end)
             {
-                if (ite->second.local_client == false)
+                if (mcast_ite->second.local_client == false)
                 {
-                   pub = ite->second.pub_socket;
+                   pub = mcast_ite->second.pub_socket;
                 }
                 else
                 {
-                    if (ite->second.pub_socket != NULL)
+                    if (mcast_ite->second.pub_socket != NULL)
                     {
                         send_nb = 2;
-                        pub = ite->second.pub_socket;
+                        pub = mcast_ite->second.pub_socket;
                     }
                 }
 
@@ -1095,6 +1108,12 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             endian_mess_sent = true;
 
             pub->send(*event_call_mess_ptr,ZMQ_SNDMORE);
+            if (ret == false)
+            {
+                cerr << "Call message returned false, assertion!!!!" << endl;
+                assert(false);
+            }
+
             ret = pub->send(*data_mess_ptr,0);
             if (ret == false)
             {
@@ -1103,19 +1122,22 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
             }
 
             send_nb--;
-            if (send_nb == 1)
+            if ((send_nb == 1) && (event_mcast.empty() == false) && (mcast_ite != mcast_ite_end))
             {
 
 //
 // Case of multicast socket with a local client
 //
 
-                pub = event_pub_sock;
+                if (mcast_ite->second.local_client == true)
+				{
+					pub = event_pub_sock;
 
-                name_mess_ptr = &name_mess_2;
-                endian_mess.copy(&endian_mess_2);
-                event_call_mess_ptr = &event_call_mess_2;
-                data_mess_ptr = &data_mess_2;
+					name_mess_ptr = &name_mess_2;
+					endian_mess.copy(&endian_mess_2);
+					event_call_mess_ptr = &event_call_mess_2;
+					data_mess_ptr = &data_mess_2;
+				}
             }
 
         }
