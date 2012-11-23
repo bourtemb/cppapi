@@ -117,7 +117,7 @@ namespace Tango
 #define     EVENT_METHOD_NAME           "push_zmq_event"
 #define     HEARTBEAT_EVENT_NAME        "heartbeat"
 #define     CTRL_SOCK_ENDPOINT          "inproc://control"
-#define     MCAST_PROT                  "pgm://"
+#define     MCAST_PROT                  "epgm://"
 #define     MCAST_HOPS                  5
 #define     PGM_RATE                    80 * 1024
 #define     PGM_IVL                     20 * 1000
