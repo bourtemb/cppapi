@@ -580,6 +580,14 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 				{
 					WAttribute &att = device_list[i]->get_device_attr()->get_w_attr_by_name(att_val[e.errors[k].index_in_call].name.in());
 					att.set_mem_exception(e.errors[k].err_list);
+					log4tango::Logger *log = device_list[i]->get_logger();
+					if (log->is_warn_enabled())
+					{
+						log->warn_stream() << log4tango::LogInitiator::_begin_log << "Writing set_point for attribute " << att.get_name() << " failed" << endl;
+						log->warn_stream() << log4tango::LogInitiator::_begin_log << "\tException desc = " << e.errors[k].err_list[0].desc.in() << endl;
+						log->warn_stream() << log4tango::LogInitiator::_begin_log << "\tException reason = " << e.errors[k].err_list[0].reason.in() << endl;
+					}
+
 				}
 				device_list[i]->set_run_att_conf_loop(true);
 				Tango::NamedDevFailedList e_list (e, device_list[i]->get_name(), (const char *)"DeviceClass::set_memorized_values()",
@@ -609,7 +617,7 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 //		DeviceClass::throw_mem_value()
 //
 // description :
-//		Write the memorized attribute with the value stored in database
+//		Throw API_AttrWrongMemValue exception
 //
 // argument :
 //		in :
