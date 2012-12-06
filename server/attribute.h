@@ -2430,6 +2430,21 @@ inline bool Attribute::prop_in_list(const char *prop_name,string &prop_str,size_
 		(void)0
 
 //
+// Throw exception if pointer is null
+//
+
+#define CHECK_PTR(A,B) \
+	if (A == NULL) \
+	{ \
+		TangoSys_OMemStream o; \
+		o << "Data pointer for attribute " << B << " is NULL" << ends; \
+		Except::throw_exception((const char *)"API_AttrOptProp",o.str(), \
+                            (const char *)"Attribute::set_value()"); \
+	} \
+	else \
+		(void)0
+
+//
 // Define one macro to make code more readable
 // but this macro is nearly unreadable !!!
 //
