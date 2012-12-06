@@ -6962,6 +6962,11 @@ void Attribute::event_prop_db(const char *prop_name,vector<double> &rel_change,v
 
 void Attribute::set_value(Tango::DevShort *p_data,long x,long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7066,6 +7071,11 @@ void Attribute::set_value(Tango::DevShort *p_data,long x,long y,bool release)
 
 void Attribute::set_value(Tango::DevLong *p_data,long x,long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7171,6 +7181,11 @@ void Attribute::set_value(Tango::DevLong *p_data,long x,long y,bool release)
 
 void Attribute::set_value(Tango::DevLong64 *p_data,long x,long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7276,6 +7291,11 @@ void Attribute::set_value(Tango::DevLong64 *p_data,long x,long y,bool release)
 
 void Attribute::set_value(Tango::DevFloat *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7379,6 +7399,11 @@ void Attribute::set_value(Tango::DevFloat *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevDouble *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7482,6 +7507,11 @@ void Attribute::set_value(Tango::DevDouble *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevString *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7593,6 +7623,11 @@ void Attribute::set_value(Tango::DevString *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevUShort *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7697,6 +7732,11 @@ void Attribute::set_value(Tango::DevUShort *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevBoolean *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7801,6 +7841,11 @@ void Attribute::set_value(Tango::DevBoolean *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevUChar *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -7903,6 +7948,11 @@ void Attribute::set_value(Tango::DevUChar *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevULong *p_data,long x,long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -8009,6 +8059,12 @@ void Attribute::set_value(Tango::DevULong64 *p_data,long x,long y,bool release)
 {
 
 //
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
+
+//
 // Throw exception if type is not correct
 //
 
@@ -8111,6 +8167,11 @@ void Attribute::set_value(Tango::DevULong64 *p_data,long x,long y,bool release)
 
 void Attribute::set_value(Tango::DevState *p_data,long x,long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -8215,6 +8276,11 @@ void Attribute::set_value(Tango::DevState *p_data,long x,long y,bool release)
 
 void Attribute::set_value(Tango::DevEncoded *p_data,long x, long y,bool release)
 {
+//
+// Throw exception if pointer is null
+//
+
+	CHECK_PTR(p_data,name);
 
 //
 // Throw exception if type is not correct
@@ -8311,6 +8377,14 @@ void Attribute::set_value(Tango::DevEncoded *p_data,long x, long y,bool release)
 
 void Attribute::set_value(Tango::DevString *p_data_str,Tango::DevUChar *p_data,long size,bool release)
 {
+	if (p_data_str == NULL || p_data == NULL)
+	{
+		TangoSys_OMemStream o;
+		o << "Data pointer for attribute " << name << " is NULL" << ends;
+		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+                            (const char *)"Attribute::set_value()");
+	}
+
 	if (release == false)
 	{
 		enc_help.encoded_format = CORBA::string_dup(*p_data_str);
@@ -8329,36 +8403,36 @@ void Attribute::set_value(Tango::DevString *p_data_str,Tango::DevUChar *p_data,l
 	}
 }
 
-void Attribute::set_value(Tango::EncodedAttribute *attr) {
+void Attribute::set_value(Tango::EncodedAttribute *attr)
+{
+	CHECK_PTR(attr,name);
 
-  Tango::DevString *f    = attr->get_format();
-  Tango::DevUChar  *d    = attr->get_data();
-  long              size = attr->get_size();
+	Tango::DevString *f    = attr->get_format();
+	Tango::DevUChar  *d    = attr->get_data();
+	long              size = attr->get_size();
 
-  if( *f==NULL ) {
-
-    TangoSys_OMemStream o;
-    o << "DevEncoded format for attribute " << name << " not specified" << ends;
-    Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+	if( *f==NULL )
+	{
+		TangoSys_OMemStream o;
+		o << "DevEncoded format for attribute " << name << " not specified" << ends;
+		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
                             (const char *)"Attribute::set_value()");
-  }
+	}
 
-  if( size==0 || !d ) {
+	if( size==0 || !d )
+	{
+		TangoSys_OMemStream o;
+		o << "DevEncoded data for attribute " << name << " not specified" << ends;
+		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+								(const char *)"Attribute::set_value()");
+	}
 
-    TangoSys_OMemStream o;
-    o << "DevEncoded data for attribute " << name << " not specified" << ends;
-    Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
-                            (const char *)"Attribute::set_value()");
-  }
+	set_value(f,d,size,false);
 
-
-  set_value(f,d,size,false);
-
-  if (attr->get_exclusion() == true)
-  {
-  	set_user_attr_mutex(attr->get_mutex());
-  }
-
+	if (attr->get_exclusion() == true)
+	{
+		set_user_attr_mutex(attr->get_mutex());
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------
