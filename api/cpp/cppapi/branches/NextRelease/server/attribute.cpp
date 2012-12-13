@@ -1450,7 +1450,7 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 
 			o << "RDS alarm properties (delta_t and delta_val) are not correctly defined for attribute " << name;
 			o << " in device " << dev_name << ends;
-			Except::throw_exception((const char *)"API_AttrOptProp",
+			Except::throw_exception((const char *)API_AttrOptProp,
 						  o.str(),
 						  (const char *)"Attribute::init_opt_prop()");
 		}
@@ -1535,7 +1535,7 @@ void Attribute::throw_err_format(const char *prop_name,const string &dev_name,co
 
 	o << "Device " << dev_name << "-> Attribute : " << name;
 	o << "\nThe property " << prop_name << " is defined in an unsupported format" << ends;
-	Except::throw_exception((const char *)"API_AttrOptProp",
+	Except::throw_exception((const char *)API_AttrOptProp,
 			      o.str(),
 			      (const char *)origin);
 }
@@ -1564,7 +1564,7 @@ void Attribute::throw_incoherent_val_err(const char *min_prop,const char *max_pr
 
 	o << "Device " << dev_name << "-> Attribute : " << name;
 	o << "\nValue of " << min_prop << " is grater than or equal to " << max_prop << ends;
-	Except::throw_exception((const char *)"API_IncoherentValues",
+	Except::throw_exception((const char *)API_IncoherentValues,
 			      o.str(),
 			      (const char *)origin);
 }
@@ -1591,7 +1591,7 @@ void Attribute::throw_err_data_type(const char *prop_name,const string &dev_name
 
 	o << "Device " << dev_name << "-> Attribute : " << name;
 	o << "\nThe property " << prop_name << " is not settable for the attribute data type" << ends;
-	Except::throw_exception((const char *)"API_AttrOptProp",
+	Except::throw_exception((const char *)API_AttrOptProp,
 			      o.str(),
 			      (const char *)origin);
 }
@@ -1623,7 +1623,7 @@ void Attribute::throw_min_max_value(string &dev_name,string &memorized_value,Min
     else
         o << "above";
     o << " the new limit!!" << ends;
-	Except::throw_exception((const char *)"API_AttrOptProp",
+	Except::throw_exception((const char *)API_AttrOptProp,
 			      o.str(),
 			      (const char *)"Attribute::throw_min_max_value()");
 }
@@ -1769,7 +1769,7 @@ string &Attribute::get_attr_value(vector <AttrProperty> &prop_list,const char *p
 		TangoSys_OMemStream o;
 
 		o << "Property " << prop_name << " is missing for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::get_attr_value()");
 	}
@@ -1807,7 +1807,7 @@ long Attribute::get_lg_attr_value(vector <AttrProperty> &prop_list,const char *p
 		TangoSys_OMemStream o;
 
 		o << "Property " << prop_name << " is missing for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::get_attr_value()");
 	}
@@ -4674,7 +4674,7 @@ void Attribute::set_upd_properties(const AttributeConfig_3 &conf,string &dev_nam
 
 				o << "Device " << dev_name << "-> Attribute : " << name;
 				o << "\nDatabase error occurred whilst setting attribute properties. The database may be corrupted." << ends;
-				Except::throw_exception((const char *)"API_CorruptedDatabase",
+				Except::throw_exception((const char *)API_CorruptedDatabase,
 							  o.str(),
 							  (const char *)"Attribute::set_upd_properties()");
 			}
@@ -6980,7 +6980,7 @@ void Attribute::set_value(Tango::DevShort *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -6997,7 +6997,7 @@ void Attribute::set_value(Tango::DevShort *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -7089,7 +7089,7 @@ void Attribute::set_value(Tango::DevLong *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -7106,7 +7106,7 @@ void Attribute::set_value(Tango::DevLong *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7199,7 +7199,7 @@ void Attribute::set_value(Tango::DevLong64 *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -7216,7 +7216,7 @@ void Attribute::set_value(Tango::DevLong64 *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7309,7 +7309,7 @@ void Attribute::set_value(Tango::DevFloat *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7325,7 +7325,7 @@ void Attribute::set_value(Tango::DevFloat *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7417,7 +7417,7 @@ void Attribute::set_value(Tango::DevDouble *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7433,7 +7433,7 @@ void Attribute::set_value(Tango::DevDouble *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7525,7 +7525,7 @@ void Attribute::set_value(Tango::DevString *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7541,7 +7541,7 @@ void Attribute::set_value(Tango::DevString *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7641,7 +7641,7 @@ void Attribute::set_value(Tango::DevUShort *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7657,7 +7657,7 @@ void Attribute::set_value(Tango::DevUShort *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7750,7 +7750,7 @@ void Attribute::set_value(Tango::DevBoolean *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7766,7 +7766,7 @@ void Attribute::set_value(Tango::DevBoolean *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7859,7 +7859,7 @@ void Attribute::set_value(Tango::DevUChar *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7875,7 +7875,7 @@ void Attribute::set_value(Tango::DevUChar *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -7966,7 +7966,7 @@ void Attribute::set_value(Tango::DevULong *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -7983,7 +7983,7 @@ void Attribute::set_value(Tango::DevULong *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -8076,7 +8076,7 @@ void Attribute::set_value(Tango::DevULong64 *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -8093,7 +8093,7 @@ void Attribute::set_value(Tango::DevULong64 *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -8185,7 +8185,7 @@ void Attribute::set_value(Tango::DevState *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",
+		Except::throw_exception((const char *)API_AttrOptProp,
 				      o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
@@ -8202,7 +8202,7 @@ void Attribute::set_value(Tango::DevState *p_data,long x,long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -8294,7 +8294,7 @@ void Attribute::set_value(Tango::DevEncoded *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Invalid data type for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -8310,7 +8310,7 @@ void Attribute::set_value(Tango::DevEncoded *p_data,long x, long y,bool release)
 		TangoSys_OMemStream o;
 
 		o << "Data size for attribute " << name << " exceeds given limit" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 				      (const char *)"Attribute::set_value()");
 	}
 
@@ -8381,7 +8381,7 @@ void Attribute::set_value(Tango::DevString *p_data_str,Tango::DevUChar *p_data,l
 	{
 		TangoSys_OMemStream o;
 		o << "Data pointer for attribute " << name << " is NULL" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
                             (const char *)"Attribute::set_value()");
 	}
 
@@ -8415,7 +8415,7 @@ void Attribute::set_value(Tango::EncodedAttribute *attr)
 	{
 		TangoSys_OMemStream o;
 		o << "DevEncoded format for attribute " << name << " not specified" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
                             (const char *)"Attribute::set_value()");
 	}
 
@@ -8423,7 +8423,7 @@ void Attribute::set_value(Tango::EncodedAttribute *attr)
 	{
 		TangoSys_OMemStream o;
 		o << "DevEncoded data for attribute " << name << " not specified" << ends;
-		Except::throw_exception((const char *)"API_AttrOptProp",o.str(),
+		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
 								(const char *)"Attribute::set_value()");
 	}
 
@@ -9192,7 +9192,7 @@ bool Attribute::check_alarm()
 		TangoSys_OMemStream o;
 
 		o << "No alarm defined for attribute " << name << ends;
-		Except::throw_exception((const char *)"API_AttrNoAlarm",o.str(),
+		Except::throw_exception((const char *)API_AttrNoAlarm,o.str(),
 				      (const char *)"Attribute::check_alarm()");
 	}
 
@@ -11260,7 +11260,7 @@ void Attribute::fire_change_event(DevFailed *except)
 						o << " has not been updated. Can't send change event\n";
 						o << "Set the attribute value (using set_value(...) method) before!" << ends;
 
-						Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
+						Except::throw_exception((const char *)API_AttrValueNotSet,o.str(),
 				        		(const char *)"Attribute::fire_change_event()");
 					}
 				}
@@ -11285,7 +11285,7 @@ void Attribute::fire_change_event(DevFailed *except)
 		}
 		catch (bad_alloc)
 		{
-			Except::throw_exception((const char *)"API_MemoryAllocation",
+			Except::throw_exception((const char *)API_MemoryAllocation,
 				      	  (const char *)"Can't allocate memory in server",
 				      	  (const char *)"Attribute::fire_change_event()");
 		}
@@ -11636,7 +11636,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 						o << " has not been updated. Can't send archive event\n";
 						o << "Set the attribute value (using set_value(...) method) before!" << ends;
 
-						Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
+						Except::throw_exception((const char *)API_AttrValueNotSet,o.str(),
 				        		(const char *)"Attribute::fire_archive_event()");
 					}
 				}
@@ -11661,7 +11661,7 @@ void Attribute::fire_archive_event(DevFailed *except)
 		}
 		catch (bad_alloc)
 		{
-			Except::throw_exception((const char *)"API_MemoryAllocation",
+			Except::throw_exception((const char *)API_MemoryAllocation,
 				      	  (const char *)"Can't allocate memory in server",
 				      	  (const char *)"Attribute::fire_archive_event()");
 		}
@@ -11991,7 +11991,7 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 						o << " has not been updated. Can't send user event\n";
 						o << "Set the attribute value (using set_value(...) method) before!" << ends;
 
-						Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
+						Except::throw_exception((const char *)API_AttrValueNotSet,o.str(),
 				        		(const char *)"Attribute::fire_event()");
 					}
 				}
@@ -12016,7 +12016,7 @@ void Attribute::fire_event(vector<string> &filt_names,vector<double> &filt_vals,
 		}
 		catch (bad_alloc)
 		{
-			Except::throw_exception((const char *)"API_MemoryAllocation",
+			Except::throw_exception((const char *)API_MemoryAllocation,
 				      	  (const char *)"Can't allocate memory in server",
 				      	  (const char *)"Attribute::fire_event()");
 		}
@@ -12359,7 +12359,7 @@ void Attribute::set_attr_serial_model(AttrSerialModel ser_model)
 		Tango::Util *tg = Tango::Util::instance();
 		if (tg->get_serial_model() != Tango::BY_DEVICE)
 		{
-			Except::throw_exception((const char *)"API_AttrNotAllowed",
+			Except::throw_exception((const char *)API_AttrNotAllowed,
 				      	  (const char *)"Attribute serial model by user is not allowed when the process is not in BY_DEVICE serialization model",
 				      	  (const char *)"Attribute::set_attr_serial_model");
 		}
@@ -12420,7 +12420,7 @@ DeviceClass *Attribute::get_att_device_class(string &dev_name)
 
 				o << "Device " << dev_name << "-> Attribute : " << name;
 				o << "\nCan't retrieve device class!" << ends;
-				Except::throw_exception((const char *)"API_CantRetrieveClass",
+				Except::throw_exception((const char *)API_CantRetrieveClass,
 							  o.str(),
 							  (const char *)"Attribute::set_properties()");
         }

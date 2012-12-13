@@ -244,7 +244,7 @@ void DeviceImpl::stop_polling(bool with_db_upd)
 	{
 		TangoSys_OMemStream o;
 		o << "Can't find a polling thread for device " << device_name << ends;
-		Except::throw_exception((const char *)"API_PollingThreadNotFound",o.str(),
+		Except::throw_exception((const char *)API_PollingThreadNotFound,o.str(),
 						(const char *)"DeviImpl::stop_polling");
 	}
 
@@ -276,7 +276,7 @@ void DeviceImpl::stop_polling(bool with_db_upd)
 			if ((shared_cmd.cmd_pending == true) && (interupted == false))
 			{
 				cout4 << "TIME OUT" << endl;
-				Except::throw_exception((const char *)"API_CommandTimedOut",
+				Except::throw_exception((const char *)API_CommandTimedOut,
 							(const char *)"Polling thread blocked !!",
 							(const char *)"DeviceImpl::stop_polling");
 
@@ -300,7 +300,7 @@ void DeviceImpl::stop_polling(bool with_db_upd)
 	{
 		TangoSys_OMemStream o;
 		o << "Can't find entry for device " << device_name << " in polling threads pool configuration !"<< ends;
-		Except::throw_exception((const char *)"API_PolledDeviceNotInPoolConf",o.str(),
+		Except::throw_exception((const char *)API_PolledDeviceNotInPoolConf,o.str(),
 								(const char *)"DeviceImpl::stop_polling");
 	}
 
@@ -513,7 +513,7 @@ void DeviceImpl::get_dev_system_resource()
 			TangoSys_OMemStream o;
 			o << "Database error while trying to retrieve device prperties for device " << device_name.c_str() << ends;
 
-			Except::throw_exception((const char *)"API_DatabaseAccess",
+			Except::throw_exception((const char *)API_DatabaseAccess,
 					o.str(),
 					(const char *)"DeviceImpl::get_dev_system_resource");
 		}
@@ -553,7 +553,7 @@ void DeviceImpl::get_dev_system_resource()
 				ext->cmd_poll_ring_depth.clear();
 				TangoSys_OMemStream o;
 				o << "System property cmd_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
-				Except::throw_exception((const char *)"API_BadConfigurationProperty",
+				Except::throw_exception((const char *)API_BadConfigurationProperty,
 				        		o.str(),
 				        		(const char *)"DeviceImpl::get_dev_system_resource()");
 			}
@@ -572,7 +572,7 @@ void DeviceImpl::get_dev_system_resource()
 				ext->attr_poll_ring_depth.clear();
 				TangoSys_OMemStream o;
 				o << "System property attr_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
-				Except::throw_exception((const char *)"API_BadConfigurationProperty",
+				Except::throw_exception((const char *)API_BadConfigurationProperty,
 				        		o.str(),
 				        		(const char *)"DeviceImpl::get_dev_system_resource()");
 			}
@@ -599,7 +599,7 @@ void DeviceImpl::get_dev_system_resource()
 				ext->cmd_min_poll_period.clear();
 				TangoSys_OMemStream o;
 				o << "System property cmd_min_poll_period for device " << device_name << " has wrong syntax" << ends;
-				Except::throw_exception((const char *)"API_BadConfigurationProperty",
+				Except::throw_exception((const char *)API_BadConfigurationProperty,
 				        		o.str(),
 				        		(const char *)"DeviceImpl::get_dev_system_resource()");
 			}
@@ -619,7 +619,7 @@ void DeviceImpl::get_dev_system_resource()
 				ext->attr_min_poll_period.clear();
 				TangoSys_OMemStream o;
 				o << "System property attr_min_poll_period for device " << device_name << " has wrong syntax" << ends;
-				Except::throw_exception((const char *)"API_BadConfigurationProperty",
+				Except::throw_exception((const char *)API_BadConfigurationProperty,
 				        		o.str(),
 				        		(const char *)"DeviceImpl::get_dev_system_resource()");
 			}
@@ -752,7 +752,7 @@ void DeviceImpl::check_command_exists(const string &cmd_name)
 			{
 				TangoSys_OMemStream o;
 				o << "Command " << cmd_name << " cannot be polled because it needs input value" << ends;
-				Except::throw_exception((const char *)"API_IncompatibleCmdArgumentType",
+				Except::throw_exception((const char *)API_IncompatibleCmdArgumentType,
 							o.str(),(const char *)"DeviceImpl::check_command_exists");
 			}
 			return;
@@ -761,7 +761,7 @@ void DeviceImpl::check_command_exists(const string &cmd_name)
 
 	TangoSys_OMemStream o;
 	o << "Command " << cmd_name << " not found" << ends;
-	Except::throw_exception((const char *)"API_CommandNotFound",o.str(),
+	Except::throw_exception((const char *)API_CommandNotFound,o.str(),
 				(const char *)"DeviceImpl::check_command_exists");
 }
 
@@ -791,7 +791,7 @@ Command *DeviceImpl::get_command(const string &cmd_name)
 
 	TangoSys_OMemStream o;
 	o << "Command " << cmd_name << " not found" << ends;
-	Except::throw_exception((const char *)"API_CommandNotFound",o.str(),
+	Except::throw_exception((const char *)API_CommandNotFound,o.str(),
 				(const char *)"DeviceImpl::get_command");
 
 //
@@ -838,7 +838,7 @@ vector<PollObj *>::iterator DeviceImpl::get_polled_obj_by_type_name(
 
 	TangoSys_OMemStream o;
 	o << obj_name << " not found in list of polled object" << ends;
-	Except::throw_exception((const char *)"API_PollObjNotFound",o.str(),
+	Except::throw_exception((const char *)API_PollObjNotFound,o.str(),
 				(const char *)"DeviceImpl::get_polled_obj_by_type_name");
 
 //
@@ -899,7 +899,7 @@ long DeviceImpl::get_cmd_poll_ring_depth(string &cmd_name)
 				{
 					TangoSys_OMemStream o;
 					o << "System property cmd_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
-					Except::throw_exception((const char *)"API_BadConfigurationProperty",
+					Except::throw_exception((const char *)API_BadConfigurationProperty,
 				        			o.str(),
 				        			(const char *)"DeviceImpl::get_poll_ring_depth()");
 				}
@@ -979,7 +979,7 @@ long DeviceImpl::get_attr_poll_ring_depth(string &attr_name)
 				{
 					TangoSys_OMemStream o;
 					o << "System property attr_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
-					Except::throw_exception((const char *)"API_BadConfigurationProperty",
+					Except::throw_exception((const char *)API_BadConfigurationProperty,
 				        			o.str(),
 				        			(const char *)"DeviceImpl::get_poll_ring_depth()");
 				}
@@ -1158,7 +1158,7 @@ Tango::DevState DeviceImpl::dev_state()
                                 o << " has not been updated";
                                 o << "Hint: Did the server follow Tango V5 attribute reading framework ?" << ends;
 
-                                Except::throw_exception((const char *)"API_AttrValueNotSet",o.str(),
+                                Except::throw_exception((const char *)API_AttrValueNotSet,o.str(),
                                             (const char *)"DeviceImpl::dev_state");
                             }
                         }
@@ -1416,7 +1416,7 @@ char *DeviceImpl::name()
 	catch (Tango::DevFailed &e)
 	{
 		CORBA::IMP_LIMIT lim;
-		if (strcmp(e.errors[0].reason,"API_CommandTimedOut") == 0)
+		if (strcmp(e.errors[0].reason,API_CommandTimedOut) == 0)
 			lim.minor(TG_IMP_MINOR_TO);
 		else
 			lim.minor(TG_IMP_MINOR_DEVFAILED);
@@ -1466,7 +1466,7 @@ char *DeviceImpl::adm_name()
 	catch (Tango::DevFailed &e)
 	{
 		CORBA::IMP_LIMIT lim;
-		if (strcmp(e.errors[0].reason,"API_CommandTimedOut") == 0)
+		if (strcmp(e.errors[0].reason,API_CommandTimedOut) == 0)
 			lim.minor(TG_IMP_MINOR_TO);
 		else
 			lim.minor(TG_IMP_MINOR_DEVFAILED);
@@ -1518,7 +1518,7 @@ char *DeviceImpl::description()
 	catch (Tango::DevFailed &e)
 	{
 		CORBA::IMP_LIMIT lim;
-		if (strcmp(e.errors[0].reason,"API_CommandTimedOut") == 0)
+		if (strcmp(e.errors[0].reason,API_CommandTimedOut) == 0)
 			lim.minor(TG_IMP_MINOR_TO);
 		else
 			lim.minor(TG_IMP_MINOR_DEVFAILED);
@@ -1595,7 +1595,7 @@ Tango::DevState DeviceImpl::state()
 		}
 
 		CORBA::IMP_LIMIT lim;
-		if (strcmp(e.errors[0].reason,"API_CommandTimedOut") == 0)
+		if (strcmp(e.errors[0].reason,API_CommandTimedOut) == 0)
 			lim.minor(TG_IMP_MINOR_TO);
 		else
 			lim.minor(TG_IMP_MINOR_DEVFAILED);
@@ -1683,7 +1683,7 @@ char *DeviceImpl::status()
 			(Tango::Util::instance())->get_sub_dev_diag().set_associated_device(last_associated_device);
 		}
 
-		if (strcmp(e.errors[0].reason,"API_CommandTimedOut") == 0)
+		if (strcmp(e.errors[0].reason,API_CommandTimedOut) == 0)
 			tmp = CORBA::string_dup("Not able to acquire device monitor");
 		else
 			tmp = CORBA::string_dup("Got exception	when trying to build device status");
@@ -1795,7 +1795,7 @@ Tango::DevCmdInfoList* DeviceImpl::command_list_query()
 	}
 	catch (bad_alloc)
 	{
-		Except::throw_exception((const char *)"API_MemoryAllocation",
+		Except::throw_exception((const char *)API_MemoryAllocation,
 				      (const char *)"Can't allocate memory in server",
 				      (const char *)"DeviceImpl::command_list_query");
 	}
@@ -1844,7 +1844,7 @@ Tango::DevCmdInfo *DeviceImpl::command_query(const char *command)
 	}
 	catch (bad_alloc)
 	{
-		Except::throw_exception((const char *)"API_MemoryAllocation",
+		Except::throw_exception((const char *)API_MemoryAllocation,
 					(const char *)"Can't allocate memory in server",
 					(const char *)"DeviceImpl::command_query");
 	}
@@ -1889,7 +1889,7 @@ Tango::DevCmdInfo *DeviceImpl::command_query(const char *command)
 		TangoSys_OMemStream o;
 
 		o << "Command " << command << " not found" << ends;
-		Except::throw_exception((const char *)"API_CommandNotFound",
+		Except::throw_exception((const char *)API_CommandNotFound,
 				      o.str(),
 				      (const char *)"DeviceImpl::command_query");
 	}
@@ -1934,7 +1934,7 @@ Tango::DevInfo *DeviceImpl::info()
 	}
 	catch (bad_alloc)
 	{
-		Except::throw_exception((const char *)"API_MemoryAllocation",
+		Except::throw_exception((const char *)API_MemoryAllocation,
 				      (const char *)"Can't allocate memory in server",
 				      (const char *)"DeviceImpl::info");
 	}
@@ -2116,7 +2116,7 @@ Tango::AttributeConfigList *DeviceImpl::get_attribute_config(const Tango::DevVar
 	}
 	catch (bad_alloc)
 	{
-		Except::throw_exception((const char *)"API_MemoryAllocation",
+		Except::throw_exception((const char *)API_MemoryAllocation,
 				        (const char *)"Can't allocate memory in server",
 				        (const char *)"DeviceImpl::get_attribute_config");
 	}
@@ -2202,7 +2202,7 @@ void DeviceImpl::set_attribute_config(const Tango::AttributeConfigList& new_conf
 	long nb_dev_attr = dev_attr->get_attr_nb();
 	if (nb_dev_attr == 0)
 	{
-		Except::throw_exception((const char *)"API_AttrNotFound",
+		Except::throw_exception((const char *)API_AttrNotFound,
 				        (const char *)"The device does not have any attribute",
 				        (const char *)"DeviceImpl::set_attribute_config");
 	}
@@ -2232,7 +2232,7 @@ void DeviceImpl::set_attribute_config(const Tango::AttributeConfigList& new_conf
 			transform(tmp_name.begin(),tmp_name.end(),tmp_name.begin(),::tolower);
 			if ((tmp_name == "state") || (tmp_name == "status"))
 			{
-				Except::throw_exception((const char *)"API_AttrNotFound",
+				Except::throw_exception((const char *)API_AttrNotFound,
 				        		(const char *)"Cannot set config for attribute state or status",
 				        		(const char *)"DeviceImpl::set_attribute_config");
 			}
@@ -2416,7 +2416,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 
 		if (nb_dev_attr == 0)
 		{
-			Except::throw_exception((const char *)"API_AttrNotFound",
+			Except::throw_exception((const char *)API_AttrNotFound,
 						(const char *)"The device does not have any attribute",
 						(const char *)"DeviceImpl::read_attributes");
 		}
@@ -2484,7 +2484,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 					o << "Client too old to get data for attribute " << real_names[i].in();
 					o << ".\nPlease, use a client linked with Tango V5";
 					o << " and a device inheriting from Device_3Impl" << ends;
-					Except::throw_exception((const char *)"API_NotSupportedFeature",
+					Except::throw_exception((const char *)API_NotSupportedFeature,
 								o.str(),
 								(const char *)"DeviceImpl::read_attributes");
 				}
@@ -2504,7 +2504,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 						o << "Client too old to get data for attribute " << real_names[i].in();
 						o << ".\nPlease, use a client linked with Tango V5";
 						o << " and a device inheriting from Device_3Impl" << ends;
-						Except::throw_exception((const char *)"API_NotSupportedFeature",
+						Except::throw_exception((const char *)API_NotSupportedFeature,
 								o.str(),
 								(const char *)"DeviceImpl::read_attributes");
 					}
@@ -2555,7 +2555,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 					o << "It is not possible to read state/status as attributes with your\n";
 					o << "Tango software release. Please, re-link with Tango V5." << ends;
 
-					Except::throw_exception((const char *)"API_NotSupportedFeature",
+					Except::throw_exception((const char *)API_NotSupportedFeature,
 					        		o.str(),
 					        		(const char *)"Device_Impl::read_attributes");
 				}
@@ -2567,7 +2567,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 					o << "It is currently not allowed to read attribute ";
 					o << att.get_name() << ends;
 
-					Except::throw_exception((const char *)"API_AttrNotAllowed",
+					Except::throw_exception((const char *)API_AttrNotAllowed,
 					        		o.str(),
 					        		(const char *)"Device_Impl::read_attributes");
 				}
@@ -2598,7 +2598,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 		}
 		catch (bad_alloc)
 		{
-			Except::throw_exception((const char *)"API_MemoryAllocation",
+			Except::throw_exception((const char *)API_MemoryAllocation,
 						(const char *)"Can't allocate memory in server",
 						(const char *)"DeviceImpl::read_attributes");
 		}
@@ -2652,7 +2652,7 @@ Tango::AttributeValueList *DeviceImpl::read_attributes(const Tango::DevVarString
 						o << " has not been updated" << ends;
 					}
 
-					Except::throw_exception((const char *)"API_AttrValueNotSet",
+					Except::throw_exception((const char *)API_AttrValueNotSet,
 								 o.str(),
 								(const char *)"DeviceImpl::read_attributes");
 				}
@@ -2853,7 +2853,7 @@ void DeviceImpl::write_attributes(const Tango::AttributeValueList& values)
 		long nb_dev_attr = dev_attr->get_attr_nb();
 		if (nb_dev_attr == 0)
 		{
-			Except::throw_exception((const char *)"API_AttrNotFound",
+			Except::throw_exception((const char *)API_AttrNotFound,
 						(const char *)"The device does not have any attribute",
 						(const char *)"DeviceImpl::write_attributes");
 		}
@@ -2886,7 +2886,7 @@ void DeviceImpl::write_attributes(const Tango::AttributeValueList& values)
 				o << dev_attr->get_attr_by_ind(updated_attr[i]).get_name();
 				o << " is not writable" << ends;
 
-				Except::throw_exception((const char *)"API_AttrNotWritable",
+				Except::throw_exception((const char *)API_AttrNotWritable,
 							o.str(),
 							(const char *)"DeviceImpl::write_attributes");
 			}
@@ -2948,7 +2948,7 @@ void DeviceImpl::write_attributes(const Tango::AttributeValueList& values)
 					o << ". The device state is " << Tango::DevStateName[get_state()] << ends;
 
 
-					Except::throw_exception((const char *)"API_AttrNotAllowed",
+					Except::throw_exception((const char *)API_AttrNotAllowed,
 					        		o.str(),
 					        		(const char *)"Device_Impl::write_attributes");
 				}
@@ -2968,7 +2968,7 @@ void DeviceImpl::write_attributes(const Tango::AttributeValueList& values)
 				}
 				catch (Tango::DevFailed &e)
 				{
-					Except::re_throw_exception(e,(const char *)"API_AttrNotAllowed",
+					Except::re_throw_exception(e,(const char *)API_AttrNotAllowed,
 					        	    	 (const char *)"Failed to store memorized attribute value in db",
 					        	    	 (const char *)"Device_Impl::write_attributes");
 				}
@@ -3053,7 +3053,7 @@ void DeviceImpl::add_attribute(Tango::Attr *new_attr)
 		o << "Device " << get_name() << " -> Attribute " << attr_name << " already exists for your device but with other definition";
 		o << "\n(data type, data format or data write type)" << ends;
 
-		Except::throw_exception((const char *)"API_AttrNotFound",
+		Except::throw_exception((const char *)API_AttrNotFound,
 				o.str(),
 				(const char *)"Device_Impl::add_attribute");
 	}
@@ -3108,7 +3108,7 @@ void DeviceImpl::add_attribute(Tango::Attr *new_attr)
 			o << "Device " << get_name() << " -> Attribute " << attr_name << " already exists for your device class but with other definition";
 			o << "\n(data type, data format or data write type)" << ends;
 
-			Except::throw_exception((const char *)"API_AttrNotFound",
+			Except::throw_exception((const char *)API_AttrNotFound,
 					o.str(),
 					(const char *)"Device_Impl::add_attribute");
 		}
@@ -3168,7 +3168,7 @@ void DeviceImpl::remove_attribute(Tango::Attr *rem_attr, bool free_it,bool clean
 		o << "Attribute " << attr_name << " is not defined as attribute for your device.";
 		o << "\nCan't remove it" << ends;
 
-		Except::throw_exception((const char *)"API_AttrNotFound",
+		Except::throw_exception((const char *)API_AttrNotFound,
 					o.str(),
 					(const char *)"Device_Impl::remove_attribute");
 	}
@@ -3337,7 +3337,7 @@ void DeviceImpl::remove_attribute(string &rem_attr_name, bool free_it,bool clean
 		o << "Attribute " << rem_attr_name << " is not defined as attribute for your device.";
 		o << "\nCan't remove it" << ends;
 
-		Except::re_throw_exception(e,(const char *)"API_AttrNotFound",
+		Except::re_throw_exception(e,(const char *)API_AttrNotFound,
 					o.str(),
 					(const char *)"Device_Impl::remove_attribute");
 	}
@@ -3467,7 +3467,7 @@ void DeviceImpl::init_cmd_poll_ext_trig(string cmd_name)
 		TangoSys_OMemStream o;
 
 		o << "State and status are handled as attributes for the polling" << ends;
-		Except::throw_exception((const char *)"API_CommandNotFound",
+		Except::throw_exception((const char *)API_CommandNotFound,
 				      o.str(),
 				      (const char *)"DeviceImpl::init_poll_ext_trig");
 	}
@@ -3933,7 +3933,7 @@ void DeviceImpl::lock(client_addr *cl,int validity)
 			{
 				TangoSys_OMemStream o;
 				o << "Device " << get_name() << " is already locked by another client" << ends;
-				Except::throw_exception((const char *)"API_DeviceLocked",o.str(),
+				Except::throw_exception((const char *)API_DeviceLocked,o.str(),
 								(const char *)"Device_Impl::lock");
 			}
 		}
@@ -3987,7 +3987,7 @@ void DeviceImpl::relock(client_addr *cl)
 				TangoSys_OMemStream o;
 				o << get_name() << ": ";
 				o << "Device " << get_name() << " is already locked by another client" << ends;
-				Except::throw_exception((const char *)"API_DeviceLocked",o.str(),
+				Except::throw_exception((const char *)API_DeviceLocked,o.str(),
 								(const char *)"Device_Impl::relock");
 			}
 
@@ -3999,7 +3999,7 @@ void DeviceImpl::relock(client_addr *cl)
 			TangoSys_OMemStream o;
 			o << get_name() << ": ";
 			o << "Device " << get_name() << " is not locked. Can't re-lock it" << ends;
-			Except::throw_exception((const char *)"API_DeviceNotLocked",o.str(),
+			Except::throw_exception((const char *)API_DeviceNotLocked,o.str(),
 							(const char *)"Device_Impl::relock");
 		}
 	}
@@ -4008,7 +4008,7 @@ void DeviceImpl::relock(client_addr *cl)
 		TangoSys_OMemStream o;
 		o << get_name() << ": ";
 		o << "Device " << get_name() << " is not locked. Can't re-lock it" << ends;
-		Except::throw_exception((const char *)"API_DeviceNotLocked",o.str(),
+		Except::throw_exception((const char *)API_DeviceNotLocked,o.str(),
 						(const char *)"Device_Impl::relock");
 	}
 
@@ -4041,7 +4041,7 @@ Tango::DevLong DeviceImpl::unlock(bool forced)
 				{
 					TangoSys_OMemStream o;
 					o << "Device " << get_name() << " is locked by another client, can't unlock it" << ends;
-					Except::throw_exception((const char *)"API_DeviceLocked",o.str(),
+					Except::throw_exception((const char *)API_DeviceLocked,o.str(),
 								(const char *)"Device_Impl::unlock");
 				}
 			}
@@ -4298,7 +4298,7 @@ void DeviceImpl::throw_locked_exception(const char *meth)
 	TangoSys_OMemStream o2;
 	o << "Device " << get_name() << " is locked by another client" << ends;
 	o2 << "Device_Impl::" << meth << ends;
-	Except::throw_exception((const char *)"API_DeviceLocked",o.str(),o2.str());
+	Except::throw_exception((const char *)API_DeviceLocked,o.str(),o2.str());
 }
 
 //+-------------------------------------------------------------------------
@@ -4594,7 +4594,7 @@ void DeviceImpl::data_into_net_object(Attribute &att,AttributeValueList_3 *back,
 			{
 				(*back)[index].err_list.length(1);
 				(*back)[index].err_list[0].severity = Tango::ERR;
-				(*back)[index].err_list[0].reason = CORBA::string_dup("API_NotSupportedFeature");
+				(*back)[index].err_list[0].reason = CORBA::string_dup(API_NotSupportedFeature);
 				(*back)[index].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_no_except");
 				(*back)[index].err_list[0].desc = CORBA::string_dup("The DevEncoded data type is available only for device implementing IDL 4 and above");
 				(*back)[index].quality = Tango::ATTR_INVALID;
@@ -5071,7 +5071,7 @@ void DeviceImpl::polled_data_into_net_object(AttributeValueList_3 *back,
 
 			(*back)[index].err_list.length(1);
 			(*back)[index].err_list[0].severity = Tango::ERR;
-			(*back)[index].err_list[0].reason = CORBA::string_dup("API_NotSupportedFeature");
+			(*back)[index].err_list[0].reason = CORBA::string_dup(API_NotSupportedFeature);
 			(*back)[index].err_list[0].origin = CORBA::string_dup("Device_3Impl::read_attributes_from_cache");
 
 			string s = o.str();
