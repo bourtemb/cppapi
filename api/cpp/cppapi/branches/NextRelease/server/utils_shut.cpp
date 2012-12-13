@@ -135,7 +135,7 @@ void Util::shutdown_server()
 	lock_ptr->Release();
 
 //
-// 	Stop the KeepAliveThread and the EventConsumer Thread when
+// 	Stop the KeepAliveThread and the EventConsumer thread when
 //  they have been started to receive events.
 //
 

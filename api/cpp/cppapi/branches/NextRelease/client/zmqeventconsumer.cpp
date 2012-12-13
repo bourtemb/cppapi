@@ -902,6 +902,7 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
             {
                 delete pos->second;
                 event_mcast.erase(pos);
+                old_poll_nb--;
             }
         }
         break;
@@ -1105,7 +1106,7 @@ void ZmqEventConsumer::cleanup_EventChannel_map()
     }
 
 //
-// Delete a Tango moniotr in Callback structs
+// Delete a Tango monitor in Callback structs
 //
 
     EvCbIte cb_it;
