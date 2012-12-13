@@ -579,7 +579,7 @@ void ApiUtil::get_asynch_replies(long call_timeout)
 			{
 				TangoSys_OMemStream desc;
 				desc << "Still some reply(ies) for asynchronous callback call(s) to be received" << ends;
-				ApiAsynNotThereExcept::throw_exception((const char *)"API_AsynReplyNotArrived",
+				ApiAsynNotThereExcept::throw_exception((const char *)API_AsynReplyNotArrived,
 						       	       desc.str(),
 						               (const char *)"ApiUtil::get_asynch_replies");
 			}
@@ -1455,7 +1455,7 @@ void ApiUtil::device_to_attr(const DeviceAttribute &dev_attr,AttributeValue &att
 		TangoSys_OMemStream desc;
 		desc << "Device " << d_name;
 		desc << " does not support DevEncoded data type" << ends;
-		ApiNonSuppExcept::throw_exception((const char *)"API_UnsupportedFeature",
+		ApiNonSuppExcept::throw_exception((const char *)API_UnsupportedFeature,
 						  	desc.str(),
 						  	(const char *)"DeviceProxy::device_to_attr");
 	}
@@ -1506,7 +1506,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
         {
             cerr << "ApiUtil::get_ip_from_if: getifaddrs() failed: "  << strerror(errno) << endl;
 
-            Tango::Except::throw_exception((const char *)"API_SystemCallFailed",
+            Tango::Except::throw_exception((const char *)API_SystemCallFailed,
                                             (const char *) strerror(errno),
                                             (const char *)"ApiUtil::get_ip_from_if()");
         }
@@ -1544,7 +1544,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 
                         freeifaddrs(ifaddr);
 
-                        Tango::Except::throw_exception((const char *)"API_SystemCallFailed",
+                        Tango::Except::throw_exception((const char *)API_SystemCallFailed,
                                                         (const char *) gai_strerror(s),
                                                         (const char *)"ApiUtil::get_ip_from_if()");
                     }
@@ -1579,7 +1579,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 			TangoSys_OMemStream desc;
 			desc << "Can't retrieve list of all interfaces addresses (WSAIoctl)! Error = " << err << ends;
 
-			Tango::Except::throw_exception((const char*)"API_SystemCallFailed",
+			Tango::Except::throw_exception((const char*)API_SystemCallFailed,
 										   (const char *)desc.str().c_str(),
 										   (const char *)"ApiUtil::get_ip_from_if()");
 		}
@@ -1607,7 +1607,7 @@ void ApiUtil::get_ip_from_if(vector<string> &ip_adr_list)
 						cerr << "Warning: getnameinfo failed" << endl;
 						cerr << "Unable to convert IP address to string (getnameinfo)." << endl;
 
-						Tango::Except::throw_exception((const char *)"API_SystemCallFailed",
+						Tango::Except::throw_exception((const char *)API_SystemCallFailed,
 												   (const char *)"Can't convert IP address to string (getnameinfo)!",
 												   (const char *)"ApiUtil::get_ip_from_if()");
 					}

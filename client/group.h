@@ -929,7 +929,7 @@ long Group::command_inout_asynch_i (const std::string& c, /*const*/ std::vector<
          << d.size()
          << "]"
          << ends;
-    ApiDataExcept::throw_exception((const char*)"API_MethodArgument",
+    ApiDataExcept::throw_exception((const char*)API_MethodArgument,
                                    (const char*)desc.str().c_str(),
                                    (const char*)"Group::command_inout_asynch");
   }
@@ -1003,7 +1003,7 @@ long Group::write_attribute_asynch_i (const std::string& a, /*const*/ std::vecto
          << d.size()
          << "]"
          << ends;
-    ApiDataExcept::throw_exception((const char*)"API_MethodArgument",
+    ApiDataExcept::throw_exception((const char*)API_MethodArgument,
                                    (const char*)desc.str().c_str(),
                                    (const char*)"Group::write_attribute_asynch");
   }

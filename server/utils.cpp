@@ -896,7 +896,7 @@ void Util::display_help_message()
 	catch (Tango::DevFailed &e)
 	{
         string reason(e.errors[0].reason.in());
-        if (reason == "API_ReadOnlyMode")
+        if (reason == API_ReadOnlyMode)
             o << "\n\nWarning: Control System configured with AccessControl but can't communicate with AccessControl server";
 		o << ends;
 		print_err_message(o.str(),Tango::INFO);
@@ -989,7 +989,7 @@ void Util::connect_db()
 			}
 			catch (Tango::DevFailed &e)
 			{
-				if (strcmp(e.errors[0].reason.in(),"API_TangoHostNotSet") == 0)
+				if (strcmp(e.errors[0].reason.in(),API_TangoHostNotSet) == 0)
 				{
 					print_err_message(e.errors[0].desc.in());
 				}
@@ -1436,7 +1436,7 @@ void Util::server_already_running()
 				TangoSys_OMemStream o;
 				o << "Database error while trying to import " << dev_name << ends;
 
-				Except::throw_exception((const char *)"API_DatabaseAccess",
+				Except::throw_exception((const char *)API_DatabaseAccess,
 				                o.str(),
 				                (const char *)"Util::server_already_running");
 			}
@@ -1870,7 +1870,7 @@ vector<DeviceImpl *> &Util::get_device_list_by_class(const string &class_name)
 
 	if (cl_list_ptr == NULL)
 	{
-		Except::throw_exception((const char *)"API_DeviceNotFound",
+		Except::throw_exception((const char *)API_DeviceNotFound,
 				        (const char *)"It's too early to call this method. Devices are not created yet!",
 				        (const char *)"Util::get_device_list_by_class()");
 	}
@@ -1914,7 +1914,7 @@ vector<DeviceImpl *> &Util::get_device_list_by_class(const string &class_name)
 	{
 		TangoSys_OMemStream o;
 		o << "Class " << class_name << " not found" << ends;
-		Except::throw_exception((const char *)"API_ClassNotFound",
+		Except::throw_exception((const char *)API_ClassNotFound,
 				        o.str(),
 				        (const char *)"Util::get_device_list_by_class()");
 	}
@@ -1989,7 +1989,7 @@ DeviceImpl *Util::get_device_by_name(const string &dev_name)
 	{
 		TangoSys_OMemStream o;
 		o << "Device " << dev_name << " not found" << ends;
-		Except::throw_exception((const char *)"API_DeviceNotFound",
+		Except::throw_exception((const char *)API_DeviceNotFound,
 				        o.str(),
 				        (const char *)"Util::get_device_by_name()");
 	}
@@ -2305,7 +2305,7 @@ void Util::print_err_message(const char *err_mess,TANGO_UNUSED(Tango::MessBoxTyp
                         MessageBox((HWND)NULL,err_mess,MessBoxTitle,MB_ICONINFORMATION);
                         break;
                 }
-                Except::throw_exception((const char *)"API_StartupSequence",
+                Except::throw_exception((const char *)API_StartupSequence,
 				        (const char *)"Error in device server startup sequence",
                                         (const char *)"Util::print_err_mess");
         }
