@@ -299,7 +299,9 @@ private :
 	zmq::context_t              zmq_context;            // ZMQ context
 	zmq::socket_t               *heartbeat_pub_sock;    // heartbeat publisher socket
 	zmq::socket_t               *event_pub_sock;        // events publisher socket
-	map<string,McastSocketPub>  event_mcast;            // multicast socket(s)
+	map<string,McastSocketPub>  event_mcast;            // multicast socket(s) map
+														// The key is the full event name
+														// ie: tango://kidiboo.esrf.fr:1000/dev/test/10/att.change
 
 	string                      heartbeat_endpoint;     // heartbeat publisher endpoint
 	string                      host_ip;                // Host IP address

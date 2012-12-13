@@ -384,7 +384,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
         }
         else
         {
-            if (ite->second.local_client == true)
+            if (ite->second.local_client == true && ite->second.pub_socket == NULL)
             {
                 create_mcast_socket(mcast_data,rate,ite->second);
             }
@@ -408,7 +408,6 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
         }
         else
         {
-
             create_mcast_socket(mcast_data,rate,ms);
 
             ms.local_client = false;
