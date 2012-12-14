@@ -948,7 +948,7 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 
                 if (poll_nb == MAX_SOCKET_SUB)
                 {
-                    Except::throw_exception((const char *)"DServer_Events",
+                    Except::throw_exception((const char *)API_InternalError,
                                             (const char *)"Array to store sockets for zmq poll() call is already full",
                                             (const char *)"ZmqEventConsumer::process_control");
                 }
@@ -995,7 +995,7 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
                     delete tmp_sock;
                     print_error_message("Error while inserting pair<event name,mcast socket> in map!");
 
-                    Except::throw_exception((const char *)"DServer_Events",
+                    Except::throw_exception((const char *)API_InternalError,
                                             (const char *)"Error while inserting pair<event name,multicast socket> in map",
                                             (const char *)"ZmqEventConsumer::process_control");
                 }

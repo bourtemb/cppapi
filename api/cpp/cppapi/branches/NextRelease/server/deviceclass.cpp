@@ -985,7 +985,7 @@ void DeviceClass::export_device(DeviceImpl *dev,const char *corba_obj_name)
 		{
 			TangoSys_OMemStream o;
 			o << "Can't get CORBA reference Id for device " << dev->get_name() << ends;
-			Except::throw_exception((const char *)"API_CantGetDevObjId",
+			Except::throw_exception((const char *)API_CantGetDevObjectId,
 						o.str(),
 						(const char *)"DeviceClass::export_device");
 		}
@@ -1212,7 +1212,7 @@ void DeviceClass::add_wiz_dev_prop(string &p_name,string &desc,string &def)
 		TangoSys_OMemStream o;
 		o << "Device property " << p_name;
 		o << " for class " << name << " is already defined in the wizard" << ends;
-		Except::throw_exception((const char *)"API_WizrdConfError",
+		Except::throw_exception((const char *)API_WizardConfError,
 					o.str(),
 					(const char *)"DeviceClass::add_wiz_dev_prop");
 	}
@@ -1275,7 +1275,7 @@ void DeviceClass::add_wiz_class_prop(string &p_name,string &desc,string &def)
 		TangoSys_OMemStream o;
 		o << "Class property " << p_name;
 		o << " for class " << name << " is already defined in the wizard" << ends;
-		Except::throw_exception((const char *)"API_WizrdConfError",
+		Except::throw_exception((const char *)API_WizardConfError,
 					o.str(),
 					(const char *)"DeviceClass::add_wiz_dev_prop");
 	}
