@@ -59,7 +59,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
 		TangoSys_OMemStream o;
 		o << "Not enough input arguments, needs 4 i.e. device name, attribute name, action, event name" << ends;
 
-		Except::throw_exception((const char *)"DServer_Events",
+		Except::throw_exception((const char *)API_WrongNumberOfArgs,
 								o.str(),
 								(const char *)"DServer::event_subscription_change");
 	}
@@ -87,7 +87,7 @@ DevLong DServer::event_subscription_change(const Tango::DevVarStringArray *argin
      	TangoSys_OMemStream o;
 		o << "The device server is shutting down! You can no longer subscribe for events" << ends;
 
-		Except::throw_exception((const char *)"DServer_Events",
+		Except::throw_exception((const char *)API_ShutdownInProgress,
 									    o.str(),
 									   (const char *)"DServer::event_subscription_change");
 	}
@@ -502,7 +502,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 		TangoSys_OMemStream o;
 		o << "Not enough input arguments, needs 4 i.e. device name, attribute name, action, event name" << ends;
 
-		Except::throw_exception((const char *)"DServer_Events",
+		Except::throw_exception((const char *)API_WrongNumberOfArgs,
 								o.str(),
 								(const char *)"DServer::zmq_event_subscription_change");
     }
@@ -520,7 +520,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
             TangoSys_OMemStream o;
             o << "Not enough input arguments, needs 4 i.e. device name, attribute name, action, event name" << ends;
 
-            Except::throw_exception((const char *)"DServer_Events",
+            Except::throw_exception((const char *)API_WrongNumberOfArgs,
                                     o.str(),
                                     (const char *)"DServer::zmq_event_subscription_change");
         }
@@ -571,7 +571,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
             TangoSys_OMemStream o;
             o << "The device server is shutting down! You can no longer subscribe for events" << ends;
 
-            Except::throw_exception((const char *)"DServer_Events",
+            Except::throw_exception((const char *)API_ShutdownInProgress,
                                             o.str(),
                                            (const char *)"DServer::zmq_event_subscription_change");
         }
@@ -750,7 +750,7 @@ void DServer::event_confirm_subscription(const Tango::DevVarStringArray *argin)
 		TangoSys_OMemStream o;
 		o << "Wrong number of input arguments: 3 needed per event: device name, attribute name and event name" << endl;
 
-		Except::throw_exception((const char *)"DServer_Events",o.str(),
+		Except::throw_exception((const char *)API_WrongNumberOfArgs,o.str(),
 								(const char *)"DServer::event_confirm_subscription");
 	}
 
@@ -765,7 +765,7 @@ void DServer::event_confirm_subscription(const Tango::DevVarStringArray *argin)
 		TangoSys_OMemStream o;
 		o << "The device server is shutting down! You can no longer subscribe for events" << ends;
 
-		Except::throw_exception((const char *)"DServer_Events", o.str(),
+		Except::throw_exception((const char *)API_ShutdownInProgress, o.str(),
 								(const char *)"DServer::event_confirm_subscription");
 	}
 

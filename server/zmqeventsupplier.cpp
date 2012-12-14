@@ -423,7 +423,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
             o << "Can't insert multicast transport parameter for event ";
             o << ev_name << " in EventSupplier instance" << ends;
 
-            Except::throw_exception((const char *)"DServer_Events",
+            Except::throw_exception((const char *)API_InternalError,
                                 o.str(),
                                (const char *)"ZmqEventSupplier::create_mcast_event_socket");
         }
@@ -508,7 +508,7 @@ void ZmqEventSupplier::create_mcast_socket(string &mcast_data,int rate,McastSock
         o << ms.endpoint;
         o << "\nZmq error: " << zmq_strerror(zmq_errno()) << ends;
 
-        Except::throw_exception((const char *)"DServer_Events",
+        Except::throw_exception((const char *)API_ZmqFailed,
                                     o.str(),
                                    (const char *)"ZmqEventSupplier::create_mcast_event_socket");
     }
@@ -583,7 +583,7 @@ void ZmqEventSupplier::init_event_cptr(string &event_name)
             o << "Can't insert event counter for event ";
             o << event_name << " in EventSupplier instance" << ends;
 
-            Except::throw_exception((const char *)"DServer_Events",
+            Except::throw_exception((const char *)API_InternalError,
                                     o.str(),
                                    (const char *)"ZmqEventSupplier::init_event_cptr");
         }
@@ -740,7 +740,7 @@ void ZmqEventSupplier::push_heartbeat_event()
                 else
                     o << ends;
 
-                Except::throw_exception((const char *)"DServer_Events",
+                Except::throw_exception((const char *)API_ZmqFailed,
                                         o.str(),
                                        (const char *)"ZmqEventSupplier::push_heartbeat_event");
             }
@@ -1178,7 +1178,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         else
             o << ends;
 
-        Except::throw_exception((const char *)"DServer_Events",
+        Except::throw_exception((const char *)API_ZmqFailed,
                                     o.str(),
                                    (const char *)"ZmqEventSupplier::push_event");
     }
