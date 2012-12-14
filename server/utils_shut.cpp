@@ -65,12 +65,12 @@ void Util::shutdown_server()
 //
 // Stopping a device server means :
 //		- Mark the server as shutting down
-//  	- Send kill command to the polling thread
-//      - Join with this polling thread
+//		- Send kill command to the polling thread
+//		- Join with this polling thread
 //		- Unregister server in database
 //		- Delete devices (except the admin one)
 //		- Stop the KeepAliveThread and the EventConsumer Thread when
-//        they have been started to receive events
+//		  they have been started to receive events
 //		- Force writing file database in case of
 //		- Shutdown the ORB
 //		- Cleanup Logging
@@ -140,8 +140,8 @@ void Util::shutdown_server()
 // Delete ZmqEventSupplier
 //
 
-    ZmqEventSupplier *zev = get_zmq_event_supplier();
-    delete zev;
+	ZmqEventSupplier *zev = get_zmq_event_supplier();
+	delete zev;
 
 //
 // Close access to file database when used

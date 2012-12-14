@@ -2,10 +2,10 @@ static const char *RcsId = "$Id$\n$Name$";
 
 //+=============================================================================
 //
-// file :               Tango_utils.cpp
+// file :				Tango_utils.cpp
 //
-// description :        C++ source for all the utilities used by Tango device
-//			server and mainly for the Tango class
+// description :		C++ source for all the utilities used by Tango device
+//						server and mainly for the Tango class
 //
 // project :            TANGO
 //
@@ -229,16 +229,16 @@ void Util::effective_job(int argc,char *argv[])
 			{
 				set_endpoint_specified(true);
 
-                string endPoint(argv[i + 1]);
-                string::size_type start,stop;
-                start = endPoint.find(':');
-                ++start;
-                start = endPoint.find(':',start);
-                stop = endPoint.find(':',start + 1);
-                ++start;
-                string ip = endPoint.substr(start,stop - start);
+				string endPoint(argv[i + 1]);
+				string::size_type start,stop;
+				start = endPoint.find(':');
+				++start;
+				start = endPoint.find(':',start);
+				stop = endPoint.find(':',start + 1);
+				++start;
+				string ip = endPoint.substr(start,stop - start);
 
-                set_specified_ip(ip);
+				set_specified_ip(ip);
 				break;
 			}
 
@@ -252,15 +252,15 @@ void Util::effective_job(int argc,char *argv[])
 			{
 				set_endpoint_specified(true);
 
-                string::size_type start,stop;
-                start = env_var.find(':');
-                ++start;
-                start = env_var.find(':',start);
-                stop = env_var.find(':',start + 1);
-                ++start;
-                string ip = env_var.substr(start,stop - start);
+				string::size_type start,stop;
+				start = env_var.find(':');
+				++start;
+				start = env_var.find(':',start);
+				stop = env_var.find(':',start + 1);
+				++start;
+				string ip = env_var.substr(start,stop - start);
 
-                set_specified_ip(ip);
+				set_specified_ip(ip);
 			}
 		}
 
@@ -268,14 +268,14 @@ void Util::effective_job(int argc,char *argv[])
 // Destroy the ORB created as a client (in case there is one)
 //
 
-        ApiUtil *au = Tango::ApiUtil::instance();
-        CORBA::ORB_ptr orb_clnt  = au->get_orb();
-        if (CORBA::is_nil(orb_clnt) == false)
-        {
-            orb_clnt->destroy();
-            CORBA::release(orb_clnt);
-            au->set_orb(CORBA::ORB::_nil());
-        }
+		ApiUtil *au = Tango::ApiUtil::instance();
+		CORBA::ORB_ptr orb_clnt  = au->get_orb();
+		if (CORBA::is_nil(orb_clnt) == false)
+		{
+			orb_clnt->destroy();
+			CORBA::release(orb_clnt);
+			au->set_orb(CORBA::ORB::_nil());
+		}
 
 //
 // Initialise CORBA ORB
@@ -845,9 +845,9 @@ void Util::check_args(int argc,char *argv[])
 
 	if (ds_name.size() > MaxServerNameLength)
 	{
-                TangoSys_OMemStream o;
+		TangoSys_OMemStream o;
 
-	        o << "The device server name is too long! Max length is " << MaxServerNameLength << " characters" << ends;
+		o << "The device server name is too long! Max length is " << MaxServerNameLength << " characters" << ends;
 		print_err_message(o.str(),Tango::INFO);
 	}
 }
@@ -895,9 +895,9 @@ void Util::display_help_message()
 	}
 	catch (Tango::DevFailed &e)
 	{
-        string reason(e.errors[0].reason.in());
-        if (reason == API_ReadOnlyMode)
-            o << "\n\nWarning: Control System configured with AccessControl but can't communicate with AccessControl server";
+		string reason(e.errors[0].reason.in());
+		if (reason == API_ReadOnlyMode)
+			o << "\n\nWarning: Control System configured with AccessControl but can't communicate with AccessControl server";
 		o << ends;
 		print_err_message(o.str(),Tango::INFO);
 	}
@@ -1009,8 +1009,8 @@ void Util::connect_db()
 	}
 	else
 	{
-       	try
-        {
+		try
+		{
 #ifdef _TG_WINDOWS_
 			if (_service == true)
 				db = new Database(orb.in(),
@@ -1229,16 +1229,16 @@ void Util::init_host_name()
 
 		if (pos == string::npos)
 		{
-  			struct addrinfo hints;
+			struct addrinfo hints;
 
 			memset(&hints,0,sizeof(struct addrinfo));
 
-  			hints.ai_family    = AF_UNSPEC;		// supports both IPv4 and IPv6
-  			hints.ai_socktype  = SOCK_STREAM;
-  			hints.ai_flags = AI_NUMERICHOST;	// inhibits resolution of node parameter if it is not a numeric network address
-  			hints.ai_flags |= AI_ADDRCONFIG;
+			hints.ai_family    = AF_UNSPEC;		// supports both IPv4 and IPv6
+			hints.ai_socktype  = SOCK_STREAM;
+			hints.ai_flags = AI_NUMERICHOST;	// inhibits resolution of node parameter if it is not a numeric network address
+			hints.ai_flags |= AI_ADDRCONFIG;
 
-  			struct addrinfo	*info, *ptr;
+			struct addrinfo	*info, *ptr;
 			char tmp_host[NI_MAXHOST];
 			bool host_found = false;
 
@@ -2162,7 +2162,7 @@ std::vector<DeviceImpl *> Util::get_device_list (const std::string& pattern)
 			temp_dl = dcl[i]->get_device_list();
 			dl.insert(dl.end(), temp_dl.begin(), temp_dl.end());
 		}
-     		return dl;
+		return dl;
 	}
 
 //
@@ -2376,9 +2376,9 @@ void Util::clean_dyn_attr_prop()
 
 void Util::delete_restarting_device(string &d_name)
 {
-    vector<string>::iterator pos;
-    pos = remove(ext->restarting_devices.begin(),ext->restarting_devices.end(),d_name);
-    ext->restarting_devices.erase(pos,ext->restarting_devices.end());
+	vector<string>::iterator pos;
+	pos = remove(ext->restarting_devices.begin(),ext->restarting_devices.end(),d_name);
+	ext->restarting_devices.erase(pos,ext->restarting_devices.end());
 }
 
 #ifdef _TG_WINDOWS_

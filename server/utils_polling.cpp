@@ -174,8 +174,8 @@ void Util::polling_configure()
 				s.str("");
 				send->lvalue[0] = upd;
 
-                if (upd < 0)
-                    upd = -upd;
+				if (upd < 0)
+					upd = -upd;
 
 				if (first_loop == true)
 				{
@@ -216,8 +216,8 @@ void Util::polling_configure()
 				s.str("");
 				send->lvalue[0] = upd;
 
-                if (upd < 0)
-                    upd = -upd;
+				if (upd < 0)
+					upd = -upd;
 
 				if (first_loop == true)
 				{
@@ -283,13 +283,13 @@ void Util::polling_configure()
 		{
 			try
 			{
-			    bool upd_db = false;
-			    int upd = ext->poll_ths[loop]->v_poll_cmd[cmd_loop]->lvalue[0];
-			    if (upd < 0)
-			    {
-			        ext->poll_ths[loop]->v_poll_cmd[cmd_loop]->lvalue[0] = -upd;
-                    upd_db = true;
-			    }
+				bool upd_db = false;
+				int upd = ext->poll_ths[loop]->v_poll_cmd[cmd_loop]->lvalue[0];
+				if (upd < 0)
+				{
+					ext->poll_ths[loop]->v_poll_cmd[cmd_loop]->lvalue[0] = -upd;
+					upd_db = true;
+				}
 				admin_dev->add_obj_polling(ext->poll_ths[loop]->v_poll_cmd[cmd_loop],upd_db,delta_time);
 			}
 			catch (Tango::DevFailed &e)
@@ -355,13 +355,13 @@ void Util::polling_configure()
 	}
 	else
 	{
-	    vector<string> tmp_pool_conf;
-	    build_first_pool_conf(tmp_pool_conf);
-	    if (tmp_pool_conf != ext->poll_pool_conf)
-	    {
-	        ext->poll_pool_conf = tmp_pool_conf;
-	        ext->conf_needs_db_upd = true;
-	    }
+		vector<string> tmp_pool_conf;
+		build_first_pool_conf(tmp_pool_conf);
+		if (tmp_pool_conf != ext->poll_pool_conf)
+		{
+			ext->poll_pool_conf = tmp_pool_conf;
+			ext->conf_needs_db_upd = true;
+		}
 	}
 
 	if (((dev_db_upd.empty() == false) || (ext->conf_needs_db_upd == true)) && (_UseDb == true))
@@ -801,9 +801,9 @@ int Util::create_poll_thread(const char *dev_name,bool startup,int smallest_upd)
 				if ((ite = ext->dev_poll_th_map.find(*it)) != ext->dev_poll_th_map.end())
 				{
 					ext->dev_poll_th_map.insert(make_pair(local_dev_name,ite->second));
-                    PollingThreadInfo *th_info = get_polling_thread_info_by_id(ite->second);
-                    th_info->polled_devices.push_back(local_dev_name);
-                    th_info->nb_polled_objects++;
+					PollingThreadInfo *th_info = get_polling_thread_info_by_id(ite->second);
+					th_info->polled_devices.push_back(local_dev_name);
+					th_info->nb_polled_objects++;
 					if (smallest_upd != -1)
 					{
 						if (smallest_upd < th_info->smallest_upd)
@@ -865,8 +865,8 @@ int Util::create_poll_thread(const char *dev_name,bool startup,int smallest_upd)
 					if (smallest_upd != -1)
 					{
 						PollingThreadInfo *th_info = get_polling_thread_info_by_id(ite->second);
-                        th_info->polled_devices.push_back(local_dev_name);
-                        th_info->nb_polled_objects++;
+						th_info->polled_devices.push_back(local_dev_name);
+						th_info->nb_polled_objects++;
 						if (smallest_upd < th_info->smallest_upd)
 							th_info->smallest_upd = smallest_upd;
 					}
@@ -1219,12 +1219,12 @@ void Util::check_pool_conf(DServer *admin_dev,unsigned long pool_size)
 			iter = mod_conf.erase(iter);
 			if (iter == mod_conf.end())
 				break;
-            else
-            {
-                if (iter == mod_conf.begin())
-                    --stop;
-                --iter;
-            }
+			else
+			{
+				if (iter == mod_conf.begin())
+					--stop;
+				--iter;
+			}
 		}
 		else if (mod_entry != *iter)
 			*iter = mod_entry;
@@ -1559,32 +1559,32 @@ void Util::upd_polling_prop(vector<DevDbUpd> &upd_devs,DServer *admin_dev)
 // using the \ characters at the end of each sub-entries
 //
 
-                    vector<string>::iterator iter;
-                    vector<string> new_vect;
+					vector<string>::iterator iter;
+					vector<string> new_vect;
 
-                    for (iter = ext->poll_pool_conf.begin();iter != ext->poll_pool_conf.end();++iter)
-                    {
-                        string v_entry = *iter;
-                        unsigned int length = v_entry.size();
-                        int nb_lines = (length / MaxDevPropLength) + 1;
-                        if (nb_lines > 1)
-                        {
-                            string::size_type start;
-                            start = 0;
+					for (iter = ext->poll_pool_conf.begin();iter != ext->poll_pool_conf.end();++iter)
+					{
+						string v_entry = *iter;
+						unsigned int length = v_entry.size();
+						int nb_lines = (length / MaxDevPropLength) + 1;
+						if (nb_lines > 1)
+						{
+							string::size_type start;
+							start = 0;
 
-                            for (int i = 0;i < nb_lines;i++)
-                            {
-                                string sub = v_entry.substr(start,MaxDevPropLength);
-                                if (i < (nb_lines - 1))
-                                    sub = sub + '\\';
-                                cout << "Sub string = " << sub << endl;
-                                start = start + MaxDevPropLength;
-                                new_vect.push_back(sub);
-                            }
-                        }
-                        else
-                            new_vect.push_back(v_entry);
-                    }
+							for (int i = 0;i < nb_lines;i++)
+							{
+								string sub = v_entry.substr(start,MaxDevPropLength);
+								if (i < (nb_lines - 1))
+									sub = sub + '\\';
+								cout << "Sub string = " << sub << endl;
+								start = start + MaxDevPropLength;
+								new_vect.push_back(sub);
+							}
+						}
+						else
+							new_vect.push_back(v_entry);
+					}
 
 					upd_conf[0] << new_vect;
 					get_database()->put_device_property(admin_dev->get_name(),upd_conf);
@@ -1634,16 +1634,16 @@ int Util::get_th_polled_devs(string &dev,vector<string> &th_polled_devs)
 		pos = tmp.find(dev);
 		if (pos != string::npos)
 		{
-            end_pos = tmp.find(',',pos);
-            if (end_pos != string::npos)
-                pool_dev_nb_char = end_pos - pos;
-            else
-                pool_dev_nb_char = tmp.size() - pos;
-            if (dev_nb_char == pool_dev_nb_char)
-            {
-                split_string(tmp,',',th_polled_devs);
-                break;
-            }
+			end_pos = tmp.find(',',pos);
+			if (end_pos != string::npos)
+				pool_dev_nb_char = end_pos - pos;
+			else
+				pool_dev_nb_char = tmp.size() - pos;
+			if (dev_nb_char == pool_dev_nb_char)
+			{
+				split_string(tmp,',',th_polled_devs);
+				break;
+			}
 		}
 	}
 
@@ -1747,15 +1747,15 @@ int Util::get_dev_entry_in_pool_conf(string &dev_name)
 		pos = tmp.find(dev_name);
 		if (pos != string::npos)
 		{
-           end_pos = tmp.find(',',pos);
-            if (end_pos != string::npos)
-                pool_dev_nb_char = end_pos - pos;
-            else
-                pool_dev_nb_char = tmp.size() - pos;
-            if (dev_nb_char == pool_dev_nb_char)
-            {
-                break;
-            }
+			end_pos = tmp.find(',',pos);
+			if (end_pos != string::npos)
+				pool_dev_nb_char = end_pos - pos;
+			else
+				pool_dev_nb_char = tmp.size() - pos;
+			if (dev_nb_char == pool_dev_nb_char)
+			{
+				break;
+			}
 		}
 	}
 
