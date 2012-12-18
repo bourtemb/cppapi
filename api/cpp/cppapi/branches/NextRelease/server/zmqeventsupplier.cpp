@@ -1076,15 +1076,15 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // ZMQ does not support local client with PGM socket
 //
 
-		zmq::message_t name_mess_2;
-		zmq::message_t event_call_mess_2;
-		zmq::message_t data_mess_2;
+		zmq::message_t name_mess_cpy;
+		zmq::message_t event_call_mess_cpy;
+		zmq::message_t data_mess_cpy;
 
 		if (send_nb == 2)
 		{
-			name_mess_2.copy(&name_mess);
-			event_call_mess_2.copy(&event_call_mess);
-			data_mess_2.copy(&data_mess);
+			name_mess_cpy.copy(&name_mess);
+			event_call_mess_cpy.copy(&event_call_mess);
+			data_mess_cpy.copy(&data_mess);
 		}
 
 		while(send_nb > 0)
@@ -1142,15 +1142,10 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 						zmq::socket_t *old_pub = pub;
 						pub = event_pub_sock;
 
-						name_mess.copy(&name_mess_2);
+						name_mess.copy(&name_mess_cpy);
 						endian_mess.copy(&endian_mess_2);
-						event_call_mess.copy(&event_call_mess_2);
-						data_mess.copy(&data_mess_2);
-
-						name_mess_ptr = &name_mess_2;
-						endian_mess.copy(&endian_mess_2);
-						event_call_mess_ptr = &event_call_mess_2;
-						data_mess_ptr = &data_mess_2;
+						event_call_mess.copy(&event_call_mess_cpy);
+						data_mess.copy(&data_mess_cpy);
 
 						pub->send(*name_mess_ptr,ZMQ_SNDMORE);
 						pub->send(*endian_mess_ptr,ZMQ_SNDMORE);
@@ -1160,24 +1155,24 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
 						pub = old_pub;
 
-						name_mess_ptr = &name_mess;
+						name_mess_ptr = &name_mess_cpy;
 						endian_mess.copy(&endian_mess_2);
-						event_call_mess_ptr = &event_call_mess;
-						data_mess_ptr = &data_mess;
+						event_call_mess_ptr = &event_call_mess_cpy;
+						data_mess_ptr = &data_mess_cpy;
 					}
 					else
 					{
-						name_mess_ptr = &name_mess_2;
+						name_mess_ptr = &name_mess_cpy;
 						endian_mess.copy(&endian_mess_2);
-						event_call_mess_ptr = &event_call_mess_2;
-						data_mess_ptr = &data_mess_2;
+						event_call_mess_ptr = &event_call_mess_cpy;
+						data_mess_ptr = &data_mess_cpy;
 					}
 				}
 
-				name_mess_ptr = &name_mess_2;
+				name_mess_ptr = &name_mess_cpy;
 				endian_mess.copy(&endian_mess_2);
-				event_call_mess_ptr = &event_call_mess_2;
-				data_mess_ptr = &data_mess_2;
+				event_call_mess_ptr = &event_call_mess_cpy;
+				data_mess_ptr = &data_mess_cpy;
 			}
 		}
 
