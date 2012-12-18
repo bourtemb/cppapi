@@ -289,6 +289,7 @@ private :
         string                  endpoint;
         zmq::socket_t           *pub_socket;
         bool                    local_client;
+        bool					double_send;
     };
 
     struct ConnectedClient

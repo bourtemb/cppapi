@@ -403,6 +403,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
 //
 
         McastSocketPub ms;
+        ms.double_send = true;
 
         if (local_call == true)
         {
@@ -1044,6 +1045,9 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 		map<string,McastSocketPub>::iterator mcast_ite;
 		map<string,McastSocketPub>::iterator mcast_ite_end = event_mcast.end();
 
+		bool local_double_send = double_send;
+		bool mcast_event = false;
+
         if (event_mcast.empty() == false)
         {
             if ((mcast_ite = event_mcast.find(event_name)) != mcast_ite_end)
@@ -1060,14 +1064,17 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
                         pub = mcast_ite->second.pub_socket;
                     }
                 }
-
+				local_double_send = mcast_ite->second.double_send;
+				mcast_ite->second.double_send = false;
+				mcast_event = true;
             }
         }
 
-        if (double_send == true)
+        if (local_double_send == true)
         {
             send_nb = 2;
-            double_send = false;
+            if (mcast_event == false)
+				double_send = false;
         }
 
 //
