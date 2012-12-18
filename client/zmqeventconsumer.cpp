@@ -1850,14 +1850,18 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 //
 
             bool err_missed_event = false;
-//            DevLong missed_event = 1;
-//            if (evt_cb.ctr != 1)
 			if (ds_ctr != 1 && evt_cb.ctr == 0)
 				evt_cb.ctr = ds_ctr - 1;
 
 			DevLong missed_event = ds_ctr - evt_cb.ctr;
 cout << "missed_event = " << missed_event << ", ds_ctr = " << ds_ctr << ", evt_cb.ctr = " << evt_cb.ctr << endl;
-            if (missed_event >= 2)
+
+			if (missed_event < 0)
+			{
+				missed_event = (UINT_MAX + missed_event) + 1;
+			}
+
+			if (missed_event >= 2)
             {
                 err_missed_event = true;
             }
