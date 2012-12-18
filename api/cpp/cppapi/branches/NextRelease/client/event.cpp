@@ -1353,6 +1353,33 @@ int EventConsumer::connect_event(DeviceProxy *device,
                       				(const char*)"EventConsumer::connect_event()");
 	}
 
+//
+// If the event is configured to use multicast, check ZMQ release
+//
+
+    const DevVarLongStringArray *ev_svr_data;
+    dd >> ev_svr_data;
+
+	string endpoint(ev_svr_data->svalue[1].in());
+	if (endpoint.find(MCAST_PROT) != string::npos)
+	{
+		int zmq_major,zmq_minor,zmq_patch;
+		zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+		if (zmq_major == 3 && zmq_minor < 2)
+		{
+			TangoSys_OMemStream o;
+			o << "The process is using zmq release ";
+			o << zmq_major << "." << zmq_minor << "." << zmq_patch;
+			o << "\nThe event on attribute " << attribute << " for device " << device->dev_name();
+			o << " is configured to use multicasting";
+			o << "\nMulticast event(s) not available with this ZMQ release" << ends;
+
+			Except::throw_exception((const char *)API_UnsupportedFeature,
+											o.str(),
+											(const char *)"EventConsumer::connect_event");
+		}
+	}
+
 //	if (allocated == true)
 //		delete adm_dev;
 
