@@ -1066,7 +1066,6 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 
         if (double_send == true)
         {
-cout << "double_send = true -> send_nb = 2" << endl;
             send_nb = 2;
             double_send = false;
         }
@@ -1090,14 +1089,13 @@ cout << "double_send = true -> send_nb = 2" << endl;
 
 		while(send_nb > 0)
 		{
-cout << "send_nb = " << send_nb << endl;
+
 //
 // Push the event
 //
 
 			bool ret;
 
-cout << "message size = " << (*name_mess_ptr).size() << endl;
 			ret = pub->send(*name_mess_ptr,ZMQ_SNDMORE);
 			if (ret == false)
 			{
@@ -1105,7 +1103,6 @@ cout << "message size = " << (*name_mess_ptr).size() << endl;
 				assert(false);
 			}
 
-cout << "message size = " << (*endian_mess_ptr).size() << endl;
 			ret = pub->send(*endian_mess_ptr,ZMQ_SNDMORE);
 			if (ret == false)
 			{
@@ -1114,7 +1111,6 @@ cout << "message size = " << (*endian_mess_ptr).size() << endl;
 			}
 			endian_mess_sent = true;
 
-cout << "message size = " << (*event_call_mess_ptr).size() << endl;
 			ret = pub->send(*event_call_mess_ptr,ZMQ_SNDMORE);
 			if (ret == false)
 			{
@@ -1122,7 +1118,6 @@ cout << "message size = " << (*event_call_mess_ptr).size() << endl;
 				assert(false);
 			}
 
-cout << "message size = " << (*data_mess_ptr).size() << endl;
 			ret = pub->send(*data_mess_ptr,0);
 			if (ret == false)
 			{
@@ -1134,28 +1129,55 @@ cout << "message size = " << (*data_mess_ptr).size() << endl;
 			if (send_nb == 1)
 			{
 
-				if (event_mcast.empty() == false && mcast_ite != mcast_ite_end)
+				if ((event_mcast.empty() == false) && (mcast_ite != mcast_ite_end))
 				{
-
-					name_mess_ptr = &name_mess_2;
-					endian_mess.copy(&endian_mess_2);
-					event_call_mess_ptr = &event_call_mess_2;
-					data_mess_ptr = &data_mess_2;
 
 //
 // Case of multicast socket with a local client
+// Send the event also on the local socket
 //
 
 					if (mcast_ite->second.local_client == true)
 					{
+						zmq::socket_t *old_pub = pub;
 						pub = event_pub_sock;
 
+						name_mess.copy(&name_mess_2);
+						endian_mess.copy(&endian_mess_2);
+						event_call_mess.copy(&event_call_mess_2);
+						data_mess.copy(&data_mess_2);
+
+						name_mess_ptr = &name_mess_2;
+						endian_mess.copy(&endian_mess_2);
+						event_call_mess_ptr = &event_call_mess_2;
+						data_mess_ptr = &data_mess_2;
+
+						pub->send(*name_mess_ptr,ZMQ_SNDMORE);
+						pub->send(*endian_mess_ptr,ZMQ_SNDMORE);
+						endian_mess_sent = true;
+						pub->send(*event_call_mess_ptr,ZMQ_SNDMORE);
+						pub->send(*data_mess_ptr,0);
+
+						pub = old_pub;
+
+						name_mess_ptr = &name_mess;
+						endian_mess.copy(&endian_mess_2);
+						event_call_mess_ptr = &event_call_mess;
+						data_mess_ptr = &data_mess;
+					}
+					else
+					{
 						name_mess_ptr = &name_mess_2;
 						endian_mess.copy(&endian_mess_2);
 						event_call_mess_ptr = &event_call_mess_2;
 						data_mess_ptr = &data_mess_2;
 					}
 				}
+
+				name_mess_ptr = &name_mess_2;
+				endian_mess.copy(&endian_mess_2);
+				event_call_mess_ptr = &event_call_mess_2;
+				data_mess_ptr = &data_mess_2;
 			}
 		}
 

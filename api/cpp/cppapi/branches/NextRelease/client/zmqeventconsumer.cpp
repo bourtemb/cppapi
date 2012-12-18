@@ -1854,7 +1854,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 				evt_cb.ctr = ds_ctr - 1;
 
 			DevLong missed_event = ds_ctr - evt_cb.ctr;
-cout << "missed_event = " << missed_event << ", ds_ctr = " << ds_ctr << ", evt_cb.ctr = " << evt_cb.ctr << endl;
 
 			if (missed_event < 0)
 			{
