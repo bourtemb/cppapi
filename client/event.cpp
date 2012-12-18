@@ -1432,7 +1432,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
         else
             new_event_callback.device_idl = 0;
     }
-    new_event_callback.ctr = 1;
+    new_event_callback.ctr = 0;
 
     new_ess.callback = callback;
     new_ess.ev_queue = ev_queue;

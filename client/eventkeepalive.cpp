@@ -744,7 +744,7 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 //
 
  					bool heartbeat_skipped;
-					heartbeat_skipped = ((now - ipos->second.last_heartbeat) > (EVENT_HEARTBEAT_PERIOD + 1));
+					heartbeat_skipped = ((now - ipos->second.last_heartbeat) >= EVENT_HEARTBEAT_PERIOD);
 
 					if (heartbeat_skipped || ipos->second.heartbeat_skipped || ipos->second.event_system_failed == true )
 					{

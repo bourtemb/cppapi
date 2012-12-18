@@ -539,9 +539,17 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
             ret_data->svalue[0] = CORBA::string_dup(tmp_str.c_str());
 
             tmp_str = "Event: ";
-            tmp_str = tmp_str + ev->get_event_endpoint();
+            string ev_end = ev->get_event_endpoint();
+            if (ev_end.size() != 0)
+				tmp_str = "Event: " + ev_end;
+			size_t nb_mcast = ev->get_mcast_event_nb();
+			if (nb_mcast != 0)
+			{
+				if (ev_end.size() != 0)
+					tmp_str = tmp_str + "\n";
+				tmp_str = tmp_str + "Some event(s) sent using multicast protocol";
+			}
             ret_data->svalue[1] = CORBA::string_dup(tmp_str.c_str());
-
         }
         else
         {
