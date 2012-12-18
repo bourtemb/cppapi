@@ -273,6 +273,7 @@ public :
     bool is_event_mcast(string &);
     string &get_mcast_event_endpoint(string &);
     void init_event_cptr(string &event_name);
+    size_t get_mcast_event_nb() {return event_mcast.size();}
 
     bool update_connected_client(client_addr *);
     void set_double_send() {double_send=true;double_send_heartbeat=true;}
@@ -313,6 +314,8 @@ private :
 
     zmq::message_t              endian_mess;            // Zmq message for host endianness
     zmq::message_t              endian_mess_2;          //
+    zmq::message_t				endian_mess_heartbeat;	//
+    zmq::message_t				endian_mess_heartbeat_2;//
     zmq::message_t              heartbeat_call_mess;    //
     zmq::message_t              heartbeat_call_mess_2;  //
 
