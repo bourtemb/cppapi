@@ -393,6 +393,20 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 			{
                 if (attribute.ext->mcast_event[i].find(event) == 0)
                 {
+                	int zmq_major,zmq_minor,zmq_patch;
+                	zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+                	if (zmq_major == 3 && zmq_minor < 2)
+					{
+						TangoSys_OMemStream o;
+						o << "Device server process is using zmq release ";
+						o << zmq_major << "." << zmq_minor << "." << zmq_patch;
+						o << "\nMulticast event(s) not available with this ZMQ release" << ends;
+
+						Except::throw_exception((const char *)API_UnsupportedFeature,
+														o.str(),
+														(const char *)"DServer::event_subscription");
+					}
+
                     string::size_type start,end;
                     start = attribute.ext->mcast_event[i].find(':');
                     start++;
