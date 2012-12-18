@@ -394,6 +394,7 @@ void ZmqEventSupplier::create_mcast_event_socket(string &mcast_data,string &ev_n
                 create_mcast_socket(mcast_data,rate,ite->second);
             }
         }
+        ite->second.double_send = true;
     }
     else
     {
@@ -1033,14 +1034,14 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 // Get publisher socket (multicast case)
 //
 
-        int send_nb = 1;
-        zmq::socket_t *pub;
-        pub = event_pub_sock;
+		int send_nb = 1;
+		zmq::socket_t *pub;
+		pub = event_pub_sock;
 
-        zmq::message_t *name_mess_ptr = &name_mess;
-        zmq::message_t *endian_mess_ptr = &endian_mess;
-        zmq::message_t *event_call_mess_ptr = &event_call_mess;
-        zmq::message_t *data_mess_ptr = &data_mess;
+		zmq::message_t *name_mess_ptr = &name_mess;
+		zmq::message_t *endian_mess_ptr = &endian_mess;
+		zmq::message_t *event_call_mess_ptr = &event_call_mess;
+		zmq::message_t *data_mess_ptr = &data_mess;
 
 		map<string,McastSocketPub>::iterator mcast_ite;
 		map<string,McastSocketPub>::iterator mcast_ite_end = event_mcast.end();
@@ -1048,34 +1049,34 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
 		bool local_double_send = double_send;
 		bool mcast_event = false;
 
-        if (event_mcast.empty() == false)
-        {
-            if ((mcast_ite = event_mcast.find(event_name)) != mcast_ite_end)
-            {
-                if (mcast_ite->second.local_client == false)
-                {
-                   pub = mcast_ite->second.pub_socket;
-                }
-                else
-                {
-                    if (mcast_ite->second.pub_socket != NULL)
-                    {
-                        send_nb = 2;
-                        pub = mcast_ite->second.pub_socket;
-                    }
-                }
+		if (event_mcast.empty() == false)
+		{
+			if ((mcast_ite = event_mcast.find(event_name)) != mcast_ite_end)
+			{
+				if (mcast_ite->second.local_client == false)
+				{
+					pub = mcast_ite->second.pub_socket;
+				}
+				else
+				{
+					if (mcast_ite->second.pub_socket != NULL)
+					{
+						send_nb = 2;
+						pub = mcast_ite->second.pub_socket;
+					}
+				}
 				local_double_send = mcast_ite->second.double_send;
 				mcast_ite->second.double_send = false;
 				mcast_event = true;
-            }
-        }
+			}
+		}
 
-        if (local_double_send == true)
-        {
-            send_nb = 2;
-            if (mcast_event == false)
+		if (local_double_send == true)
+		{
+			send_nb = 2;
+			if (mcast_event == false)
 				double_send = false;
-        }
+		}
 
 //
 // If we have a multicast socket with also a local client
