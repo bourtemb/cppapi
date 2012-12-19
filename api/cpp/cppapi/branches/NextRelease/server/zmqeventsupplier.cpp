@@ -65,6 +65,14 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
 	_instance = this;
 
 //
+// Create zmq release number
+//
+
+	int zmq_major,zmq_minor,zmq_patch;
+	zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+	zmq_release = (zmq_major * 100) + (zmq_minor * 10) + zmq_patch;
+
+//
 // Create the Publisher socket for heartbeat event and bind it
 // If the user has specified one IP address on the command line,
 // re-use it in the endpoint

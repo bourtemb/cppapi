@@ -389,14 +389,20 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
         if (ct == ZMQ)
         {
             bool found = false;
+
+			ZmqEventSupplier *ev;
+			ev = tg->get_zmq_event_supplier();
+			int zmq_release = ev->get_zmq_release();
+
 			for(unsigned int i = 0;i != attribute.ext->mcast_event.size();++i)
 			{
                 if (attribute.ext->mcast_event[i].find(event) == 0)
                 {
-                	int zmq_major,zmq_minor,zmq_patch;
-                	zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
-                	if (zmq_major == 3 && zmq_minor < 2)
+                	if (zmq_release < 320)
 					{
+						int zmq_major,zmq_minor,zmq_patch;
+						zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+
 						TangoSys_OMemStream o;
 						o << "Device server process is using zmq release ";
 						o << zmq_major << "." << zmq_minor << "." << zmq_patch;
@@ -717,7 +723,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
 // Init data returned by command
 //
 
-        ret_data->lvalue.length(5);
+        ret_data->lvalue.length(6);
         ret_data->svalue.length(2);
 
         ret_data->lvalue[0] = (Tango::DevLong)tg->get_tango_lib_release();
@@ -725,6 +731,7 @@ DevVarLongStringArray *DServer::zmq_event_subscription_change(const Tango::DevVa
         ret_data->lvalue[2] = zmq_sub_event_hwm;
         ret_data->lvalue[3] = rate;
         ret_data->lvalue[4] = ivl;
+        ret_data->lvalue[5] = ev->get_zmq_release();
 
         string &heartbeat_endpoint = ev->get_heartbeat_endpoint();
         ret_data->svalue[0] = CORBA::string_dup(heartbeat_endpoint.c_str());

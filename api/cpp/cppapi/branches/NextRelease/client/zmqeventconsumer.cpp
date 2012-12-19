@@ -136,7 +136,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
     }
     catch (zmq::error_t &)
     {
-        reconnect_ivl = 15000;
+        reconnect_ivl = 30000;
         heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
     }
 
@@ -451,13 +451,13 @@ void ZmqEventConsumer::process_heartbeat(zmq::message_t &received_event_name,zmq
     }
     catch (...)
     {
-        string st("Received a malformed hertbeat event: ");
+        string st("Received a malformed heartbeat event: ");
 		st = st + event_name;
 		print_error_message(st.c_str());
         unsigned char *tmp = (unsigned char *)received_call.data();
         for (unsigned int loop = 0;loop < received_call.size();loop++)
         {
-           cerr << "Hertabeat event data[" << loop << "] = " << (int)tmp[loop] << endl;
+           cerr << "Heartbeat event data[" << loop << "] = " << hex << (int)tmp[loop] << dec << endl;
         }
         return;
     }
@@ -550,7 +550,7 @@ void ZmqEventConsumer::process_event(zmq::message_t &received_event_name,zmq::me
         unsigned char *tmp = (unsigned char *)received_call.data();
         for (unsigned int loop = 0;loop < received_call.size();loop++)
         {
-           cerr << "Event data[" << loop << "] = " << (int)tmp[loop] << endl;
+           cerr << "Event data[" << loop << "] = " << hex << (int)tmp[loop] << dec << endl;
         }
         return;
     }
@@ -628,7 +628,7 @@ void ZmqEventConsumer::process_event(zmq_msg_t &received_event_name,zmq_msg_t &r
         unsigned char *tmp = (unsigned char *)zmq_msg_data(&received_call);
         for (unsigned int loop = 0;loop < zmq_msg_size(&received_call);loop++)
         {
-           cerr << "Event data[" << loop << "] = " << (int)tmp[loop] << endl;
+           cerr << "Event data[" << loop << "] = " << hex << (int)tmp[loop] << dec << endl;
         }
         return;
     }

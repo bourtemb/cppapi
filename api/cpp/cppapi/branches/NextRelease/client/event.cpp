@@ -1361,10 +1361,44 @@ int EventConsumer::connect_event(DeviceProxy *device,
     dd >> ev_svr_data;
 
 	string endpoint(ev_svr_data->svalue[1].in());
+	int ds_zmq_release = 0;
+
+	if (ev_svr_data->lvalue.length() >= 6)
+		ds_zmq_release = (ev_svr_data->lvalue[5]);
+
+	int zmq_major,zmq_minor,zmq_patch;
+	zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+
+//
+// Check for ZMQ compatible release
+//
+
+	if (ds_zmq_release == 310)
+	{
+		if (zmq_major != 3 || zmq_minor != 1 || zmq_patch != 0)
+		{
+			Except::throw_exception((const char *)API_UnsupportedFeature,
+									(const char *)"Incompatibility between ZMQ releases between client and server!",
+									(const char *)"EventConsumer::connect_event");
+		}
+	}
+
+	if (zmq_major == 3 && zmq_minor == 1 && zmq_patch == 0)
+	{
+		if (ds_zmq_release != 0 && ds_zmq_release != 310)
+		{
+			Except::throw_exception((const char *)API_UnsupportedFeature,
+									(const char *)"Incompatibility between ZMQ releases between client and server!",
+									(const char *)"EventConsumer::connect_event");
+		}
+	}
+
+//
+// Check if multicasting is available (requires zmq 3.2.x)
+//
+
 	if (endpoint.find(MCAST_PROT) != string::npos)
 	{
-		int zmq_major,zmq_minor,zmq_patch;
-		zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
 		if (zmq_major == 3 && zmq_minor < 2)
 		{
 			TangoSys_OMemStream o;
