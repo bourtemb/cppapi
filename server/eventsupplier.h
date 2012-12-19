@@ -278,6 +278,8 @@ public :
     bool update_connected_client(client_addr *);
     void set_double_send() {double_send=true;double_send_heartbeat=true;}
 
+    int get_zmq_release() {return zmq_release;}
+
 protected :
 	ZmqEventSupplier(Util *);
 
@@ -333,6 +335,8 @@ private :
 	list<ConnectedClient>       con_client;             // Connected clients
 	bool                        double_send;            // Double send flag
 	bool                        double_send_heartbeat;
+
+	int							zmq_release;			// ZMQ lib release
 
 	void tango_bind(zmq::socket_t *,string &);
 	unsigned char test_endian();
