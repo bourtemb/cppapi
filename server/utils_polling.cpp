@@ -1448,7 +1448,7 @@ void Util::upd_polling_prop(vector<DevDbUpd> &upd_devs,DServer *admin_dev)
 
 		if ((upd_devs[i].mod_prop == -1) || (upd_devs[i].mod_prop == -3))
 		{
-			if (poll_cmd_list.size() == 0)
+			if (poll_cmd_list.empty() == true)
 				del_prop.push_back(DbDatum("polled_cmd"));
 			else
 			{
@@ -1459,7 +1459,7 @@ void Util::upd_polling_prop(vector<DevDbUpd> &upd_devs,DServer *admin_dev)
 
 		if ((upd_devs[i].mod_prop == -2) || (upd_devs[i].mod_prop == -3))
 		{
-			if (poll_attr_list.size() == 0)
+			if (poll_attr_list.empty() == true)
 				del_prop.push_back(DbDatum("polled_attr"));
 			else
 			{

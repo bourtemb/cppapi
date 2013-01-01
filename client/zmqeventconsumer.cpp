@@ -75,12 +75,12 @@ ZmqEventConsumer::ZmqEventConsumer(ApiUtil *ptr) : EventConsumer(ptr),omni_threa
 // Initialize the var references
 //
 
-    av = new AttributeValue();
-    av3 = new AttributeValue_3();
-    ac2 = new AttributeConfig_2();
-    ac3 = new AttributeConfig_3();
-    adr = new AttDataReady();
-    del = new DevErrorList();
+	av = new AttributeValue();
+	av3 = new AttributeValue_3();
+	ac2 = new AttributeConfig_2();
+	ac3 = new AttributeConfig_3();
+	adr = new AttDataReady();
+	del = new DevErrorList();
 
 	start_undetached();
 }
@@ -119,8 +119,8 @@ ZmqEventConsumer *ZmqEventConsumer::create()
 void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 {
 
-    int linger = 0;
-    int reconnect_ivl = -1;
+	int linger = 0;
+	int reconnect_ivl = -1;
 
 //
 // Create the subscriber socket used to receive heartbeats coming from different DS. This socket subscribe to
@@ -128,17 +128,17 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 // to all needed publishers
 //
 
-    heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
-    heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
-    try
-    {
-        heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
-    }
-    catch (zmq::error_t &)
-    {
-        reconnect_ivl = 30000;
-        heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
-    }
+	heartbeat_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
+	heartbeat_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+	try
+	{
+		heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+	}
+	catch (zmq::error_t &)
+	{
+		reconnect_ivl = 30000;
+		heartbeat_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+	}
 
 //
 // Create the subscriber socket used to receive events coming from different DS. This socket subscribe to everything
@@ -146,205 +146,207 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 // publishers
 //
 
-    event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
-    event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
-    event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
+	event_sub_sock = new zmq::socket_t(zmq_context,ZMQ_SUB);
+	event_sub_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+	event_sub_sock->setsockopt(ZMQ_RECONNECT_IVL,&reconnect_ivl,sizeof(reconnect_ivl));
 
 //
 // Create the control socket (REQ/REP pattern) and binds it
 //
 
-    control_sock = new zmq::socket_t(zmq_context,ZMQ_REP);
-    control_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
-    control_sock->bind(CTRL_SOCK_ENDPOINT);
+	control_sock = new zmq::socket_t(zmq_context,ZMQ_REP);
+	control_sock->setsockopt(ZMQ_LINGER,&linger,sizeof(linger));
+	control_sock->bind(CTRL_SOCK_ENDPOINT);
 
 //
 // Initialize poll set
 //
 
-    zmq::pollitem_t *items = new zmq::pollitem_t [MAX_SOCKET_SUB];
-    int nb_poll_item = 3;
+	zmq::pollitem_t *items = new zmq::pollitem_t [MAX_SOCKET_SUB];
+	int nb_poll_item = 3;
 
-    items[0].socket = *control_sock;
-    items[1].socket = *heartbeat_sub_sock;
-    items[2].socket = *event_sub_sock;
+	items[0].socket = *control_sock;
+	items[1].socket = *heartbeat_sub_sock;
+	items[2].socket = *event_sub_sock;
 
-    for (int loop = 0;loop < nb_poll_item;loop++)
-    {
-        items[loop].fd = 0;
-        items[loop].events = ZMQ_POLLIN;
-        items[loop].revents = 0;
-    }
+	for (int loop = 0;loop < nb_poll_item;loop++)
+	{
+		items[loop].fd = 0;
+		items[loop].events = ZMQ_POLLIN;
+		items[loop].revents = 0;
+	}
 
 //
 // Enter the infinite loop
 //
 
-    while(1)
-    {
-        zmq::message_t received_event_name,received_endian;
-        zmq::message_t received_call,received_event_data;
-        zmq::message_t received_ctrl;
+	while(1)
+	{
+		zmq::message_t received_event_name,received_endian;
+		zmq::message_t received_call,received_event_data;
+		zmq::message_t received_ctrl;
 
 //
 // Init messages used by multicast event
 //
 
-        zmq_msg_t mcast_received_event_name;
-        zmq_msg_t mcast_received_endian;
-        zmq_msg_t mcast_received_call;
-        zmq_msg_t mcast_received_event_data;
+		zmq_msg_t mcast_received_event_name;
+		zmq_msg_t mcast_received_endian;
+		zmq_msg_t mcast_received_call;
+		zmq_msg_t mcast_received_event_data;
 
 //
 // Wait for message. The try/catch is usefull when the process is running under gdb control
 //
 
-        try
-        {
-            zmq::poll(items,nb_poll_item,-1);
+		try
+		{
+			zmq::poll(items,nb_poll_item,-1);
 //cout << "Awaken !!!!!!!!" << endl;
-        }
-        catch(zmq::error_t &e)
-        {
-            if (e.num() == EINTR)
-                continue;
-        }
+		}
+		catch(zmq::error_t &e)
+		{
+			if (e.num() == EINTR)
+				continue;
+		}
 
 //
 // Something received by the heartbeat socket ?
 //
 
-        if (items[1].revents & ZMQ_POLLIN)
-        {
+		if (items[1].revents & ZMQ_POLLIN)
+		{
 //cout << "For the heartbeat socket" << endl;
-            bool res;
-            try
-            {
-                res = heartbeat_sub_sock->recv(&received_event_name,ZMQ_DONTWAIT);
-                if (res == false)
-                {
+			bool res;
+			try
+			{
+				res = heartbeat_sub_sock->recv(&received_event_name,ZMQ_DONTWAIT);
+				if (res == false)
+				{
 					print_error_message("First Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
-                    continue;
-                }
+					continue;
+				}
 
-                res = heartbeat_sub_sock->recv(&received_endian,ZMQ_DONTWAIT);
-                if (res == false)
-                {
-                    print_error_message("Second Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
-                    continue;
-                }
+				res = heartbeat_sub_sock->recv(&received_endian,ZMQ_DONTWAIT);
+				if (res == false)
+				{
+					print_error_message("Second Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
+					continue;
+				}
 
-                res = heartbeat_sub_sock->recv(&received_call,ZMQ_DONTWAIT);
-                if (res == false)
-                {
-                    print_error_message("Third Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
-                    continue;
-                }
+				res = heartbeat_sub_sock->recv(&received_call,ZMQ_DONTWAIT);
+				if (res == false)
+				{
+					print_error_message("Third Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
+					continue;
+				}
 
-                process_heartbeat(received_event_name,received_endian,received_call);
-            }
-            catch (zmq::error_t &e)
-            {
-                print_error_message("Zmq exception while receiving heartbeat data!");
-                cerr << "Error number: " << e.num() << ", error message: " << e.what() << endl;
-                items[1].revents = 0;
-                continue;
-            }
+				process_heartbeat(received_event_name,received_endian,received_call);
+			}
+			catch (zmq::error_t &e)
+			{
+				print_error_message("Zmq exception while receiving heartbeat data!");
+				cerr << "Error number: " << e.num() << ", error message: " << e.what() << endl;
+				items[1].revents = 0;
+				continue;
+			}
 
-            items[1].revents = 0;
-        }
+
+			items[1].revents = 0;
+		}
 
 //
 // Something received by the event socket (TCP transport)?
 //
 
-        if (items[2].revents & ZMQ_POLLIN)
-        {
+		if (items[2].revents & ZMQ_POLLIN)
+		{
 //cout << "For the event socket" << endl;
-            bool res;
-            try
-            {
-                res = event_sub_sock->recv(&received_event_name,ZMQ_DONTWAIT);
-                if (res == false)
-                {
-                    print_error_message("First Zmq recv call on event socket returned false! De-synchronized event system?");
-                    continue;
-                }
+			bool res;
+			try
+			{
+				res = event_sub_sock->recv(&received_event_name,ZMQ_DONTWAIT);
+				if (res == false)
+				{
+					print_error_message("First Zmq recv call on event socket returned false! De-synchronized event system?");
+					continue;
+				}
 
-                res = event_sub_sock->recv(&received_endian,ZMQ_DONTWAIT);
-                if (res == false)
-                {
-                    print_error_message("Second Zmq recv call on event socket returned false! De-synchronized event system?");
-                    continue;
-                }
+				res = event_sub_sock->recv(&received_endian,ZMQ_DONTWAIT);
+				if (res == false)
+				{
+					print_error_message("Second Zmq recv call on event socket returned false! De-synchronized event system?");
+					continue;
+				}
 
-                res = event_sub_sock->recv(&received_call,ZMQ_DONTWAIT);
-                if (res == false)
-                {
-                    print_error_message("Third Zmq recv call on event socket returned false! De-synchronized event system?");
-                    continue;
-                }
+				res = event_sub_sock->recv(&received_call,ZMQ_DONTWAIT);
+				if (res == false)
+				{
+					print_error_message("Third Zmq recv call on event socket returned false! De-synchronized event system?");
+					continue;
+				}
 
-                res = event_sub_sock->recv(&received_event_data,ZMQ_DONTWAIT);
-                if (res == false)
-                {
-                    print_error_message("Forth Zmq recv call on event socket returned false! De-synchronized event system?");
-                    continue;
-                }
+				res = event_sub_sock->recv(&received_event_data,ZMQ_DONTWAIT);
+				if (res == false)
+				{
+					print_error_message("Forth Zmq recv call on event socket returned false! De-synchronized event system?");
+					continue;
+				}
 
-                process_event(received_event_name,received_endian,received_call,received_event_data);
-            }
-            catch (zmq::error_t &e)
-            {
-                print_error_message("Zmq exception while receiving event data!");
-                cerr << "Error number: " << e.num() << ", error message: " << e.what() << endl;
-                items[2].revents = 0;
-                continue;
-            }
+				process_event(received_event_name,received_endian,received_call,received_event_data);
+			}
+			catch (zmq::error_t &e)
+			{
+				print_error_message("Zmq exception while receiving event data!");
+				cerr << "Error number: " << e.num() << ", error message: " << e.what() << endl;
+				items[2].revents = 0;
+				continue;
+			}
 
-            items[2].revents = 0;
-        }
+			items[2].revents = 0;
+		}
 
 //
 // Something received by the control socket?
 //
 
-        if (items[0].revents & ZMQ_POLLIN)
-        {
+		if (items[0].revents & ZMQ_POLLIN)
+		{
 //cout << "For the control socket" << endl;
-            control_sock->recv(&received_ctrl);
+			control_sock->recv(&received_ctrl);
 
-            string ret_str;
-            bool ret = false;
+			string ret_str;
+			bool ret = false;
 
-            try
-            {
-                ret = process_ctrl(received_ctrl,items,nb_poll_item);
-                ret_str = "OK";
-            }
-            catch (zmq::error_t &e)
-            {
-                ret_str = e.what();
-            }
-            catch (Tango::DevFailed &e)
-            {
-                ret_str = e.errors[0].desc;
-            }
+			try
+			{
+				ret = process_ctrl(received_ctrl,items,nb_poll_item);
+				ret_str = "OK";
+			}
+			catch (zmq::error_t &e)
+			{
+				ret_str = e.what();
+			}
+			catch (Tango::DevFailed &e)
+			{
+				ret_str = e.errors[0].desc;
+			}
 
-            zmq::message_t reply(ret_str.size());
-            ::memcpy((void *)reply.data(),ret_str.data(),ret_str.size());
-            control_sock->send(reply);
+			zmq::message_t reply(ret_str.size());
+			::memcpy((void *)reply.data(),ret_str.data(),ret_str.size());
+			control_sock->send(reply);
 
-            if (ret == true)
-            {
-                delete heartbeat_sub_sock;
-                delete control_sock;
-                delete [] items;
+			if (ret == true)
+			{
+				delete heartbeat_sub_sock;
+				delete control_sock;
+				delete [] items;
 
-                break;
-            }
-            items[0].revents = 0;
-        }
+				break;
+			}
+			items[0].revents = 0;
+		}
+
 
 //
 // Something received by the event socket (mcast transport)?
@@ -355,32 +357,33 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 // socket. Nevertheless, today (11/2012), it is still not official
 //
 
-        for (int loop = 3;loop < nb_poll_item;loop++)
-        {
-            if (items[loop].revents & ZMQ_POLLIN)
-            {
-                zmq_msg_init(&mcast_received_event_name);
-                zmq_msg_init(&mcast_received_endian);
-                zmq_msg_init(&mcast_received_call);
-                zmq_msg_init(&mcast_received_event_data);
+		for (int loop = 3;loop < nb_poll_item;loop++)
+		{
+			if (items[loop].revents & ZMQ_POLLIN)
+			{
+				zmq_msg_init(&mcast_received_event_name);
+				zmq_msg_init(&mcast_received_endian);
+				zmq_msg_init(&mcast_received_call);
+				zmq_msg_init(&mcast_received_event_data);
 
-                zmq_recvmsg(items[loop].socket,&mcast_received_event_name,0);
-                zmq_recvmsg(items[loop].socket,&mcast_received_endian,0);
-                zmq_recvmsg(items[loop].socket,&mcast_received_call,0);
-                zmq_recvmsg(items[loop].socket,&mcast_received_event_data,0);
+				zmq_recvmsg(items[loop].socket,&mcast_received_event_name,0);
+				zmq_recvmsg(items[loop].socket,&mcast_received_endian,0);
+				zmq_recvmsg(items[loop].socket,&mcast_received_call,0);
+				zmq_recvmsg(items[loop].socket,&mcast_received_event_data,0);
 
-                process_event(mcast_received_event_name,mcast_received_endian,mcast_received_call,mcast_received_event_data);
+				process_event(mcast_received_event_name,mcast_received_endian,mcast_received_call,mcast_received_event_data);
 
-                zmq_msg_close(&mcast_received_event_name);
-                zmq_msg_close(&mcast_received_endian);
-                zmq_msg_close(&mcast_received_call);
-                zmq_msg_close(&mcast_received_event_data);
+				zmq_msg_close(&mcast_received_event_name);
+				zmq_msg_close(&mcast_received_endian);
+				zmq_msg_close(&mcast_received_call);
+				zmq_msg_close(&mcast_received_event_data);
 
-                items[loop].revents = 0;
-            }
-        }
+				items[loop].revents = 0;
+			}
+		}
 
-    }
+
+	}
 
 	return (void *)NULL;
 }
