@@ -768,7 +768,7 @@ void DServer::restart(string &d_name)
 	{
 		vector<DeviceImpl *> &dev_list = class_list[i]->get_device_list();
 		ite_end = dev_list.end();
-		for (ite = dev_list.begin();ite != dev_list.end();ite++)
+		for (ite = dev_list.begin();ite != dev_list.end();++ite)
 		{
 			if ((*ite)->get_name_lower() == lower_d_name)
 			{
