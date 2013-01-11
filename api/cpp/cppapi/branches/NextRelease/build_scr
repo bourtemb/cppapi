@@ -6,9 +6,16 @@
 
 if [ -z "$INSTITUTE" ]
 then
+	echo "The institute is:"
 	echo "$INSTITUTE"
 	exit 0
 fi
+
+echo .
+echo "--------------------"
+printenv
+echo "--------------------"
+echo .
 
 UX_INSTALL_DIR="/tmp/ci"
 WIN_INSTALL_DIR="C:\tango_src\ci"
