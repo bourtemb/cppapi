@@ -4,6 +4,8 @@
 # Execute institute dependent build script
 #
 
+echo ++++++
+
 if [ ! -z "$INSTITUTE" ]
 then
 	echo "The institute is:"
