@@ -1,5 +1,15 @@
 #!/bin/bash
 
+#
+# Execute institute dependent build script
+#
+
+if [ -z "$INSTITUTE" ]
+then
+	echo "$INSTITUTE"
+	exit 0
+fi
+
 UX_INSTALL_DIR="/tmp/ci"
 WIN_INSTALL_DIR="C:\tango_src\ci"
 
