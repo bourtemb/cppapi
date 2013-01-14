@@ -7,7 +7,7 @@
 export SCR_NAME=build_scr
 export CURRENT_SCR_DIR=$(dirname "$0")
 
-if [ ! -z "$INSTITUTE" -a -d "$INSTITUTE" -a -f "$CURRENT_SCR_DIR"/"$INSTITUTE"/"$SCR_NAME" ]
+if [ ! -z "$INSTITUTE" -a -d "$INSTITUTE" -a -f "$CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME" ]
 then
 	source "$CURRENT_SCR_DIR"/"$INSTITUTE"/"$SCR_NAME"
 	exit 0
@@ -21,6 +21,10 @@ WIN_INSTALL_DIR="C:\tango_src\ci"
 #
 # Is clean required ?
 #
+
+echo ---
+pwd
+echo ---
 
 if [ $# = 2 ]
 then
