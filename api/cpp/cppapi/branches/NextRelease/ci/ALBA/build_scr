@@ -14,6 +14,12 @@ echo "+ build_scr level 2 CURRENT_SCR_DIR -> $CURRENT_SCR_DIR "
 
 INSTALL_DIR="/tmp/jenkins/jobs/$JOB_NAME"
 
+
+echo --------
+printenv
+echo --------
+
+
 #BRANCH_DIR=$1
 
 #
