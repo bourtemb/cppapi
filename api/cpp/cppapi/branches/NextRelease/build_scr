@@ -15,7 +15,8 @@ then
 	source "$CURRENT_SCR_DIR"/"$INSTITUTE"/"$SCR_NAME"
 	exit 0
 else
-	echo "- Failed loading build_scr level 2"
+	echo "- Failed loading build_scr level 2 -> $CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
+	ls
 fi
 
 
