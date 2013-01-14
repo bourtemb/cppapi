@@ -8,9 +8,9 @@
 
 #${BASH_SOURCE[@]}
 
-export CURRENT_SCR_DIR=$(dirname "$BASH_SOURCE")
+export INSTITUTE_DIR=$(dirname "$BASH_SOURCE")
 
-echo "+ build_scr level 2 CURRENT_SCR_DIR -> $CURRENT_SCR_DIR "
+echo "+ build_scr level 2 INSTITUTE_DIR -> $INSTITUTE_DIR "
 
 JENKINS_JOB=${JOB_NAME%%\/*}
 
@@ -48,9 +48,9 @@ fi
 # Import node specific settings
 #
 
-if [ ! -z "$NODE_NAME" -a -f "$CURRENT_SCR_DIR/$NODE_NAME" ]
+if [ ! -z "$NODE_NAME" -a -f "$INSTITUTE_DIR/$NODE_NAME" ]
 then
-	source "$CURRENT_SCR_DIR/$NODE_NAME"
+	source "$INSTITUTE_DIR/$NODE_NAME"
 else
 	echo "The settings file for the node $NODE_NAME does not exist!"
 	exit -1
@@ -63,7 +63,8 @@ fi
 MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $CLEAN $LIBNAME install_include install_link"
 
 # branch dependent path:
-#	cd $BRANCH_DIR
+
+cd $MAIN_DIR
 
 echo $MAKE_CMD
 $MAKE_CMD
