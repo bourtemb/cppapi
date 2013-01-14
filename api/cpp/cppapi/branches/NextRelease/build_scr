@@ -1,23 +1,19 @@
 #!/bin/bash
 
 #
-# Execute institute dependent build script
+# Execute institute specific build script
 #
 
-echo ++++++
+export SCR_NAME=build_scr
+export CURRENT_SCR_DIR=$(dirname "$0")
 
-if [ ! -z "$INSTITUTE" ]
+if [ ! -z "$INSTITUTE" -a -d "$INSTITUTE" -a -f "$CURRENT_SCR_DIR"/"$INSTITUTE"/"$SCR_NAME" ]
 then
-	echo "The institute is:"
-	echo "$INSTITUTE"
+	source "$CURRENT_SCR_DIR"/"$INSTITUTE"/"$SCR_NAME"
 	exit 0
 fi
 
-echo .
-echo "--------------------"
-printenv
-echo "--------------------"
-echo .
+
 
 UX_INSTALL_DIR="/tmp/ci"
 WIN_INSTALL_DIR="C:\tango_src\ci"
