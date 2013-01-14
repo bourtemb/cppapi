@@ -1,0 +1,12 @@
+
+#
+# Is clean required ?
+#
+
+CLEAN="clean"
+
+
+echo "Suse 11 32bit"
+OS_TYPE="linux"
+OS_SPEC="linux=1 ubuntu=1"
+MAKE_PATH="make"
