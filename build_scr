@@ -5,9 +5,9 @@
 #
 
 export SCR_NAME=build_scr
-export CURRENT_SCR_DIR=$(dirname "$0")
+export MAIN_DIR=$(dirname "$0")
 
-echo "+ build_scr level 1 CURRENT_SCR_DIR -> $CURRENT_SCR_DIR "
+echo "+ build_scr level 1 MAIN_DIR -> $MAIN_DIR "
 
 if [ ! -z "$INSTITUTE" ]
 then
@@ -16,28 +16,28 @@ else
 	echo INSTITUTE not ok
 fi
 
-if [ -d "$CURRENT_SCR_DIR/ci/$INSTITUTE" ]
+if [ -d "$MAIN_DIR/ci/$INSTITUTE" ]
 then
-	echo -d CURRENT_SCR_DIR/ci/INSTITUTE ok
+	echo -d MAIN_DIR/ci/INSTITUTE ok
 else
-	echo -d CURRENT_SCR_DIR/ci/INSTITUTE not ok
+	echo -d MAIN_DIR/ci/INSTITUTE not ok
 fi
 
-if [ -f "$CURRENT_SCR_DIR/ci/$INSTITUTE/$SCR_NAME" ]
+if [ -f "$MAIN_DIR/ci/$INSTITUTE/$SCR_NAME" ]
 then
-	echo CURRENT_SCR_DIR/ci/INSTITUTE/SCR_NAME ok
+	echo MAIN_DIR/ci/INSTITUTE/SCR_NAME ok
 else
-	echo CURRENT_SCR_DIR/ci/INSTITUTE/SCR_NAME not ok
+	echo MAIN_DIR/ci/INSTITUTE/SCR_NAME not ok
 fi
 
 
-if [ ! -z "$INSTITUTE" -a -d "$CURRENT_SCR_DIR/ci/$INSTITUTE" -a -f "$CURRENT_SCR_DIR/ci/$INSTITUTE/$SCR_NAME" ]
+if [ ! -z "$INSTITUTE" -a -d "$MAIN_DIR/ci/$INSTITUTE" -a -f "$MAIN_DIR/ci/$INSTITUTE/$SCR_NAME" ]
 then
-	echo "- Loading build_scr level 2 -> $CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
-	source "$CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
+	echo "- Loading build_scr level 2 -> $MAIN_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
+	source "$MAIN_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
 	exit 0
 else
-	echo "- Failed loading build_scr level 2 -> $CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
+	echo "- Failed loading build_scr level 2 -> $MAIN_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
 	ls
 fi
 
