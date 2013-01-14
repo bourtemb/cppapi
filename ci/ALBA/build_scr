@@ -42,7 +42,7 @@ fi
 
 if [ ! -z "$NODE_NAME" -a -f "$CURRENT_SCR_DIR/$NODE_NAME" ]
 then
-	source "NODE_NAME"
+	source "$NODE_NAME"
 else
 	echo "The settings file for the node $NODE_NAME does not exist!"
 	exit -1
