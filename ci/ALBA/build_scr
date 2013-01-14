@@ -1,0 +1,62 @@
+# List of variables used in this script
+# INSTALL_DIR
+# CLEAN
+# OS_TYPE
+# OS_SPEC
+# CPU_BUS
+# MAKE_PATH
+
+INSTALL_DIR="/tmp/jenkins/jobs/""$JOB_NAME"
+
+#BRANCH_DIR=$1
+
+#
+# Set library type
+#
+
+if [ $LIBTYPE = "shared" ]
+then
+	LIBNAME=libtango.so
+else
+	LIBNAME=libtango.a
+fi
+
+#
+# Set debug type
+#
+
+if [ $DEBUGMODE = "debug" ]
+then
+	DEBUG_MODE="debug=1"
+fi
+
+#
+# Import node specific settings
+#
+
+if [ ! -z "$NODE_NAME" -a -f "$NODE_NAME" ]
+then
+	source "NODE_NAME"
+else
+	echo "The settings file for the node $NODE_NAME does not exist!"
+	exit -1
+fi
+
+#
+# Build library
+#
+
+MAKE_CMD="$MAKE_PATH prefix=$INSTALL_DIR $OS_SPEC $CPU_BUS $DEBUG_MODE $CLEAN $LIBNAME install_include install_link"
+
+# branch dependent path:
+#	cd $BRANCH_DIR
+
+echo $MAKE_CMD
+$MAKE_CMD
+RET=$?
+
+
+if [ $RET != 0 ]
+then
+	exit -1
+fi
