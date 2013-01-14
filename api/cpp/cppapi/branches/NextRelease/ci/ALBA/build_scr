@@ -6,7 +6,9 @@
 # CPU_BUS
 # MAKE_PATH
 
-export CURRENT_SCR_DIR=$(dirname "$0")
+#${BASH_SOURCE[@]}
+
+export CURRENT_SCR_DIR=$BASH_SOURCE
 
 echo "+ build_scr level 2 CURRENT_SCR_DIR -> $CURRENT_SCR_DIR "
 
