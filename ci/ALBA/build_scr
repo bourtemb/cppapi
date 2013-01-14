@@ -6,7 +6,11 @@
 # CPU_BUS
 # MAKE_PATH
 
-INSTALL_DIR="/tmp/jenkins/jobs/""$JOB_NAME"
+export CURRENT_SCR_DIR=$(dirname "$0")
+
+echo "+ build_scr level 2 CURRENT_SCR_DIR -> $CURRENT_SCR_DIR "
+
+INSTALL_DIR="/tmp/jenkins/jobs/$JOB_NAME"
 
 #BRANCH_DIR=$1
 
@@ -34,7 +38,7 @@ fi
 # Import node specific settings
 #
 
-if [ ! -z "$NODE_NAME" -a -f "$NODE_NAME" ]
+if [ ! -z "$NODE_NAME" -a -f "$CURRENT_SCR_DIR/$NODE_NAME" ]
 then
 	source "NODE_NAME"
 else
