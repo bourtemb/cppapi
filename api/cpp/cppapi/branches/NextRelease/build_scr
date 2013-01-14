@@ -9,7 +9,7 @@ export CURRENT_SCR_DIR=$(dirname "$0")
 
 echo "+ build_scr level 1 CURRENT_SCR_DIR -> $CURRENT_SCR_DIR "
 
-if [ ! -z "$INSTITUTE" -a -d "$INSTITUTE" -a -f "$CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME" ]
+if [ ! -z "$INSTITUTE" -a -d "$CURRENT_SCR_DIR/$INSTITUTE" -a -f "$CURRENT_SCR_DIR/ci/$INSTITUTE/$SCR_NAME" ]
 then
 	echo "- Loading build_scr level 2 -> $CURRENT_SCR_DIR"/ci/"$INSTITUTE"/"$SCR_NAME"
 	source "$CURRENT_SCR_DIR"/"$INSTITUTE"/"$SCR_NAME"
