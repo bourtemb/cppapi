@@ -10,3 +10,12 @@ echo "Suse 11 32bit"
 OS_TYPE="linux"
 OS_SPEC="linux=1 ubuntu=1"
 MAKE_PATH="make"
+
+OMNI_BASE=/siciliarep/build/lib/omniORB/omniORB.suse111.32
+LOG4TANGO_BASE=/homelocal/sicilia/lib/liblog4tango.so
+ZMQ_BASE=/siciliarep/build/lib/zeromq/zeromq.suse111.32
+
+#INSTALL_BASE
+
+OBJS_DIR=objs
+OBJS_DIR_SL=objs_sl
