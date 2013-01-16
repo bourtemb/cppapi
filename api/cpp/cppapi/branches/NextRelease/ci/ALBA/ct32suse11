@@ -1,12 +1,4 @@
-
-#
-# Is clean required ?
-#
-
 CLEAN="clean"
-
-
-echo "Suse 11 32bit"
 OS_TYPE="linux"
 OS_SPEC="linux=1 ubuntu=1"
 MAKE_PATH="make"
@@ -16,6 +8,5 @@ LOG4TANGO_BASE=/homelocal/sicilia
 ZMQ_BASE=/siciliarep/build/lib/zeromq/zeromq.suse111.32
 
 #INSTALL_BASE
-
 OBJS_DIR=objs
 OBJS_DIR_SL=objs_sl
