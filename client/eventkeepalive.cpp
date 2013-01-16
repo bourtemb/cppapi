@@ -188,6 +188,10 @@ bool EventConsumerKeepAliveThread::reconnect_to_zmq_channel(EvChanIte &ipos,Even
                     subscriber_out = ipos->second.adm_device_proxy->command_inout("ZmqEventSubscriptionChange",subscriber_in);
 
 					string adm_name = ipos->second.full_adm_name;
+
+#ifdef ZMQ_HAS_DISCONNECT
+					event_consumer->disconnect_event_channel(adm_name,ipos->second.endpoint);
+#endif
 					event_consumer->connect_event_channel(adm_name,
 									      epos->second.device->get_device_db(),
 									      true,subscriber_out);
@@ -298,28 +302,28 @@ void EventConsumerKeepAliveThread::re_subscribe_event(EvCbIte &epos,EvChanIte &i
 //
 
 	CosNotifyFilter::FilterFactory_var ffp;
-  	CosNotifyFilter::Filter_var filter = CosNotifyFilter::Filter::_nil();
+	CosNotifyFilter::Filter_var filter = CosNotifyFilter::Filter::_nil();
 	CosNotifyFilter::FilterID filter_id;
 
 	string channel_name = epos->second.channel_name;
 
 	try
 	{
-   		ffp    = ipos->second.eventChannel->default_filter_factory();
-   		filter = ffp->create_filter("EXTENDED_TCL");
+		ffp    = ipos->second.eventChannel->default_filter_factory();
+		filter = ffp->create_filter("EXTENDED_TCL");
   	}
 	catch (CORBA::COMM_FAILURE &)
 	{
 		EventSystemExcept::throw_exception((const char*)API_NotificationServiceFailed,
                        	(const char*)"Caught CORBA::COMM_FAILURE exception while creating event filter (check filter)",
                        	(const char*)"EventConsumerKeepAliveThread::re_subscribe_event()");
-  	}
+	}
 	catch (...)
 	{
 		EventSystemExcept::throw_exception((const char*)API_NotificationServiceFailed,
                        	(const char*)"Caught exception while creating event filter (check filter)",
                        	(const char*)"EventConsumerKeepAliveThread::re_subscribe_event()");
-  	}
+	}
 
 //
 // Construct a simple constraint expression; add it to fadmin
@@ -328,49 +332,49 @@ void EventConsumerKeepAliveThread::re_subscribe_event(EvCbIte &epos,EvChanIte &i
 	string constraint_expr = epos->second.filter_constraint;
 
 	CosNotification::EventTypeSeq evs;
-  	CosNotifyFilter::ConstraintExpSeq exp;
-  	exp.length(1);
-  	exp[0].event_types = evs;
-  	exp[0].constraint_expr = CORBA::string_dup(constraint_expr.c_str());
-  	CORBA::Boolean res = 0; // OK
-  	try
+	CosNotifyFilter::ConstraintExpSeq exp;
+	exp.length(1);
+	exp[0].event_types = evs;
+	exp[0].constraint_expr = CORBA::string_dup(constraint_expr.c_str());
+	CORBA::Boolean res = 0; // OK
+	try
 	{
-    	CosNotifyFilter::ConstraintInfoSeq_var dummy = filter->add_constraints(exp);
+		CosNotifyFilter::ConstraintInfoSeq_var dummy = filter->add_constraints(exp);
 
-    	filter_id = ipos->second.structuredProxyPushSupplier->add_filter(filter);
+		filter_id = ipos->second.structuredProxyPushSupplier->add_filter(filter);
 
 		epos->second.filter_id = filter_id;
-  	}
-  	catch(CosNotifyFilter::InvalidConstraint &)
+	}
+	catch(CosNotifyFilter::InvalidConstraint &)
 	{
-    	//cerr << "Exception thrown : Invalid constraint given "
-	  	//     << (const char *)constraint_expr << endl;
+		//cerr << "Exception thrown : Invalid constraint given "
+		//     << (const char *)constraint_expr << endl;
 		res = 1;
-  	}
-  	catch (...)
+	}
+	catch (...)
 	{
-    	//cerr << "Exception thrown while adding constraint "
+		//cerr << "Exception thrown while adding constraint "
 	 	//     << (const char *)constraint_expr << endl;
 		res = 1;
-  	}
+	}
 
 //
 // If error, destroy filter
 //
 
-  	if (res == 1)
+	if (res == 1)
 	{
-    	try
+		try
 		{
-      		filter->destroy();
-    	}
+			filter->destroy();
+		}
 		catch (...) { }
 
-    	filter = CosNotifyFilter::Filter::_nil();
+		filter = CosNotifyFilter::Filter::_nil();
 		EventSystemExcept::throw_exception((const char*)API_NotificationServiceFailed,
                        	(const char*)"Caught exception while creating event filter (check filter)",
                        	(const char*)"EventConsumerKeepAliveThread::re_subscribe_event()");
-  	}
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -392,6 +396,7 @@ void EventConsumerKeepAliveThread::re_subscribe_event(EvCbIte &epos,EvChanIte &i
 void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventConsumer *event_consumer,DeviceData &dd)
 {
 	EvCbIte epos;
+	bool disconnect_called = false;
 
 	cout3 << "Entering KeepAliveThread::reconnect_to_zmq_event()" << endl;
 
@@ -418,20 +423,28 @@ void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventC
 
 					try
 					{
-					    EventCallBackStruct ecbs;
-					    vector<string> vs;
+						EventCallBackStruct ecbs;
+						vector<string> vs;
 
-					    vs.push_back(string("reconnect"));
+						vs.push_back(string("reconnect"));
 
-                        string d_name = epos->second.device->dev_name();
-                        string &fqen = epos->second.fully_qualified_event_name;
-                        string::size_type pos = fqen.find('/');
-                        pos = pos + 2;
-                        pos = fqen.find('/',pos);
-                        string prefix = fqen.substr(0,pos + 1);
-                        d_name.insert(0,prefix);
+						string d_name = epos->second.device->dev_name();
+						string &fqen = epos->second.fully_qualified_event_name;
+						string::size_type pos = fqen.find('/');
+						pos = pos + 2;
+						pos = fqen.find('/',pos);
+						string prefix = fqen.substr(0,pos + 1);
+						d_name.insert(0,prefix);
 
-					    event_consumer->connect_event_system(d_name,epos->second.attr_name,epos->second.event_name,vs,ipos,ecbs,dd);
+#ifdef ZMQ_HAS_DISCONNECT
+						if (disconnect_called == false)
+						{
+							event_consumer->disconnect_event(epos->second.event_name,epos->second.endpoint);
+							disconnect_called = true;
+						}
+#endif
+
+						event_consumer->connect_event_system(d_name,epos->second.attr_name,epos->second.event_name,vs,ipos,ecbs,dd);
 
 						cout3 << "Reconnected to ZMQ event" << endl;
 					}
