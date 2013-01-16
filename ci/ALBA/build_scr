@@ -8,18 +8,16 @@
 
 #${BASH_SOURCE[@]}
 
-export INSTITUTE_DIR=$(dirname "$BASH_SOURCE")
+echo -----------
+echo GCC version
+gcc --version
+echo -----------
 
-echo "+ build_scr level 2 INSTITUTE_DIR -> $INSTITUTE_DIR "
+export INSTITUTE_DIR=$(dirname "$BASH_SOURCE")
 
 JENKINS_JOB=${JOB_NAME%%\/*}
 
 INSTALL_DIR="/tmp/jenkins/jobs/$JENKINS_JOB"
-
-
-echo --------
-printenv
-echo --------
 
 
 #BRANCH_DIR=$1
