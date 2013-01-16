@@ -2,6 +2,7 @@ CLEAN="clean"
 OS_TYPE="linux"
 OS_SPEC="linux=1 ubuntu=1"
 MAKE_PATH="make"
+CPU_BUS="64bits=1"
 
 OMNI_BASE=/siciliarep/build/lib/omniORB/omniORB.suse121.64
 LOG4TANGO_BASE=/homelocal/sicilia
