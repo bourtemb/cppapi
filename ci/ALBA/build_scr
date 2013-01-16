@@ -12,6 +12,9 @@ echo -----------
 echo GCC version
 gcc --version
 echo -----------
+echo C++11 Test
+c++ -g -std=c++0x $INSTITUTE_DIR/cpp11test.cpp -o $INSTITUTE_DIR/cpp11test.o
+echo -----------
 
 export INSTITUTE_DIR=$(dirname "$BASH_SOURCE")
 
