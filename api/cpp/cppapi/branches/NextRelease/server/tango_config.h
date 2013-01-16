@@ -141,8 +141,10 @@
     #if defined(__GNUC__)
         #if __GNUC__ == 4
             #if __GNUC_MINOR__ > 2
-                #define HAS_UNIQUE_PTR
                 #define HAS_RVALUE
+            #endif
+            #if __GNUC_MINOR__ > 3
+                #define HAS_UNIQUE_PTR
             #endif
             #if __GNUC_MINOR__ > 4
                 #define HAS_LAMBDA_FUNC
