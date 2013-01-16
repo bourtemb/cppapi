@@ -55,6 +55,12 @@
 
 #include <zmq.hpp>
 
+#ifdef ZMQ_VERSION
+	#if ZMQ_VERSION > 30201
+		#define ZMQ_HAS_DISCONNECT
+	#endif
+#endif
+
 
 namespace Tango
 {
@@ -71,7 +77,7 @@ void client_leavefunc();
 
 #define 	CONF_TYPE_EVENT			"attr_conf"
 #define		DATA_READY_TYPE_EVENT	"data_ready"
-#define		ALL_EVENTS				0
+#define     ALL_EVENTS				0
 
 
 /********************************************************************************
@@ -86,17 +92,17 @@ void client_leavefunc();
 class TangoCdrMemoryStream : public cdrMemoryStream
 {
 public:
-	TangoCdrMemoryStream(void *buf,size_t si):cdrMemoryStream(buf,si) {}
-	TangoCdrMemoryStream():cdrMemoryStream(512,false) {}
+    TangoCdrMemoryStream(void *buf,size_t si):cdrMemoryStream(buf,si) {}
+    TangoCdrMemoryStream():cdrMemoryStream(512,false) {}
 
 //    void get_octet_array(_CORBA_Octet*,int,omni::alignment_t align=omni::ALIGN_1);
-	void tango_get_octet_array(int size);
-	void *get_end_out_buf() {return pd_outb_end;}
+    void tango_get_octet_array(int size);
+    void *get_end_out_buf() {return pd_outb_end;}
 };
 
 inline void TangoCdrMemoryStream::tango_get_octet_array(int size)
 {
-	pd_inb_mkr = (void*)((char *)pd_inb_mkr+size);
+    pd_inb_mkr = (void*)((char *)pd_inb_mkr+size);
 }
 
 /***            ZmqAttrValUnion               ***/
@@ -104,24 +110,24 @@ inline void TangoCdrMemoryStream::tango_get_octet_array(int size)
 class ZmqAttrValUnion:public AttrValUnion
 {
 public:
-	void operator<<= (TangoCdrMemoryStream &);
+    void operator<<= (TangoCdrMemoryStream &);
 
-	template <typename T,typename TA>
-	void init_seq(char *,_CORBA_ULong &,TangoCdrMemoryStream &);
+    template <typename T,typename TA>
+    void init_seq(char *,_CORBA_ULong &,TangoCdrMemoryStream &);
 
-	template <typename T>
-	void set_seq(T &) {cerr << "In default ZmqAttrValUnion::set_seq!" << endl;assert(false);}
+    template <typename T>
+    void set_seq(T &) {cerr << "In default ZmqAttrValUnion::set_seq!" << endl;assert(false);}
 
-	template <typename T>
-	T &get_seq() {cerr << "In default ZmqAttrValUnion::get_seq!" << endl;assert(false);}
+    template <typename T>
+    T &get_seq() {cerr << "In default ZmqAttrValUnion::get_seq!" << endl;assert(false);}
 };
 
 /***            ZmqAttributeValue_4               ***/
 
 struct ZmqAttributeValue_4:public AttributeValue_4
 {
-	ZmqAttrValUnion     zvalue;
-	void operator<<= (TangoCdrMemoryStream &);
+    ZmqAttrValUnion     zvalue;
+    void operator<<= (TangoCdrMemoryStream &);
 };
 
 /***    Macros to help coding       ***/
@@ -185,49 +191,49 @@ SEQ_METH(state,DevVarStateArray)
 template <typename T,typename TA>
 inline void ZmqAttrValUnion::init_seq(char *base_ptr,_CORBA_ULong &length,TangoCdrMemoryStream &_n)
 {
-	TA dummy_val;
-	set_seq<TA>(dummy_val);
+    TA dummy_val;
+    set_seq<TA>(dummy_val);
 
-	T *ptr = (T *)(base_ptr + _n.currentInputPtr());
-	if (_n.unmarshal_byte_swap() == true)
-	{
-		if (sizeof(T) == 2)
-		{
-			for (_CORBA_ULong i = 0;i < length;i++)
-			{
-				_CORBA_UShort *tmp_ptr = (_CORBA_UShort *)ptr;
-				_CORBA_UShort tt = *(tmp_ptr + i);
-				*(tmp_ptr + i) = Swap16(tt);
-			}
-		}
-		else if (sizeof(T) == 4)
-		{
-			for (_CORBA_ULong i = 0;i < length;i++)
-			{
-				_CORBA_ULong *tmp_ptr = (_CORBA_ULong *)ptr;
-				_CORBA_ULong t = *(tmp_ptr + i);
-				*(tmp_ptr + i) = Swap32(t);
-			}
-		}
-		else if (sizeof(T) == 8)
-		{
-			_CORBA_ULong double_length = length * 2;
-			for (_CORBA_ULong i = 0;i < double_length;i += 2)
-			{
-				_CORBA_ULong *tmp_ptr = (_CORBA_ULong *)ptr;
-				_CORBA_ULong tl1 = *(tmp_ptr + i + 1);
-				_CORBA_ULong tl2 = Swap32(tl1);
-				tl1 = *(tmp_ptr + i);
-				*(tmp_ptr + i) = tl2;
-				*(tmp_ptr + i + 1) = Swap32(tl1);
-			}
-		}
-	}
+    T *ptr = (T *)(base_ptr + _n.currentInputPtr());
+    if (_n.unmarshal_byte_swap() == true)
+    {
+        if (sizeof(T) == 2)
+        {
+            for (_CORBA_ULong i = 0;i < length;i++)
+            {
+                _CORBA_UShort *tmp_ptr = (_CORBA_UShort *)ptr;
+                _CORBA_UShort tt = *(tmp_ptr + i);
+                *(tmp_ptr + i) = Swap16(tt);
+            }
+        }
+        else if (sizeof(T) == 4)
+        {
+            for (_CORBA_ULong i = 0;i < length;i++)
+            {
+               _CORBA_ULong *tmp_ptr = (_CORBA_ULong *)ptr;
+                _CORBA_ULong t = *(tmp_ptr + i);
+                *(tmp_ptr + i) = Swap32(t);
+            }
+        }
+        else if (sizeof(T) == 8)
+        {
+            _CORBA_ULong double_length = length * 2;
+            for (_CORBA_ULong i = 0;i < double_length;i += 2)
+            {
+                _CORBA_ULong *tmp_ptr = (_CORBA_ULong *)ptr;
+                _CORBA_ULong tl1 = *(tmp_ptr + i + 1);
+                _CORBA_ULong tl2 = Swap32(tl1);
+                tl1 = *(tmp_ptr + i);
+                *(tmp_ptr + i) = tl2;
+                *(tmp_ptr + i + 1) = Swap32(tl1);
+            }
+        }
+    }
 
-	TA &the_seq = get_seq<TA>();
-	the_seq.replace(length,length,ptr,false);
+    TA &the_seq = get_seq<TA>();
+    the_seq.replace(length,length,ptr,false);
 
-	_n.tango_get_octet_array((length * sizeof(T)));
+    _n.tango_get_octet_array((length * sizeof(T)));
 }
 
 /********************************************************************************
@@ -261,7 +267,7 @@ typedef struct event_not_connected
 	string 							event_name;
 	int 						 	event_id;
 	CallBack 						*callback;
-	EventQueue						*ev_queue;
+	EventQueue                  	*ev_queue;
 	vector<string> 					filters;
 	time_t 							last_heartbeat;
 } EventNotConnected;
@@ -281,7 +287,7 @@ typedef struct event_callback_base
 	string 							attr_name;
 	string 							event_name;
 	string 							channel_name;
-	string							fully_qualified_event_name;
+	string                          fully_qualified_event_name;
 	time_t 							last_subscribed;
 	TangoMonitor					*callback_monitor;
 	vector<EventSubscribeStruct>	callback_list;
@@ -289,8 +295,9 @@ typedef struct event_callback_base
 
 typedef struct event_callback_zmq
 {
-	DevLong							device_idl;
-	DevULong						ctr;
+    DevLong                         device_idl;
+    DevULong                        ctr;
+    string							endpoint;
 }EventCallBackZmq;
 
 typedef struct event_callback: public EventCallBackBase, public EventCallBackZmq
@@ -310,10 +317,15 @@ typedef struct event_channel_base
 	time_t 							last_heartbeat;
 	bool 							heartbeat_skipped;
 	TangoMonitor					*channel_monitor;
-	ChannelType						channel_type;
+	ChannelType                     channel_type;
 } EventChannelBase;
 
-typedef struct channel_struct: public EventChannelBase
+typedef struct event_channel_zmq
+{
+    string                        	endpoint;
+}EventChannelZmq;
+
+typedef struct channel_struct: public EventChannelBase, public EventChannelZmq
 {
 	CosNotifyChannelAdmin::EventChannel_var eventChannel;
 	CosNotifyChannelAdmin::StructuredProxyPushSupplier_var structuredProxyPushSupplier;
@@ -347,9 +359,9 @@ public :
 
 	void shutdown();
 	void shutdown_keep_alive_thread();
-	ChannelType get_event_system_for_event_id(int);
+    ChannelType get_event_system_for_event_id(int);
 	virtual void cleanup_EventChannel_map() = 0;
-	virtual void get_subscription_command_name(string &) = 0;
+    virtual void get_subscription_command_name(string &) = 0;
 
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
 	                   CallBack *callback, const vector<string> &filters, bool stateless = false);
@@ -368,8 +380,8 @@ public :
 	bool is_event_queue_empty(int event_id);
 
 
-	static KeepAliveThCmd									cmd;
-	static EventConsumerKeepAliveThread 					*keep_alive_thread;
+	static KeepAliveThCmd                                   cmd;
+	static EventConsumerKeepAliveThread 	                *keep_alive_thread;
 
 protected :
 	int subscribe_event(DeviceProxy *device, const string &attribute, EventType event,
@@ -378,8 +390,8 @@ protected :
 	friend class EventConsumerKeepAliveThread;
 	void attr_to_device(const AttributeValue *,const AttributeValue_3 *,long,DeviceAttribute *);
 	void attr_to_device(const AttributeValue_4 *,DeviceAttribute *);
-	void attr_to_device(const ZmqAttributeValue_4 *,DeviceAttribute *);
-	void att_union_to_device(const AttrValUnion *union_ptr,DeviceAttribute *dev_attr);
+    void attr_to_device(const ZmqAttributeValue_4 *,DeviceAttribute *);
+    void att_union_to_device(const AttrValUnion *union_ptr,DeviceAttribute *dev_attr);
 	void conf_to_info(AttributeConfig_2 &,AttributeInfoEx **);
 
 	static map<std::string,std::string> 					device_channel_map;     // key - device_name, value - channel name
@@ -401,11 +413,11 @@ protected :
 	void get_fire_sync_event(DeviceProxy *,CallBack *,EventQueue *,EventType,string &,const string &,EventCallBackStruct &);
 
 	virtual void connect_event_channel(string &,Database *,bool,DeviceData &) = 0;
-	virtual void disconnect_event_channel(TANGO_UNUSED(string &channel_name)) {}
-	virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &) = 0;
-	virtual void disconnect_event(string &) {}
+    virtual void disconnect_event_channel(TANGO_UNUSED(string &channel_name),TANGO_UNUSED(string &endpoint)) {}
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &) = 0;
+    virtual void disconnect_event(string &,string &) {}
 
-	virtual void set_channel_type(EventChannelStruct &) = 0;
+    virtual void set_channel_type(EventChannelStruct &) = 0;
 };
 
 /********************************************************************************
@@ -429,7 +441,7 @@ public :
 	void disconnect_structured_push_consumer();
 	void offer_change(const CosNotification::EventTypeSeq &,const CosNotification::EventTypeSeq &);
 
-	virtual void get_subscription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
+    virtual void get_subscription_command_name(string &cmd) {cmd="EventSubscriptionChange";}
 
 	CORBA::ORB_var 					orb_;
 
@@ -466,79 +478,79 @@ class ZmqEventConsumer : public EventConsumer ,
 {
 public :
 	static ZmqEventConsumer *create();
-	TANGO_IMP_EXP static void cleanup() {if (_instance != NULL){_instance=NULL;}}
+    TANGO_IMP_EXP static void cleanup() {if (_instance != NULL){_instance=NULL;}}
 
 	virtual void cleanup_EventChannel_map();
-	virtual void get_subscription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
+    virtual void get_subscription_command_name(string &cmd) {cmd="ZmqEventSubscriptionChange";}
 
 	enum UserDataEventType
 	{
-		ATT_CONF = 0,
-		ATT_READY,
-		ATT_VALUE
+	    ATT_CONF = 0,
+	    ATT_READY,
+	    ATT_VALUE
 	};
 
-	enum SocketCmd
-	{
-		SUBSCRIBE = 0,
-		UNSUBSCRIBE
-	};
+    enum SocketCmd
+    {
+        SUBSCRIBE = 0,
+        UNSUBSCRIBE
+    };
 
 protected :
 	ZmqEventConsumer(ApiUtil *ptr);
 	virtual void connect_event_channel(string &,Database *,bool,DeviceData &);
-	virtual void disconnect_event_channel(string &channel_name);
-	virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
-	virtual void disconnect_event(string &);
+    virtual void disconnect_event_channel(string &channel_name,string &endpoint);
+    virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
+    virtual void disconnect_event(string &,string &);
 
-	virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
+    virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
 
 private :
-	TANGO_IMP static ZmqEventConsumer		*_instance;
-	zmq::context_t							zmq_context;            // ZMQ context
-	zmq::socket_t							*heartbeat_sub_sock;    // heartbeat subscriber socket
-	zmq::socket_t							*control_sock;          // control socket
-	zmq::socket_t							*event_sub_sock;        // event subscriber socket
+	TANGO_IMP static ZmqEventConsumer       *_instance;
+	zmq::context_t                          zmq_context;            // ZMQ context
+	zmq::socket_t                           *heartbeat_sub_sock;    // heartbeat subscriber socket
+	zmq::socket_t                           *control_sock;          // control socket
+	zmq::socket_t                           *event_sub_sock;        // event subscriber socket
 
-	map<string,zmq::socket_t *>				event_mcast;            // multicast socket(s)
-	vector<string>							connected_pub;          //
-	vector<string>							connected_heartbeat;    //
+	map<string,zmq::socket_t *>             event_mcast;            // multicast socket(s)
+	vector<string>                          connected_pub;          //
+	vector<string>                          connected_heartbeat;    //
 
-	AttributeValue_var						av;
-	AttributeValue_3_var					av3;
-	ZmqAttributeValue_4						zav4;
-	AttributeConfig_2_var					ac2;
-	AttributeConfig_3_var					ac3;
-	AttDataReady_var						adr;
-	DevErrorList_var						del;
+    AttributeValue_var                      av;
+    AttributeValue_3_var                    av3;
+    ZmqAttributeValue_4                     zav4;
+    AttributeConfig_2_var                   ac2;
+    AttributeConfig_3_var                   ac3;
+    AttDataReady_var                        adr;
+    DevErrorList_var                        del;
 
-	int										old_poll_nb;
-	omni_mutex								subscription_mutex;
+    int                                     old_poll_nb;
+    omni_mutex								subscription_mutex;
 
 	void *run_undetached(void *arg);
 	void push_heartbeat_event(string &);
-	void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevULong &);
-	bool process_ctrl(zmq::message_t &,zmq::pollitem_t *,int &);
-	void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
-	void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);
-	void process_event(zmq_msg_t &,zmq_msg_t &,zmq_msg_t &,zmq_msg_t &);
-	void multi_tango_host(zmq::socket_t *,SocketCmd,string &);
+    void push_zmq_event(string &,unsigned char,zmq::message_t &,bool,const DevULong &);
+    bool process_ctrl(zmq::message_t &,zmq::pollitem_t *,int &);
+    void process_heartbeat(zmq::message_t &,zmq::message_t &,zmq::message_t &);
+    void process_event(zmq::message_t &,zmq::message_t &,zmq::message_t &,zmq::message_t &);
+    void process_event(zmq_msg_t &,zmq_msg_t &,zmq_msg_t &,zmq_msg_t &);
+    void multi_tango_host(zmq::socket_t *,SocketCmd,string &);
 	void print_error_message(const char *);
 
-	friend class DelayEvent;
+    friend class DelayEvent;
 };
 
 class DelayEvent
 {
 public:
-	DelayEvent(EventConsumer *);
-	~DelayEvent();
+    DelayEvent(EventConsumer *);
+    ~DelayEvent();
 
-	void release();
+    void release();
 
 private:
-	bool				released;
-	ZmqEventConsumer	*eve_con;
+    bool                released;
+    ZmqEventConsumer    *eve_con;
 };
 
 /********************************************************************************
@@ -552,7 +564,7 @@ class EventConsumerKeepAliveThread : public omni_thread
 
 public :
 
-	EventConsumerKeepAliveThread(const EventConsumer&);
+    EventConsumerKeepAliveThread(const EventConsumer&);
 	EventConsumerKeepAliveThread(KeepAliveThCmd &cmd):shared_cmd(cmd){};
 	void start() {start_undetached();}
 
@@ -564,9 +576,9 @@ private :
 	bool reconnect_to_channel(EvChanIte &,EventConsumer *);
 	void reconnect_to_event(EvChanIte &,EventConsumer *);
 	void re_subscribe_event(EvCbIte &,EvChanIte &);
-	void stateless_subscription_failed(vector<EventNotConnected>::iterator &,DevFailed &,time_t &);
+    void stateless_subscription_failed(vector<EventNotConnected>::iterator &,DevFailed &,time_t &);
 
-	bool reconnect_to_zmq_channel(EvChanIte &,EventConsumer *,DeviceData &);
+    bool reconnect_to_zmq_channel(EvChanIte &,EventConsumer *,DeviceData &);
 	void reconnect_to_zmq_event(EvChanIte &,EventConsumer *,DeviceData &);
 };
 

@@ -1373,7 +1373,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 // Check for ZMQ compatible release
 //
 
-	if (ds_zmq_release == 310)
+	if (ds_zmq_release == 310 || ds_zmq_release == 0)
 	{
 		if (zmq_major != 3 || zmq_minor != 1 || zmq_patch != 0)
 		{
@@ -1494,6 +1494,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
             new_event_callback.device_idl = 0;
     }
     new_event_callback.ctr = 0;
+    new_event_callback.endpoint = dvlsa->svalue[1].in();
 
     new_ess.callback = callback;
     new_ess.ev_queue = ev_queue;
@@ -1674,7 +1675,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 					}
 					else
 					{
-					    disconnect_event(evt_cb.fully_qualified_event_name);
+					    disconnect_event(evt_cb.fully_qualified_event_name,evt_cb.endpoint);
 					}
 
 					// delete the allocated callback monitor
@@ -1739,7 +1740,7 @@ void EventConsumer::unsubscribe_event(int event_id)
 								    }
 								    else
 								    {
-                                        disconnect_event_channel(deleted_channel_name);
+                                        disconnect_event_channel(deleted_channel_name,evt_ch.endpoint);
 								    }
 
 									delete evt_ch.adm_device_proxy;
