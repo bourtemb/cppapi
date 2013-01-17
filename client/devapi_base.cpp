@@ -314,7 +314,10 @@ void Connection::check_and_reconnect(Tango::AccessControlType &act)
 	{
 		WriterLock guard(ext->con_to_mon);
 		if (connection_state != CONNECTION_OK)
+		{
 			reconnect(dbase_used);
+			act = access;
+		}
 	}
 }
 
@@ -331,7 +334,10 @@ void Connection::check_and_reconnect(Tango::DevSource &sou,Tango::AccessControlT
 	{
 		WriterLock guard(ext->con_to_mon);
 		if (connection_state != CONNECTION_OK)
+		{
 			reconnect(dbase_used);
+			act = access;
+		}
 	}
 }
 

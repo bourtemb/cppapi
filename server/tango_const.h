@@ -124,6 +124,7 @@ namespace Tango
 #define     MAX_SOCKET_SUB              10
 #define     PUB_HWM                     1000
 #define     SUB_HWM                     1000
+#define		SUB_SEND_HWM				10000
 
 #define     ZMQ_END                     0
 #define     ZMQ_CONNECT_HEARTBEAT       1
