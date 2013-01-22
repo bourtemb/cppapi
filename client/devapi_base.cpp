@@ -1770,7 +1770,6 @@ void DeviceProxy::parse_name(string &full_name)
 			ApiWrongNameExcept::throw_exception((const char*)"API_UnsupportedProtocol",
 						desc.str(),
 						(const char*)"DeviceProxy::parse_name()");
-			exit(-1);
 		}
 		else
 		{

@@ -8380,7 +8380,7 @@ void Attribute::set_value(Tango::DevString *p_data_str,Tango::DevUChar *p_data,l
 	if (p_data_str == NULL || p_data == NULL)
 	{
 		TangoSys_OMemStream o;
-		o << "Data pointer for attribute " << name << " is NULL" << ends;
+		o << "Data pointer for attribute " << name << " is NULL!" << ends;
 		Except::throw_exception((const char *)API_AttrOptProp,o.str(),
                             (const char *)"Attribute::set_value()");
 	}

@@ -2437,7 +2437,7 @@ inline bool Attribute::prop_in_list(const char *prop_name,string &prop_str,size_
 	if (A == NULL) \
 	{ \
 		TangoSys_OMemStream o; \
-		o << "Data pointer for attribute " << B << " is NULL" << ends; \
+		o << "Data pointer for attribute " << B << " is NULL!" << ends; \
 		Except::throw_exception((const char *)API_AttrOptProp,o.str(), \
                             (const char *)"Attribute::set_value()"); \
 	} \

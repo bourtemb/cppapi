@@ -254,7 +254,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				continue;
 			}
 
-
 			items[1].revents = 0;
 		}
 
@@ -347,6 +346,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 
 				break;
 			}
+
 			items[0].revents = 0;
 		}
 
@@ -384,8 +384,6 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				items[loop].revents = 0;
 			}
 		}
-
-
 	}
 
 	return (void *)NULL;
