@@ -2293,33 +2293,33 @@ void Util::unregister_server()
 void Util::print_err_message(const char *err_mess,TANGO_UNUSED(Tango::MessBoxType type))
 {
 #ifdef _TG_WINDOWS_
-        if (_win == true)
-        {
-                switch (type)
-                {
-                case Tango::STOP:
-                        MessageBox((HWND)NULL,err_mess,MessBoxTitle,MB_ICONSTOP);
-                        break;
+	if (_win == true)
+	{
+		switch (type)
+		{
+		case Tango::STOP:
+			MessageBox((HWND)NULL,err_mess,MessBoxTitle,MB_ICONSTOP);
+			break;
 
-                case Tango::INFO:
-                        MessageBox((HWND)NULL,err_mess,MessBoxTitle,MB_ICONINFORMATION);
-                        break;
-                }
-                Except::throw_exception((const char *)API_StartupSequence,
-				        (const char *)"Error in device server startup sequence",
-                                        (const char *)"Util::print_err_mess");
-        }
-        else
-        {
-                cerr << err_mess << endl;
+		case Tango::INFO:
+			MessageBox((HWND)NULL,err_mess,MessBoxTitle,MB_ICONINFORMATION);
+			break;
+		}
+		Except::throw_exception((const char *)API_StartupSequence,
+					(const char *)"Error in device server startup sequence",
+					(const char *)"Util::print_err_mess");
+	}
+	else
+	{
+		cerr << err_mess << endl;
 		exit(-1);
-        }
+	}
 #else
-        cerr << err_mess << endl;
+	cerr << err_mess << endl;
 #ifdef __linux
 	_exit(-1);
 #else
-        exit(-1);
+	exit(-1);
 #endif
 #endif
 }
