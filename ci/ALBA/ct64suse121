@@ -5,7 +5,7 @@ MAKE_PATH="make"
 CPU_BUS="64bits=1"
 
 OMNI_BASE=/siciliarep/build/lib/omniORB/omniORB.suse121.64
-LOG4TANGO_BASE=/homelocal/sicilia
+LOG4TANGO_BASE=/siciliarep/build/lib/log4tango/log4tango.suse121.64
 ZMQ_BASE=/siciliarep/build/lib/zeromq/zeromq.suse121.64
 
 #INSTALL_BASE
