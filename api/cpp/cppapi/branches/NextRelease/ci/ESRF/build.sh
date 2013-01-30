@@ -15,7 +15,7 @@ then
 	fi
 fi
 
-BRANCH_DIR=../$1
+BRANCH_DIR=../..
 
 #
 # Set some variables according to OS
