@@ -227,6 +227,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("First Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
+					items[1].revents = 0;
 					continue;
 				}
 
@@ -234,6 +235,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("Second Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
+					items[1].revents = 0;
 					continue;
 				}
 
@@ -241,6 +243,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("Third Zmq recv call on heartbeat socket returned false! De-synchronized event system?");
+					items[1].revents = 0;
 					continue;
 				}
 
@@ -271,6 +274,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("First Zmq recv call on event socket returned false! De-synchronized event system?");
+					items[2].revents = 0;
 					continue;
 				}
 
@@ -278,6 +282,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("Second Zmq recv call on event socket returned false! De-synchronized event system?");
+					items[2].revents = 0;
 					continue;
 				}
 
@@ -285,6 +290,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("Third Zmq recv call on event socket returned false! De-synchronized event system?");
+					items[2].revents = 0;
 					continue;
 				}
 
@@ -292,6 +298,7 @@ void *ZmqEventConsumer::run_undetached(TANGO_UNUSED(void *arg))
 				if (res == false)
 				{
 					print_error_message("Forth Zmq recv call on event socket returned false! De-synchronized event system?");
+					items[2].revents = 0;
 					continue;
 				}
 

@@ -1602,7 +1602,7 @@ DeviceProxy* GroupDeviceElement::get_device (const std::string& _n)
 //-----------------------------------------------------------------------------
 DeviceProxy* GroupDeviceElement::get_device (long idx)
 {
-  return ((--idx) == 0) ? dev_proxy() : 0;
+  return ((--idx) < 0) ? dev_proxy() : 0;
 }
 //-----------------------------------------------------------------------------
 DeviceProxy* GroupDeviceElement::operator[] (long idx)
