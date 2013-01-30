@@ -104,9 +104,13 @@ SendEventType EventSupplier::detect_and_push_events(DeviceImpl *device_impl,stru
     Attribute &attr = device_impl->dev_attr->get_attr_by_name(attr_name.c_str());
 
     now = time(NULL);
-    change_subscription = now - attr.ext->event_change_subscription;
-    periodic_subscription = now - attr.ext->event_periodic_subscription;
-    archive_subscription = now - attr.ext->event_archive_subscription;
+    {
+    	omni_mutex_lock oml(event_mutex);
+
+		change_subscription = now - attr.ext->event_change_subscription;
+		periodic_subscription = now - attr.ext->event_periodic_subscription;
+		archive_subscription = now - attr.ext->event_archive_subscription;
+    }
 
     cout3 << "EventSupplier::detect_and_push_events(): last subscription for change " << change_subscription << " periodic " << periodic_subscription << " archive " << archive_subscription << endl;
 

@@ -101,6 +101,8 @@ do
 	fi
 done
 
+pwd
+
 #
 # Set library type
 #

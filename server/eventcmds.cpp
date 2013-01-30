@@ -207,6 +207,8 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 		if (event == "user_event")
 		{
 			cout4 << "DServer::event_subscription(): update user_event subscription\n";
+
+			omni_mutex_lock oml(EventSupplier::get_event_mutex());
 			attribute.ext->event_user_subscription = time(NULL);
 			if (cl_release == 3)
 				attribute.ext->event_user_client_3 = true;
@@ -214,6 +216,8 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 		else if (event == "attr_conf")
 		{
 			cout4 << "DServer::event_subscription(): update attr_conf subscription\n";
+
+			omni_mutex_lock oml(EventSupplier::get_event_mutex());
 			attribute.ext->event_attr_conf_subscription = time(NULL);
 		}
 		else if (event == "data_ready")
@@ -230,6 +234,8 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 										(const char *)"DServer::event_subscription");
 			}
 			cout4 << "DServer::event_subscription(): update data_ready subscription\n";
+
+			omni_mutex_lock oml(EventSupplier::get_event_mutex());
 			attribute.ext->event_data_ready_subscription = time(NULL);
 		}
 		else
@@ -311,6 +317,8 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 						}
 					}
 				}
+
+				omni_mutex_lock oml(EventSupplier::get_event_mutex());
        			attribute.ext->event_change_subscription = time(NULL);
 				if (cl_release == 3)
 					attribute.ext->event_change_client_3 = true;
@@ -323,6 +331,8 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
       		else if (event == "periodic")
       		{
 				cout4 << "DServer::event_subscription(): update periodic subscription\n";
+
+				omni_mutex_lock oml(EventSupplier::get_event_mutex());
        			attribute.ext->event_periodic_subscription = time(NULL);
 				if (cl_release == 3)
 					attribute.ext->event_periodic_client_3 = true;
@@ -363,6 +373,8 @@ void DServer::event_subscription(string &dev_name,string &attr_name,string &acti
 				}
 
 				cout4 << "DServer::event_subscription(): update archive subscription\n";
+
+				omni_mutex_lock oml(EventSupplier::get_event_mutex());
        			attribute.ext->event_archive_subscription = time(NULL);
 				if (cl_release == 3)
 					attribute.ext->event_archive_client_3 = true;

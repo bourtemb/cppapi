@@ -134,6 +134,7 @@ public :
 	void push_att_conf_events(DeviceImpl *device_impl,AttributeData &,DevFailed *,string &);
 
 	omni_mutex &get_push_mutex() {return push_mutex;}
+	static omni_mutex &get_event_mutex() {return event_mutex;}
 	string &get_fqdn_prefix() {return fqdn_prefix;}
 
 	bool get_one_subscription_cmd() {return one_subscription_cmd;}
