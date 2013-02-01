@@ -350,7 +350,7 @@ void ZmqEventSupplier::create_event_socket()
         tango_bind(event_pub_sock,event_endpoint);
 
 //
-// If needed, replace * by host IP address in enpoint string
+// If needed, replace * by host IP address in endpoint string
 //
 
         if (ip_specified == false)
