@@ -1020,7 +1020,7 @@ DeviceData Connection::command_inout(string &command, DeviceData &data_in)
 
 				vector<Database *> & v_d = au->get_db_vect();
 				Database *db;
-				if (v_d.size() == 0)
+				if (v_d.empty() == true)
 					db = static_cast<Database *>(this);
 				else
 				{
@@ -1213,7 +1213,7 @@ CORBA::Any_var Connection::command_inout(string &command, CORBA::Any &any)
 
 				vector<Database *> & v_d = au->get_db_vect();
 				Database *db;
-				if (v_d.size() == 0)
+				if (v_d.empty() == true)
 					db = static_cast<Database *>(this);
 				else
 				{
@@ -5879,7 +5879,7 @@ bool DeviceProxy::is_polled(polled_object obj, string &obj_name,string &upd)
 	vector<string> *poll_str;
 
 	poll_str = polling_status();
-	if (poll_str->size() == 0)
+	if (poll_str->empty() == true)
 	{
 		delete poll_str;
 		return ret;
