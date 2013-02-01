@@ -396,7 +396,9 @@ void EventConsumerKeepAliveThread::re_subscribe_event(EvCbIte &epos,EvChanIte &i
 void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventConsumer *event_consumer,DeviceData &dd)
 {
 	EvCbIte epos;
+#ifdef ZMQ_HAS_DISCONNECT
 	bool disconnect_called = false;
+#endif
 
 	cout3 << "Entering KeepAliveThread::reconnect_to_zmq_event()" << endl;
 
