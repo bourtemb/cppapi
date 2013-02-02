@@ -3144,73 +3144,73 @@ void WAttribute::copy_data(const CORBA::Any &any)
 	switch (data_type)
 	{
 	case Tango::DEV_SHORT :
-		const Tango::DevVarShortArray *sh_ptr = NULL;
+		const Tango::DevVarShortArray *sh_ptr;
 		any >>= sh_ptr;
 		short_array_val = *sh_ptr;
 		break;
 
 	case Tango::DEV_LONG :
-		const Tango::DevVarLongArray *lo_ptr = NULL;
+		const Tango::DevVarLongArray *lo_ptr;
 		any >>= lo_ptr;
 		long_array_val = *lo_ptr;
 		break;
 
 	case Tango::DEV_LONG64 :
-		const Tango::DevVarLong64Array *lo64_ptr = NULL;
+		const Tango::DevVarLong64Array *lo64_ptr;
 		any >>= lo64_ptr;
 		w_ext->long64_array_val = *lo64_ptr;
 		break;
 
 	case Tango::DEV_DOUBLE :
-		const Tango::DevVarDoubleArray *db_ptr = NULL;
+		const Tango::DevVarDoubleArray *db_ptr;
 		any >>= db_ptr;
 		double_array_val = *db_ptr;
 		break;
 
 	case Tango::DEV_STRING :
-		const Tango::DevVarStringArray *tmp_str_ptr = NULL;
+		const Tango::DevVarStringArray *tmp_str_ptr;
 		any >>= tmp_str_ptr;
 		str_array_val = *tmp_str_ptr;
 		break;
 
 	case Tango::DEV_FLOAT :
-		const Tango::DevVarFloatArray *fl_ptr = NULL;
+		const Tango::DevVarFloatArray *fl_ptr;
 		any >>= fl_ptr;
 		float_array_val = *fl_ptr;
 		break;
 
 	case Tango::DEV_BOOLEAN :
-		const Tango::DevVarBooleanArray *boo_ptr = NULL;
+		const Tango::DevVarBooleanArray *boo_ptr;
 		any >>= boo_ptr;
 		boolean_array_val = *boo_ptr;
 		break;
 
 	case Tango::DEV_USHORT :
-		const Tango::DevVarUShortArray *ush_ptr = NULL;
+		const Tango::DevVarUShortArray *ush_ptr;
 		any >>= ush_ptr;
 		ushort_array_val = *ush_ptr;
 		break;
 
 	case Tango::DEV_UCHAR :
-		const Tango::DevVarCharArray *uch_ptr = NULL;
+		const Tango::DevVarCharArray *uch_ptr;
 		any >>= uch_ptr;
 		uchar_array_val = *uch_ptr;
 		break;
 
 	case Tango::DEV_ULONG :
-		const Tango::DevVarULongArray *ulo_ptr = NULL;
+		const Tango::DevVarULongArray *ulo_ptr;
 		any >>= ulo_ptr;
 		w_ext->ulong_array_val = *ulo_ptr;
 		break;
 
 	case Tango::DEV_ULONG64 :
-		const Tango::DevVarULong64Array *ulo64_ptr = NULL;
+		const Tango::DevVarULong64Array *ulo64_ptr;
 		any >>= ulo64_ptr;
 		w_ext->ulong64_array_val = *ulo64_ptr;
 		break;
 
 	case Tango::DEV_STATE :
-		const Tango::DevVarStateArray *sta_ptr = NULL;
+		const Tango::DevVarStateArray *sta_ptr;
 		any >>= sta_ptr;
 		w_ext->state_array_val = *sta_ptr;
 		break;
