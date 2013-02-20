@@ -237,7 +237,6 @@ EventConsumer::EventConsumer(ApiUtil *api_ptr)
 //
 
 #ifndef _USRDLL
-
 	if ((api_ptr->in_server() == false) && (api_ptr->is_lock_exit_installed() == false))
 	{
 		atexit(leavefunc);

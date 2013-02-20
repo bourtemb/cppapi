@@ -782,7 +782,9 @@ bool ZmqEventConsumer::process_ctrl(zmq::message_t &received_ctrl,zmq::pollitem_
 //
 
             const char *event_name = &(tmp_ptr[1]);
+#ifdef ZMQ_HAS_DISCONNECT
             const char *endpoint = &(tmp_ptr[1 + ::strlen(event_name) + 1]);
+#endif
 
 //
 // Unsubscribe this event from the heartbeat socket
@@ -1655,7 +1657,7 @@ void ZmqEventConsumer::connect_event_system(string &device_name,string &att_name
             buffer[length] = ZMQ_CONNECT_EVENT;
         length++;
 
-#ifdef ZMQ_HAS_RECONNECT
+#ifdef ZMQ_HAS_DISCONNECT
 		buffer[length] = 0;
 #else
         if (filters.size() == 1 && filters[0] == "reconnect")
@@ -2487,34 +2489,6 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 		// even if nothing was found in the map, free the lock
         map_modification_lock.readerOut();
     }
-}
-
-//--------------------------------------------------------------------------------------------------------------------
-//
-// method :
-//		ZmqEventConsumer::print_error_message
-//
-// description :
-//		Print error message on stderr but first print date
-//
-// argument :
-//		in :
-//			- mess : The user error message
-//
-//---------------------------------------------------------------------------------------------------------------------
-
-void ZmqEventConsumer::print_error_message(const char *mess)
-{
-	time_t tmp_val = time(NULL);
-
-	char tmp_date[128];
-#ifdef _TG_WINDOWS_
-	ctime_s(tmp_date,128,&tmp_val);
-#else
-	ctime_r(&tmp_val,tmp_date);
-#endif
-	tmp_date[strlen(tmp_date) - 1] = '\0';
-	cerr << tmp_date << ": " << mess << endl;
 }
 
 //--------------------------------------------------------------------------------------------------------------------
