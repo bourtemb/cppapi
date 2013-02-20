@@ -272,7 +272,11 @@ void EventConsumerKeepAliveThread::reconnect_to_event(EvChanIte &ipos,EventConsu
 				}
 				catch (...)
 				{
-					cerr << "EventConsumerKeepAliveThread::reconnect_to_event() cannot get callback monitor for " << epos->first << endl;
+					ApiUtil *au = ApiUtil::instance();
+					stringstream ss;
+
+					ss << "EventConsumerKeepAliveThread::reconnect_to_event() cannot get callback monitor for " << epos->first;
+					au->print_error_message(ss.str().c_str());
 				}
 			}
 		}
@@ -459,7 +463,11 @@ void EventConsumerKeepAliveThread::reconnect_to_zmq_event(EvChanIte &ipos,EventC
 				}
 				catch (...)
 				{
-					cerr << "EventConsumerKeepAliveThread::reconnect_to_zmq_event() cannot get callback monitor for " << epos->first << endl;
+					ApiUtil *au = ApiUtil::instance();
+					stringstream ss;
+
+					ss << "EventConsumerKeepAliveThread::reconnect_to_zmq_event() cannot get callback monitor for " << epos->first;
+					au->print_error_message(ss.str().c_str());
 				}
 			}
 		}
@@ -604,7 +612,8 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 						// subscribe has not worked, try again in the next hearbeat period
 						vpos->last_heartbeat = now;
 
-						cerr << "During the event subscription an exception was sent which is not a Tango::DevFailed exception!" << endl;
+						ApiUtil *au = ApiUtil::instance();
+						au->print_error_message("During the event subscription an exception was sent which is not a Tango::DevFailed exception!");
 					}
 				}
 				if (inc_vpos)
@@ -935,7 +944,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 												}
 												catch (...)
 												{
-													cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first << endl;
+													ApiUtil *au = ApiUtil::instance();
+													stringstream ss;
+
+													ss << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of  " << epos->first;
+													au->print_error_message(ss.str().c_str());
 												}
 
 												delete event_data;
@@ -961,7 +974,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 												}
 												catch (...)
 												{
-													cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first << endl;
+													ApiUtil *au = ApiUtil::instance();
+													stringstream ss;
+
+													ss << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first;
+													au->print_error_message(ss.str().c_str());
 												}
 
 												delete event_data;
@@ -992,7 +1009,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 												}
 												catch (...)
 												{
-													cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first << endl;
+													ApiUtil *au = ApiUtil::instance();
+													stringstream ss;
+
+													ss << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first;
+													au->print_error_message(ss.str().c_str());
 												}
 
 												delete event_data;
@@ -1116,7 +1137,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 														}
 														catch (...)
 														{
-															cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first << endl;
+															ApiUtil *au = ApiUtil::instance();
+															stringstream ss;
+
+															ss << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first;
+															au->print_error_message(ss.str().c_str());
 														}
 
 														//event_data->attr_value = NULL;
@@ -1205,7 +1230,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 														}
 														catch (...)
 														{
-															cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first << endl;
+															ApiUtil *au = ApiUtil::instance();
+															stringstream ss;
+
+															ss << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << epos->first;
+															au->print_error_message(ss.str().c_str());
 														}
 
 														delete event_data;
@@ -1226,7 +1255,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 								}
 								catch (...)
 								{
-									cerr << "EventConsumerKeepAliveThread::run_undetached() timeout on callback monitor of " << epos->first << endl;
+									ApiUtil *au = ApiUtil::instance();
+									stringstream ss;
+
+									ss << "EventConsumerKeepAliveThread::run_undetached() timeout on callback monitor of " << epos->first;
+									au->print_error_message(ss.str().c_str());
 								}
 							}
 						}
@@ -1243,7 +1276,11 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 				}
 				catch (...)
 				{
-					cerr << "EventConsumerKeepAliveThread::run_undetached() timeout on callback monitor of " << epos->first << endl;
+					ApiUtil *au = ApiUtil::instance();
+					stringstream ss;
+
+					ss << "EventConsumerKeepAliveThread::run_undetached() timeout on callback monitor of " << epos->first;
+					au->print_error_message(ss.str().c_str());
 				}
 			}
 		}
@@ -1266,11 +1303,9 @@ void *EventConsumerKeepAliveThread::run_undetached(TANGO_UNUSED(void *arg))
 //
 // argument :
 //		in :
-//			- ipos : An iterator to the EventChannel structure to reconnect to in the Event Channel map
-//			- event_consumer : Pointer to the EventConsumer singleton
-//
-// return :
-// 		This method returns true if the reconnection succeeds. Otherwise, returns false
+//			- vpos : An iterator in the vector of non-connected event for the concerned event
+//			- e : The received exception
+//			- now : When the exception was received
 //
 //--------------------------------------------------------------------------------------------------------------------
 
@@ -1320,7 +1355,11 @@ void EventConsumerKeepAliveThread::stateless_subscription_failed(vector<EventNot
             }
             catch (...)
             {
-                cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
+				ApiUtil *au = ApiUtil::instance();
+				stringstream ss;
+
+				ss << "EventConsumerKeepAliveThread::stateless_subscription_failed() exception in callback method of " << domain_name;
+				au->print_error_message(ss.str().c_str());
             }
 
             delete event_data;
@@ -1360,7 +1399,11 @@ void EventConsumerKeepAliveThread::stateless_subscription_failed(vector<EventNot
             }
             catch (...)
             {
-                cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
+				ApiUtil *au = ApiUtil::instance();
+				stringstream ss;
+
+				ss << "EventConsumerKeepAliveThread::stateless_subscription_failed() exception in callback method of " << domain_name;
+				au->print_error_message(ss.str().c_str());
             }
 
             //event_data->attr_conf = NULL;
@@ -1392,7 +1435,11 @@ void EventConsumerKeepAliveThread::stateless_subscription_failed(vector<EventNot
             }
             catch (...)
             {
-                cerr << "EventConsumerKeepAliveThread::run_undetached() exception in callback method of " << domain_name << endl;
+				ApiUtil *au = ApiUtil::instance();
+				stringstream ss;
+
+				ss << "EventConsumerKeepAliveThread::stateless_subscription_failed() exception in callback method of " << domain_name;
+				au->print_error_message(ss.str().c_str());
             }
             delete event_data;
         }
