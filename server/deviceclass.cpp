@@ -460,8 +460,10 @@ void DeviceClass::set_memorized_values(bool all,long idx,bool from_init)
 						case Tango::DEV_UCHAR:
 							if (from_init == false)
 							{
-								if (!(str >> uch))
+								short tmp_sh;
+								if (!(str >> tmp_sh))
 									throw_mem_value(device_list[i],att);
+								uch = (DevUChar)tmp_sh;
 								att.set_write_value(uch);
 							}
 							else
