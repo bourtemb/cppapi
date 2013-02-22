@@ -2077,12 +2077,12 @@ void Attribute::get_properties_3(Tango::AttributeConfig_3 &conf)
 //		Attribute::set_properties
 //
 // description :
-//		Init the Tango::AttributeConfig with all the attribute properties value
+//		Set the attribute properties value
 //
 // argument :
 // 		in :
-//			- conf
-//			- d
+//			- conf : The new properties sent by client
+//			- d : Pointer to the device object
 //--------------------------------------------------------------------------------------------------------------------
 
 void Attribute::set_properties(const Tango::AttributeConfig &conf,Tango::DeviceImpl *d)
@@ -2321,11 +2321,12 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 // The format
 //
 
-	if(TG_strcasecmp(conf.format,AlrmValueNotSpec) == 0 ||
-			(TG_strcasecmp(conf.format,FormatNotSpec) == 0))
+	bool format_not_spec = is_format_notspec(conf.format);
+
+	if(TG_strcasecmp(conf.format,AlrmValueNotSpec) == 0 || (format_not_spec == true))
 	{
 		// force library defaults (even if user defaults defined)
-		format = FormatNotSpec;
+		set_format_notspec();
 	}
 	else if(TG_strcasecmp(conf.format,NotANumber) == 0)
 	{
@@ -2336,7 +2337,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 		{
             found = prop_in_list("format",format,nb_user,def_user_prop);
             if (found == false)
-                format = FormatNotSpec;
+                set_format_notspec();
 		}
 	}
 	else if (strlen(conf.format) == 0)
@@ -2345,7 +2346,7 @@ void Attribute::set_properties(const Tango::AttributeConfig &conf,string &dev_na
 
         bool found = prop_in_list("format",format,nb_user,def_user_prop);
         if (found == false)
-            format = FormatNotSpec;
+            set_format_notspec();
 	}
 	else
 	{
@@ -6635,7 +6636,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
         if (user_defaults == true || class_defaults == true)
         {
 			DbDatum desc("format");
-			desc << FormatNotSpec;
+			def_format_in_dbdatum(desc);
 			db_d.push_back(desc);
 			prop_to_update++;
         }
@@ -6654,7 +6655,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 			if (user_defaults)
                 desc << usr_def_val.c_str();
             else
-                desc << FormatNotSpec;
+                def_format_in_dbdatum(desc);
 			db_d.push_back(desc);
 			prop_to_update++;
         }
@@ -6693,7 +6694,7 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
         db_del.push_back(del_desc);
         prop_to_delete++;
     }
-    else if (class_defaults == false && TG_strcasecmp(conf.format,FormatNotSpec) == 0)
+    else if (class_defaults == false && is_format_notspec(conf.format) == true)
     {
         DbDatum del_desc("format");
         db_del.push_back(del_desc);
@@ -12613,7 +12614,7 @@ void Attribute::avns_in_db(const char *prop_name,string &dev_name)
 //		in :
 //			- pt : Property type
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 void Attribute::avns_in_att(prop_type pt)
 {
@@ -12660,6 +12661,158 @@ void Attribute::avns_in_att(prop_type pt)
         if (tg->is_svr_starting() == false && tg->is_device_restarting(ext->d_name) == false)
             get_att_device()->push_att_conf_event(this);
     }
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+//
+// method :
+//		Attribute::set_format_notspec()
+//
+// description :
+//		Set the attribute format property to the default value which depends on attribute data type
+//
+//--------------------------------------------------------------------------------------------------------------------
+
+void Attribute::set_format_notspec()
+{
+	switch (data_type)
+	{
+	case DEV_SHORT:
+	case DEV_LONG:
+	case DEV_LONG64:
+	case DEV_UCHAR:
+	case DEV_USHORT:
+	case DEV_ULONG:
+	case DEV_ULONG64:
+		format = FormatNotSpec_INT;
+		break;
+
+	case DEV_STRING:
+		format = FormatNotSpec_STR;
+		break;
+
+	case DEV_STATE:
+	case DEV_ENCODED:
+	case DEV_BOOLEAN:
+		format = AlrmValueNotSpec;
+		break;
+
+	case DEV_FLOAT:
+	case DEV_DOUBLE:
+		format = FormatNotSpec_FL;
+		break;
+
+	default:
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+//
+// method :
+//		Attribute::is_format_notspec()
+//
+// description :
+//		Set the attribute format property to the default value which depends on attribute data type
+//
+// argument :
+//		in :
+//			- format : The format property string
+//
+// return :
+//		This method retruns true if the format string is the default value
+//
+//--------------------------------------------------------------------------------------------------------------------
+
+bool Attribute::is_format_notspec(const char *format)
+{
+	bool ret = false;
+
+	switch (data_type)
+	{
+	case DEV_SHORT:
+	case DEV_LONG:
+	case DEV_LONG64:
+	case DEV_UCHAR:
+	case DEV_USHORT:
+	case DEV_ULONG:
+	case DEV_ULONG64:
+		if (TG_strcasecmp(format,FormatNotSpec_INT) == 0)
+			ret = true;
+		break;
+
+	case DEV_STRING:
+		if (TG_strcasecmp(format,FormatNotSpec_STR) == 0)
+			ret = true;
+		break;
+
+	case DEV_STATE:
+	case DEV_ENCODED:
+	case DEV_BOOLEAN:
+		if (TG_strcasecmp(format,AlrmValueNotSpec) == 0)
+			ret = true;
+		break;
+
+	case DEV_FLOAT:
+	case DEV_DOUBLE:
+		if (TG_strcasecmp(format,FormatNotSpec_FL) == 0)
+			ret = true;
+		break;
+
+	default:
+		break;
+	}
+
+	return ret;
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+//
+// method :
+//		Attribute::def_format_in_dbdatum()
+//
+// description :
+//		Insert the default format string in a DbDatum instance. This default value depends on the attribute
+//		data type
+//
+// argument :
+//		in :
+//			- db : Reference to the DbDatum object
+//
+//--------------------------------------------------------------------------------------------------------------------
+
+void Attribute::def_format_in_dbdatum(DbDatum &db)
+{
+	switch (data_type)
+	{
+	case DEV_SHORT:
+	case DEV_LONG:
+	case DEV_LONG64:
+	case DEV_UCHAR:
+	case DEV_USHORT:
+	case DEV_ULONG:
+	case DEV_ULONG64:
+		db << FormatNotSpec_INT;
+		break;
+
+	case DEV_STRING:
+		db << FormatNotSpec_STR;
+		break;
+
+	case DEV_STATE:
+	case DEV_ENCODED:
+	case DEV_BOOLEAN:
+		db << AlrmValueNotSpec;
+		break;
+
+	case DEV_FLOAT:
+	case DEV_DOUBLE:
+		db << FormatNotSpec_FL;
+		break;
+
+	default:
+		break;
+	}
 }
 
 //-------------------------------------------------------------------------------------------------------------------

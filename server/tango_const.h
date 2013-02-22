@@ -930,7 +930,9 @@ typedef struct _SendEventType
 #define		UnitNotSpec			"No unit"
 #define		StdUnitNotSpec		"No standard unit"
 #define		DispUnitNotSpec		"No display unit"
-#define		FormatNotSpec		"%6.2f"
+#define		FormatNotSpec_FL	"%6.2f"
+#define		FormatNotSpec_INT	"%d"
+#define		FormatNotSpec_STR	"%s"
 
 #define		NotANumber			"NaN"
 
