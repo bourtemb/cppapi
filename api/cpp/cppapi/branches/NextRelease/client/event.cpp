@@ -1307,6 +1307,9 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	    string cmd_name;
 	    get_subscription_command_name(cmd_name);
 
+	    if (cmd_name.find("Zmq") != string::npos)
+			transform(adm_name.begin(),adm_name.end(),adm_name.begin(),::tolower);
+
     	dd = adm_dev->command_inout(cmd_name,subscriber_in);
 
 		dd.reset_exceptions(DeviceData::isempty_flag);

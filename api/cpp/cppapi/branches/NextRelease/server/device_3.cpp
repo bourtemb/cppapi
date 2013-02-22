@@ -2567,7 +2567,7 @@ void Device_3Impl::add_state_status_attrs()
 	vector<AttrProperty> prop_list_state;
 	string att_name("State");
 	get_attr_props("State",prop_list_state);
-	dev_attr->add_default(prop_list_state,device_name,att_name);
+	dev_attr->add_default(prop_list_state,device_name,att_name,Tango::DEV_STATE);
 
 	dev_attr->add_attr(new Attribute(prop_list_state,att_state,device_name,-1));
 
@@ -2579,7 +2579,7 @@ void Device_3Impl::add_state_status_attrs()
 	vector<AttrProperty> prop_list_status;
 	att_name = "Status";
 	get_attr_props("Status",prop_list_status);
-	dev_attr->add_default(prop_list_status,device_name,att_name);
+	dev_attr->add_default(prop_list_status,device_name,att_name,Tango::DEV_STRING);
 
 	dev_attr->add_attr(new Attribute(prop_list_status,att_status,device_name,-1));
 }

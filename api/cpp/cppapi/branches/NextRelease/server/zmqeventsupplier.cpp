@@ -644,6 +644,7 @@ void ZmqEventSupplier::push_heartbeat_event()
         if (Util::_FileDb == true)
             heartbeat_event_name = heartbeat_event_name + MODIFIER_DBASE_NO;
         heartbeat_event_name = heartbeat_event_name + ".heartbeat";
+		transform(heartbeat_event_name.begin(),heartbeat_event_name.end(),heartbeat_event_name.begin(),::tolower);
 	    heartbeat_name_init = true;
 	}
 

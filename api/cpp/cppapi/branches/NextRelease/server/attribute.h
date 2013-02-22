@@ -2266,6 +2266,9 @@ protected:
     void validate_change_properties(const string &,const char *,string &,vector<double> &,vector<bool> &,vector<bool> &);
     void validate_change_properties(const string &,const char *,string &,vector<double> &);
     bool prop_in_list(const char *,string &,size_t,vector<AttrProperty> &);
+    void set_format_notspec();
+    bool is_format_notspec(const char *);
+	void def_format_in_dbdatum(DbDatum &);
 
     void avns_in_db(const char *,string &);
     void avns_in_att(prop_type);
