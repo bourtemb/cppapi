@@ -217,8 +217,44 @@ bool DeviceImpl::is_command_polled(const string &cmd_name)
 
 int DeviceImpl::get_attribute_poll_period(const string &att_name)
 {
-    Tango::Attribute &the_att = dev_attr->get_attr_by_name(att_name.c_str());
-    return the_att.get_polling_period();
+    int per = 0;
+
+	string att = att_name;
+	transform(att.begin(),att.end(),att.begin(),::tolower);
+
+    bool found = false;
+	vector<string> &att_list = get_polled_attr();
+	for (unsigned int i = 0;i < att_list.size();i = i+2)
+	{
+
+//
+//	Convert to lower case before comparison
+//
+
+		string name_lowercase(att_list[i]);
+		transform(name_lowercase.begin(),name_lowercase.end(),name_lowercase.begin(),::tolower);
+		if ( att == name_lowercase )
+		{
+            stringstream ss;
+            ss << att_list[i + 1];
+            ss >> per;
+            found = true;
+
+            break;
+		}
+	}
+
+//
+// now check wether a polling period is set (for example by pogo)
+//
+
+    if (found == false)
+    {
+    	Tango::Attribute &the_att = dev_attr->get_attr_by_name(att_name.c_str());
+    	per = the_att.get_polling_period();
+	}
+
+	return per;
 }
 
 //+-------------------------------------------------------------------------
