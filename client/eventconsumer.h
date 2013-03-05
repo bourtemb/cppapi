@@ -394,8 +394,8 @@ protected :
     void att_union_to_device(const AttrValUnion *union_ptr,DeviceAttribute *dev_attr);
 	void conf_to_info(AttributeConfig_2 &,AttributeInfoEx **);
 
-	static map<std::string,std::string> 					device_channel_map;     // key - device_name, value - channel name
-	static map<std::string,EventChannelStruct> 				channel_map;            // key - channel_name, value - Event Channel info
+	static map<std::string,std::string> 					device_channel_map;     // key - device_name, value - channel name (full adm name)
+	static map<std::string,EventChannelStruct> 				channel_map;            // key - channel_name (full adm name), value - Event Channel info
 	static map<std::string,EventCallBackStruct> 			event_callback_map;     // key - callback_key, value - Event CallBack info
 	static ReadersWritersLock 								map_modification_lock;
 
