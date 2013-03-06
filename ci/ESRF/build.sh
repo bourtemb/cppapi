@@ -186,9 +186,6 @@ else
 fi
 
 echo $MAKE_CMD
-ls /cygdrive
-ls //unixhome/segfs
-ls $INSTALL_DIR
 $MAKE_CMD
 RET=$?
 
