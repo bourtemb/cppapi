@@ -1,7 +1,6 @@
 #!/bin/bash
 
 UX_INSTALL_DIR="/segfs/tango/ci/Tango"
-#WIN_INSTALL_DIR="S:\tango\ci\Tango"
 WIN_INSTALL_DIR="//unixhome/segfs/tango/ci/Tango"
 
 #
@@ -187,12 +186,7 @@ else
 fi
 
 echo $MAKE_CMD
-#ls $INSTALL_DIR
-pwd
-ls /cygdrive
-ls //unixhome/segfs/tango/ci/Tango
-ls /cygdrive/s
-ls /cygdrive/s/tango/ci/Tango
+ls $INSTALL_DIR
 $MAKE_CMD
 RET=$?
 
