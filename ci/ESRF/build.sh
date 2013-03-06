@@ -189,6 +189,7 @@ echo $MAKE_CMD
 #ls $INSTALL_DIR
 pwd
 ls /cygdrive
+ls //unixhome/segfs/tango/ci/Tango
 ls /cygdrive/s
 ls /cygdrive/s/tango/ci/Tango
 $MAKE_CMD
