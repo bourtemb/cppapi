@@ -187,7 +187,7 @@ fi
 
 echo $MAKE_CMD
 #ls $INSTALL_DIR
-ls /s/tango/ci/Tango
+ls /cygdrive/s/tango/ci/Tango
 $MAKE_CMD
 RET=$?
 
