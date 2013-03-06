@@ -186,6 +186,7 @@ else
 fi
 
 echo $MAKE_CMD
+ls $INSTALL_DIR
 $MAKE_CMD
 RET=$?
 
