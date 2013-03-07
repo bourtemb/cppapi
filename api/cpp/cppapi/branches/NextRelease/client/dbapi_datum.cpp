@@ -115,7 +115,11 @@ DbDatum &DbDatum::operator=(const DbDatum &rval)
 #ifdef HAS_UNIQUE_PTR
 	ext.reset(new DbDatumExt);
 #else
-    ext = rval.ext;
+	if (rval.ext != NULL)
+	{
+		ext = new DbDatumExt;
+		*ext = *rval.ext;
+	}
 #endif
 
 	return *this;
