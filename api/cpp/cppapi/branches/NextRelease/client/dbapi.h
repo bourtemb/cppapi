@@ -241,6 +241,7 @@ public :
 	void delete_device_attribute_property(string, DbData &);
 	void delete_all_device_attribute_property(string, DbData &);
 	vector<DbHistory> get_device_attribute_property_history(string &,string &,string &);
+	void get_device_attribute_list(string &,vector<string> &);
 
 	void get_class_property(string, DbData &, DbServerCache *dsc);
 	void get_class_property(string st,DbData &db) {get_class_property(st,db,NULL);}
@@ -277,7 +278,6 @@ public :
 	void get_alias_from_device(string, string &);
 	void get_attribute_from_alias(string, string &);
 	void get_alias_from_attribute(string, string &);
-
 };
 
 //
@@ -863,6 +863,88 @@ private:
 	DevVarStringArray		ret_dev_list;
 	DevVarStringArray		ret_obj_att_prop;
 	DevVarStringArray		ret_prop_list;
+};
+
+/****************************************************************************************
+ * 																						*
+ * 					The DbServerData class												*
+ * 					----------------													*
+ * 																						*
+ ***************************************************************************************/
+
+//
+// DbServerData object to implement the features required to move a complete device server proces
+// configuration from one database to another one
+//
+
+class DbServerData
+{
+private:
+    struct TangoProperty
+    {
+        string   		name;
+        vector<string> 	values;
+
+        TangoProperty(string &na, vector<string> &val):name(na),values(val) {}
+	};
+
+    struct TangoAttribute: vector<TangoProperty>
+    {
+        string   				name;
+
+        TangoAttribute(string na):name(na) {}
+    };
+
+	struct TangoDevice: DeviceProxy
+	{
+        string 	name;
+        vector<TangoProperty>   properties;
+        vector<TangoAttribute>  attributes;
+
+        TangoDevice(string &);
+
+		string get_name() {return name;}
+        vector<TangoProperty> &get_properties() {return properties;}
+        vector<TangoAttribute> &get_attributes() {return attributes;}
+
+		void put_properties(Database *);
+        void put_attribute_properties(Database *);
+	};
+
+	struct TangoClass: vector<TangoDevice>
+	{
+        string  name;
+        vector<TangoProperty>   	properties;
+        vector<TangoAttribute>   	attributes;
+
+		TangoClass(const string &,const string &,Database *);
+
+		string get_name() {return name;}
+        vector<TangoProperty> &get_properties() {return properties;}
+        vector<TangoAttribute> &get_attributes() {return attributes;}
+
+		void put_properties(Database *);
+        void put_attribute_properties(Database *);
+        void remove_properties(Database *);
+	};
+
+	void create_server(Database *);
+	void put_properties(Database *);
+
+	string   			full_server_name;
+    vector<TangoClass>  classes;
+
+public:
+	DbServerData(const string &,const string &);
+	~DbServerData() {}
+
+	const string &get_name() {return full_server_name;}
+	vector<TangoClass> &get_classes() {return classes;}
+
+	void put_in_database(const string &);
+	bool already_exist(const string &);
+	void remove();
+	void remove(const string &);
 };
 
 } // End of Tango namespace
