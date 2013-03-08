@@ -510,7 +510,7 @@ void DbServerData::TangoDevice::put_attribute_properties(Database *db_ptr)
 			if (attributes[loop].empty() == false)
 			{
 				DbDatum db_d(attributes[loop].name);
-				db_d << (int)attributes[loop].size();
+				db_d << (DevLong)attributes[loop].size();
 				db_data.push_back(db_d);
 				for (size_t ctr = 0;ctr < attributes[loop].size();ctr++)
 				{
