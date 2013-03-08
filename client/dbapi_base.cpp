@@ -4616,4 +4616,33 @@ void Database::get_alias_from_attribute(string attr_name, string &attr_alias)
 		attr_alias = attr_alias_tmp;
 }
 
+//-----------------------------------------------------------------------------
+//
+// Database::get_device_attribute_list() - Get list of attributes with dat ain db
+// for a specified device
+//
+//-----------------------------------------------------------------------------
+void Database::get_device_attribute_list(string &dev_name, vector<string> &att_list)
+{
+	Any send;
+	Any_var received;
+	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
+
+	check_access_and_get();
+
+	DevVarStringArray *sent_names = new DevVarStringArray;
+	sent_names->length(2);
+	(*sent_names)[0] = string_dup(dev_name.c_str());
+	(*sent_names)[1] = string_dup("*");
+
+	send <<= sent_names;
+
+	CALL_DB_SERVER("DbGetDeviceAttributeList",send,received);
+
+	const DevVarStringArray *recv_names = NULL;
+	received.inout() >>= recv_names;
+
+	att_list << *recv_names;
+}
+
 } // End of Tango namespace
