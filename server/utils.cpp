@@ -1327,8 +1327,8 @@ void Util::create_notifd_event_supplier()
 
 void Util::create_zmq_event_supplier()
 {
-	if (_UseDb == true)
-	{
+//	if (_UseDb == true)
+//	{
 		try
 		{
 			ext->zmq_event_supplier = ZmqEventSupplier::create(this);
@@ -1339,11 +1339,11 @@ void Util::create_zmq_event_supplier()
 			if (_FileDb == true)
 				cerr << "Can't create zmq event supplier. Zmq event not available" << endl;
 		}
-	}
-	else
-	{
-		ext->zmq_event_supplier = NULL;
-	}
+//	}
+//	else
+//	{
+//		ext->zmq_event_supplier = NULL;
+//	}
 }
 
 
@@ -1955,11 +1955,15 @@ DeviceImpl *Util::get_device_by_name(const string &dev_name)
 	if (ret_ptr == NULL)
 	{
 		string d_name;
-		try
+
+		if (_UseDb == true)
 		{
-			db->get_device_alias(dev_name_lower,d_name);
+			try
+			{
+				db->get_device_alias(dev_name_lower,d_name);
+			}
+			catch (Tango::DevFailed &) {}
 		}
-		catch (Tango::DevFailed &) {}
 
 		if (d_name.size() != 0)
 		{
@@ -2028,6 +2032,7 @@ DeviceImpl *Util::find_device_name_core(string &dev_name)
 		{
 			string name(dev_list[j]->get_name());
 			transform(name.begin(),name.end(),name.begin(),::tolower);
+
 			if (name == dev_name)
 			{
 				found = true;

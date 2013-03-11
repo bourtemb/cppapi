@@ -202,6 +202,7 @@ public :
 	void delete_server(string &);
 	void export_server(DbDevExportInfos &);
 	void unexport_server(string &);
+	void rename_server(const string &,const string &);
 
 	DbServerInfo get_server_info(string &);
 	void put_server_info(DbServerInfo &);

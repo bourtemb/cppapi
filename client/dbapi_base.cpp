@@ -4645,4 +4645,26 @@ void Database::get_device_attribute_list(string &dev_name, vector<string> &att_l
 	att_list << *recv_names;
 }
 
+//-----------------------------------------------------------------------------
+//
+// Database::rename_server() - Rename a device server process
+//
+//-----------------------------------------------------------------------------
+void Database::rename_server(const string &old_ds_name, const string &new_ds_name)
+{
+	Any send;
+	AutoConnectTimeout act(DB_RECONNECT_TIMEOUT);
+
+	check_access_and_get();
+
+	DevVarStringArray *sent_names = new DevVarStringArray;
+	sent_names->length(2);
+	(*sent_names)[0] = string_dup(old_ds_name.c_str());
+	(*sent_names)[1] = string_dup(new_ds_name.c_str());
+
+	send <<= sent_names;
+
+	CALL_DB_SERVER_NO_RET("DbRenameServer",send);
+}
+
 } // End of Tango namespace
