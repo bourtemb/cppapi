@@ -2590,7 +2590,7 @@ void Device_3Impl::add_state_status_attrs()
 //		Device_3Impl::get_attr_props
 //
 // description :
-//		Add state and status in the device attribute list
+//		Get attribute properties. This method is used to retrieve properties for state and status.
 //
 // argument:
 //		in :
