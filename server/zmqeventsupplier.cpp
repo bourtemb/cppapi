@@ -86,8 +86,14 @@ ZmqEventSupplier::ZmqEventSupplier(Util *tg):EventSupplier(tg),zmq_context(1),ev
     heartbeat_endpoint = "tcp://";
 
     string &specified_ip = tg->get_specified_ip();
+    string &h_name = tg->get_host_name();
+    string canon_name;
 
-    if (specified_ip.empty() == false)
+    string::size_type pos = h_name.find('.');
+    if (pos != string::npos)
+		canon_name = h_name.substr(0,pos);
+
+    if (specified_ip.empty() == false && (canon_name != specified_ip))
     {
         heartbeat_endpoint = heartbeat_endpoint + specified_ip + ':';
         ip_specified = true;
