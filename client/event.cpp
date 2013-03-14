@@ -1301,6 +1301,7 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	}
 
 	Tango::DeviceData dd;
+	bool zmq_used = false;
 
 	try
 	{
@@ -1308,7 +1309,10 @@ int EventConsumer::connect_event(DeviceProxy *device,
 	    get_subscription_command_name(cmd_name);
 
 	    if (cmd_name.find("Zmq") != string::npos)
+	    {
 			transform(adm_name.begin(),adm_name.end(),adm_name.begin(),::tolower);
+			zmq_used = true;
+		}
 
     	dd = adm_dev->command_inout(cmd_name,subscriber_in);
 
@@ -1355,64 +1359,68 @@ int EventConsumer::connect_event(DeviceProxy *device,
                       				(const char*)"EventConsumer::connect_event()");
 	}
 
+	if (zmq_used == true)
+	{
+
 //
 // If the event is configured to use multicast, check ZMQ release
 //
 
-    const DevVarLongStringArray *ev_svr_data;
-    dd >> ev_svr_data;
+		const DevVarLongStringArray *ev_svr_data;
+		dd >> ev_svr_data;
 
-	string endpoint(ev_svr_data->svalue[1].in());
-	int ds_zmq_release = 0;
+		string endpoint(ev_svr_data->svalue[1].in());
+		int ds_zmq_release = 0;
 
-	if (ev_svr_data->lvalue.length() >= 6)
-		ds_zmq_release = (ev_svr_data->lvalue[5]);
+		if (ev_svr_data->lvalue.length() >= 6)
+			ds_zmq_release = (ev_svr_data->lvalue[5]);
 
-	int zmq_major,zmq_minor,zmq_patch;
-	zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+		int zmq_major,zmq_minor,zmq_patch;
+		zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
 
 //
 // Check for ZMQ compatible release
 //
 
-	if (ds_zmq_release == 310 || ds_zmq_release == 0)
-	{
-		if (zmq_major != 3 || zmq_minor != 1 || zmq_patch != 0)
+		if (ds_zmq_release == 310 || ds_zmq_release == 0)
 		{
-			Except::throw_exception((const char *)API_UnsupportedFeature,
-									(const char *)"Incompatibility between ZMQ releases between client and server!",
-									(const char *)"EventConsumer::connect_event");
+			if (zmq_major != 3 || zmq_minor != 1 || zmq_patch != 0)
+			{
+				Except::throw_exception((const char *)API_UnsupportedFeature,
+										(const char *)"Incompatibility between ZMQ releases between client and server!",
+										(const char *)"EventConsumer::connect_event");
+			}
 		}
-	}
 
-	if (zmq_major == 3 && zmq_minor == 1 && zmq_patch == 0)
-	{
-		if (ds_zmq_release != 0 && ds_zmq_release != 310)
+		if (zmq_major == 3 && zmq_minor == 1 && zmq_patch == 0)
 		{
-			Except::throw_exception((const char *)API_UnsupportedFeature,
-									(const char *)"Incompatibility between ZMQ releases between client and server!",
-									(const char *)"EventConsumer::connect_event");
+			if (ds_zmq_release != 0 && ds_zmq_release != 310)
+			{
+				Except::throw_exception((const char *)API_UnsupportedFeature,
+										(const char *)"Incompatibility between ZMQ releases between client and server!",
+										(const char *)"EventConsumer::connect_event");
+			}
 		}
-	}
 
 //
 // Check if multicasting is available (requires zmq 3.2.x)
 //
 
-	if (endpoint.find(MCAST_PROT) != string::npos)
-	{
-		if (zmq_major == 3 && zmq_minor < 2)
+		if (endpoint.find(MCAST_PROT) != string::npos)
 		{
-			TangoSys_OMemStream o;
-			o << "The process is using zmq release ";
-			o << zmq_major << "." << zmq_minor << "." << zmq_patch;
-			o << "\nThe event on attribute " << attribute << " for device " << device->dev_name();
-			o << " is configured to use multicasting";
-			o << "\nMulticast event(s) not available with this ZMQ release" << ends;
+			if (zmq_major == 3 && zmq_minor < 2)
+			{
+				TangoSys_OMemStream o;
+				o << "The process is using zmq release ";
+				o << zmq_major << "." << zmq_minor << "." << zmq_patch;
+				o << "\nThe event on attribute " << attribute << " for device " << device->dev_name();
+				o << " is configured to use multicasting";
+				o << "\nMulticast event(s) not available with this ZMQ release" << ends;
 
-			Except::throw_exception((const char *)API_UnsupportedFeature,
-											o.str(),
-											(const char *)"EventConsumer::connect_event");
+				Except::throw_exception((const char *)API_UnsupportedFeature,
+												o.str(),
+												(const char *)"EventConsumer::connect_event");
+			}
 		}
 	}
 
@@ -1496,7 +1504,8 @@ int EventConsumer::connect_event(DeviceProxy *device,
             new_event_callback.device_idl = 0;
     }
     new_event_callback.ctr = 0;
-    new_event_callback.endpoint = dvlsa->svalue[1].in();
+    if (zmq_used == true)
+		new_event_callback.endpoint = dvlsa->svalue[1].in();
 
     new_ess.callback = callback;
     new_ess.ev_queue = ev_queue;
