@@ -922,12 +922,13 @@ void DeviceClass::export_device(DeviceImpl *dev,const char *corba_obj_name)
 
 //
 // Take the Tango monitor in order to protect the device against external world access
-// until memorized attribute (in any) are set but forget the admin device
+// until memorized attribute (if any) are set but forget the admin device
 // (which does not have any memorized attribute)
+// But don't do this for dynamic devices which are not created in the DServer::init_device method class loop
 //
 
 		string &dev_name = dev->get_name_lower();
-		if (dev_name.find("dserver") != 0)
+		if ((get_device_factory_done() == false) && (dev_name.find("dserver") != 0))
 			dev->get_dev_monitor().get_monitor();
 
 //
