@@ -1293,7 +1293,7 @@ void WAttribute::check_written_value(const Tango::AttrValUnion &att_union,unsign
 	unsigned int i;
 
 //
-// If the server is in ints starting phase, gives a NULL ptr
+// If the server is in its starting phase, gives a NULL ptr
 // to the AutoLock object
 //
 
