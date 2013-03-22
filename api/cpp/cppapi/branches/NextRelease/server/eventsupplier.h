@@ -316,7 +316,7 @@ private :
     TangoCdrMemoryStream        data_call_cdr;
     string                      event_name;
 
-    zmq::message_t              endian_mess;            // Zmq message for host endianness
+    zmq::message_t              endian_mess;            // Zmq messages
     zmq::message_t              endian_mess_2;          //
     zmq::message_t				endian_mess_heartbeat;	//
     zmq::message_t				endian_mess_heartbeat_2;//

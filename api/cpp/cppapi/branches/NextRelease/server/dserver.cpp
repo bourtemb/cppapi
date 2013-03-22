@@ -876,7 +876,7 @@ void DServer::restart(string &d_name)
 
     try
     {
-        tg->add_restarting_device(d_name);
+        tg->add_restarting_device(lower_d_name);
         PortableServer::POA_ptr r_poa = tg->get_poa();
         bool py_device = dev_to_del->is_py_device();
         if (py_device == true)
@@ -903,11 +903,27 @@ void DServer::restart(string &d_name)
             dev_cl->device_factory(&name);
         }
         dev_cl->set_device_factory_done(true);
-        tg->delete_restarting_device(d_name);
+        tg->delete_restarting_device(lower_d_name);
+    }
+    catch (Tango::DevFailed &e)
+    {
+		tg->delete_restarting_device(lower_d_name);
+
+		stringstream ss;
+		ss << "init_device() method for device " << d_name << " throws DevFailed exception.";
+		ss << "\nDevice not available any more. Please fix exception reason";
+
+		Tango::Except::re_throw_exception(e,API_InitThrowsException,ss.str(),"Dserver::restart()");
     }
     catch (...)
     {
-        tg->delete_restarting_device(d_name);
+        tg->delete_restarting_device(lower_d_name);
+
+		stringstream ss;
+		ss << "init_device() method for device " << d_name << " throws an unknown exception.";
+		ss << "\nDevice not available any more. Please fix exception reason";
+
+		Tango::Except::throw_exception(API_InitThrowsException,ss.str(),"Dserver::restart()");
     }
 
 //
