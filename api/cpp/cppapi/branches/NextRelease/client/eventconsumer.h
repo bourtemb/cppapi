@@ -418,6 +418,7 @@ protected :
     virtual void disconnect_event(string &,string &) {}
 
     virtual void set_channel_type(EventChannelStruct &) = 0;
+    virtual void zmq_specific(DeviceData &,string &,DeviceProxy *,const string &) = 0;
 };
 
 /********************************************************************************
@@ -451,6 +452,7 @@ protected :
     virtual void connect_event_system(string &,string &,string &e,const vector<string> &,EvChanIte &,EventCallBackStruct &,DeviceData &);
 
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = NOTIFD;}
+	virtual void zmq_specific(DeviceData &,string &,DeviceProxy *,const string &) {}
 
 private :
 
@@ -504,6 +506,7 @@ protected :
     virtual void disconnect_event(string &,string &);
 
     virtual void set_channel_type(EventChannelStruct &ecs) {ecs.channel_type = ZMQ;}
+	virtual void zmq_specific(DeviceData &,string &,DeviceProxy *,const string &);
 
 private :
 	TANGO_IMP static ZmqEventConsumer       *_instance;

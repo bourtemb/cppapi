@@ -1335,7 +1335,6 @@ void ZmqEventConsumer::connect_event_channel(string &channel_name,TANGO_UNUSED(D
                         (const char *)"ZmqEventConsumer::connect_event_channel");
     }
 
-
 //
 // Init (or create) EventChannelStruct
 //
@@ -2490,6 +2489,96 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
         map_modification_lock.readerOut();
     }
 }
+
+//--------------------------------------------------------------------------------------------------------------------
+//
+// method :
+//		ZmqEventConsumer::zmq_specific()
+//
+// description :
+//		Do some ZMQ specific tasks like checking release compatibility or lower case the admin device name
+//		which is used in the heartbeat event name.
+//
+// argument :
+//		in :
+//			- dd : The result of the event subscription command
+//			- adm_name : The admin device name used in the heartbeat event
+//			- device : The device proxy pointer (for error message)
+//			- attribute : The attribute name (for error message)
+//
+//--------------------------------------------------------------------------------------------------------------------
+
+void ZmqEventConsumer::zmq_specific(DeviceData &dd,string &adm_name,DeviceProxy *device,const string &attribute)
+{
+	const DevVarLongStringArray *ev_svr_data;
+	dd >> ev_svr_data;
+
+//
+// For event coming from server still using Tango 8.0.x, do not lowercase the adm_name
+//
+
+	if (ev_svr_data->lvalue[0] >= 810)
+		transform(adm_name.begin(),adm_name.end(),adm_name.begin(),::tolower);
+
+//
+// If the event is configured to use multicast, check ZMQ release
+//
+
+	string endpoint(ev_svr_data->svalue[1].in());
+	int ds_zmq_release = 0;
+
+	if (ev_svr_data->lvalue.length() >= 6)
+		ds_zmq_release = (ev_svr_data->lvalue[5]);
+
+	int zmq_major,zmq_minor,zmq_patch;
+	zmq_version(&zmq_major,&zmq_minor,&zmq_patch);
+
+//
+// Check for ZMQ compatible release
+//
+
+	if (ds_zmq_release == 310 || ds_zmq_release == 0)
+	{
+		if (zmq_major != 3 || zmq_minor != 1 || zmq_patch != 0)
+		{
+			Except::throw_exception((const char *)API_UnsupportedFeature,
+									(const char *)"Incompatibility between ZMQ releases between client and server!",
+									(const char *)"EventConsumer::connect_event");
+		}
+	}
+
+	if (zmq_major == 3 && zmq_minor == 1 && zmq_patch == 0)
+	{
+		if (ds_zmq_release != 0 && ds_zmq_release != 310)
+		{
+			Except::throw_exception((const char *)API_UnsupportedFeature,
+									(const char *)"Incompatibility between ZMQ releases between client and server!",
+									(const char *)"EventConsumer::connect_event");
+		}
+	}
+
+//
+// Check if multicasting is available (requires zmq 3.2.x)
+//
+
+	if (endpoint.find(MCAST_PROT) != string::npos)
+	{
+		if (zmq_major == 3 && zmq_minor < 2)
+		{
+			TangoSys_OMemStream o;
+			o << "The process is using zmq release ";
+			o << zmq_major << "." << zmq_minor << "." << zmq_patch;
+			o << "\nThe event on attribute " << attribute << " for device " << device->dev_name();
+			o << " is configured to use multicasting";
+			o << "\nMulticast event(s) not available with this ZMQ release" << ends;
+
+			Except::throw_exception((const char *)API_UnsupportedFeature,
+											o.str(),
+											(const char *)"EventConsumer::connect_event");
+		}
+	}
+}
+
 
 //--------------------------------------------------------------------------------------------------------------------
 //
