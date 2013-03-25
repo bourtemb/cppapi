@@ -6,6 +6,6 @@ OBJS_DIR=objs
 OBJS_DIR_SL=objs_sl
 CLEAN="clean"
 
-OMNI_BASE=/siciliarep/build/lib/omniORB/omniORB.suse11.64
-LOG4TANGO_BASE=/siciliarep/build/lib/log4tango/log4tango.suse11.64
-ZMQ_BASE=/siciliarep/build/lib/zeromq/zeromq.suse11.64
+OMNI_BASE=/siciliarep/build/lib/omniORB/omniORB.suse111.64
+LOG4TANGO_BASE=/siciliarep/build/lib/log4tango/log4tango.suse111.64
+ZMQ_BASE=/siciliarep/build/lib/zeromq/zeromq.suse111.64
