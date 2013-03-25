@@ -339,10 +339,14 @@ void NotifdEventSupplier::connect_to_notifd(NotifService &ns,CORBA::ORB_var &_or
 // There is a cout and a cerr here to have the message displayed on the console
 // AND sent to the logging system (cout is redirected to the logging when
 // compiled with -D_TANGO_LIB)
+// Print these messages only during DS startup sequence
 //
 
-		cerr << "Failed to narrow the EventChannelFactory - Notifd events will not be generated (hint: start the notifd daemon on this host)" << endl;
-		cout << "Failed to narrow the EventChannelFactory - Notifd events will not be generated (hint: start the notifd daemon on this host)" << endl;
+		if (tg->is_svr_starting() == true)
+		{
+			cerr << "Failed to narrow the EventChannelFactory - Notifd events will not be generated (hint: start the notifd daemon on this host)" << endl;
+			cout << "Failed to narrow the EventChannelFactory - Notifd events will not be generated (hint: start the notifd daemon on this host)" << endl;
+		}
 
 		EventSystemExcept::throw_exception((const char*)API_NotificationServiceFailed,
 			(const char*)"Failed to narrow the EventChannelFactory, make sure the notifd process is running on this host",
