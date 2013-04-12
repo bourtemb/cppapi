@@ -2338,7 +2338,7 @@ inline void Attribute::throw_startup_exception(const char* origin)
 				event_exceptions.push_back(it->first);
 			else
 				opt_exceptions.push_back(it->first);
-			for(size_t i = 0 ; i < it->second.errors.length(); i++)
+			for(CORBA::ULong i = 0 ; i < it->second.errors.length(); i++)
 			{
 				string tmp_msg = string(it->second.errors[i].desc);
 				size_t pos = tmp_msg.rfind('\n');
