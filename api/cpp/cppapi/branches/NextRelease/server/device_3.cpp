@@ -1775,9 +1775,13 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 		if (nb_failed != nb_updated_attr)
 		{
 			vector<AttIdx>::iterator ite;
+			vector<long> att_idx;
+
 			for(ite = updated_attr.begin();ite != updated_attr.end();)
 			{
                 WAttribute &att = dev_attr->get_w_attr_by_ind((*ite).idx_in_multi_attr);
+                att_idx.push_back(ite->idx_in_multi_attr);
+
 				try
 				{
 					att.set_value_flag(false);
@@ -1824,6 +1828,47 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 					errs[nb_failed - 1].index_in_call = (*ite).idx_in_names;
 					errs[nb_failed - 1].err_list = e.errors;
 					ite = updated_attr.erase(ite);
+					att_idx.pop_back();
+				}
+			}
+
+//
+// Call the write_attr_hardware method
+// If it throws exception, mark all attributes has failed
+//
+
+			long vers = get_dev_idl_version();
+			if (vers >= 4)
+			{
+				try
+				{
+					write_attr_hardware(att_idx);
+				}
+				catch (Tango::DevFailed &e)
+				{
+					vector<long>::iterator ite;
+					for(ite = att_idx.begin();ite != att_idx.end();++ite)
+					{
+						WAttribute &att = dev_attr->get_w_attr_by_ind(*ite);
+						nb_failed++;
+						if (att.get_data_format() == SCALAR)
+							att.rollback();
+						errs.length(nb_failed);
+						errs[nb_failed - 1].name = CORBA::string_dup((*values_4)[(*ite)].name);
+
+						vector<AttIdx>::iterator ite_att;
+						for(ite_att = updated_attr.begin();ite_att != updated_attr.end();++ite_att)
+						{
+							if (ite_att->idx_in_multi_attr == *ite)
+							{
+								errs[nb_failed - 1].index_in_call = ite_att->idx_in_names;
+								break;
+							}
+						}
+
+						errs[nb_failed - 1].err_list = e.errors;
+					}
+					updated_attr.clear();
 				}
 			}
 		}
