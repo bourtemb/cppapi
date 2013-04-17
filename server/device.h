@@ -954,7 +954,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual Tango::AttributeConfigList* get_attribute_config(const Tango::DevVarStringArray& names);
+	virtual Tango::AttributeConfigList* get_attribute_config(const Tango::DevVarStringArray& names);
 
 /**
  * Set attribute(s) configuration.
@@ -971,7 +971,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual void set_attribute_config(const Tango::AttributeConfigList& new_conf);
+	virtual void set_attribute_config(const Tango::AttributeConfigList& new_conf);
 
 /**
  * Read attribute(s) value.
@@ -989,7 +989,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual Tango::AttributeValueList* read_attributes(const Tango::DevVarStringArray& names);
+	virtual Tango::AttributeValueList* read_attributes(const Tango::DevVarStringArray& names);
 
 /**
  * Write attribute(s) value.
@@ -1006,7 +1006,7 @@ public:
  * Click <a href="../../../tango_idl/idl_html/_Tango.html#DevFailed">here</a> to read
  * <b>DevFailed</b> exception specification
  */
-    	virtual void write_attributes(const Tango::AttributeValueList& values);
+	virtual void write_attributes(const Tango::AttributeValueList& values);
 
 //@}
 
