@@ -26,7 +26,6 @@
 #ifndef _APIEXCEPT_H
 #define _APIEXCEPT_H
 
-//#include <tango.h>
 #include <except.h>
 #include <vector>
 

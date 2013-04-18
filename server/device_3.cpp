@@ -1815,6 +1815,21 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 
 					++ite;
 				}
+				catch (Tango::MultiDevFailed &e)
+				{
+					nb_failed++;
+					if (att.get_data_format() == SCALAR)
+                        att.rollback();
+					errs.length(nb_failed);
+					if (values_3 != NULL)
+						errs[nb_failed - 1].name = CORBA::string_dup((*values_3)[(*ite).idx_in_names].name);
+					else
+						errs[nb_failed - 1].name = CORBA::string_dup((*values_4)[(*ite).idx_in_names].name);
+					errs[nb_failed - 1].index_in_call = (*ite).idx_in_names;
+					errs[nb_failed - 1].err_list = e.errors[0].err_list;
+					ite = updated_attr.erase(ite);
+					att_idx.pop_back();
+				}
 				catch (Tango::DevFailed &e)
 				{
 					nb_failed++;
@@ -1834,7 +1849,8 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 
 //
 // Call the write_attr_hardware method
-// If it throws exception, mark all attributes has failed
+// If it throws DevFailed exception, mark all attributes has failure
+// If it throws NamedDevFailedList exception, mark only referenced attributes as faulty
 //
 
 			long vers = get_dev_idl_version();
@@ -1843,6 +1859,32 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 				try
 				{
 					write_attr_hardware(att_idx);
+				}
+				catch (Tango::MultiDevFailed &e)
+				{
+					for (unsigned long loop = 0;loop < e.errors.length();loop++)
+					{
+						nb_failed++;
+						errs.length(nb_failed);
+
+						vector<AttIdx>::iterator ite_att;
+
+						for(ite_att = updated_attr.begin();ite_att != updated_attr.end();++ite_att)
+						{
+							if (TG_strcasecmp(dev_attr->get_w_attr_by_ind(ite_att->idx_in_multi_attr).get_name().c_str(),e.errors[loop].name) == 0)
+							{
+								errs[nb_failed - 1].index_in_call = ite_att->idx_in_names;
+								errs[nb_failed - 1].name = CORBA::string_dup(e.errors[loop].name);
+								errs[nb_failed - 1].err_list = e.errors[loop].err_list;
+
+								WAttribute &att = dev_attr->get_w_attr_by_ind(ite_att->idx_in_multi_attr);
+								if (att.get_data_format() == SCALAR)
+									att.rollback();
+								break;
+							}
+						}
+						updated_attr.erase(ite_att);
+					}
 				}
 				catch (Tango::DevFailed &e)
 				{
