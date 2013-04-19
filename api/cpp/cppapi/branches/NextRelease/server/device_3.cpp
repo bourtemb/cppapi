@@ -1896,7 +1896,7 @@ void Device_3Impl::write_attributes_34(const Tango::AttributeValueList *values_3
 						if (att.get_data_format() == SCALAR)
 							att.rollback();
 						errs.length(nb_failed);
-						errs[nb_failed - 1].name = CORBA::string_dup((*values_4)[(*ite)].name);
+						errs[nb_failed - 1].name = CORBA::string_dup(att.get_name().c_str());
 
 						vector<AttIdx>::iterator ite_att;
 						for(ite_att = updated_attr.begin();ite_att != updated_attr.end();++ite_att)
