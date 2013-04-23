@@ -259,7 +259,7 @@ public:
 /**@name Signal related methods
  * These methods allow a signal management at device level */
 //@{
-#if !(defined __linux)
+#if defined _TG_WINDOWS_
 /**
  * Register a signal.
  *
