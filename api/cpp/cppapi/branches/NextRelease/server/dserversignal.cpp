@@ -319,7 +319,7 @@ void DServerSignal::register_class_signal(long signo,bool handler,DeviceClass *c
 	if (f == reg_sig[signo].registered_classes.end())
 	{
 		reg_sig[signo].registered_classes.push_back(cl_ptr);
-#ifndef _TG_WINDOWS
+#ifndef _TG_WINDOWS_
 		reg_sig[signo].own_handler = handler;
 #endif
 	}
