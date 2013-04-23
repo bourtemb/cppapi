@@ -3260,7 +3260,7 @@ public:
 /**@name Signal related methods
  * These methods allow a signal management at device level */
 //@{
-#if (defined __linux)
+#ifndef _TG_WINDOWS_
 /**
  * Register a signal to be executed in a signal handler.
  *

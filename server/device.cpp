@@ -667,7 +667,7 @@ PortableServer::POA_ptr DeviceImpl::_default_POA()
 //
 //--------------------------------------------------------------------------
 
-#if (defined __linux)
+#ifndef  _TG_WINDOWS_
 void DeviceImpl::register_signal(long signo,bool hand)
 {
 	cout4 << "DeviceImpl::register_signal() arrived for signal " << signo << endl;

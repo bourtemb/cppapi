@@ -2321,11 +2321,7 @@ void Util::print_err_message(const char *err_mess,TANGO_UNUSED(Tango::MessBoxTyp
 	}
 #else
 	cerr << err_mess << endl;
-#ifdef __linux
 	_exit(-1);
-#else
-	exit(-1);
-#endif
 #endif
 }
 

@@ -833,7 +833,7 @@ void DeviceClass::delete_dev(long idx,Tango::Util *tg,PortableServer::POA_ptr r_
 //
 //--------------------------------------------------------------------------
 
-#if !(defined __linux)
+#if defined _TG_WINDOWS_
 void DeviceClass::register_signal(long signo)
 {
 	cout4 << "DeviceClass::register_signal() arrived for signal " << signo << endl;
