@@ -685,6 +685,8 @@ void Util::check_args(int argc,char *argv[])
 							print_usage(argv[0]);
 						_UseDb = false;
 						ind++;
+
+						check_orb_endpoint(argc,argv);
 					}
 					break;
 
@@ -713,28 +715,7 @@ void Util::check_args(int argc,char *argv[])
 // Try to find the ORB endPoint option
 //
 
-						long arg_nb;
-						for (arg_nb = 2;arg_nb < argc;arg_nb++)
-						{
-							if (::strcmp(argv[arg_nb],"-ORBendPoint") == 0)
-							{
-								arg_nb++;
-								string endpoint = argv[arg_nb];
-								string::size_type pos;
-								if ((pos = endpoint.rfind(':')) == string::npos)
-								{
-									cerr << "Strange ORB endPoint specification" << endl;
-									print_usage(argv[0]);
-								}
-								ext->svr_port_num = endpoint.substr(++pos);
-								break;
-							}
-						}
-						if (arg_nb == argc)
-						{
-							cerr << "Missing ORB endPoint specification" << endl;
-							print_usage(argv[0]);
-						}
+						check_orb_endpoint(argc,argv);
 					}
 					break;
 

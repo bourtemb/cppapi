@@ -1869,10 +1869,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 
     map<std::string,EventCallBackStruct>::iterator ipos;
     unsigned int loop;
+    bool no_db_dev = false;
 
     size_t pos = ev_name.find('/',8);
     string base_tango_host = ev_name.substr(0,pos + 1);
     string canon_ev_name = ev_name.substr(pos + 1);
+    if (ev_name.find(MODIFIER_DBASE_NO) != string::npos)
+		no_db_dev = true;
 
     for (loop = 0;loop < env_var_fqdn_prefix.size();loop++)
     {
@@ -1881,7 +1884,13 @@ void ZmqEventConsumer::push_zmq_event(string &ev_name,unsigned char endian,zmq::
 // Test different fully qualified event name depending on different TANGO_HOST defined for the control system
 //
 
-        string new_tango_host = env_var_fqdn_prefix[loop] + canon_ev_name;
+		string new_tango_host;
+
+		if (no_db_dev == true)
+			new_tango_host = ev_name;
+		else
+			new_tango_host = env_var_fqdn_prefix[loop] + canon_ev_name;
+
         ipos = event_callback_map.find(new_tango_host);
 
         if (ipos != event_callback_map.end())
