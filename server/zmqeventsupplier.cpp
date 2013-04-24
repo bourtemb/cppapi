@@ -647,7 +647,7 @@ void ZmqEventSupplier::push_heartbeat_event()
 //
 
         heartbeat_event_name = heartbeat_event_name + adm_dev->get_full_name();
-        if (Util::_FileDb == true)
+        if (Util::_FileDb == true || Util::_UseDb == false)
             heartbeat_event_name = heartbeat_event_name + MODIFIER_DBASE_NO;
         heartbeat_event_name = heartbeat_event_name + ".heartbeat";
 		transform(heartbeat_event_name.begin(),heartbeat_event_name.end(),heartbeat_event_name.begin(),::tolower);
@@ -826,7 +826,7 @@ void ZmqEventSupplier::push_event(DeviceImpl *device_impl,string event_type,
         event_name.erase(size - 1);
 
 	event_name = event_name + device_impl->get_name_lower() + '/' + loc_attr_name;
-	if (Util::_FileDb == true)
+	if (Util::_FileDb == true || Util::_UseDb == false)
         event_name = event_name + MODIFIER_DBASE_NO;
     event_name = event_name + '.' + event_type;
 
