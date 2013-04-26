@@ -1308,23 +1308,16 @@ void Util::create_notifd_event_supplier()
 
 void Util::create_zmq_event_supplier()
 {
-//	if (_UseDb == true)
-//	{
-		try
-		{
-			ext->zmq_event_supplier = ZmqEventSupplier::create(this);
-		}
-		catch (...)
-		{
-			ext->zmq_event_supplier = NULL;
-			if (_FileDb == true)
-				cerr << "Can't create zmq event supplier. Zmq event not available" << endl;
-		}
-//	}
-//	else
-//	{
-//		ext->zmq_event_supplier = NULL;
-//	}
+	try
+	{
+		ext->zmq_event_supplier = ZmqEventSupplier::create(this);
+	}
+	catch (...)
+	{
+		ext->zmq_event_supplier = NULL;
+		if (_FileDb == true)
+			cerr << "Can't create zmq event supplier. Zmq event not available" << endl;
+	}
 }
 
 
