@@ -895,7 +895,7 @@ long DeviceImpl::get_cmd_poll_ring_depth(string &cmd_name)
 			{
 				TangoSys_MemStream s;
 				s << ext->cmd_poll_ring_depth[k + 1];
-				if ((s >> ret) == false)
+				if (!(s >> ret))
 				{
 					TangoSys_OMemStream o;
 					o << "System property cmd_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
@@ -975,7 +975,7 @@ long DeviceImpl::get_attr_poll_ring_depth(string &attr_name)
 			{
 				TangoSys_MemStream s;
 				s << ext->attr_poll_ring_depth[k + 1];
-				if ((s >> ret) == false)
+				if (!(s >> ret))
 				{
 					TangoSys_OMemStream o;
 					o << "System property attr_poll_ring_depth for device " << device_name << " has wrong syntax" << ends;
