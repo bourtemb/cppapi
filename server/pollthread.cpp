@@ -1012,6 +1012,8 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 // Now build a new tuned list
 //
 
+		long now_us = (now.tv_sec * 1000000) + now.tv_usec;
+		long next_tuning = now_us + (POLL_LOOP_NB * min_upd);
 		list<WorkItem> new_works;
 		new_works.push_front(works.front());
 
@@ -1022,8 +1024,22 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 		{
 			long needed_time_usec = (ite_prev->needed_time.tv_sec * 1000000) + ite_prev->needed_time.tv_usec;
 			WorkItem wo = *ite;
-			wo.wake_up_date = ite_prev->wake_up_date;
-			T_ADD(wo.wake_up_date,needed_time_usec + max_delta_needed);
+			long next_work = (wo.wake_up_date.tv_sec * 1000000) + wo.wake_up_date.tv_usec;
+
+			if (next_work < next_tuning)
+			{
+				long prev_work = (ite_prev->wake_up_date.tv_sec * 1000000) + ite_prev->wake_up_date.tv_usec;
+				int n = (next_work - prev_work) / ((unsigned long)ite_prev->update * 1000);
+				long next_prev = prev_work + (n * (ite_prev->update * 1000));
+				long next_prev_after = next_prev + needed_time_usec;
+
+				if (next_prev_after > next_work)
+				{
+					wo.wake_up_date.tv_sec = next_prev / 1000000;
+					wo.wake_up_date.tv_usec = next_prev % 1000000;
+					T_ADD(wo.wake_up_date,needed_time_usec + max_delta_needed);
+				}
+			}
 			new_works.push_back(wo);
 		}
 
