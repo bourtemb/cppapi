@@ -1031,14 +1031,10 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 				long prev_work = (ite_prev->wake_up_date.tv_sec * 1000000) + ite_prev->wake_up_date.tv_usec;
 				int n = (next_work - prev_work) / ((unsigned long)ite_prev->update * 1000);
 				long next_prev = prev_work + (n * (ite_prev->update * 1000));
-				long next_prev_after = next_prev + needed_time_usec;
 
-				if (next_prev_after > next_work)
-				{
-					wo.wake_up_date.tv_sec = next_prev / 1000000;
-					wo.wake_up_date.tv_usec = next_prev % 1000000;
-					T_ADD(wo.wake_up_date,needed_time_usec + max_delta_needed);
-				}
+				wo.wake_up_date.tv_sec = next_prev / 1000000;
+				wo.wake_up_date.tv_usec = next_prev % 1000000;
+				T_ADD(wo.wake_up_date,needed_time_usec + max_delta_needed);
 			}
 			new_works.push_back(wo);
 		}
