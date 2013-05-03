@@ -1010,10 +1010,12 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 
 //
 // Now build a new tuned list
+// Warning: On Windows 64 bits, long are 32 bits data. Convert everything to DevULong64 to be sure
+// that we will have computation on unsigned 64 bits data
 //
 
-		long now_us = (now.tv_sec * 1000000) + now.tv_usec;
-		long next_tuning = now_us + (POLL_LOOP_NB * min_upd);
+		Tango::DevULong64 now_us = ((Tango::DevULong64)now.tv_sec * 1000000LL) + (Tango::DevULong64)now.tv_usec;
+		Tango::DevULong64 next_tuning = now_us + (POLL_LOOP_NB * (Tango::DevULong64)min_upd);
 		list<WorkItem> new_works;
 		new_works.push_front(works.front());
 
@@ -1022,18 +1024,19 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 
 		for (++ite;ite != works.end();++ite,++ite_prev)
 		{
-			long needed_time_usec = (ite_prev->needed_time.tv_sec * 1000000) + ite_prev->needed_time.tv_usec;
+			Tango::DevULong64 needed_time_usec = ((Tango::DevULong64)ite_prev->needed_time.tv_sec * 1000000) + (Tango::DevULong64)ite_prev->needed_time.tv_usec;
 			WorkItem wo = *ite;
-			long next_work = (wo.wake_up_date.tv_sec * 1000000) + wo.wake_up_date.tv_usec;
+			Tango::DevULong64 next_work = ((Tango::DevULong64)wo.wake_up_date.tv_sec * 1000000LL) + (Tango::DevULong64)wo.wake_up_date.tv_usec;
 
 			if (next_work < next_tuning)
 			{
-				long prev_work = (ite_prev->wake_up_date.tv_sec * 1000000) + ite_prev->wake_up_date.tv_usec;
-				int n = (next_work - prev_work) / ((unsigned long)ite_prev->update * 1000);
-				long next_prev = prev_work + (n * (ite_prev->update * 1000));
+				Tango::DevULong64 prev_work = ((Tango::DevULong64)ite_prev->wake_up_date.tv_sec * 1000000LL) + (Tango::DevULong64)ite_prev->wake_up_date.tv_usec;
+				Tango::DevULong64 n = (next_work - prev_work) / ((Tango::DevULong64)ite_prev->update * 1000LL);
+				Tango::DevULong64 next_prev = prev_work + (n * (ite_prev->update * 1000LL));
 
-				wo.wake_up_date.tv_sec = next_prev / 1000000;
-				wo.wake_up_date.tv_usec = next_prev % 1000000;
+				wo.wake_up_date.tv_sec = (long)(next_prev / 1000000LL);
+				wo.wake_up_date.tv_usec = (long)(next_prev % 1000000LL);
+
 				T_ADD(wo.wake_up_date,needed_time_usec + max_delta_needed);
 			}
 			new_works.push_back(wo);
