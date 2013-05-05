@@ -3945,8 +3945,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		vector<double> rel_change; // vector containing min and max values of the property
 		vector<double> rel_change_usr; // vector containing user default min and max values of the property
 		vector<double> rel_change_class; // vector containing class default min and max values of the property
-		bool rel_change_usr_def = false; // true if there are user defaults defined for the property
-		bool rel_change_class_def = false; // true if there are class defaults defined for the property
+		bool rel_change_usr_def; // true if there are user defaults defined for the property
+		bool rel_change_class_def; // true if there are class defaults defined for the property
 
 		vector<bool> rel_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
 		vector<bool> rel_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -4025,8 +4025,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		vector<double> abs_change; // vector containing min and max values of the property
 		vector<double> abs_change_usr; // vector containing user default min and max values of the property
 		vector<double> abs_change_class; // vector containing class default min and max values of the property
-		bool abs_change_usr_def = false; // true if there are user defaults defined for the property
-		bool abs_change_class_def = false; // true if there are class defaults defined for the property
+		bool abs_change_usr_def; // true if there are user defaults defined for the property
+		bool abs_change_class_def; // true if there are class defaults defined for the property
 
 		vector<bool> abs_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
 		vector<bool> abs_change_set_class_def; // vector indicating if to use provided values for the property or the user defaults if defined
@@ -4104,8 +4104,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		vector<double> archive_rel_change; // vector containing min and max values of the property
 		vector<double> archive_rel_change_usr; // vector containing user default min and max values of the property
 		vector<double> archive_rel_change_class; // vector containing class default min and max values of the property
-		bool archive_rel_change_usr_def = false; // true if there are user defaults defined for the property
-		bool archive_rel_change_class_def = false; // true if there are class defaults defined for the property
+		bool archive_rel_change_usr_def; // true if there are user defaults defined for the property
+		bool archive_rel_change_class_def; // true if there are class defaults defined for the property
 
 		vector<bool> archive_rel_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
 		vector<bool> archive_rel_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -4182,8 +4182,8 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 		vector<double> archive_abs_change; // vector containing min and max values of the property
 		vector<double> archive_abs_change_usr; // vector containing user default min and max values of the property
 		vector<double> archive_abs_change_class; // vector containing class default min and max values of the property
-		bool archive_abs_change_usr_def = false; // true if there are user defaults defined for the property
-		bool archive_abs_change_class_def = false; // true if there are class defaults defined for the property
+		bool archive_abs_change_usr_def; // true if there are user defaults defined for the property
+		bool archive_abs_change_class_def; // true if there are class defaults defined for the property
 
 		vector<bool> archive_abs_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
 		vector<bool> archive_abs_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -4977,8 +4977,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 		string delta_val_usr_def_val;
 		string delta_val_class_def_val;
 		bool delta_val_is_number = true;
-		bool delta_val_user_defaults = false;
-		bool delta_val_class_defaults = false;
+		bool delta_val_user_defaults;
+		bool delta_val_class_defaults;
 
 		delta_val_user_defaults = prop_in_list("delta_val",delta_val_usr_def_val,nb_user,def_user_prop);
 
@@ -5118,8 +5118,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         string delta_t_tmp_str = conf.att_alarm.delta_t.in();
         string delta_t_usr_def_val;
         string delta_t_class_def_val;
-        bool delta_t_user_defaults = false;
-        bool delta_t_class_defaults = false;
+        bool delta_t_user_defaults;
+        bool delta_t_class_defaults;
         bool delta_t_is_number = true;
 
         delta_t_user_defaults = prop_in_list("delta_t",delta_t_usr_def_val,nb_user,def_user_prop);
@@ -5267,8 +5267,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         vector<double> rel_change; // vector containing min and max values of the property
         vector<double> rel_change_usr; // vector containing user default min and max values of the property
         vector<double> rel_change_class; // vector containing class default min and max values of the property
-        bool rel_change_usr_def = false; // true if there are user defaults defined for the property
-        bool rel_change_class_def = false; // true if there are class defaults defined for the property
+        bool rel_change_usr_def; // true if there are user defaults defined for the property
+        bool rel_change_class_def; // true if there are class defaults defined for the property
 
         vector<bool> rel_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
         vector<bool> rel_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -5405,8 +5405,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         vector<double> abs_change; // vector containing min and max values of the property
         vector<double> abs_change_usr; // vector containing user default min and max values of the property
         vector<double> abs_change_class; // vector containing class default min and max values of the property
-        bool abs_change_usr_def = false; // true if there are user defaults defined for the property
-        bool abs_change_class_def = false; // true if there are user defaults defined for the property
+        bool abs_change_usr_def; // true if there are user defaults defined for the property
+        bool abs_change_class_def; // true if there are user defaults defined for the property
 
         vector<bool> abs_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
         vector<bool> abs_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -5543,8 +5543,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         vector<double> archive_rel_change; // vector containing min and max values of the property
         vector<double> archive_rel_change_usr; // vector containing user default min and max values of the property
         vector<double> archive_rel_change_class; // vector containing class default min and max values of the property
-        bool archive_rel_change_usr_def = false; // true if there are user defaults defined for the property
-        bool archive_rel_change_class_def = false; // true if there are class defaults defined for the property
+        bool archive_rel_change_usr_def; // true if there are user defaults defined for the property
+        bool archive_rel_change_class_def; // true if there are class defaults defined for the property
 
         vector<bool> archive_rel_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
         vector<bool> archive_rel_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -5681,8 +5681,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
         vector<double> archive_abs_change; // vector containing min and max values of the property
         vector<double> archive_abs_change_usr; // vector containing user default min and max values of the property
         vector<double> archive_abs_change_class; // vector containing class default min and max values of the property
-        bool archive_abs_change_usr_def = false; // true if there are user defaults defined for the property
-        bool archive_abs_change_class_def = false; // true if there are class defaults defined for the property
+        bool archive_abs_change_usr_def; // true if there are user defaults defined for the property
+        bool archive_abs_change_class_def; // true if there are class defaults defined for the property
 
         vector<bool> archive_abs_change_set_usr_def; // vector indicating if to use provided values for the property or the user defaults if defined
         vector<bool> archive_abs_change_set_class_def; // vector indicating if to use provided values for the property or the class defaults if defined
@@ -5820,8 +5820,8 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	string def_event_period;
 	def_event_period_str << (int)(DEFAULT_EVENT_PERIOD);
 	def_event_period_str >> def_event_period;
-	bool user_defaults = false;
-	bool class_defaults = false;
+	bool user_defaults;
+	bool class_defaults;
 	bool store_in_db = true;
 
 
@@ -5952,8 +5952,6 @@ void Attribute::upd_database(const Tango::AttributeConfig_3 &conf,string &dev_na
 	string def_arch_event_period;
 	def_arch_event_period_str << (int)(INT_MAX);
 	def_arch_event_period_str >> def_arch_event_period;
-	user_defaults = false;
-	class_defaults = false;
 	store_in_db = true;
 
 
@@ -6185,10 +6183,8 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 // Description
 //
 
-	user_defaults = false;
     user_defaults = prop_in_list("description",usr_def_val,nb_user,def_user_prop);
 
-	class_defaults = false;
     class_defaults = prop_in_list("description",class_def_val,nb_class,def_class_prop);
 
     if (TG_strcasecmp(conf.description,AlrmValueNotSpec) == 0)
@@ -6273,10 +6269,8 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 // Label
 //
 
-	user_defaults = false;
     user_defaults = prop_in_list("label",usr_def_val,nb_user,def_user_prop);
 
-    class_defaults = false;
     class_defaults = prop_in_list("label",class_def_val,nb_class,def_class_prop);
 
     if (TG_strcasecmp(conf.label,AlrmValueNotSpec) == 0)
@@ -6361,10 +6355,8 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 // Unit
 //
 
-	user_defaults = false;
     user_defaults = prop_in_list("unit",usr_def_val,nb_user,def_user_prop);
 
-    class_defaults = false;
     class_defaults = prop_in_list("unit",class_def_val,nb_class,def_class_prop);
 
     if (TG_strcasecmp(conf.unit,AlrmValueNotSpec) == 0)
@@ -6449,10 +6441,8 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 // Standard unit
 //
 
-	user_defaults = false;
     user_defaults = prop_in_list("standard_unit",usr_def_val,nb_user,def_user_prop);
 
-    class_defaults = false;
     class_defaults = prop_in_list("standard_unit",class_def_val,nb_class,def_class_prop);
 
     if (TG_strcasecmp(conf.standard_unit,AlrmValueNotSpec) == 0)
@@ -6537,10 +6527,8 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 // Display unit
 //
 
-	user_defaults = false;
     user_defaults = prop_in_list("display_unit",usr_def_val,nb_user,def_user_prop);
 
-    class_defaults = false;
     class_defaults = prop_in_list("display_unit",class_def_val,nb_class,def_class_prop);
 
     if (TG_strcasecmp(conf.display_unit,AlrmValueNotSpec) == 0)
@@ -6625,10 +6613,8 @@ void Attribute::check_str_prop(const Tango::AttributeConfig &conf,
 // Format
 //
 
-	user_defaults = false;
     user_defaults = prop_in_list("format",usr_def_val,nb_user,def_user_prop);
 
-    class_defaults = false;
     class_defaults = prop_in_list("format",class_def_val,nb_class,def_class_prop);
 
     if (TG_strcasecmp(conf.format,AlrmValueNotSpec) == 0)

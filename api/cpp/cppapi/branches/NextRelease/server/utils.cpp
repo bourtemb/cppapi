@@ -2040,7 +2040,6 @@ DeviceImpl *Util::find_device_name_core(string &dev_name)
 		transform(name.begin(),name.end(),name.begin(),::tolower);
 		if (name == dev_name)
 		{
-			found = true;
 			ret_ptr = devlist[0];
 			j--;
 		}
