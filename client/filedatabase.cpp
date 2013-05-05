@@ -2232,7 +2232,7 @@ CORBA::Any*  FileDatabase :: DbGetProperty(CORBA::Any& send)
 	send >>= data_in;
 
 	data_out->length(2);
-	sprintf(num_attr_str,"%lud",data_in->length()-1);
+	sprintf(num_attr_str,"%ud",data_in->length()-1);
 	(*data_out)[0] = CORBA::string_dup((*data_in)[0]);
 	(*data_out)[1] = CORBA::string_dup(zero_str);
 
