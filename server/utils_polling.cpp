@@ -271,7 +271,7 @@ void Util::polling_configure()
 		int sleeping_time = ext->poll_ths[loop]->smallest_upd / nb_cmd;
 		int delta_time = 0;
 
-		long delta_os = 15;
+		long delta_os = 5;
 		if (delta_os < sleeping_time)
 			sleeping_time = sleeping_time - delta_os;
 
