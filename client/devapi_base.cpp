@@ -503,11 +503,10 @@ void Connection::connect(string &corba_name)
 						}
 						else
 						{
-							CORBA::SystemException *se;
 							desc << "device " << dev_name() << ends;
-							if ((se = CORBA::OBJECT_NOT_EXIST::_downcast(&ce)) != 0)
+							if (CORBA::OBJECT_NOT_EXIST::_downcast(&ce) != 0)
 								reason << "API_DeviceNotDefined" << ends;
-							else if ((se = CORBA::TRANSIENT::_downcast(&ce)) != 0)
+							else if (CORBA::TRANSIENT::_downcast(&ce) != 0)
 								reason << "API_ServerNotRunning" << ends;
 							else
 								reason << "API_CantConnectToDevice" << ends;
