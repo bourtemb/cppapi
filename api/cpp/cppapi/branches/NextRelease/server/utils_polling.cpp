@@ -700,7 +700,8 @@ void Util::clean_attr_polled_prop()
 			if (ite_attr != ext->polled_att_list.end())
 			{
 				ite_attr = ext->polled_att_list.erase(ite_attr);
-				ext->polled_att_list.erase(ite_attr);
+				if (ite_attr != ext->polled_att_list.end())
+					ext->polled_att_list.erase(ite_attr);
 			}
 			else
 			{

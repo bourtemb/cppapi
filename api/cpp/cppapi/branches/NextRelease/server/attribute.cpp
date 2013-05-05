@@ -1365,7 +1365,6 @@ void Attribute::init_opt_prop(vector<AttrProperty> &prop_list,string &dev_name)
 				}
 
 				str << delta_val_str;
-				empty = false;
 				switch (data_type)
 				{
 				case Tango::DEV_SHORT:
@@ -3189,12 +3188,12 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // method called by the set_properties() method. Display level is available only in AttributeConfig_3
 //
 
-    check_hard_coded_properties(conf);
+	check_hard_coded_properties(conf);
 
-    if (conf.level != get_disp_level())
-    {
-        throw_hard_coded_prop("level");
-    }
+	if (conf.level != get_disp_level())
+	{
+		throw_hard_coded_prop("level");
+	}
 
 //
 // Copy only a sub-set of the new properties
@@ -3204,19 +3203,19 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 // default values regardless of the user defined defaults.
 //
 
-    vector<AttrProperty> fake_attr_prop;
+	vector<AttrProperty> fake_attr_prop;
 
 	Tango::DeviceClass *dev_class = get_att_device_class(dev_name);
 	Tango::Attr *att_ptr;
 	bool state_or_status = false;
 
 	if (name_lower == "state" || name_lower == "status")
-        state_or_status = true;
+		state_or_status = true;
 
 	if (state_or_status == false)
 	{
-        Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
-        att_ptr = &(mca->get_attr(name));
+		Tango::MultiClassAttribute *mca = dev_class->get_class_attr();
+		att_ptr = &(mca->get_attr(name));
 	}
 
 	vector<AttrProperty> &def_user_prop = state_or_status == false ? att_ptr->get_user_default_properties() : fake_attr_prop;
@@ -3225,11 +3224,11 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 	vector<AttrProperty> &def_class_prop = state_or_status == false ? att_ptr->get_class_properties() : fake_attr_prop;
 	size_t nb_class = def_class_prop.size();
 
-    TangoSys_MemStream str;
+	TangoSys_MemStream str;
 	str.precision(TANGO_FLOAT_PRECISION);
 
-    if (state_or_status == false)
-    {
+	if (state_or_status == false)
+	{
 
 //
 // The min_warning case
@@ -3263,7 +3262,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					str.clear();
 					str << min_warning_usr_def;
 					str >> min_warning_usr_def_db;
-                    min_warning_str = min_warning_usr_def;
+					min_warning_str = min_warning_usr_def;
 				}
 			}
 			else
@@ -3272,7 +3271,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << min_warning_class_def;
 				str >> min_warning_class_def_db;
-                min_warning_str = min_warning_class_def;
+				min_warning_str = min_warning_class_def;
 			}
 		}
 		else if (strlen(conf.att_alarm.min_warning) == 0)
@@ -3288,7 +3287,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << min_warning_usr_def;
 				str >> min_warning_usr_def_db;
-                min_warning_str = min_warning_usr_def;
+				min_warning_str = min_warning_usr_def;
 			}
 		}
 		else
@@ -3444,7 +3443,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					str.clear();
 					str << max_warning_usr_def;
 					str >> max_warning_usr_def_db;
-                    max_warning_str = max_warning_usr_def;
+					max_warning_str = max_warning_usr_def;
 				}
 			}
 			else
@@ -3453,7 +3452,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << max_warning_class_def;
 				str >> max_warning_class_def_db;
-                max_warning_str = max_warning_class_def;
+				max_warning_str = max_warning_class_def;
 			}
 		}
 		else if (strlen(conf.att_alarm.max_warning) == 0)
@@ -3469,7 +3468,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << max_warning_usr_def;
 				str >> max_warning_usr_def_db;
-                max_warning_str = max_warning_usr_def;
+				max_warning_str = max_warning_usr_def;
 			}
 		}
 		else
@@ -3626,7 +3625,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					str.clear();
 					str << delta_val_usr_def;
 					str >> delta_val_usr_def_db;
-                    delta_val_str = delta_val_usr_def;
+					delta_val_str = delta_val_usr_def;
 				}
 			}
 			else
@@ -3635,7 +3634,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << delta_val_class_def;
 				str >> delta_val_class_def_db;
-                delta_val_str = delta_val_class_def;
+				delta_val_str = delta_val_class_def;
 			}
 		}
 		else if (strlen(conf.att_alarm.delta_val) == 0)
@@ -3651,7 +3650,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << delta_val_usr_def;
 				str >> delta_val_usr_def_db;
-                delta_val_str = delta_val_usr_def;
+				delta_val_str = delta_val_usr_def;
 			}
 		}
 		else
@@ -3779,9 +3778,9 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 
 		bool delta_t_defined = false;
 		string delta_t_usr_def;
-		double delta_t_usr_def_db;
+		double delta_t_usr_def_db = 0.0;
 		string delta_t_class_def;
-		double delta_t_class_def_db;
+		double delta_t_class_def_db = 0.0;
 		usr_defaults = false;
 		class_defaults = false;
 		if(TG_strcasecmp(conf.att_alarm.delta_t,AlrmValueNotSpec) == 0 ||
@@ -3808,7 +3807,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 					str.clear();
 					str << delta_t_usr_def;
 					str >> delta_t_usr_def_db;
-                    delta_t_str = delta_t_usr_def;
+					delta_t_str = delta_t_usr_def;
 				}
 			}
 			else
@@ -3817,7 +3816,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << delta_t_class_def;
 				str >> delta_t_class_def_db;
-                delta_t_str = delta_t_class_def;
+				delta_t_str = delta_t_class_def;
 			}
 		}
 		else if (strlen(conf.att_alarm.delta_t) == 0)
@@ -3833,7 +3832,7 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 				str.clear();
 				str << delta_t_usr_def;
 				str >> delta_t_usr_def_db;
-                delta_t_str = delta_t_usr_def;
+				delta_t_str = delta_t_usr_def;
 			}
 		}
 		else
@@ -4271,50 +4270,50 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
 	}
 	else if (TG_strcasecmp(conf.event_prop.per_event.period,NotANumber) == 0)
 	{
-        bool found = prop_in_list("event_period",tmp_event_period,nb_class,def_class_prop);
+		bool found = prop_in_list("event_period",tmp_event_period,nb_class,def_class_prop);
 		if (found == false)
 		{
-            found = prop_in_list("event_period",tmp_event_period,nb_user,def_user_prop);
-            if (found == false)
-                ext->event_period = DEFAULT_EVENT_PERIOD;
-            else
-            {
-                str.str("");
-                str.clear();
-                str << tmp_event_period;
-                double db;
-                if (!(str >> db && str.eof()))
-                    throw_err_format("event_period",dev_name,"Attribute::set_properties()");
-                ext->event_period = (int)db;
-            }
+			found = prop_in_list("event_period",tmp_event_period,nb_user,def_user_prop);
+			if (found == false)
+				ext->event_period = DEFAULT_EVENT_PERIOD;
+			else
+			{
+				str.str("");
+				str.clear();
+				str << tmp_event_period;
+				double db;
+				if (!(str >> db && str.eof()))
+					throw_err_format("event_period",dev_name,"Attribute::set_properties()");
+				ext->event_period = (int)db;
+			}
 		}
 		else
 		{
-            str.str("");
-            str.clear();
-            str << tmp_event_period;
-            double db;
-            if (!(str >> db && str.eof()))
-                throw_err_format("event_period",dev_name,"Attribute::set_properties()");
-            ext->event_period = (int)db;
+			str.str("");
+			str.clear();
+			str << tmp_event_period;
+			double db;
+			if (!(str >> db && str.eof()))
+				throw_err_format("event_period",dev_name,"Attribute::set_properties()");
+			ext->event_period = (int)db;
 		}
 	}
 	else if (strlen(conf.event_prop.per_event.period) == 0)
 	{
 		// set user default value if defined, otherwise use the library defaults
-        bool found = prop_in_list("event_period",tmp_event_period,nb_user,def_user_prop);
-        if (found == false)
-            ext->event_period = DEFAULT_EVENT_PERIOD;
-        else
-        {
-            str.str("");
-            str.clear();
-            str << tmp_event_period;
-            double db;
-            if (!(str >> db && str.eof()))
-                throw_err_format("event_period",dev_name,"Attribute::set_properties()");
-            ext->event_period = (int)db;
-        }
+		bool found = prop_in_list("event_period",tmp_event_period,nb_user,def_user_prop);
+		if (found == false)
+			ext->event_period = DEFAULT_EVENT_PERIOD;
+		else
+		{
+			str.str("");
+			str.clear();
+			str << tmp_event_period;
+			double db;
+			if (!(str >> db && str.eof()))
+				throw_err_format("event_period",dev_name,"Attribute::set_properties()");
+			ext->event_period = (int)db;
+		}
 	}
 	else
 	{
@@ -4348,47 +4347,47 @@ void Attribute::set_properties(const Tango::AttributeConfig_3 &conf,string &dev_
         bool found = prop_in_list("archive_period",tmp_archive_period,nb_class,def_class_prop);
 		if (found == false)
 		{
-            found = prop_in_list("archive_period",tmp_archive_period,nb_user,def_user_prop);
-            if (found == false)
-                ext->archive_period = DEFAULT_EVENT_PERIOD;
-            else
-            {
-                str.str("");
-                str.clear();
-                str << tmp_archive_period;
-                double db;
-                if (!(str >> db && str.eof()))
-                    throw_err_format("archive_period",dev_name,"Attribute::set_properties()");
-                ext->archive_period = (int)db;
-            }
+			found = prop_in_list("archive_period",tmp_archive_period,nb_user,def_user_prop);
+			if (found == false)
+				ext->archive_period = DEFAULT_EVENT_PERIOD;
+			else
+			{
+				str.str("");
+				str.clear();
+				str << tmp_archive_period;
+				double db;
+				if (!(str >> db && str.eof()))
+					throw_err_format("archive_period",dev_name,"Attribute::set_properties()");
+				ext->archive_period = (int)db;
+			}
 		}
 		else
 		{
-            str.str("");
-            str.clear();
-            str << tmp_archive_period;
-            double db;
-            if (!(str >> db && str.eof()))
-                throw_err_format("archive_period",dev_name,"Attribute::set_properties()");
-            ext->archive_period = (int)db;
+			str.str("");
+			str.clear();
+			str << tmp_archive_period;
+			double db;
+			if (!(str >> db && str.eof()))
+				throw_err_format("archive_period",dev_name,"Attribute::set_properties()");
+			ext->archive_period = (int)db;
 		}
 	}
-    else if (strlen(conf.event_prop.arch_event.period) == 0)
+	else if (strlen(conf.event_prop.arch_event.period) == 0)
 	{
 		// set user default value if defined, otherwise use the library defaults
-        bool found = prop_in_list("archive_period",tmp_archive_period,nb_user,def_user_prop);
-        if (found == false)
-            ext->event_period = DEFAULT_EVENT_PERIOD;
-        else
-        {
-            str.str("");
-            str.clear();
-            str << tmp_archive_period;
-            double db;
-            if (!(str >> db && str.eof()))
-                throw_err_format("archive_period",dev_name,"Attribute::set_properties()");
-            ext->archive_period = (int)db;
-        }
+		bool found = prop_in_list("archive_period",tmp_archive_period,nb_user,def_user_prop);
+		if (found == false)
+			ext->event_period = DEFAULT_EVENT_PERIOD;
+		else
+		{
+			str.str("");
+			str.clear();
+			str << tmp_archive_period;
+			double db;
+			if (!(str >> db && str.eof()))
+				throw_err_format("archive_period",dev_name,"Attribute::set_properties()");
+			ext->archive_period = (int)db;
+		}
 	}
 	else
 	{
