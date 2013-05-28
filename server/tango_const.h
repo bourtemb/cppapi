@@ -75,7 +75,7 @@ namespace Tango
 #define		PollCommand				"command"
 #define		PollAttribute			"attribute"
 
-#define		MIN_POLL_PERIOD			20
+#define		MIN_POLL_PERIOD			5
 #define		DELTA_T					1002000000
 #define		MIN_DELTA_WORK			20000
 #define		TIME_HEARTBEAT			2000
@@ -933,6 +933,7 @@ typedef struct _SendEventType
 #define		FormatNotSpec_FL	"%6.2f"
 #define		FormatNotSpec_INT	"%d"
 #define		FormatNotSpec_STR	"%s"
+#define		FormatNotSpec		FormatNotSpec_FL
 
 #define		NotANumber			"NaN"
 

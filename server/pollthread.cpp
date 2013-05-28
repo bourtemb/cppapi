@@ -1014,11 +1014,11 @@ void PollThread::tune_list(bool from_needed, long min_delta)
 // that we will have computation on unsigned 64 bits data
 //
 // To tune the list
-// - Take obj n and compute when it shoul dbe polled (next_work)
-// - Compute when object n-1 should be polled (prev_obj_work)
+// - Take obj j and compute when it should be polled (next_work)
+// - Compute when object j-1 should be polled (prev_obj_work)
 // - Compute the number of poll between these two dates (n)
 // - Compute date of previous object polling just before "next_work"
-// - Assign next_work to this date added
+// - Assign next_work to this date and add
 //       the time needed to execute previous object polling
 //		 the delta computed from the smallest upd and the obj number
 //
