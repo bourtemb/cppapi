@@ -46,6 +46,8 @@ namespace Tango
 #define     TANGO_VERSION_MINOR     1
 #define     TANGO_VERSION_PATCH     2
 
+#define		TANGO_BASE_CLASS		Tango::Device_4Impl
+
 #define     build_string(s)         #s
 #define     xbuild_string(s)        build_string(s)
 #define     TgLibVers               xbuild_string(TANGO_VERSION_MAJOR.TANGO_VERSION_MINOR.TANGO_VERSION_PATCH)
