@@ -73,8 +73,8 @@ void client_leavefunc();
 class EventData
 {
 public :
-	EventData(DeviceProxy *dev,string &nam,string &evt,Tango::DeviceAttribute *attr_value_in,
-	DevErrorList &errors_in);
+	EventData() {}
+	EventData(DeviceProxy *dev,string &nam,string &evt,Tango::DeviceAttribute *attr_value_in,DevErrorList &errors_in);
 	~EventData();
 	EventData(const EventData &);
 	EventData & operator=(const EventData &);
@@ -140,6 +140,7 @@ public:
 class AttrConfEventData
 {
 public :
+	AttrConfEventData() {}
 	AttrConfEventData(DeviceProxy *dev,string &nam,string &evt,
 	                  Tango::AttributeInfoEx *attr_conf_in,
 	                  DevErrorList &errors_in);
@@ -208,6 +209,7 @@ public:
 class DataReadyEventData
 {
 public :
+	DataReadyEventData() {}
 	DataReadyEventData(DeviceProxy *,AttDataReady *,string &evt,DevErrorList &);
 	~DataReadyEventData() {};
 	DataReadyEventData(const DataReadyEventData &);
