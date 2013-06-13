@@ -4429,7 +4429,10 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 		catch (Tango::ConnectionFailed &e)
 		{
 			if (already_deleted == false)
+			{
 				delete dev_attr;
+				already_deleted = true;
+			}
 
 			TangoSys_OMemStream desc;
 			desc << "Failed to read_attributes on device " << device_name;
@@ -4448,7 +4451,10 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 		catch (Tango::DevFailed &e)
 		{
 			if (already_deleted == false)
+			{
 				delete dev_attr;
+				already_deleted = true;
+			}
 
 			TangoSys_OMemStream desc;
 			desc << "Failed to read_attributes on device " << device_name;
@@ -4468,8 +4474,11 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 		{
 			if ((trans.minor() == omni::TRANSIENT_CallTimedout) || (ctr == 1))
 			{
-				delete dev_attr;
-				already_deleted = true;
+				if (already_deleted == false)
+				{
+					delete dev_attr;
+					already_deleted = true;
+				}
 			}
 			TRANSIENT_NOT_EXIST_EXCEPT(trans,"DeviceProxy","read_attributes");
 		}
@@ -4477,13 +4486,20 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 		{
 			if (one.minor() == omni::OBJECT_NOT_EXIST_NoMatch || one.minor() == 0)
 			{
-				if (ctr == 1)
+				if (ctr == 1 && already_deleted == false)
+				{
 					delete dev_attr;
+					already_deleted = true;
+				}
 				TRANSIENT_NOT_EXIST_EXCEPT(one,"DeviceProxy","read_attributes");
 			}
 			else
 			{
-				delete dev_attr;
+				if (already_deleted == false)
+				{
+					delete dev_attr;
+					already_deleted = true;
+				}
 
 				set_connection_state(CONNECTION_NOTOK);
 				TangoSys_OMemStream desc;
@@ -4498,13 +4514,20 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 		{
 			if (comm.minor() == omni::COMM_FAILURE_WaitingForReply)
 			{
-				if (ctr == 1)
+				if (ctr == 1 && already_deleted == false)
+				{
 					delete dev_attr;
+					already_deleted = true;
+				}
 				TRANSIENT_NOT_EXIST_EXCEPT(comm,"DeviceProxy","read_attributes");
 			}
 			else
 			{
-				delete dev_attr;
+				if (already_deleted == false)
+				{
+					delete dev_attr;
+					already_deleted = true;
+				}
 
 				set_connection_state(CONNECTION_NOTOK);
 				TangoSys_OMemStream desc;
@@ -4517,7 +4540,11 @@ vector<DeviceAttribute> *DeviceProxy::read_attributes(vector<string>& attr_strin
 		}
         catch (CORBA::SystemException &ce)
         {
-			delete dev_attr;
+			if (already_deleted == false)
+			{
+				delete dev_attr;
+				already_deleted = true;
+			}
 
 			set_connection_state(CONNECTION_NOTOK);
 			TangoSys_OMemStream desc;
